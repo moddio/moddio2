@@ -220,6 +220,8 @@ class PhaserUnit extends PhaserAnimatedEntity {
 	}
 
 	protected destroy (): void {
+		this.scene.tweens.killTweensOf([this.label, this.attributesContainer, this.chat]);
+
 		if (this.chat) {
 			this.chat.destroy();
 			this.chat = null;
