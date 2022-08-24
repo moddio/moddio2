@@ -4213,7 +4213,17 @@ var IgeEntity = IgeObject.extend({
 					} else if (ige.isClient) {
 						switch (attrName) {
 							case 'stateId':
-								// console.log('stateId', this.id(), this._stats.name, newValue);
+								if (this._category === 'unit') {
+									var stateId = newValue;
+									if (ige.isClient) {
+										this.setState(stateId);
+										this.updateLayer();
+										console.log ('case stateId applyAnimationForState from streamUpdate');
+										this.applyAnimationForState(newValue);
+										this._scaleTexture();
+										this.scaleDimensions(this._stats.width, this._stats.height);
+									}
+								}
 								break;
 							case 'effect':
 								// don't use streamed effect call for my own unit or its items

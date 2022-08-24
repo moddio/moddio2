@@ -1417,7 +1417,7 @@ var Unit = IgeEntityPhysics.extend({
 						}
 						break;
 
-					case 'stateId':
+					/*case 'stateId':
 						var stateId = newValue;
 						if (ige.isClient) {
 							this.setState(stateId);
@@ -1426,7 +1426,7 @@ var Unit = IgeEntityPhysics.extend({
 							this._scaleTexture();
 							this.scaleDimensions(this._stats.width, this._stats.height);
 						}
-						break;
+						break;*/
 
 					case 'scale':
 						if (ige.isClient) {
