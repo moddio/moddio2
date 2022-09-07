@@ -2,7 +2,6 @@
  * The client-side chat component. Handles all client-side
  * chat methods and events.
  */
-var openChatBubble = {};
 var IgeChatClient = {
 	/**
 	 * Asks the serve to let us join the room specified.
@@ -53,28 +52,9 @@ var IgeChatClient = {
 			if (player) {
 				var selectedUnit = player.getSelectedUnit();
 
-				if (selectedUnit && selectedUnit.gluedEntities) {
-					// destroy existing chat bubble if it exists
-					for (var i = 0; i < selectedUnit.gluedEntities.length; i++) {
-						var gluedEntity = selectedUnit.gluedEntities[i];
-						if (gluedEntity.type === 'chatBubble') {
-							var igeEntity = ige.$(gluedEntity.id);
-
-							if (igeEntity) {
-								igeEntity.destroy();
-							}
-						}
-					}
-
-					if (openChatBubble[selectedUnit.id()] && selectedUnit._category === 'unit') {
-						openChatBubble[selectedUnit.id()].destroy();
-						delete openChatBubble[selectedUnit.id()];
-					}
-					openChatBubble[selectedUnit.id()] = new IgePixiChatBubble(data.text, {
-						parentUnit: selectedUnit.id()
-					})
-						.fade(3000);
-				}	
+				if (selectedUnit) {
+					selectedUnit.emit('render-chat-bubble', data.text);
+				}
 			}
 						
 		}
@@ -146,4 +126,6 @@ var IgeChatClient = {
 	}
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeChatClient; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeChatClient;
+}

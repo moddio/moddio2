@@ -98,7 +98,7 @@ const PhysicsComponent = IgeEventingClass.extend({
 						// i am
 						filterCategoryBits: 0x0001,
 						// i collide with everything except other walls
-						filterMaskBits: 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020
+						filterMaskBits: 0x0002 /*| 0x0004*/ | 0x0008 | 0x0010 | 0x0020
 					},
 				}]
 			},
@@ -288,7 +288,7 @@ const PhysicsComponent = IgeEventingClass.extend({
 							// i am
 							filterCategoryBits: 0x0001,
 							// i collide with everything except other walls
-							filterMaskBits: 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020
+							filterMaskBits: 0x0002 /*| 0x0004*/ | 0x0008 | 0x0010 | 0x0020
 						},
 						igeId: wall.id()
 					}]

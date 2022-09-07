@@ -3,15 +3,30 @@ declare class IgeEngine extends IgeClass {
 	_renderFrames: number;
 	_tickStart: number;
 
+	_currentTime: number;
+	_cullCounter: number;
+
+	env: string;
+
 	isClient: boolean;
 	isServer: boolean;
+
+	isMobile: boolean;
 
 	client: Client;
 	server: Client;
 
+	network: IgeNetIoComponent;
+
 	input: IgeInputComponent;
 
-	pixi: IgeInitPixi;
+	mobileControls: MobileControlsComponent;
+
+	gameLoopTickHasExecuted: boolean;
+
+	game: GameComponent;
+
+	renderer: PhaserRenderer;
 
 	scaleMapDetails: {
 		scaleFactor: {
@@ -25,21 +40,14 @@ declare class IgeEngine extends IgeClass {
 		originalTileWidth: number;
 	};
 
-	constructor(options: object);
-
-	createFrontBuffer (autoSize: boolean, dontScale?: boolean): void
-	engineStep (): void;
-
 	lastTickTime: number;
 
 	entitiesToRender: EntitiesToRender;
 
-	_currentTime: number;
-	_cullCounter: number;
+	constructor(options: object);
 
-	network: any; //IgeNetIoComponent?
-
-	gameLoopTickHasExecuted: boolean;
+	createFrontBuffer (autoSize: boolean, dontScale?: boolean): void
+	engineStep (): void;
 
 	$ (item: number | string | object): any;
 }

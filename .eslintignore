@@ -3,7 +3,6 @@
 
 # Don't lint minified libs.
 src/lib/
-src/pixi/pixi-legacy.js
 
 # Compiled source.
 client.js

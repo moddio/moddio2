@@ -25,12 +25,8 @@ var igeCoreConfig = {
 		['csap', 'IgeTweenComponent', 'components/IgeTweenComponent.js'],
 		['csap', 'IgePathComponent', 'components/IgePathComponent.js'],
 		['csap', 'IgeInputComponent', 'components/IgeInputComponent.js'],
-		['csap', 'IgeGamePadComponent', 'components/IgeGamePadComponent.js'],
-		['csap', 'IgeMousePanComponent', 'components/IgeMousePanComponent.js'],
-		['csap', 'IgeMouseZoomComponent', 'components/IgeMouseZoomComponent.js'],
 		['csap', 'IgeTiledComponent', 'components/IgeTiledComponent.js'],
 		['csap', 'IgeUiManagerComponent', 'components/IgeUiManagerComponent.js'],
-		['csap', 'IgeEditorComponent', 'components/editor/IgeEditorComponent.js'],
 		/* Network Stream */
 		['csap', 'IgeTimeSyncExtension', 'components/network/IgeTimeSyncExtension.js'],
 		['csap', 'IgeStreamComponent', 'components/network/stream/IgeStreamComponent.js'],
@@ -137,4 +133,6 @@ var igeCoreConfig = {
 	]
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = igeCoreConfig; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = igeCoreConfig;
+}

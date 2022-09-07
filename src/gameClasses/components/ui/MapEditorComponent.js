@@ -57,7 +57,7 @@ var MapEditorComponent = IgeEntity.extend({
 
 		$('#entity-delete').on('click', function (e) {
 			e.preventDefault();
-			var index = $('[name=entity-index').val();
+			var index = $('[name=entity-index]').val();
 			self.upsertMapEntities({}, parseInt(index), 'delete');
 		});
 		$('#entities-form').on('submit', function (e) {
@@ -371,7 +371,7 @@ var MapEditorComponent = IgeEntity.extend({
 		var miniMapScale = 0.05;
 		var self = this;
 		self.divExcludedFromPaintingTileIds = ['eraser', 'brush', 'add_region', 'fill', 'gameEditor_buttons', 'gameEditor_menu', 'editor-div', 'layer_menu'];
-		self.layersIds = ['li_trees_list', 'li_debris_list', 'li_walls_list', 'li_floor2_list', 'li_floor_list', 'layer_menu', 'li_floor', 'li_trees', 'li_debris', 'li_walls', 'li_floor2'];
+		self.layersIds = ['li_trees_list', 'li_walls_list', 'li_floor2_list', 'li_floor_list', 'layer_menu', 'li_floor', 'li_trees', 'li_walls', 'li_floor2'];
 		ige.client.minimapVp = new IgeViewport()
 			.id('minimapVp')
 			.layer(7)
@@ -419,7 +419,10 @@ var MapEditorComponent = IgeEntity.extend({
 						self.positionCurTextureBox(event);
 						drawMouse = true;
 					} else {
-						if (event.which === 1 && !self.mouseDownOnMiniMap && event.target.id == 'igeFrontBuffer') {
+						var target = event.target;
+						if (event.which === 1 && !self.mouseDownOnMiniMap &&
+							target.tagName.toLowerCase() == 'canvas' &&
+							target.parentElement.id == 'game-div') {
 							self.drawingRegion = true;
 							self.drawNewRegion(event);
 						}
@@ -478,7 +481,7 @@ var MapEditorComponent = IgeEntity.extend({
 			mouseIsDown = true;
 			if (($('#mapEditor').hasClass('active')) && mouseIsDown) {
 				if (addNewRegion) {
-					if (!self.checkIfClickedMiniMap(event.pageX, event.pageY) && event.target.id == 'igeFrontBuffer') {
+					if (!self.checkIfClickedMiniMap(event.pageX, event.pageY) && event.target.parentElement.id == 'game-div') {
 						self.drawNewRegion(event);
 					}
 				} else {
@@ -597,7 +600,7 @@ var MapEditorComponent = IgeEntity.extend({
 	},
 
 	scanMapLayers: function () {
-		var defaultLayers = ['floor', 'floor2', 'trees', 'walls', 'debris'];
+		var defaultLayers = ['floor', 'floor2', 'trees', 'walls'];
 		for (var i in ige.layersById) {
 			if (!defaultLayers.includes(i)) {
 				alert(`invalid layer name ${i} detected`);
@@ -663,14 +666,11 @@ var MapEditorComponent = IgeEntity.extend({
 		var layerMenuHTML = '<div id="layer_menu" class="z-index11"><div>Layers</div><ul class="list-group">';
 		var layersByOrder = {
 			trees: '',
-			debris: '',
 			walls: '',
 			floor2: '',
 			floor: ''
 		};
 		for (var key in layersByOrder) {
-			if (key === 'debris')
-				continue;
 			var id = `li_${key}`;
 			layerMenuHTML += `<li id="${id}_list" data-layer="${key}" class="not_current list-group-item"><i id="${id}" data-layer="${key}" data-vis="0" class="fa fa-eye" aria-hidden="true"></i>${key}</li>`;
 		}
@@ -707,15 +707,9 @@ var MapEditorComponent = IgeEntity.extend({
 				$(this).siblings().removeClass('active');
 				$(this).addClass('active');
 				var layer = $(this).data('layer');
-				if (layer === 'debris') {
-					$('#eraser').addClass('hidden');
-					$('#brush').addClass('hidden');
-					$('#fill').addClass('hidden');
-				} else {
-					$('#eraser').removeClass('hidden');
-					$('#brush').removeClass('hidden');
-					$('#fill').removeClass('hidden');
-				}
+				$('#eraser').removeClass('hidden');
+				$('#brush').removeClass('hidden');
+				$('#fill').removeClass('hidden');
 				curLayerPainting = layer;
 			});
 
@@ -732,21 +726,10 @@ var MapEditorComponent = IgeEntity.extend({
 				}
 
 				var layer = $(this).data('layer');
-				if (layer === 'debris') {
-					var allDebris = ige.$$('debris');
-					allDebris.forEach(function (debris) {
-						if (val) {
-							debris.show();
-						} else {
-							debris.hide();
-						}
-					});
+				if (typeof ige.layersById[layer].opacity === 'function') {
+					ige.layersById[layer].opacity(val);
 				} else {
-					if (typeof ige.layersById[layer].opacity === 'function') {
-						ige.layersById[layer].opacity(val);
-					} else {
-						ige.layersById[layer].opacity = val;
-					}
+					ige.layersById[layer].opacity = val;
 				}
 			});
 		}

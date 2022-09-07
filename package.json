@@ -42,6 +42,7 @@
     "mixpanel": "^0.17.0",
     "msgpack-lite": "^0.1.26",
     "phaser": "^3.55.2",
+    "phaser3-rex-plugins": "1.1.70",
     "public-ip": "^2.5.0",
     "q": "^1.5.1",
     "rate-limiter-flexible": "^2.3.7",
@@ -54,6 +55,8 @@
   "devDependencies": {
     "@babel/core": "^7.18.9",
     "@babel/eslint-parser": "^7.18.9",
+    "@types/google.analytics": "^0.0.42",
+    "@types/jquery": "2.0.46",
     "@types/node": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^5.30.7",
     "@typescript-eslint/parser": "^5.30.7",

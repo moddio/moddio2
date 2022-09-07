@@ -3,7 +3,7 @@ var ActionComponent = IgeEntity.extend({
 	componentId: 'action',
 
 	init: function () {
-		this.entityCategories = ['unit', 'item', 'projectile', 'debris', 'region', 'wall'];
+		this.entityCategories = ['unit', 'item', 'projectile', 'region', 'wall'];
 	},
 
 	// entity can be either trigger entity, or entity in loop
@@ -123,19 +123,24 @@ var ActionComponent = IgeEntity.extend({
 
 					case 'transformRegionDimensions':
 						var region = ige.variable.getValue(action.region, vars);
+						// regionId seems like unnecessary stream data
 						var regionId = action.region.variableName;
 						if (region) {
 							var x = ige.variable.getValue(action.x, vars);
 							var y = ige.variable.getValue(action.y, vars);
 							var width = ige.variable.getValue(action.width, vars);
 							var height = ige.variable.getValue(action.height, vars);
+							// this change makes it so we don't stream data that is unchanged
+							var data = [
+								{ x: x !== region._stats.default.x ? x : null },
+								{ y: y !== region._stats.default.y ? y : null },
+								{ width: width !== region._stats.default.width ? width : null },
+								{ height: height !== region._stats.default.height ? height : null }
+							];
+							// there's gotta be a better way to do this, i'm just blind right now
+							data = data.filter(obj => obj[Object.keys(obj)[0]] !== null);
 
-							region.streamUpdateData([
-								{ x: x },
-								{ y: y },
-								{ width: width },
-								{ height: height }
-							]);
+							region.streamUpdateData(data);
 						}
 
 						break;
@@ -758,30 +763,6 @@ var ActionComponent = IgeEntity.extend({
 						}
 						break;
 
-					case 'forAllDebris':
-						if (action.debrisGroup) {
-							if (!vars) {
-								vars = {};
-							}
-							var allDebris = ige.variable.getValue(action.debrisGroup, vars) || [];
-							for (var l = 0; l < allDebris.length; l++) {
-								var debris = allDebris[l];
-								var brk = self.run(action.actions, Object.assign(vars, { selectedDebris: debris }));
-
-								if (brk == 'break' || vars.break) {
-									vars.break = false;
-									ige.devLog('break called');
-									break;
-								} else if (brk == 'continue') {
-									continue;
-								} else if (brk == 'return') {
-									ige.devLog('return without executing script');
-									return 'return';
-								}
-							}
-						}
-						break;
-
 					case 'forAllEntities':
 						if (action.entityGroup) {
 							if (!vars) {
@@ -1075,11 +1056,6 @@ var ActionComponent = IgeEntity.extend({
 						if (unit && unit._stats) {
 							unit.streamUpdateData([{ isStunned: false }]);
 						}
-						break;
-
-					case 'resetDebrisPosition':
-						if (entity && entity._category == 'debris')
-							entity.resetPosition();
 						break;
 
 					case 'setEntityVelocityAtAngle':
@@ -1599,8 +1575,6 @@ var ActionComponent = IgeEntity.extend({
 							}
 						}
 						break;
-
-						/* debris */
 
 						/* Camera */
 					case 'playerCameraTrackUnit':
@@ -2266,10 +2240,6 @@ var ActionComponent = IgeEntity.extend({
 						break;
 					case 'destroyEntity':
 						var entity = ige.variable.getValue(action.entity, vars);
-
-						if (this._category == 'item' && this._stats.name == 'Floaty') {
-							console.trace()
-						}
 
 						if (entity && self.entityCategories.indexOf(entity._category) > -1) {
 							entity.remove();

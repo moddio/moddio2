@@ -129,21 +129,12 @@ var ClientNetworkEvents = {
 		}
 	},
 	_onCreateFloatingText: function (data) {
-		new IgePixiFloatingText(data.text, {
-			shouldBeBold: false,
-			isFadeUp: true,
-			parent: ige.pixi.world,
-			translate: {
-				x: data.position.x,
-				y: data.position.y
-			}
-		})
-			.layer(3)
-			.depth(3)
-			.colorOverlay(data.color || 'white')
-			.transformTexture(data.position.x, data.position.y)
-			.mount(ige.pixi.world)
-			.fadeUp();
+		ige.client.emit('floating-text', {
+			text: data.text,
+			x: data.position.x,
+			y: data.position.y,
+			color: data.color || 'white'
+		});
 	},
 
 	_onOpenDialogue: function (data) {
@@ -592,26 +583,6 @@ var ClientNetworkEvents = {
 			$('#more-games').removeClass('slidedown-menu-animation').addClass('slideup-menu-animation');
 		} else if (data && data.type == 'hide') {
 			$('#more-games').removeClass('slideup-menu-animation').addClass('slidedown-menu-animation');
-		}
-	},
-
-	_onMinimapEvent: function (data) {
-		if (data) {
-			switch (data.type) {
-				case 'showUnit':
-					var unit = ige.$(data.unitId);
-					if (unit) {
-						unit.showMinimapUnit(data.color);
-					}
-					break;
-
-				case 'hideUnit':
-					var unit = ige.$(data.unitId);
-					if (unit) {
-						unit.hideMinimapUnit();
-					}
-					break;
-			}
 		}
 	}
 };

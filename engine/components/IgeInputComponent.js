@@ -209,35 +209,76 @@ var IgeInputComponent = IgeEventingClass.extend({
 
 		// Define event functions and keep references for later removal
 		this._evRef = {
-			mousedown: function (event) { event.igeType = 'mouse'; self._rationalise(event, undefined, true); self._mouseDown(event); },
-			mouseup: function (event) { event.igeType = 'mouse'; self._rationalise(event); self._mouseUp(event); },
-			mousemove: function (event) { event.igeType = 'mouse'; self._rationalise(event); self._mouseMove(event); },
-			mousewheel: function (event) { event.igeType = 'mouse'; self._rationalise(event); self._mouseWheel(event); },
+			mousedown: function (event) {
+				event.igeType = 'mouse';
+				self._rationalise(event, undefined, true);
+				self._mouseDown(event);
+			},
+			mouseup: function (event) {
+				event.igeType = 'mouse';
+				self._rationalise(event);
+				self._mouseUp(event);
+			},
+			mousemove: function (event) {
+				event.igeType = 'mouse';
+				self._rationalise(event);
+				self._mouseMove(event);
+			},
+			mousewheel: function (event) {
+				event.igeType = 'mouse';
+				self._rationalise(event);
+				self._mouseWheel(event);
+			},
 
-			touchmove: function (event) { event.igeType = 'touch'; self._rationalise(event, true); self._mouseMove(event); },
-			touchstart: function (event) { event.igeType = 'touch'; self._rationalise(event, true); self._mouseDown(event); },
-			touchend: function (event) { event.igeType = 'touch'; self._rationalise(event, true); self._mouseUp(event); },
+			touchmove: function (event) {
+				event.igeType = 'touch';
+				self._rationalise(event, true);
+				self._mouseMove(event);
+			},
+			touchstart: function (event) {
+				event.igeType = 'touch';
+				self._rationalise(event, true);
+				self._mouseDown(event);
+			},
+			touchend: function (event) {
+				event.igeType = 'touch';
+				self._rationalise(event, true);
+				self._mouseUp(event);
+			},
 
-			contextmenu: function (event) { event.preventDefault(); event.igeType = 'mouse'; self._rationalise(event); self._contextMenu(event); },
+			contextmenu: function (event) {
+				event.preventDefault();
+				event.igeType = 'mouse';
+				self._rationalise(event);
+				self._contextMenu(event);
+			},
 
-			keydown: function (event) { event.igeType = 'key'; self._rationalise(event); self._keyDown(event); },
-			keyup: function (event) { event.igeType = 'key'; self._rationalise(event); self._keyUp(event); }
+			keydown: function (event) {
+				event.igeType = 'key';
+				self._rationalise(event);
+				self._keyDown(event);
+			},
+			keyup: function (event) {
+				event.igeType = 'key';
+				self._rationalise(event);
+				self._keyUp(event);
+			}
 		};
 
 		// Listen for mouse events
 		window.addEventListener('mousedown', this._evRef.mousedown, false);
 		window.addEventListener('mouseup', this._evRef.mouseup, false);
 
-		this._canvas.addEventListener('mousemove', this._evRef.mousemove, false);
-		this._canvas.addEventListener('mousewheel', this._evRef.mousewheel, false);
+		canvas.addEventListener('mousemove', this._evRef.mousemove, false);
+		canvas.addEventListener('mousewheel', this._evRef.mousewheel, false);
 
 		// Touch events
-		this._canvas.addEventListener('touchmove', this._evRef.touchmove, false);
-		this._canvas.addEventListener('touchstart', this._evRef.touchstart, false);
-		this._canvas.addEventListener('touchend', this._evRef.touchend, false);
+		canvas.addEventListener('touchmove', this._evRef.touchmove, false);
+		canvas.addEventListener('touchstart', this._evRef.touchstart, false);
+		canvas.addEventListener('touchend', this._evRef.touchend, false);
 
 		// Kill the context menu on right-click, urgh!
-		this._canvas.addEventListener('contextmenu', this._evRef.contextmenu, false);
+		canvas.addEventListener('contextmenu', this._evRef.contextmenu, false);
 
 		// Listen for keyboard events
 		window.addEventListener('keydown', this._evRef.keydown, false);
@@ -251,18 +292,18 @@ var IgeInputComponent = IgeEventingClass.extend({
 		var canvas = this._canvas;
 
 		// Listen for mouse events
-		this._canvas.removeEventListener('mousedown', this._evRef.mousedown, false);
-		this._canvas.removeEventListener('mouseup', this._evRef.mouseup, false);
-		this._canvas.removeEventListener('mousemove', this._evRef.mousemove, false);
-		this._canvas.removeEventListener('mousewheel', this._evRef.mousewheel, false);
+		canvas.removeEventListener('mousedown', this._evRef.mousedown, false);
+		canvas.removeEventListener('mouseup', this._evRef.mouseup, false);
+		canvas.removeEventListener('mousemove', this._evRef.mousemove, false);
+		canvas.removeEventListener('mousewheel', this._evRef.mousewheel, false);
 
 		// Touch events
-		this._canvas.removeEventListener('touchmove', this._evRef.touchmove, false);
-		this._canvas.removeEventListener('touchstart', this._evRef.touchstart, false);
-		this._canvas.removeEventListener('touchend', this._evRef.touchend, false);
+		canvas.removeEventListener('touchmove', this._evRef.touchmove, false);
+		canvas.removeEventListener('touchstart', this._evRef.touchstart, false);
+		canvas.removeEventListener('touchend', this._evRef.touchend, false);
 
 		// Kill the context menu on right-click, urgh!
-		this._canvas.removeEventListener('contextmenu', this._evRef.contextmenu, false);
+		canvas.removeEventListener('contextmenu', this._evRef.contextmenu, false);
 
 		// Listen for keyboard events
 		window.removeEventListener('keydown', this._evRef.keydown, false);
@@ -333,8 +374,8 @@ var IgeInputComponent = IgeEventingClass.extend({
 			event.igePageY = event.pageY;
 		}
 
-		event.igeX = (event.igePageX - ige._canvasPosition().left);
-		event.igeY = (event.igePageY - ige._canvasPosition().top);
+		event.igeX = event.igePageX;
+		event.igeY = event.igePageY;
 
 		this.emit('inputEvent', event);
 	},
@@ -828,7 +869,9 @@ var IgeInputComponent = IgeEventingClass.extend({
 						tempEvt = this._eventListeners[eventName][eventIndex];
 
 						// If the sendEventName flag is set, overwrite the arguments with the event name
-						if (tempEvt.sendEventName) { finalArgs = [eventName]; }
+						if (tempEvt.sendEventName) {
+							finalArgs = [eventName];
+						}
 
 						// Call the callback
 						retVal = tempEvt.call.apply(tempEvt.context || this, finalArgs);
@@ -860,4 +903,6 @@ var IgeInputComponent = IgeEventingClass.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeInputComponent; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeInputComponent;
+}

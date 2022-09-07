@@ -132,7 +132,6 @@ var ItemComponent = IgeEntity.extend({
 									itemStats[buffTypeName] = parseFloat(itemStats[buffTypeName] + buffValue);
 									break;
 
-								case 'canPushDebris':
 								case 'canPenetrate':
 									// console.log(itemStats.handle, "buff", buffTypeName, itemStats[buffTypeName], buffValue, itemStats[buffTypeName] + buffValue)
 									itemStats[buffTypeName] = true;

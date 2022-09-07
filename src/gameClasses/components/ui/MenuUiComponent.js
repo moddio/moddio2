@@ -36,7 +36,8 @@ var MenuUiComponent = IgeEntity.extend({
 
 			$('#resolution-low').on('click', function () {
 				// setting 640x480 resolution as low resolution
-				if ($('#igeFrontBuffer').attr('width') != 640 && $('#igeFrontBuffer').attr('height') != 480) {
+				var canvas = $('#game-div canvas');
+				if (canvas.attr('width') != 640 && canvas.attr('height') != 480) {
 					localStorage.setItem('resolution', 'low');
 					self.setResolution();
 					if (typeof incrLowResolution === 'function') {
@@ -142,7 +143,7 @@ var MenuUiComponent = IgeEntity.extend({
 			$('#server-list').on('change', function () {
 				var gameSlug = $(this).attr('game-slug');
 				ige.client.gameSlug = gameSlug;
-				const serverListOptions = document.querySelector("#server-list > option")
+				const serverListOptions = document.querySelector('#server-list > option');
 				if (serverListOptions.length !== ige.client.servers.length) {
 					// server options have been added/removed dynamically
 					// refresh the server list
@@ -577,18 +578,8 @@ var MenuUiComponent = IgeEntity.extend({
 			}
 			$('#modd-shop-modal').css({ fontSize: 11 });
 			// hide mobile controls
-			var allControls = ige.mobileControls.controls;
-			if (allControls) {
-				for (var k in allControls) {
-					var control = allControls[k];
-					control && control.opacity && control.opacity(isMenuVisible ? 0 : 0.5);
-				}
-			}
-
-			// hide minimap here by setting width to 0
-			if (ige.miniMap && ige.miniMap.miniMap) {
-				var newWidth = isMenuVisible ? 0 : ige.miniMap.maxMapDimension.width;
-				ige.miniMap.miniMap.width(newWidth);
+			if (ige.mobileControls) {
+				ige.mobileControls.setVisible(!isMenuVisible);
 			}
 		}
 	},
@@ -680,13 +671,11 @@ var MenuUiComponent = IgeEntity.extend({
 		if (resolution == 'high') {
 			ige.client.resolutionQuality = 'high';
 			ige._resizeEvent();
-			ige.miniMap.updateMiniMap();
 			$('#resolution-high').addClass('btn-success').removeClass('btn-light');
 			$('#resolution-low').removeClass('btn-success').addClass('btn-light');
 		} else {
 			ige.client.resolutionQuality = 'low';
 			ige._resizeEvent();
-			ige.miniMap.updateMiniMap();
 			$('#resolution-low').addClass('btn-success').removeClass('btn-light');
 			$('#resolution-high').removeClass('btn-success').addClass('btn-light');
 		}

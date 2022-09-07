@@ -27,12 +27,6 @@ const IgeEntityPhysics = IgeEntity.extend({
 			this.rotateTo = this._rotateTo;
 			this.rotateBy = this._rotateBy;
 		}
-
-		if (ige.isClient) {
-			self.addComponent(IgePixiTexture);
-			self.addComponent(IgePixiAnimation);
-			// self.addComponent(IgePixiCollider);
-		}
 	},
 
 	updateBody: function (defaultData, isLossTolerant) {
@@ -49,9 +43,7 @@ const IgeEntityPhysics = IgeEntity.extend({
 				self.destroyBody();
 				this.body = body;
 				return;
-			}
-
-			else if (body.type == 'dynamic') {
+			} else if (body.type == 'dynamic') {
 				this.crashActive(true);
 				this.crashBody.update();
 			}
@@ -63,8 +55,6 @@ const IgeEntityPhysics = IgeEntity.extend({
 		let filterCategoryBits = 0x0002;
 		if (this._category === 'units') {
 			filterCategoryBits = 0x0002;
-		} else if (this._category === 'debris') {
-			filterCategoryBits = 0x0004;
 		} else if (this._category === 'item') {
 			filterCategoryBits = 0x0008;
 		} else if (this._category === 'projectile') {
@@ -95,7 +85,6 @@ const IgeEntityPhysics = IgeEntity.extend({
 					filterCategoryBits: filterCategoryBits,
 					filterMaskBits: ((collidesWith.walls) ? 0x0001 : 0) |
 						((collidesWith.units) ? 0x0002 : 0) |
-						((collidesWith.debris) ? 0x0004 : 0) |
 						((collidesWith.items) ? 0x0008 : 0) |
 						((collidesWith.projectiles) ? 0x0010 : 0) |
 						((this._category != 'sensor') ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
@@ -255,7 +244,7 @@ const IgeEntityPhysics = IgeEntity.extend({
 
 	// move entity in front of the unit, and then create joint between them
 	attachTo: function (entityB, anchorA, anchorB) {
-		console.log('attach entity is not working now')
+		console.log('attach entity is not working now');
 		// Check if the entity has a box2d body attached
 		// and if so, is it updating or not
 		for (entityId in this.jointsAttached) {
@@ -265,14 +254,14 @@ const IgeEntityPhysics = IgeEntity.extend({
 	},
 
 	detachEntity: function (entityId) {
-		console.log('detach entity is not working now')
+		console.log('detach entity is not working now');
 		/*var attachedEntity = ige.$(entityId);
 		if (entityId && attachedEntity) {
 		}*/
 	},
 
 	applyTorque: function (torque) {
-		console.log('apply torque is disabled for now')
+		console.log('apply torque is disabled for now');
 		//if (ige.physics._world.isLocked() || this.body == undefined) {
 		/*} else {
 			//this.applyTorqueLT(torque);
@@ -290,12 +279,12 @@ const IgeEntityPhysics = IgeEntity.extend({
 				// }
 				this.body.setLinearVelocity(new IgePoint3d(x, y, 0));
 			}
-		} 
+		}
 	},
 
 	// lossless applyForce
 	applyForce: function (x, y) {
-		console.log('apply force is disabled for now')
+		console.log('apply force is disabled for now');
 		// if body doesn't exist yet, queue
 		/*if (!ige.physics) return;
 
@@ -306,7 +295,7 @@ const IgeEntityPhysics = IgeEntity.extend({
 
 	// lossless applyForce
 	applyImpulse: function (x, y) {
-		console.log('apply impulse is disabled for now')
+		console.log('apply impulse is disabled for now');
 		// if body doesn't exist yet, queue
 
 		/*if (!ige.physics._world.isLocked() && this.body != undefined) {
@@ -470,4 +459,6 @@ const IgeEntityPhysics = IgeEntity.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeEntityPhysics; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeEntityPhysics;
+}

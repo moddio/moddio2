@@ -107,7 +107,7 @@ var SoundComponent = IgeEntity.extend({
 		if (ige.game.data.settings && ige.game.data.settings.camera && ige.game.data.settings.camera.zoom && ige.game.data.settings.camera.zoom.default) {
 			distanceSoundShouldHeard = ige.game.data.settings.camera.zoom.default * 1.5;
 		}
-		var vpBound = ige.pixi.viewport.getVisibleBounds();
+		var vpBound = ige.renderer.getViewportBounds();
 		var myPosition = { x: vpBound.x + vpBound.width / 2, y: vpBound.y + vpBound.height / 2 };
 		var xDistance = position.x - myPosition.x;
 		var yDistance = position.y - myPosition.y;

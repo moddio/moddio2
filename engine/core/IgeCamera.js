@@ -229,11 +229,11 @@ var IgeCamera = IgeEntity.extend({
 		return this;
 	},
 
-	update: function (ctx) {
+	update: function () {
 		// Process any behaviours assigned to the camera
-		this._processUpdateBehaviours(ctx);
+		this._processUpdateBehaviours();
 
-		// Check if we are tracking the translate value of a target
+		// Check if we are tracking the translation value of a target
 		if (this._trackTranslateTarget) {
 			var targetEntity = this._trackTranslateTarget;
 			var targetMatrix = targetEntity._worldMatrix.matrix;
@@ -310,7 +310,7 @@ var IgeCamera = IgeEntity.extend({
 		if (ige.isClient && !ige.client.cameraEnabled) return;
 
 		// Process any behaviours assigned to the camera
-		this._processTickBehaviours(ctx); // commented out because of redundancy. it's already declared in IgeEntity.js (jaeyun apr 2017)
+		this._processTickBehaviours(); // commented out because of redundancy. it's already declared in IgeEntity.js (jaeyun apr 2017)
 
 		// Updated local transform matrix and then transform the context
 		this._localMatrix.transformRenderingContext(ctx);
@@ -372,4 +372,6 @@ var IgeCamera = IgeEntity.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeCamera; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeCamera;
+}

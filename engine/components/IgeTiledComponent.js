@@ -183,6 +183,8 @@ var IgeTiledComponent = IgeClass.extend({
 				};
 			};
 
+			// TODO remove image loading or entire IgeTiledComponent
+
 			// Load the tile sets as textures
 			while (tileSetCount--) {
 				// Load the image into memory first so we can read the total width and height
@@ -200,4 +202,6 @@ var IgeTiledComponent = IgeClass.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeTiledComponent; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeTiledComponent;
+}

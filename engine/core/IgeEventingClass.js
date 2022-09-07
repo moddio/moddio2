@@ -39,7 +39,6 @@ var IgeEventingClass = IgeClass.extend({
 		var eventData;
 		var eventObj;
 		var multiEventName;
-		var i;
 
 		// Check that we have an event listener object
 		this._eventListeners = this._eventListeners || {};
@@ -81,7 +80,7 @@ var IgeEventingClass = IgeClass.extend({
 					multiEvent[1] = 0; // This will hold our number of events fired
 
 					// Define the multi event callback
-					multiEvent[3] = function (firedEventName) {
+					multiEvent[3] = function () {
 						multiEvent[1]++;
 
 						if (multiEvent[0] === multiEvent[1]) {
@@ -234,7 +233,9 @@ var IgeEventingClass = IgeClass.extend({
 						tempEvt = this._eventListeners[eventName][eventIndex];
 
 						// If the sendEventName flag is set, overwrite the arguments with the event name
-						if (tempEvt.sendEventName) { finalArgs = [eventName]; }
+						if (tempEvt.sendEventName) {
+							finalArgs = [eventName];
+						}
 
 						// Call the callback
 						retVal = tempEvt.call.apply(tempEvt.context || this, finalArgs);
@@ -319,4 +320,6 @@ var IgeEventingClass = IgeClass.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeEventingClass; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeEventingClass;
+}

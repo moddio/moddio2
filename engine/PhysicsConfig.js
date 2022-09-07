@@ -52,7 +52,6 @@ var igePhysicsConfig = {
 		['csap', 'Item', '../src/gameClasses/Item.js'],
 		['csap', 'Projectile', '../src/gameClasses/Projectile.js'],
 		['csap', 'Particle', '../src/gameClasses/Particle.js'],
-		['csap', 'Debris', '../src/gameClasses/Debris.js'],
 		['csap', 'Sensor', '../src/gameClasses/Sensor.js']
 	],
 

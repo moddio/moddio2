@@ -21,7 +21,6 @@ var defaultConfig = [
 	{ name: 'Player', path: '../src/gameClasses/Player' },
 	{ name: 'Unit', path: '../src/gameClasses/Unit' },
 	{ name: 'Sensor', path: '../src/gameClasses/Sensor' },
-	{ name: 'Debris', path: '../src/gameClasses/Debris' },
 
 	{ name: 'MapComponent', path: '../src/gameClasses/components/MapComponent' },
 	{ name: 'ShopComponent', path: '../src/gameClasses/components/ShopComponent' },
@@ -34,7 +33,6 @@ var defaultConfig = [
 	{ name: 'GameTextComponent', path: '../src/gameClasses/components/ui/GameTextComponent' },
 	{ name: 'ScoreboardComponent', path: '../src/gameClasses/components/ui/ScoreboardComponent' },
 	{ name: 'AdComponent', path: '../src/gameClasses/components/ui/AdComponent' },
-	{ name: 'RegionUi', path: '../src/gameClasses/components/ui/RegionUi' },
 	{ name: 'VideoChatComponent', path: '../src/gameClasses/components/ui/VideoChatComponent' },
 	{ name: 'SoundComponent', path: '../src/gameClasses/components/SoundComponent' },
 

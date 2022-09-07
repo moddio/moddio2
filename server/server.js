@@ -122,7 +122,6 @@ var Server = IgeClass.extend({
 
 		self.bandwidthUsage = {
 			unit: 0,
-			debris: 0,
 			item: 0,
 			player: 0,
 			projectile: 0,
@@ -236,7 +235,14 @@ var Server = IgeClass.extend({
 					return reject(new Error('Could not load game'));
 				}
 
-				this.request(`${gameUrl}?num=${self.retryCount}`, (error, response, body) => {
+				this.request({
+					uri: `${gameUrl}?num=${self.retryCount}`,
+					method: 'GET',
+					headers: {
+						gs_authorization: process.env.BE_AUTH_SECRET
+					},
+					json: true
+				}, (error, response, body) => {
 					if (error) {
 						console.log('LOADING GAME-JSON ERROR', gameUrl);
 						console.log('retry #', self.retryCount);
@@ -247,7 +253,7 @@ var Server = IgeClass.extend({
 					}
 
 					if (response.statusCode == 200) {
-						return resolve(JSON.parse(body));
+						return resolve(body);
 					} else {
 						console.log('LOADING GAME-JSON ERROR', gameUrl);
 						console.log('retry #', self.retryCount);
@@ -276,7 +282,6 @@ var Server = IgeClass.extend({
 		app.use(helmet.frameguard({ action: 'DENY' }));
 
 		const FILES_TO_CACHE = [
-			'pixi-legacy.js',
 			'stats.js',
 			'dat.gui.min.js',
 			'msgpack.min.js'
@@ -297,6 +302,9 @@ var Server = IgeClass.extend({
 
 		app.use('/assets', express.static(path.resolve('./assets/'), { cacheControl: 7 * 24 * 60 * 60 * 1000 }));
 
+		// dependencies (e.g. Phaser)
+		app.use('/node_modules', express.static(path.resolve('./node_modules/')));
+
 		if (global.isDev) {
 			// needed for source maps
 			app.use('/ts', express.static(path.resolve('./ts/')));
@@ -309,7 +317,7 @@ var Server = IgeClass.extend({
 			const token = jwt.sign({ userId: '', createdAt: Date.now(), gameSlug: global.standaloneGame.defaultData.gameSlug }, process.env.JWT_SECRET_KEY, {
 				expiresIn: ige.server.TOKEN_EXPIRES_IN.toString(),
 			});
-			
+
 			const videoChatEnabled = ige.game.data && ige.game.data.defaultData && ige.game.data.defaultData.enableVideoChat ? ige.game.data.defaultData.enableVideoChat : false;
 			const game = {
 				_id: global.standaloneGame.defaultData._id,
@@ -668,7 +676,7 @@ var Server = IgeClass.extend({
 		if (ige.clusterClient) {
 			ige.clusterClient.unpublish(msg);
 		}
-		
+
 		process.exit(0);
 	},
 
@@ -703,7 +711,7 @@ var Server = IgeClass.extend({
 
 	giveCoinToUser: function (player, coin, itemName) {
 		if (coin && player._stats && player._stats.userId && (ige.game.data.defaultData.tier == 3 || ige.game.data.defaultData.tier == 4)) {
-			
+
 			ige.clusterClient && ige.clusterClient.giveCoinToUser({
 				creatorId: ige.game.data.defaultData.owner,
 				userId: player._stats.userId,
@@ -771,7 +779,6 @@ var Server = IgeClass.extend({
 					}).length,
 					unit: ige.$$('unit').length,
 					item: ige.$$('item').length,
-					debris: ige.$$('debris').length,
 					projectile: ige.$$('projectile').length,
 					sensor: ige.$$('sensor').length,
 					region: ige.$$('region').length
@@ -801,7 +808,6 @@ var Server = IgeClass.extend({
 
 			self.bandwidthUsage = {
 				unit: 0,
-				debris: 0,
 				item: 0,
 				player: 0,
 				projectile: 0,
@@ -822,7 +828,6 @@ var Server = IgeClass.extend({
 		// 			}).length,
 		// 			unit: ige.$$('unit').length,
 		// 			item: ige.$$('item').length,
-		// 			debris: ige.$$('debris').length,
 		// 			projectile: ige.$$('projectile').length,
 		// 			sensor: ige.$$('sensor').length,
 		// 			region: ige.$$('region').length
@@ -852,7 +857,6 @@ var Server = IgeClass.extend({
 
 		// 	self.bandwidthUsage = {
 		// 		unit: 0,
-		// 		debris: 0,
 		// 		item: 0,
 		// 		player: 0,
 		// 		projectile: 0,

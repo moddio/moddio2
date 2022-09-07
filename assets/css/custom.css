@@ -688,7 +688,7 @@ canvas {
   padding-right: 4rem !important;
 }
 
-#igeFrontBuffer {
+#game-div canvas {
   position: fixed;
 }
 

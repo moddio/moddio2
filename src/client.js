@@ -19,9 +19,7 @@ const Client = IgeEventingClass.extend({
 	init: function() {
 		//
 		this.data = [];
-		this.previousScore = 0;
 		this.host = window.isStandalone ? 'https://www.modd.io' : '';
-		this.loadedTextures = {};
 
 		console.log('window.location.hostname: ', window.location.hostname); // unnecessary
 
@@ -29,7 +27,6 @@ const Client = IgeEventingClass.extend({
 
 		this.entityUpdateQueue = {};
 		this.errorLogs = [];
-		this.tickAndUpdateData = {};
 
 		pathArray = window.location.href.split('/');
 
@@ -43,21 +40,16 @@ const Client = IgeEventingClass.extend({
 
 		this.igeEngineStarted = $.Deferred();
 		this.physicsConfigLoaded = $.Deferred();
-		this.texturesLoaded = $.Deferred();
 		this.mapLoaded = $.Deferred();
-
-		// after rewrite then testing, this obviously stayed 'pending' so lets comment it out for now
-		// this.miniMapLoaded = $.Deferred(); // well are we using it
+		this.rendererLoaded = $.Deferred();
 
 		this.mapRenderEnabled = true; // check where we use this
 		this.unitRenderEnabled = true; // check where we use this
-		this.itemRenderEnabled = true; // check where we use this
+		this.itemRenderEnabled = true; // Item.prototype.tick()
 		this.uiEntityRenderEnabled = true; // check where we use this
 
-		this.miniMapEnabled = false;
 		this.clearEveryFrame = true;
 		this.cameraEnabled = true;
-		this.ctxAlphaEnabled = true;
 		this.viewportClippingEnabled = true;
 
 		this.extrapolation = false; //old comment => 'disabling due to item bug'
@@ -71,7 +63,6 @@ const Client = IgeEventingClass.extend({
 		this.inactiveTabEntityStream = [];
 		this.eventLog = [];
 
-		this.fontTexture = new IgeFontSheet('/assets/fonts/verdana_12pt.png');
 		this.servers = [
 			{
 				ip: '127.0.0.1',
@@ -82,18 +73,6 @@ const Client = IgeEventingClass.extend({
 				gameId: gameId,
 				url: 'ws://localhost:2001'
 			}
-		];
-
-		this.cellSheets = {};
-
-		this.allowTickAndUpdate = [
-			'baseScene',
-			'vpMiniMap',
-			'minimapScene',
-			'objectScene',
-			'rootScene',
-			'vp1',
-			'tilelayer'
 		];
 
 		this.keysToAddBeforeRender = [
@@ -187,9 +166,9 @@ const Client = IgeEventingClass.extend({
 
 		promise.then((game) => {
 			ige.game.data = game.data;
-			// let's try here
-			ige.addComponent(IgeInitPixi);
+			ige.addComponent(IgeInputComponent);
 			ige.entitiesToRender = new EntitiesToRender();
+			ige.renderer = new PhaserRenderer();
 
 			if(!window.isStandalone){
 				this.servers = this.getServersArray();
@@ -202,7 +181,10 @@ const Client = IgeEventingClass.extend({
 
 			ige.addComponent(MenuUiComponent);
 			ige.addComponent(TradeUiComponent); // could we comment this one out?
-			ige.addComponent(MobileControlsComponent);
+
+			if (ige.isMobile) {
+				ige.addComponent(MobileControlsComponent);
+			}
 		})
 			.catch((err) => {
 				console.error(err);
@@ -213,7 +195,7 @@ const Client = IgeEventingClass.extend({
 
 		// these were under separate conditionals before. idk why.
 		if (mode == 'play') {
-			$('#igeFrontBuffer').click(() => {
+			$('#game-div canvas').click(() => {
 				$('#more-games').removeClass('slideup-menu-animation').addClass('slidedown-menu-animation');
 			});
 
@@ -295,7 +277,6 @@ const Client = IgeEventingClass.extend({
 		ige.menuUi.clipImageForShop();
 		ige.scaleMap(ige.game.data.map);
 
-		// IgePixiMap contains ige.client.mapLoaded.resolve();
 		ige.map.load(ige.game.data.map);
 	},
 
@@ -316,27 +297,8 @@ const Client = IgeEventingClass.extend({
 
 		$.when(this.physicsConfigLoaded).done(() => {
 
-			//this is a really important async chain
-			//
-			// it *was* written as a dependency for IgeEngineStart,
-			// but I don't think it was actually waiting until it was finished
-			// to fire the event
-			ige.client.loadGameTextures()
-				.then(() => {
-					//
-					// ige.map.load could not run in tandem with texture loading
-					// we could potentially speed this up by adding a second instance of pixi loader
-					// and then delete it when finished.
-					// this.loadMap(); // this runs fine here instead of in a `finally` block. Not sure it is functionally different.
+			this.startIgeEngine();
 
-					// eventually added a temporary PIXI.Loader instance to handle map so we can load in tandem.
-					// as such, moved this.loadMap() outside of this promisified chain.
-
-					this.texturesLoaded.resolve();
-				})
-				.catch((err) => {
-					console.error(err);
-				});
 			this.loadMap();
 
 			// still doing things only after physics load
@@ -360,7 +322,7 @@ const Client = IgeEventingClass.extend({
 
 			// added important configuration details for sandbox
 			if (mode == 'sandbox') {
-				$.when(this.mapLoaded)
+				$.when(this.mapLoaded, this.rendererLoaded)
 					.done(() => {
 						ige.mapEditor.scanMapLayers();
 						ige.mapEditor.drawTile();
@@ -389,10 +351,6 @@ const Client = IgeEventingClass.extend({
 				//
 				ige.addComponent(DevConsoleComponent);
 			}
-
-			// so let's try calling startIgeEngine here.
-			// depends on physics loading
-			this.startIgeEngine();
 		});
 
 		//this doesn't depend on physics config
@@ -409,11 +367,12 @@ const Client = IgeEventingClass.extend({
 		// doing these with this.igeEngineStarted.done()
 		// we can move the Deferred for mapLoaded to before engine start
 		//
-		$.when(this.igeEngineStarted, this.mapLoaded).done(() => {
+		$.when(this.igeEngineStarted, this.mapLoaded, this.rendererLoaded).done(() => {
 			// old comment => 'center camera while loading'
 			const tileWidth = ige.scaleMapDetails.tileWidth;
 			const tileHeight = ige.scaleMapDetails.tileHeight;
-
+			const params = this.getUrlVars();
+			
 			ige.client.vp1.camera.translateTo(
 				(ige.map.data.width * tileWidth) / 2,
 				(ige.map.data.height * tileHeight) /2,
@@ -444,11 +403,6 @@ const Client = IgeEventingClass.extend({
 				// old comment => 'game data is needed to populate shop
 				.addComponent(ShopComponent);
 
-			if (gameData.defaultData.enableMiniMap) {
-				//
-				ige.miniMap.createMiniMap();
-			}
-
 			ige.shop.enableShop();
 
 			//old comments => 'load sound and music when game starts'
@@ -474,125 +428,90 @@ const Client = IgeEventingClass.extend({
 				//
 				this.connectToServer();
 			}
-
-			// const params = ige.client.getUrlVars(); //PUT THIS SOMEWHERE
-			// unit image loading???
-			// we're not gonna do minimap for now but I will add it and comment out.
-			// if (mode == 'play' && gameData.defaultData.enableMiniMap) {
-			// 	//
-			// 	$('#leaderboard').css({
-			// 		//
-			// 		top: 190
-			// 	});
-
-			// 	this.miniMapEnabled = true;
-			// 	ige.miniMap.updateMiniMap();
-			// }
 		});
 
 	},
 
-	//
-	// Not sure if we should be doing it this way,
-	// but i'll replicate the old startIgeEngine method.
-	//
-	// I am changing the 'texturesLoaded emit callback to a $.when()
-	// with a texturesLoaded Deferred object
-	//
 	startIgeEngine: function() {
 		//
-		$.when(this.texturesLoaded).done(() => {
+		ige.start((success) => {
 			//
-			ige.start((success) => {
+			if (success) {
 				//
-				if (success) {
+				this.rootScene = new IgeScene2d()
+					.id('rootScene')
+					.drawBounds(false);
+
+				this.minimapScene = new IgeScene2d()
+					.id('minimapScene')
+					.drawBounds(false);
+
+				this.tilesheetScene = new IgeScene2d()
+					.id('tilesheetScene')
+					.drawBounds(true)
+					.drawMouse(true);
+
+				this.mainScene = new IgeScene2d()
+					.id('baseScene') // torturing me with the naming
+					.mount(this.rootScene)
+					.drawMouse(true);
+
+				this.objectScene = new IgeScene2d()
+					.id('objectScene')
+					.mount(this.mainScene);
+
+				// moving this up here so we can give sandbox the map pan component below
+				this.vp1 = new IgeViewport()
+					.id('vp1')
+					.autoSize(true)
+					.scene(this.rootScene)
+					.drawBounds(false)
+					.mount(ige);
+
+				// sandbox check for minimap
+				if (mode == 'sandbox') {
 					//
-					this.rootScene = new IgeScene2d()
-						.id('rootScene')
-						.drawBounds(false);
-
-					this.minimapScene = new IgeScene2d()
-						.id('minimapScene')
-						.drawBounds(false);
-
-					this.tilesheetScene = new IgeScene2d()
-						.id('tilesheetScene')
+					ige.addComponent(MapEditorComponent)
+						.mapEditor.createMiniMap();
+					//
+					// sandbox also gets a second viewport
+					// moved the code under a duplicate conditional
+					this.vp2 = new IgeViewport()
+						.id('vp2')
+						.layer(100)
 						.drawBounds(true)
-						.drawMouse(true);
-
-					this.mainScene = new IgeScene2d()
-						.id('baseScene') // torturing me with the naming
-						.mount(this.rootScene)
-						.drawMouse(true);
-
-					this.objectScene = new IgeScene2d()
-						.id('objectScene')
-						.mount(this.mainScene);
-
-					// moving this up here so we can give sandbox the map pan component below
-					this.vp1 = new IgeViewport()
-						.id('vp1')
-						.autoSize(true)
-						.scene(this.rootScene)
-						.drawBounds(false)
+						.height(0)
+						.width(0)
+						.borderColor('#0bcc38')
+						.borderWidth(20)
+						.bottom(0)
+						.right(0)
+						.scene(this.tilesheetScene)
 						.mount(ige);
 
-					// old comment => 'Create the UI scene'
-					// never used
-					/* this.uiScene = new IgeScene2d()
-						.id('uiScene')
-						.depth(1000)
-						.ignoreCamera(true)
-						.mount(this.rootScene);
+					// sandbox also gets map pan components
+					this.vp1.addComponent(MapPanComponent)
+						.mapPan.enabled(true);
 
-					ige.mobileControls.attach(this.uiScene); */
+					this.vp2.addComponent(MapPanComponent)
+						.mapPan.enabled(true);
 
-					// sandbox check for minimap
-					if (mode == 'sandbox') {
-						//
-						ige.addComponent(MapEditorComponent)
-							.mapEditor.createMiniMap();
-						//
-						// sandbox also gets a second viewport
-						// moved the code under a duplicate conditional
-						this.vp2 = new IgeViewport()
-							.id('vp2')
-							.layer(100)
-							.drawBounds(true)
-							.height(0)
-							.width(0)
-							.borderColor('#0bcc38')
-							.borderWidth(20)
-							.bottom(0)
-							.right(0)
-							.scene(this.tilesheetScene)
-							.mount(ige);
+					ige.client.vp1.drawBounds(true);
+					//
+				} else if (mode == 'play') {
+					//
 
-						// sandbox also gets map pan components
-						this.vp1.addComponent(MapPanComponent)
-							.mapPan.enabled(true);
-
-						this.vp2.addComponent(MapPanComponent)
-							.mapPan.enabled(true);
-
-						ige.client.vp1.drawBounds(true);
-						//
-					} else if (mode == 'play') {
-						//
-						ige.addComponent(MiniMapComponent)
-							.addComponent(MiniMapUnit);
-						//
-					} else {
-						//
-						console.error('mode was not == to "sandbox" or "play"');
-					}
-
-					// moved this down here
-					ige._selectedViewport = this.vp1;
-
-					this.igeEngineStarted.resolve();
+					//
+				} else {
+					//
+					console.error('mode was not == to "sandbox" or "play"');
 				}
-			});
+
+				// moved this down here
+				ige._selectedViewport = this.vp1;
+
+				this.igeEngineStarted.resolve();
+			}
 		});
 	},
 
@@ -648,88 +567,9 @@ const Client = IgeEventingClass.extend({
 		return firstChoice || secondChoice;
 	},
 
-	// load game textures with ige.pixi.loader
-	// this is was previously the only thing required before ige.start() // lets change that
-	//
-	loadGameTextures: function() {
-		return new Promise((resolve) => {
-			const version = 1;
-			const pixiLoader = ige.pixi.loader; // renamed this from 'resource' to 'pixiLoader'
-
-			// old comment => 'used when texture is not loaded in cache'
-			pixiLoader.add(
-				'emptyTexture',
-				`https://cache.modd.io/asset/spriteImage/1560747844626_dot.png?version=${version}`,
-				{ crossOrigin: true }
-			);
-
-			const iterateAndAddByEntityType = (type) => {
-				//
-				let entityType = type;
-
-				for (let key in ige.game.data[`${entityType}Types`]) {
-					//
-					const entity = ige.game.data[`${entityType}Types`][key];
-					const cellSheet = entity.cellSheet;
-
-					if (cellSheet && !ige.client.loadedTextures[cellSheet.url]) {
-						//
-						ige.client.loadedTextures[cellSheet.url] = cellSheet;
-
-						// check if the cell sheet url is a valid url
-						if (cellSheet.url && cellSheet.url.indexOf('http') === 0) {
-							pixiLoader.add(
-								cellSheet.url,
-								`${cellSheet.url}?version=${version}`,
-								{ crossOrigin: true }
-							);
-						}
-					}
-				}
-			};
-
-			iterateAndAddByEntityType('unit');
-			iterateAndAddByEntityType('projectile');
-			iterateAndAddByEntityType('item');
-
-			pixiLoader.load((loadedResource) => {
-				//
-				for (let imageName in loadedResource.resources) {
-					//
-					const resource = loadedResource.resources[imageName];
-					resource.animation = new IgePixiAnimation();
-
-					if (resource && resource.url) {
-						//
-						const cellSheet = ige.client.loadedTextures[resource.name];
-
-						if (cellSheet) {
-							//
-							resource.animation.getAnimationSprites(
-								resource.url,
-								cellSheet.columnCount,
-								cellSheet.rowCount
-							);
-						}
-					}
-				}
-
-				return resolve();
-			});
-		});
-	},
-
 	//
 	setZoom: function(zoom) {
-		// old comment => 'on mobile increase default zoom by 25%'
-		let zoomVar = zoom;
-		if (ige.isMobile) {
-			zoomVar *= 0.75;
-		}
-
-		ige.pixi.zoom(zoomVar);
-		// there was a bunch of stuff involving viewports and view areas in the old method,
-		// it appeared to be out of use.
+		this.emit('zoom', zoom);
 	},
 
 	//
@@ -747,7 +587,7 @@ const Client = IgeEventingClass.extend({
 			}
 
 			if (ige.client.server) {
-				// i feel like this is a goofy conditional
+				//
 				const serverIP = ige.client.server.url.split('://')[1];
 
 				if (serverIP) {
@@ -844,7 +684,7 @@ const Client = IgeEventingClass.extend({
 
 						if (ige.game.data.isDeveloper ||
 							(ige.client.myPlayer &&
-							ige.client.myPlayer._stats.isUserMod)
+								ige.client.myPlayer._stats.isUserMod)
 						) {
 							//
 							ige.menuUi.kickPlayerFromGame(); // we should rename this method
@@ -860,12 +700,18 @@ const Client = IgeEventingClass.extend({
 					entityBeingDestroyed.remove();
 					//
 				} else if ((ige.game.data.isDeveloper || // yeah idk why i did this
-							(ige.client.myPlayer &&
+						(ige.client.myPlayer &&
 							ige.client.myPlayer._stats.isUserMod)) &&
-							entityBeingDestroyed._category == 'player'
+					entityBeingDestroyed._category == 'player'
 				) {
 					//
 					ige.menuUi.kickPlayerFromGame(entityBeingDestroyed.id()); // this is inside the 'Moderate' menu
+				} else {
+					try {
+						entityBeingDestroyed.remove();
+					} catch (e) {
+						console.log('* ERROR * trying to destroy entity\n', e);
+					}
 				}
 			});
 
@@ -900,7 +746,9 @@ const Client = IgeEventingClass.extend({
 			console.log('setting gravity: ', gravity); // not in prod please
 			ige.physics.gravity(gravity.x, gravity.y);
 		}
-
+		if (ige.physics.engine == 'CRASH') {
+			ige.physics.addBorders();
+		}
 		ige.physics.createWorld();
 		ige.physics.start();
 
@@ -955,7 +803,6 @@ const Client = IgeEventingClass.extend({
 		ige.network.define('camera', this._onCamera);
 
 		ige.network.define('gameSuggestion', this._onGameSuggestion);
-		ige.network.define('minimap', this._onMinimapEvent);
 
 		ige.network.define('createFloatingText', this._onCreateFloatingText)
 
@@ -1142,14 +989,9 @@ const Client = IgeEventingClass.extend({
 
 	//
 	positionCamera: function(x, y) {
-		//
 		if (x != undefined && y != undefined) {
-			//
-			ige.pixi.viewport.removePlugin('follow');
-			//
-			console.log(ige.pixi.viewport); // ok i understand this one...
-
-			ige.pixi.viewport.moveCenter(x, y);
+			this.emit('stop-follow');
+			this.emit('position-camera', [x, y]);
 		}
 	}
 });

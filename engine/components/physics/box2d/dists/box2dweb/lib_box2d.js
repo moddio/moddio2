@@ -950,7 +950,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (true) {
-			x++; if (x > 10000) { console.log('961'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('961');
+			} // for detecting infinite loops
 
 			if (increment == (-1)) edge = bestEdge - 1 >= 0 ? bestEdge - 1 : count1 - 1;
 			else edge = bestEdge + 1 < count1 ? bestEdge + 1 : 0; s = b2Collision.EdgeSeparation(poly1, xf1, edge, poly2, xf2);
@@ -1331,7 +1333,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (iter < k_maxIters) {
-			x++; if (x > 10000) { console.log('1346'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('1346');
+			} // for detecting infinite loops
 
 			saveCount = simplex.m_count;
 			for (i = 0;
@@ -1521,7 +1525,9 @@ box2dweb.postDefs = [];
 
 			var x = 0;
 			while (node.IsLeaf() == false) {
-				x++; if (x > 10000) { console.log('1537'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('1537');
+				} // for detecting infinite loops
 				node = (this.m_path >> bit) & 1 ? node.child2 : node.child1;
 				bit = (bit + 1) & 31;
 			} ++this.m_path;
@@ -1543,7 +1549,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (count > 0) {
-			x++; if (x > 10000) { console.log('1560'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('1560');
+			} // for detecting infinite loops
 			var node = stack[--count];
 			if (node.aabb.TestOverlap(aabb)) {
 				if (node.IsLeaf()) {
@@ -1581,7 +1589,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (count > 0) {
-			x++; if (x > 10000) { console.log('1599'); return; } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('1599'); return;
+			} // for detecting infinite loops
 			var node = stack[--count];
 			if (node.aabb.TestOverlap(segmentAABB) == false) {
 				continue;
@@ -1646,7 +1656,9 @@ box2dweb.postDefs = [];
 		if (sibling.IsLeaf() == false) {
 			var x = 0;
 			do {
-				x++; if (x > 10000) { console.log('1667'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('1667');
+				} // for detecting infinite loops
 				var child1 = sibling.child1;
 				var child2 = sibling.child2;
 				var norm1 = Math.abs((child1.aabb.lowerBound.x + child1.aabb.upperBound.x) / 2 - center.x) + Math.abs((child1.aabb.lowerBound.y + child1.aabb.upperBound.y) / 2 - center.y);
@@ -1676,7 +1688,9 @@ box2dweb.postDefs = [];
 			leaf.parent = node2;
 			var x = 0;
 			do {
-				x++; if (x > 10000) { console.log('1699'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('1699');
+				} // for detecting infinite loops
 
 				if (node1.aabb.Contains(node2.aabb)) break;
 				node1.aabb.Combine(node1.child1.aabb, node1.child2.aabb);
@@ -1716,7 +1730,9 @@ box2dweb.postDefs = [];
 
 			var x = 0;
 			while (node1) {
-				x++; if (x > 10000) { console.log('1741'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('1741');
+				} // for detecting infinite loops
 				var oldAABB = node1.aabb;
 				node1.aabb = b2AABB.Combine(node1.child1.aabb, node1.child2.aabb);
 				if (oldAABB.Contains(node1.aabb)) break;
@@ -1797,7 +1813,9 @@ box2dweb.postDefs = [];
 
 			var x = 0;
 			while (i < __this.m_pairCount) {
-				x++; if (x > 10000) { console.log('1824'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('1824');
+				} // for detecting infinite loops
 				var pair = __this.m_pairBuffer[i];
 				if (pair.proxyA != primaryPair.proxyA || pair.proxyB != primaryPair.proxyB) {
 					break;
@@ -3419,7 +3437,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (i != outoIndex2) {
-			x++; if (x > 10000) { console.log('3466'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('3466');
+			} // for detecting infinite loops
 			i = (i + 1) % this.m_vertexCount;
 			if (i == outoIndex2) p3 = outoVec;
 			else p3 = this.m_vertices[i];
@@ -4481,7 +4501,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (node != null) {
-			x++; if (x > 10000) { console.log('4514'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('4514');
+			} // for detecting infinite loops
 			if (node == fixture) {
 				if (ppF) ppF.m_next = fixture.m_next;
 				else this.m_fixtureList = fixture.m_next;
@@ -4495,7 +4517,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (edge) {
-			x++; if (x > 10000) { console.log('4528'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('4528');
+			} // for detecting infinite loops
 			var c = edge.contact;
 			edge = edge.next;
 			var fixtureA = c.GetFixtureA();
@@ -4905,7 +4929,9 @@ box2dweb.postDefs = [];
 
 			var x = 0;
 			while (ce) {
-				x++; if (x > 10000) { console.log('4948'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('4948');
+				} // for detecting infinite loops
 				var ce0 = ce;
 				ce = ce.next;
 				this.m_world.m_contactManager.Destroy(ce0.contact);
@@ -5120,7 +5146,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (edge) {
-			x++; if (x > 10000) { console.log('5164'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5164');
+			} // for detecting infinite loops
 			if (edge.other == bodyA) {
 				var fA = edge.contact.GetFixtureA();
 				var fB = edge.contact.GetFixtureB();
@@ -5210,7 +5238,9 @@ box2dweb.postDefs = [];
 
 		var x = 0;
 		while (c) {
-			x++; if (x > 10000) { console.log('5271'); this.m_world.m_contactList = undefined; } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5271'); this.m_world.m_contactList = undefined;
+			} // for detecting infinite loops
 			var fixtureA = c.GetFixtureA();
 			var fixtureB = c.GetFixtureB();
 			var bodyA = fixtureA.GetBody();
@@ -5339,7 +5369,9 @@ box2dweb.postDefs = [];
 		var edge = this.m_body.GetContactList();
 		var x = 0;
 		while (edge) {
-			x++; if (x > 10000) { console.log('5384'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5384');
+			} // for detecting infinite loops
 			var contact = edge.contact;
 			var fixtureA = contact.GetFixtureA();
 			var fixtureB = contact.GetFixtureB();
@@ -5356,7 +5388,9 @@ box2dweb.postDefs = [];
 		var edge = this.m_body.GetContactList();
 		var x = 0;
 		while (edge) {
-			x++; if (x > 10000) { console.log('5401'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5401');
+			} // for detecting infinite loops
 			var contact = edge.contact;
 			var fixtureA = contact.GetFixtureA();
 			var fixtureB = contact.GetFixtureB();
@@ -5802,7 +5836,9 @@ box2dweb.postDefs = [];
 		var x = 0;
 		// console.log("5848 DestroyBody")
 		while (jn) {
-			x++; if (x > 10000) { console.log('5848'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5848');
+			} // for detecting infinite loops
 			var jn0 = jn;
 			jn = jn.next;
 			if (this.m_destructionListener) {
@@ -5814,7 +5850,9 @@ box2dweb.postDefs = [];
 		var coe = b.m_controllerList;
 		var x = 0;
 		while (coe) {
-			x++; if (x > 10000) { console.log('5860'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5860');
+			} // for detecting infinite loops
 			var coe0 = coe;
 			coe = coe.nextController;
 			coe0.controller.RemoveBody(b);
@@ -5823,7 +5861,9 @@ box2dweb.postDefs = [];
 		var ce = b.m_contactList;
 		var x = 0;
 		while (ce) {
-			x++; if (x > 10000) { console.log('5868'); process.exit(0); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5868'); process.exit(0);
+			} // for detecting infinite loops
 			var ce0 = ce;
 			ce = ce.next;
 			this.m_contactManager.Destroy(ce0.contact);
@@ -5832,7 +5872,9 @@ box2dweb.postDefs = [];
 		var f = b.m_fixtureList;
 		var x = 0;
 		while (f) {
-			x++; if (x > 10000) { console.log('5877'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('5877');
+			} // for detecting infinite loops
 			var f0 = f;
 			f = f.m_next;
 			if (this.m_destructionListener) {
@@ -5884,7 +5926,9 @@ box2dweb.postDefs = [];
 			var edge = bodyB.GetContactList();
 			var x = 0;
 			while (edge) {
-				x++; if (x > 10000) { console.log('5929'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('5929');
+				} // for detecting infinite loops
 				if (edge.other == bodyA) {
 					edge.contact.FlagForFiltering();
 				}
@@ -5937,7 +5981,9 @@ box2dweb.postDefs = [];
 			var edge = bodyB.GetContactList();
 			var x = 0;
 			while (edge) {
-				x++; if (x > 10000) { console.log('5981'); process.exit(0); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('5981'); process.exit(0);
+				} // for detecting infinite loops
 				if (edge.other == bodyA) {
 					edge.contact.FlagForFiltering();
 				}
@@ -6273,7 +6319,9 @@ box2dweb.postDefs = [];
 
 			var x = 0;
 			while (stackCount > 0) {
-				x++; if (x > 10000) { console.log('6325'); process.exit(0); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('6325'); process.exit(0);
+				} // for detecting infinite loops
 				b = stack[--stackCount];
 				island.AddBody(b);
 				if (b.IsAwake() == false) {
@@ -6446,7 +6494,9 @@ box2dweb.postDefs = [];
 
 			var x = 0;
 			while (queueSize > 0) {
-				x++; if (x > 10000) { console.log('6492'); } // for detecting infinite loops
+				x++; if (x > 10000) {
+					console.log('6492');
+				} // for detecting infinite loops
 				b = queue[queueStart++];
 				--queueSize;
 				island.AddBody(b);
@@ -7783,7 +7833,9 @@ box2dweb.postDefs = [];
 		var edge = body.m_controllerList;
 		var x = 0;
 		while (edge && edge.controller != this) {
-			x++; if (x > 10000) { console.log('7784'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('7784');
+			} // for detecting infinite loops
 			edge = edge.nextController;
 		}
 		if (edge.prevBody) edge.prevBody.nextBody = edge.nextBody;
@@ -7798,7 +7850,9 @@ box2dweb.postDefs = [];
 	b2Controller.prototype.Clear = function () {
 		var x = 0;
 		while (this.m_bodyList) {
-			x++; if (x > 10000) { console.log('7800'); } // for detecting infinite loops
+			x++; if (x > 10000) {
+				console.log('7800');
+			} // for detecting infinite loops
 			this.RemoveBody(this.m_bodyList.body);
 		}
 	};
@@ -10863,35 +10917,7 @@ box2dweb.postDefs = [];
 		s.stroke();
 	};
 	b2DebugDraw.prototype.DrawSolidPolygon = function (vertices, vertexCount, color) {
-		if (!vertexCount) return;
-		var drawScale = this.m_drawScale;
-		var graphic = new PIXI.Graphics();
-		graphic;
-		graphic.beginFill(0x00dd00, 0.3);
-		graphic.lineStyle(2, 0x000000, 0.3);
-		var verticesArray = [];
-		verticesArray.push(new PIXI.Point(vertices[0].x * drawScale, vertices[0].y * drawScale));
-		for (var i = 1; i < vertexCount; i++) {
-			verticesArray.push(new PIXI.Point(vertices[i].x * drawScale, vertices[i].y * drawScale));
-		}
-		verticesArray.push(new PIXI.Point(vertices[0].x * drawScale, vertices[0].y * drawScale));
-		graphic.drawPolygon(verticesArray);
-		graphic.endFill();
-		graphic.zIndex = 10;
-		ige.pixi.box2dDebug.addChild(graphic);
-		// var s = this.m_ctx;
-
-		// s.beginPath();
-		// s.strokeStyle = this._color(color.color, this.m_alpha);
-		// s.fillStyle = this._color(color.color, this.m_fillAlpha);
-		// s.moveTo(vertices[0].x * drawScale, vertices[0].y * drawScale);
-		// for (var i = 1; i < vertexCount; i++) {
-		//   s.lineTo(vertices[i].x * drawScale, vertices[i].y * drawScale);
-		// }
-		// s.lineTo(vertices[0].x * drawScale, vertices[0].y * drawScale);
-		// s.closePath();
-		// s.fill();
-		// s.stroke();
+		//
 	};
 	b2DebugDraw.prototype.DrawCircle = function (center, radius, color) {
 		if (!radius) return;

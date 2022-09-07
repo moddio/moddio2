@@ -5,9 +5,6 @@ var Projectile = IgeEntityPhysics.extend({
 		IgeEntityPhysics.prototype.init.call(this, data.defaultData);
 		this.id(entityIdFromServer);
 		var self = this;
-		if (ige.isClient) {
-			this._pixiContainer = new PIXI.Container();
-		}
 		self.category('projectile');
 		var projectileData = {};
 		if (ige.isClient) {
@@ -42,6 +39,10 @@ var Projectile = IgeEntityPhysics.extend({
 
 		if (ige.isServer) {
 			self.mount(ige.$('baseScene'));
+		}
+
+		if (ige.isClient) {
+			ige.client.emit('create-projectile', this);
 		}
 
 		if (self._stats.states) {
@@ -85,17 +86,18 @@ var Projectile = IgeEntityPhysics.extend({
 		if (ige.isServer) {
 			ige.server.totalProjectilesCreated++;
 		} else if (ige.isClient) {
+
 			if (currentState) {
 				var defaultAnimation = this._stats.animations[currentState.animation];
-				this.createTexture(defaultAnimation && defaultAnimation.frames[0] - 1, data.defaultData);
+				this.addToRenderer(defaultAnimation && defaultAnimation.frames[0] - 1, data.defaultData);
 			}
 			self.drawBounds(false);
 
-			// self.addComponent(AttributeBarsContainerComponent);
 			self.updateLayer();
 			self.updateTexture();
+			//mouseEvents for sandbox mode only
 			self.mouseEvents();
-			self.mount(ige.pixi.world);
+
 		}
 		this.playEffect('create');
 
@@ -115,12 +117,6 @@ var Projectile = IgeEntityPhysics.extend({
 		if (ige.physics && ige.physics.engine != 'CRASH') {
 			this.processBox2dQueue();
 		}
-	},
-
-	// apply texture based on state
-	updateTexture: function () {
-		var self = this;
-		IgeEntity.prototype.updateTexture.call(this);
 	},
 
 	streamUpdateData: function (queuedData) {
@@ -173,4 +169,6 @@ var Projectile = IgeEntityPhysics.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = Projectile; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = Projectile;
+}

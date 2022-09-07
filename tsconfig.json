@@ -1,19 +1,22 @@
 {
-    "compilerOptions": {
-        "module": "None",
-        "target": "es5",
-        "sourceMap": true,
-        "outDir": ".",
-        "rootDir": "ts",
-        "typeRoots": [
-            "node_modules/@types",
-            "ts/types"
-        ],
-        "types": [
-            "node"
-        ]
-    },
-    "exclude": [
-        "node_modules"
-    ]
+	"compilerOptions": {
+		"module": "None",
+		"target": "es5",
+		"sourceMap": true,
+		"outDir": ".",
+		"rootDir": "ts",
+		"typeRoots": [
+			"node_modules/@types",
+			"node_modules/phaser/types",
+			"ts/types"
+		],
+		"types": [
+			"node",
+			"jquery",
+			"Phaser"
+		]
+	},
+	"exclude": [
+		"node_modules"
+	]
 }

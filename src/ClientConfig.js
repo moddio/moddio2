@@ -6,13 +6,13 @@ var igeClientConfig = {
 
 		'/gameClasses/Player.js',
 		'/gameClasses/Unit.js',
-		'/gameClasses/ClientScore.js',
-		'/gameClasses/MinimapUnit.js',
 		'/gameClasses/Region.js',
 
 		'/gameClasses/Item.js',
 		'/gameClasses/Projectile.js',
 		'/gameClasses/Particle.js',
+
+		'/gameClasses/UnitAttributeBar.js',
 
 		'/gameClasses/ClientNetworkEvents.js',
 		'/gameClasses/components/GameComponent.js',
@@ -27,7 +27,6 @@ var igeClientConfig = {
 		'/gameClasses/components/TweenComponent.js',
 
 		'/gameClasses/components/ui/MenuUiComponent.js',
-		'/gameClasses/components/ui/RegionUi.js',
 		'/gameClasses/components/ui/ThemeComponent.js',
 		'/gameClasses/components/ui/PlayerUiComponent.js',
 		'/gameClasses/components/ui/GameTextComponent.js',
@@ -40,7 +39,6 @@ var igeClientConfig = {
 		'/gameClasses/components/ui/UnitUiComponent.js',
 		'/gameClasses/components/ui/VideoChatComponent.js',
 		'/gameClasses/components/ui/TradeUiComponent.js',
-		'/gameClasses/components/ui/MinimapComponent.js',
 
 		'/gameClasses/components/script/ScriptComponent.js',
 		'/gameClasses/components/script/VariableComponent.js',
@@ -50,28 +48,37 @@ var igeClientConfig = {
 		'/gameClasses/components/unit/AbilityComponent.js',
 		'/gameClasses/components/unit/AttributeComponent.js',
 
-		'/gameClasses/Debris.js',
-
 		/* Standard game scripts */
 		'/gameClasses/Cursor.js',
 
 		'/gameClasses/EntitiesToRender.js',
 
-		/* PIXI */
-		'pixi/pixi-viewport.js',
-		'pixi/pixi-cull.js',
-		'pixi/IgePixi.js',
-		'pixi/IgePixiMap.js',
-		'pixi/IgePixiTexture.js',
-		// 'pixi/IgePixiCollider.js',
-		'pixi/IgePixiAnimation.js',
-		'pixi/IgePixiFloatingText.js',
-		'pixi/IgePixiChatBubble.js',
-		'pixi/PixiAttributeBar.js',
+		/* Phaser */
+		'renderer/phaser/phaser-taro.min.js',
+		'../node_modules/phaser3-rex-plugins/dist/rexvirtualjoystickplugin.min.js',
+		'renderer/phaser/enums/FlipMode.js',
+		'renderer/phaser/enums/TileLayer.js',
+		'renderer/phaser/enums/EntityLayer.js',
+		'renderer/phaser/classes/PhaserEntity.js',
+		'renderer/phaser/classes/PhaserAnimatedEntity.js',
+		'renderer/phaser/classes/PhaserUnit.js',
+		'renderer/phaser/classes/PhaserProjectile.js',
+		'renderer/phaser/classes/PhaserAttributeBar.js',
+		'renderer/phaser/classes/PhaserItem.js',
+		'renderer/phaser/classes/PhaserFloatingText.js',
+		'renderer/phaser/classes/PhaserChatBubble.js',
+		'renderer/phaser/classes/PhaserRegion.js',
+		'renderer/phaser/scenes/PhaserScene.js',
+		'renderer/phaser/scenes/GameScene.js',
+		'renderer/phaser/classes/PhaserJoystick.js',
+		'renderer/phaser/scenes/MobileControlsScene.js',
+		'renderer/phaser/PhaserRenderer.js',
 
 		'/client.js',
 		'/index.js'
 	]
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = igeClientConfig; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = igeClientConfig;
+}

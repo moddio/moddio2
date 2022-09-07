@@ -194,14 +194,14 @@ var IgeChatServer = {
 		// msg.text = self.sanitizer.sanitize(msg.text);
 		// msg.text = self.validator.escape(msg.text);
 		// msg.text = self.filter.clean(msg.text);
-		
+
 		// no filter on standalone
 		//
 		if (process.env.ENV != 'standalone') {
 			msg.text = self.filter.cleanHacked(msg.text); // https://github.com/web-mech/badwords/issues/93
 		}
 		//
-		
+
 		if (msg == undefined || msg.text == undefined)
 			return;
 

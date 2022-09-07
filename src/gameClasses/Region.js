@@ -1,4 +1,3 @@
-
 var Region = IgeEntityPhysics.extend({
 	classId: 'Region',
 	componentId: 'region',
@@ -6,10 +5,8 @@ var Region = IgeEntityPhysics.extend({
 	init: function (data, entityIdFromServer) {
 		IgeEntityPhysics.prototype.init.call(this);
 
-		// on server regions are offsetted by 2 tile. So adding offset just server
-		// making region work fine on both side
-
 		this.id(entityIdFromServer);
+
 		var self = this;
 		var regionName = typeof data.id === 'string' ? data.id : null;
 
@@ -38,7 +35,7 @@ var Region = IgeEntityPhysics.extend({
 						type: 'rectangle'
 					}
 				}],
-				collidesWith: { walls: true, units: true, projectiles: true, items: true, debris: true },
+				collidesWith: { walls: true, units: true, projectiles: true, items: true},
 				// Refactor TODO: width & height should've been assigned into "currentBody". not int "default".
 				// Region is only one doing this (not unit/item/projectile). I shouldn't have to do below:
 				width: self._stats.default.width,
@@ -55,52 +52,41 @@ var Region = IgeEntityPhysics.extend({
 				self._translate.x = regionDimension.x + (regionDimension.width / 2);
 				self._translate.y = regionDimension.y + (regionDimension.height / 2);
 			}
-			
-	
+
 			self.updateBody({
 				translate: { x: self._translate.x, y: self._translate.y}
 			});
-			// if (ige.isClient) {
-			// 	this._pixiContainer = new PIXI.Container();
-			// 	this.drawCrashCollider(regionDimension);
-			// }
 
 			if (ige.isServer) {
+				// IgeEntity.streamMode(val)
+				// 1 is 'automatic' streaming
 				self.streamMode(1);
 			} else if (ige.isClient) {
-				if (typeof mode === 'string' && mode === 'sandbox') {
-					delete self._stats.value;
+				if ((mode === 'play' && self._stats.default.inside) || mode === 'sandbox') {
+					// o.O TODO: Remove /refactor
+					ige.entitiesToRender.trackEntityById[entityIdFromServer] = this;
+					ige.client.emit('create-region', this);
 				}
 
-				self.regionUi = new RegionUi(JSON.parse(JSON.stringify(self._stats)), regionName, this);
-
-				// self.regionUi.depth(10)
-				//     .layer(2)
-				//     .drawBoundsData(false)
-				//     .drawBounds(false)
-				//     .translateTo(self._stats.default.x + (self._stats.default.width / 2), self._stats.default.y + (self._stats.default.height / 2), 0)
-				//     .height(self._stats.default.height)
-				//     .width(self._stats.default.width)
-				//     .bounds2d(self._stats.default.width, self._stats.default.height, 0)
-				// .mount(ige.client.rootScene);
-
-				if (mode === 'sandbox') {
-					self.font = new FloatingText(regionName);
-					self.font.colorOverlay('#fff')
-						.translateTo(self._stats.default.x, self._stats.default.y, 0)
-						.mount(ige.client.rootScene)
-						.drawBounds(false);
+				if (typeof mode === 'string' && mode === 'sandbox') {
+					delete self._stats.value;
 
 					if (ige.game.data.isDeveloper) {
 						// creating region click handler if user is developer
-						self.regionUi
-							.drawMouse(true)
+						// /
+						// need to see if we can do this with simple region instead
+						// of using regionUi because we want to remove it entirely
+						// /
+
+						// IgeObject method
+						self.drawMouse(true)
+							// IgeEntity method (IgeUiEntity extends...)
 							.mouseDown(function (event, evc) {
 								if (
 									ige.mapEditor.selectEntities &&
-                                    event.which === 1 &&
-                                    !ige.mapEditor.mouseDownOnMiniMap &&
-                                    !ige.mapEditor.checkIfClickedMiniMap(event.pageX, event.pageY)
+									event.which === 1 &&
+									!ige.mapEditor.mouseDownOnMiniMap &&
+									!ige.mapEditor.checkIfClickedMiniMap(event.pageX, event.pageY)
 								) {
 									var selectedRegion = self;
 									if (selectedRegion._stats && selectedRegion._stats.id) {
@@ -112,12 +98,14 @@ var Region = IgeEntityPhysics.extend({
 				}
 			}
 		}
+		self.addBehaviour('regionBehaviour', self._behaviour);
 	},
 	updateDimension: function () {
 		var regionCordinates = this._stats.default;
 		this.translateTo(regionCordinates.x + (regionCordinates.width / 2), regionCordinates.y + (regionCordinates.height / 2), 0);
 		this.width(regionCordinates.width);
 		this.height(regionCordinates.height);
+
 		if (ige.isServer) {
 			var shapeData = {};
 			var normalizer = 0.45;
@@ -126,17 +114,10 @@ var Region = IgeEntityPhysics.extend({
 			// shapeData.x = regionCordinates.x;
 			// shapeData.y = regionCordinates.y;
 			this._stats.currentBody.fixtures[0].shape.data = shapeData;
-			this.physicsBody(this._stats.currentBody);
-		}
+			this.updateBody(this._stats.currentBody);
 
-		if (this.regionUi) {
-			this.regionUi.translateTo(regionCordinates.x, regionCordinates.y, 0);
-			this.regionUi.width(regionCordinates.width);
-			this.regionUi.height(regionCordinates.height);
-		}
-
-		if (this.font) {
-			this.font.translateTo(regionCordinates.x + (this._stats.id.length / 2 * 11), regionCordinates.y + 15, 0);
+		} else { // isClient
+			this.emit('transform');
 		}
 	},
 
@@ -155,14 +136,12 @@ var Region = IgeEntityPhysics.extend({
 		this.updateDimension();
 	},
 
-	deleteRegion: function () {
-		if (this.font) {
-			this.font.destroy();
+	_behaviour: function(ctx) {
+		if (this._alive === false) {
+			this.destroy();
 		}
-		if (this.regionUi) {
-			this.regionUi.destroy();
-		}
-		this.destroy();
+
+		this.processBox2dQueue();
 	}
 });
 

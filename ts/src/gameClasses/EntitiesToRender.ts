@@ -18,29 +18,6 @@ class EntitiesToRender {
 			var entity = ige.$(entityId);
 
 			if (entity) {
-				// while zooming in/out, scale both unit name labels, attribute bars, and chatBubble
-				if (ige.client.isZooming) {
-					if (entity.unitNameLabel) {
-						entity.unitNameLabel.updateScale();
-						entity.unitNameLabel.updatePosition();
-					}
-
-					if (entity.attributeBars) {
-						_.forEach(entity.attributeBars, function (attributeBar) {
-							var bar = ige.$(attributeBar.id);
-							bar.updateScale();
-							bar.updatePosition();
-						});
-					}
-
-					// global nonsense that we should address
-					if (openChatBubble[entityId]) {
-						var chatBubble = ige.$(openChatBubble[entityId]);
-						chatBubble.updateScale();
-						chatBubble.updatePosition();
-					}
-				}
-
 				// handle entity behaviour and transformation offsets
 				if (ige.gameLoopTickHasExecuted) {
 					if (entity._deathTime !== undefined && entity._deathTime <= ige._tickStart) {
@@ -129,9 +106,6 @@ class EntitiesToRender {
 					}
 
 					entity.transformTexture(x, y, rotate);
-
-					// handle animation
-					ige.client.emit('playAnimation', {entity: entity, tickDelta: tickDelta});
 				}
 			}
 		}
@@ -147,7 +121,6 @@ class EntitiesToRender {
 		ige.engineStep();
 		ige.input.processInputOnEveryFps();
 
-		this.timeStamp = Date.now();
 		ige._renderFrames++;
 
 		this.updateAllEntities();

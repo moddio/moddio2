@@ -93,12 +93,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Sets the entity as visible and able to be interacted with.
-     * @example #Show a hidden entity
-     *     entity.show();
-     * @return {*} The object this method was called from to allow
-     * method chaining.
-     */
+	 * Sets the entity as visible and able to be interacted with.
+	 * @example #Show a hidden entity
+	 *     entity.show();
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
 	show: function () {
 
 		if (ige.isServer) {
@@ -108,7 +108,7 @@ var IgeEntity = IgeObject.extend({
 			// this.disableInterpolation(false)
 			// add a little bit of delay before showing the item, so we don't see item translating from old location to new location
 			this._hidden = false;
-			ige.client.emit('show', this);
+			this.emit('show');
 		}
 
 		return this;
@@ -138,6 +138,7 @@ var IgeEntity = IgeObject.extend({
 			self.streamUpdateData([{ stateId: stateId }]);
 		} else if (ige.isClient) {
 			self._stats.stateId = stateId;
+
 			if (newState.sound) {
 				for (var soundId in newState.sound) {
 					var sound = newState.sound[soundId];
@@ -151,12 +152,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Sets the entity as hidden and cannot be interacted with.
-     * @example #Hide a visible entity
-     *     entity.hide();
-     * @return {*} The object this method was called from to allow
-     * method chaining.
-     */
+	 * Sets the entity as hidden and cannot be interacted with.
+	 * @example #Hide a visible entity
+	 *     entity.hide();
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
 	hide: function () {
 		if (ige.isServer) {
 			// self._hidden = true; // never hide it, because it'll stop processing stream queue
@@ -165,16 +166,16 @@ var IgeEntity = IgeObject.extend({
 			// this.disableInterpolation(true)
 
 			this._hidden = true;
-			ige.client.emit('hide', this);
+			this.emit('hide');
 			this.texture('');
 		}
 		return this;
 	},
 
 	/**
-     * Checks if the entity is hidden.
-     * @returns {boolean} True if the entity is hidden.
-     */
+	 * Checks if the entity is hidden.
+	 * @returns {boolean} True if the entity is hidden.
+	 */
 	isHidden: function () {
 		return this._hidden === true;
 	},
@@ -253,14 +254,7 @@ var IgeEntity = IgeObject.extend({
 		cellSheet = this._stats.cellSheet;
 
 		if (animation && cellSheet) {
-			// cell sheet animation id will be concatenation of unit type and animation id
-			// default loop to undefined;
-			ige.client.emit('applyAnimation', {
-				entity: this,
-				cellSheet: cellSheet,
-				animation: animation,
-				animationId: animationId
-			});
+			this.emit('play-animation', animationId);
 		}
 	},
 
@@ -282,12 +276,6 @@ var IgeEntity = IgeObject.extend({
 			if (animationId) {
 				self.applyAnimationById(animationId);
 			}
-			// if (state.sound) {
-			// 	for (var soundKey in state.sound) {
-			// 		var sound = state.sound[soundKey];
-			// 		ige.sound.playSound(sound, self._translate, soundKey);
-			// 	}
-			// }
 		}
 	},
 
@@ -301,8 +289,6 @@ var IgeEntity = IgeObject.extend({
 		if (stateId) {
 			this.applyAnimationForState(stateId);
 		}
-
-		ige.client.emit('updateTexture');
 	},
 
 	getDefaultStateId: function () {
@@ -329,23 +315,23 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the cache flag that determines if the entity's
-     * texture rendering output should be stored on an off-screen
-     * canvas instead of calling the texture.render() method each
-     * tick. Useful for expensive texture calls such as rendering
-     * fonts etc. If enabled, this will automatically disable advanced
-     * composite caching on this entity with a call to
-     * compositeCache(false).
-     * @param {Boolean=} val True to enable caching, false to
-     * disable caching.
-     * @example #Enable entity caching
-     *     entity.cache(true);
-     * @example #Disable entity caching
-     *     entity.cache(false);
-     * @example #Get caching flag value
-     *     var val = entity.cache();
-     * @return {*}
-     */
+	 * Gets / sets the cache flag that determines if the entity's
+	 * texture rendering output should be stored on an off-screen
+	 * canvas instead of calling the texture.render() method each
+	 * tick. Useful for expensive texture calls such as rendering
+	 * fonts etc. If enabled, this will automatically disable advanced
+	 * composite caching on this entity with a call to
+	 * compositeCache(false).
+	 * @param {Boolean=} val True to enable caching, false to
+	 * disable caching.
+	 * @example #Enable entity caching
+	 *     entity.cache(true);
+	 * @example #Disable entity caching
+	 *     entity.cache(false);
+	 * @example #Get caching flag value
+	 *     var val = entity.cache();
+	 * @return {*}
+	 */
 	cache: function (val) {
 		if (val !== undefined) {
 			this._cache = val;
@@ -391,12 +377,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * When using the caching system, this boolean determines if the
-     * cache canvas should have image smoothing enabled or not. If
-     * not set, the ige global smoothing setting will be used instead.
-     * @param {Boolean=} val True to enable smoothing, false to disable.
-     * @returns {*}
-     */
+	 * When using the caching system, this boolean determines if the
+	 * cache canvas should have image smoothing enabled or not. If
+	 * not set, the ige global smoothing setting will be used instead.
+	 * @param {Boolean=} val True to enable smoothing, false to disable.
+	 * @returns {*}
+	 */
 	cacheSmoothing: function (val) {
 		if (val !== undefined) {
 			this._cacheSmoothing = val;
@@ -407,22 +393,22 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets composite caching. Composite caching draws this entity
-     * and all of it's children (and their children etc) to a single off
-     * screen canvas so that the entity does not need to be redrawn with
-     * all it's children every tick. For composite entities where little
-     * change occurs this will massively increase rendering performance.
-     * If enabled, this will automatically disable simple caching on this
-     * entity with a call to cache(false).
-     * @param {Boolean=} val
-     * @example #Enable entity composite caching
-     *     entity.compositeCache(true);
-     * @example #Disable entity composite caching
-     *     entity.compositeCache(false);
-     * @example #Get composite caching flag value
-     *     var val = entity.cache();
-     * @return {*}
-     */
+	 * Gets / sets composite caching. Composite caching draws this entity
+	 * and all of it's children (and their children etc) to a single off
+	 * screen canvas so that the entity does not need to be redrawn with
+	 * all it's children every tick. For composite entities where little
+	 * change occurs this will massively increase rendering performance.
+	 * If enabled, this will automatically disable simple caching on this
+	 * entity with a call to cache(false).
+	 * @param {Boolean=} val
+	 * @example #Enable entity composite caching
+	 *     entity.compositeCache(true);
+	 * @example #Disable entity composite caching
+	 *     entity.compositeCache(false);
+	 * @example #Get composite caching flag value
+	 *     var val = entity.cache();
+	 * @return {*}
+	 */
 	compositeCache: function (val) {
 		if (ige.isClient) {
 			if (val !== undefined) {
@@ -468,18 +454,18 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the cache dirty flag. If set to true this will
-     * instruct the entity to re-draw it's cached image from the
-     * assigned texture. Once that occurs the flag will automatically
-     * be set back to false. This works in either standard cache mode
-     * or composite cache mode.
-     * @param {Boolean=} val True to force a cache update.
-     * @example #Get cache dirty flag value
-     *     var val = entity.cacheDirty();
-     * @example #Set cache dirty flag value
-     *     entity.cacheDirty(true);
-     * @return {*}
-     */
+	 * Gets / sets the cache dirty flag. If set to true this will
+	 * instruct the entity to re-draw it's cached image from the
+	 * assigned texture. Once that occurs the flag will automatically
+	 * be set back to false. This works in either standard cache mode
+	 * or composite cache mode.
+	 * @param {Boolean=} val True to force a cache update.
+	 * @example #Get cache dirty flag value
+	 *     var val = entity.cacheDirty();
+	 * @example #Set cache dirty flag value
+	 *     entity.cacheDirty(true);
+	 * @return {*}
+	 */
 	cacheDirty: function (val) {
 		if (val !== undefined) {
 			this._cacheDirty = val;
@@ -502,18 +488,18 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the position of the mouse relative to this entity's
-     * center point.
-     * @param {IgeViewport=} viewport The viewport to use as the
-     * base from which the mouse position is determined. If no
-     * viewport is specified then the current viewport the engine
-     * is rendering to is used instead.
-     * @example #Get the mouse position relative to the entity
-     *     // The returned value is an object with properties x, y, z
-     *     var mousePos = entity.mousePos();
-     * @return {IgePoint3d} The mouse point relative to the entity
-     * center.
-     */
+	 * Gets the position of the mouse relative to this entity's
+	 * center point.
+	 * @param {IgeViewport=} viewport The viewport to use as the
+	 * base from which the mouse position is determined. If no
+	 * viewport is specified then the current viewport the engine
+	 * is rendering to is used instead.
+	 * @example #Get the mouse position relative to the entity
+	 *     // The returned value is an object with properties x, y, z
+	 *     var mousePos = entity.mousePos();
+	 * @return {IgePoint3d} The mouse point relative to the entity
+	 * center.
+	 */
 	mousePos: function (viewport) {
 		viewport = viewport || ige._currentViewport;
 		if (viewport) {
@@ -537,17 +523,17 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the position of the mouse relative to this entity not
-     * taking into account viewport translation.
-     * @param {IgeViewport=} viewport The viewport to use as the
-     * base from which the mouse position is determined. If no
-     * viewport is specified then the current viewport the engine
-     * is rendering to is used instead.
-     * @example #Get absolute mouse position
-     *     var mousePosAbs = entity.mousePosAbsolute();
-     * @return {IgePoint3d} The mouse point relative to the entity
-     * center.
-     */
+	 * Gets the position of the mouse relative to this entity not
+	 * taking into account viewport translation.
+	 * @param {IgeViewport=} viewport The viewport to use as the
+	 * base from which the mouse position is determined. If no
+	 * viewport is specified then the current viewport the engine
+	 * is rendering to is used instead.
+	 * @example #Get absolute mouse position
+	 *     var mousePosAbs = entity.mousePosAbsolute();
+	 * @return {IgePoint3d} The mouse point relative to the entity
+	 * center.
+	 */
 	mousePosAbsolute: function (viewport) {
 		viewport = viewport || ige._currentViewport;
 		if (viewport) {
@@ -560,16 +546,16 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the position of the mouse in world co-ordinates.
-     * @param {IgeViewport=} viewport The viewport to use as the
-     * base from which the mouse position is determined. If no
-     * viewport is specified then the current viewport the engine
-     * is rendering to is used instead.
-     * @example #Get mouse position in world co-ordinates
-     *     var mousePosWorld = entity.mousePosWorld();
-     * @return {IgePoint3d} The mouse point relative to the world
-     * center.
-     */
+	 * Gets the position of the mouse in world co-ordinates.
+	 * @param {IgeViewport=} viewport The viewport to use as the
+	 * base from which the mouse position is determined. If no
+	 * viewport is specified then the current viewport the engine
+	 * is rendering to is used instead.
+	 * @example #Get mouse position in world co-ordinates
+	 *     var mousePosWorld = entity.mousePosWorld();
+	 * @return {IgePoint3d} The mouse point relative to the world
+	 * center.
+	 */
 	mousePosWorld: function (viewport) {
 		viewport = viewport || ige._currentViewport;
 		var mp = this.mousePos(viewport);
@@ -583,17 +569,17 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Rotates the entity to point at the target point around the z axis.
-     * @param {IgePoint3d} point The point in world co-ordinates to
-     * point the entity at.
-     * @example #Point the entity at another entity
-     *     entity.rotateToPoint(otherEntity.worldPosition());
-     * @example #Point the entity at mouse
-     *     entity.rotateToPoint(ige._currentViewport.mousePos());
-     * @example #Point the entity at an arbitrary point x, y
-     *     entity.rotateToPoint(new IgePoint3d(x, y, 0));
-     * @return {*}
-     */
+	 * Rotates the entity to point at the target point around the z axis.
+	 * @param {IgePoint3d} point The point in world co-ordinates to
+	 * point the entity at.
+	 * @example #Point the entity at another entity
+	 *     entity.rotateToPoint(otherEntity.worldPosition());
+	 * @example #Point the entity at mouse
+	 *     entity.rotateToPoint(ige._currentViewport.mousePos());
+	 * @example #Point the entity at an arbitrary point x, y
+	 *     entity.rotateToPoint(new IgePoint3d(x, y, 0));
+	 * @return {*}
+	 */
 	rotateToPoint: function (point) {
 		var worldPos = this.worldPosition();
 		this.rotateTo(
@@ -607,25 +593,25 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the texture to use as the background
-     * pattern for this entity.
-     * @param {IgeTexture} texture The texture to use as
-     * the background.
-     * @param {String=} repeat The type of repeat mode either: "repeat",
-     * "repeat-x", "repeat-y" or "none".
-     * @param {Boolean=} trackCamera If set to true, will track the camera
-     * translation and "move" the background with the camera.
-     * @param {Boolean=} isoTile If true the tiles of the background will
-     * be treated as isometric and will therefore be drawn so that they are
-     * layered seamlessly in isometric view.
-     * @example #Set a background pattern for this entity with 2d tiling
-     *     var texture = new IgeTexture('path/to/my/texture.png');
-     *     entity.backgroundPattern(texture, 'repeat', true, false);
-     * @example #Set a background pattern for this entity with isometric tiling
-     *     var texture = new IgeTexture('path/to/my/texture.png');
-     *     entity.backgroundPattern(texture, 'repeat', true, true);
-     * @return {*}
-     */
+	 * Gets / sets the texture to use as the background
+	 * pattern for this entity.
+	 * @param {IgeTexture} texture The texture to use as
+	 * the background.
+	 * @param {String=} repeat The type of repeat mode either: "repeat",
+	 * "repeat-x", "repeat-y" or "none".
+	 * @param {Boolean=} trackCamera If set to true, will track the camera
+	 * translation and "move" the background with the camera.
+	 * @param {Boolean=} isoTile If true the tiles of the background will
+	 * be treated as isometric and will therefore be drawn so that they are
+	 * layered seamlessly in isometric view.
+	 * @example #Set a background pattern for this entity with 2d tiling
+	 *     var texture = new IgeTexture('path/to/my/texture.png');
+	 *     entity.backgroundPattern(texture, 'repeat', true, false);
+	 * @example #Set a background pattern for this entity with isometric tiling
+	 *     var texture = new IgeTexture('path/to/my/texture.png');
+	 *     entity.backgroundPattern(texture, 'repeat', true, true);
+	 * @return {*}
+	 */
 	backgroundPattern: function (texture, repeat, trackCamera, isoTile) {
 		if (texture !== undefined) {
 			this._backgroundPattern = texture;
@@ -638,28 +624,24 @@ var IgeEntity = IgeObject.extend({
 
 		return this._backgroundPattern;
 	},
-	createTexture: function (defaultSprite = 0, defaultData) {
-		ige.client.emit('createTexture', {
-			entity: this,
-			defaultSprite: defaultSprite,
-			defaultData: defaultData
-		});
+	addToRenderer: function (defaultSprite = 0, defaultData) {
+		ige.entitiesToRender.trackEntityById[this.id()] = this;
 	},
 
 	/**
-     * Set the object's width to the number of tile width's specified.
-     * @param {Number} val Number of tiles.
-     * @param {Boolean=} lockAspect If true, sets the height according
-     * to the texture aspect ratio and the new width.
-     * @example #Set the width of the entity based on the tile width of the map the entity is mounted to
-     *     // Set the entity width to the size of 1 tile with
-     *     // lock aspect enabled which will automatically size
-     *     // the height as well so as to maintain the aspect
-     *     // ratio of the entity
-     *     entity.widthByTile(1, true);
-     * @return {*} The object this method was called from to allow
-     * method chaining.
-     */
+	 * Set the object's width to the number of tile width's specified.
+	 * @param {Number} val Number of tiles.
+	 * @param {Boolean=} lockAspect If true, sets the height according
+	 * to the texture aspect ratio and the new width.
+	 * @example #Set the width of the entity based on the tile width of the map the entity is mounted to
+	 *     // Set the entity width to the size of 1 tile with
+	 *     // lock aspect enabled which will automatically size
+	 *     // the height as well so as to maintain the aspect
+	 *     // ratio of the entity
+	 *     entity.widthByTile(1, true);
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
 	widthByTile: function (val, lockAspect) {
 		if (this._parent && this._parent._tileWidth !== undefined && this._parent._tileHeight !== undefined) {
 			var tileSize = this._mode === 0 ? this._parent._tileWidth : this._parent._tileWidth * 2;
@@ -684,19 +666,19 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Set the object's height to the number of tile height's specified.
-     * @param {Number} val Number of tiles.
-     * @param {Boolean=} lockAspect If true, sets the width according
-     * to the texture aspect ratio and the new height.
-     * @example #Set the height of the entity based on the tile height of the map the entity is mounted to
-     *     // Set the entity height to the size of 1 tile with
-     *     // lock aspect enabled which will automatically size
-     *     // the width as well so as to maintain the aspect
-     *     // ratio of the entity
-     *     entity.heightByTile(1, true);
-     * @return {*} The object this method was called from to allow
-     * method chaining.
-     */
+	 * Set the object's height to the number of tile height's specified.
+	 * @param {Number} val Number of tiles.
+	 * @param {Boolean=} lockAspect If true, sets the width according
+	 * to the texture aspect ratio and the new height.
+	 * @example #Set the height of the entity based on the tile height of the map the entity is mounted to
+	 *     // Set the entity height to the size of 1 tile with
+	 *     // lock aspect enabled which will automatically size
+	 *     // the width as well so as to maintain the aspect
+	 *     // ratio of the entity
+	 *     entity.heightByTile(1, true);
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
 	heightByTile: function (val, lockAspect) {
 		if (this._parent && this._parent._tileWidth !== undefined && this._parent._tileHeight !== undefined) {
 			var tileSize = this._mode === 0 ? this._parent._tileHeight : this._parent._tileHeight * 2;
@@ -721,14 +703,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Adds the object to the tile map at the passed tile co-ordinates. If
-     * no tile co-ordinates are passed, will use the current tile position
-     * and the tileWidth() and tileHeight() values.
-     * @param {Number=} x X co-ordinate of the tile to occupy.
-     * @param {Number=} y Y co-ordinate of the tile to occupy.
-     * @param {Number=} width Number of tiles along the x-axis to occupy.
-     * @param {Number=} height Number of tiles along the y-axis to occupy.
-     */
+	 * Adds the object to the tile map at the passed tile co-ordinates. If
+	 * no tile co-ordinates are passed, will use the current tile position
+	 * and the tileWidth() and tileHeight() values.
+	 * @param {Number=} x X co-ordinate of the tile to occupy.
+	 * @param {Number=} y Y co-ordinate of the tile to occupy.
+	 * @param {Number=} width Number of tiles along the x-axis to occupy.
+	 * @param {Number=} height Number of tiles along the y-axis to occupy.
+	 */
 	occupyTile: function (x, y, width, height) {
 		// Check that the entity is mounted to a tile map
 		if (this._parent && this._parent.IgeTileMap2d) {
@@ -750,15 +732,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the object from the tile map at the passed tile co-ordinates.
-     * If no tile co-ordinates are passed, will use the current tile position
-     * and the tileWidth() and tileHeight() values.
-     * @param {Number=} x X co-ordinate of the tile to un-occupy.
-     * @param {Number=} y Y co-ordinate of the tile to un-occupy.
-     * @param {Number=} width Number of tiles along the x-axis to un-occupy.
-     * @param {Number=} height Number of tiles along the y-axis to un-occupy.
-     * @private
-     */
+	 * Removes the object from the tile map at the passed tile co-ordinates.
+	 * If no tile co-ordinates are passed, will use the current tile position
+	 * and the tileWidth() and tileHeight() values.
+	 * @param {Number=} x X co-ordinate of the tile to un-occupy.
+	 * @param {Number=} y Y co-ordinate of the tile to un-occupy.
+	 * @param {Number=} width Number of tiles along the x-axis to un-occupy.
+	 * @param {Number=} height Number of tiles along the y-axis to un-occupy.
+	 * @private
+	 */
 	unOccupyTile: function (x, y, width, height) {
 		// Check that the entity is mounted to a tile map
 		if (this._parent && this._parent.IgeTileMap2d) {
@@ -780,12 +762,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Returns an array of tile co-ordinates that the object is currently
-     * over, calculated using the current world co-ordinates of the object
-     * as well as it's 3d geometry.
-     * @private
-     * @return {Array} The array of tile co-ordinates as IgePoint3d instances.
-     */
+	 * Returns an array of tile co-ordinates that the object is currently
+	 * over, calculated using the current world co-ordinates of the object
+	 * as well as it's 3d geometry.
+	 * @private
+	 * @return {Array} The array of tile co-ordinates as IgePoint3d instances.
+	 */
 	overTiles: function () {
 		// Check that the entity is mounted to a tile map
 		if (this._parent && this._parent.IgeTileMap2d) {
@@ -807,13 +789,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the anchor position that this entity's texture
-     * will be adjusted by.
-     * @param {Number=} x The x anchor value.
-     * @param {Number=} y The y anchor value.
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the anchor position that this entity's texture
+	 * will be adjusted by.
+	 * @param {Number=} x The x anchor value.
+	 * @param {Number=} y The y anchor value.
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	anchor: function (x, y) {
 		if (x !== undefined && y !== undefined) {
 			this._anchor = new IgePoint2d(x, y);
@@ -824,13 +806,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the geometry x value.
-     * @param {Number=} px The new x value in pixels.
-     * @example #Set the width of the entity
-     *     entity.width(40);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the geometry x value.
+	 * @param {Number=} px The new x value in pixels.
+	 * @example #Set the width of the entity
+	 *     entity.width(40);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	width: function (px, lockAspect) {
 		if (px !== undefined) {
 			if (lockAspect) {
@@ -843,7 +825,13 @@ var IgeEntity = IgeObject.extend({
 			this._bounds2d.x2 = px / 2;
 
 			if (ige.isClient) {
-				ige.client.emit('width', {entity: this, px: px});
+				this.emit(
+					'size',
+					{
+						width: this._bounds2d.x,
+						height: this._bounds2d.y
+					}
+				);
 			}
 
 			return this;
@@ -853,13 +841,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the geometry y value.
-     * @param {Number=} px The new y value in pixels.
-     * @example #Set the height of the entity
-     *     entity.height(40);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the geometry y value.
+	 * @param {Number=} px The new y value in pixels.
+	 * @example #Set the height of the entity
+	 *     entity.height(40);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	height: function (px, lockAspect) {
 		if (px !== undefined) {
 			if (lockAspect) {
@@ -872,7 +860,13 @@ var IgeEntity = IgeObject.extend({
 			this._bounds2d.y2 = px / 2;
 
 			if (ige.isClient) {
-				ige.client.emit('height', {entity: this, px: px});
+				this.emit(
+					'size',
+					{
+						width: this._bounds2d.x,
+						height: this._bounds2d.y
+					}
+				);
 			}
 
 			return this;
@@ -882,18 +876,18 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the 2d geometry of the entity. The x and y values are
-     * relative to the center of the entity. This geometry is used when
-     * rendering textures for the entity and positioning in world space as
-     * well as UI positioning calculations. It holds no bearing on isometric
-     * positioning.
-     * @param {Number=} x The new x value in pixels.
-     * @param {Number=} y The new y value in pixels.
-     * @example #Set the dimensions of the entity (width and height)
-     *     entity.bounds2d(40, 40);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the 2d geometry of the entity. The x and y values are
+	 * relative to the center of the entity. This geometry is used when
+	 * rendering textures for the entity and positioning in world space as
+	 * well as UI positioning calculations. It holds no bearing on isometric
+	 * positioning.
+	 * @param {Number=} x The new x value in pixels.
+	 * @param {Number=} y The new y value in pixels.
+	 * @example #Set the dimensions of the entity (width and height)
+	 *     entity.bounds2d(40, 40);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	bounds2d: function (x, y) {
 		if (x !== undefined && y !== undefined) {
 			this._bounds2d = new IgePoint2d(x, y, 0);
@@ -934,18 +928,18 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the 3d geometry of the entity. The x and y values are
-     * relative to the center of the entity and the z value is wholly
-     * positive from the "floor". Used to define a 3d bounding cuboid for
-     * the entity used in isometric depth sorting and hit testing.
-     * @param {Number=} x The new x value in pixels.
-     * @param {Number=} y The new y value in pixels.
-     * @param {Number=} z The new z value in pixels.
-     * @example #Set the dimensions of the entity (width, height and length)
-     *     entity.bounds3d(40, 40, 20);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the 3d geometry of the entity. The x and y values are
+	 * relative to the center of the entity and the z value is wholly
+	 * positive from the "floor". Used to define a 3d bounding cuboid for
+	 * the entity used in isometric depth sorting and hit testing.
+	 * @param {Number=} x The new x value in pixels.
+	 * @param {Number=} y The new y value in pixels.
+	 * @param {Number=} z The new z value in pixels.
+	 * @example #Set the dimensions of the entity (width, height and length)
+	 *     entity.bounds3d(40, 40, 20);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	bounds3d: function (x, y, z) {
 		if (x !== undefined && y !== undefined && z !== undefined) {
 			this._bounds3d = new IgePoint3d(x, y, z);
@@ -956,28 +950,28 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * @deprecated Use bounds3d instead
-     * @param x
-     * @param y
-     * @param z
-     */
+	 * @deprecated Use bounds3d instead
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	size3d: function (x, y, z) {
 		IgeEntity.prototype.log('size3d has been renamed to bounds3d but is exactly the same so please search/replace your code to update calls.', 'warning');
 	},
 
 	/**
-     * Gets / sets the life span of the object in milliseconds. The life
-     * span is how long the object will exist for before being automatically
-     * destroyed.
-     * @param {Number=} milliseconds The number of milliseconds the entity
-     * will live for from the current time.
-     * @param {Function=} deathCallback Optional callback method to call when
-     * the entity is destroyed from end of lifespan.
-     * @example #Set the lifespan of the entity to 2 seconds after which it will automatically be destroyed
-     *     entity.lifeSpan(2000);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the life span of the object in milliseconds. The life
+	 * span is how long the object will exist for before being automatically
+	 * destroyed.
+	 * @param {Number=} milliseconds The number of milliseconds the entity
+	 * will live for from the current time.
+	 * @param {Function=} deathCallback Optional callback method to call when
+	 * the entity is destroyed from end of lifespan.
+	 * @example #Set the lifespan of the entity to 2 seconds after which it will automatically be destroyed
+	 *     entity.lifeSpan(2000);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	lifeSpan: function (milliseconds, deathCallback) {
 		if (milliseconds != undefined) {
 			this.deathTime(ige._currentTime + milliseconds, deathCallback);
@@ -988,21 +982,21 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the timestamp in milliseconds that denotes the time
-     * that the entity will be destroyed. The object checks it's own death
-     * time during each tick and if the current time is greater than the
-     * death time, the object will be destroyed.
-     * @param {Number=} val The death time timestamp. This is a time relative
-     * to the engine's start time of zero rather than the current time that
-     * would be retrieved from new Date().getTime(). It is usually easier
-     * to call lifeSpan() rather than setting the deathTime directly.
-     * @param {Function=} deathCallback Optional callback method to call when
-     * the entity is destroyed from end of lifespan.
-     * @example #Set the death time of the entity to 60 seconds after engine start
-     *     entity.deathTime(60000);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the timestamp in milliseconds that denotes the time
+	 * that the entity will be destroyed. The object checks it's own death
+	 * time during each tick and if the current time is greater than the
+	 * death time, the object will be destroyed.
+	 * @param {Number=} val The death time timestamp. This is a time relative
+	 * to the engine's start time of zero rather than the current time that
+	 * would be retrieved from new Date().getTime(). It is usually easier
+	 * to call lifeSpan() rather than setting the deathTime directly.
+	 * @param {Function=} deathCallback Optional callback method to call when
+	 * the entity is destroyed from end of lifespan.
+	 * @example #Set the death time of the entity to 60 seconds after engine start
+	 *     entity.deathTime(60000);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	deathTime: function (val, deathCallback) {
 		this._deathTime = val;
 
@@ -1017,15 +1011,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the entity opacity from 0.0 to 1.0.
-     * @param {Number=} val The opacity value.
-     * @example #Set the entity to half-visible
-     *     entity.opacity(0.5);
-     * @example #Set the entity to fully-visible
-     *     entity.opacity(1.0);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the entity opacity from 0.0 to 1.0.
+	 * @param {Number=} val The opacity value.
+	 * @example #Set the entity to half-visible
+	 *     entity.opacity(0.5);
+	 * @example #Set the entity to fully-visible
+	 *     entity.opacity(1.0);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	opacity: function (val) {
 		if (val !== undefined) {
 			this._opacity = val;
@@ -1036,15 +1030,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the noAabb flag that determines if the entity's axis
-     * aligned bounding box should be calculated every tick or not. If
-     * you don't need the AABB data (for instance if you don't need to
-     * detect mouse events on this entity or you DO want the AABB to be
-     * updated but want to control it manually by calling aabb(true)
-     * yourself as needed).
-     * @param {Boolean=} val If set to true will turn off AABB calculation.
-     * @returns {*}
-     */
+	 * Gets / sets the noAabb flag that determines if the entity's axis
+	 * aligned bounding box should be calculated every tick or not. If
+	 * you don't need the AABB data (for instance if you don't need to
+	 * detect mouse events on this entity or you DO want the AABB to be
+	 * updated but want to control it manually by calling aabb(true)
+	 * yourself as needed).
+	 * @param {Boolean=} val If set to true will turn off AABB calculation.
+	 * @returns {*}
+	 */
 	noAabb: function (val) {
 		if (val !== undefined) {
 			this._noAabb = val;
@@ -1055,14 +1049,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the texture to use when rendering the entity.
-     * @param {IgeTexture=} texture The texture object.
-     * @example #Set the entity texture (image)
-     *     var texture = new IgeTexture('path/to/some/texture.png');
-     *     entity.texture(texture);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the texture to use when rendering the entity.
+	 * @param {IgeTexture=} texture The texture object.
+	 * @example #Set the entity texture (image)
+	 *     var texture = new IgeTexture('path/to/some/texture.png');
+	 *     entity.texture(texture);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	texture: function (texture) {
 		if (texture !== undefined) {
 			this._texture = texture;
@@ -1073,17 +1067,17 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the current texture cell used when rendering the game
-     * object's texture. If the texture is not cell-based, this value is
-     * ignored.
-     * @param {Number=} val The cell index.
-     * @example #Set the entity texture as a 4x4 cell sheet and then set the cell to use
-     *     var texture = new IgeCellSheet('path/to/some/cellSheet.png', 4, 4);
-     *     entity.texture(texture)
-     *         .cell(3);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the current texture cell used when rendering the game
+	 * object's texture. If the texture is not cell-based, this value is
+	 * ignored.
+	 * @param {Number=} val The cell index.
+	 * @example #Set the entity texture as a 4x4 cell sheet and then set the cell to use
+	 *     var texture = new IgeCellSheet('path/to/some/cellSheet.png', 4, 4);
+	 *     entity.texture(texture)
+	 *         .cell(3);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	cell: function (val) {
 		if (val > 0 || val === null) {
 			this._cell = val;
@@ -1094,25 +1088,25 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the current texture cell used when rendering the game
-     * object's texture. If the texture is not cell-based, this value is
-     * ignored. This differs from cell() in that it accepts a string id
-     * as the cell
-     * @param {Number=} val The cell id.
-     * @example #Set the entity texture as a sprite sheet with cell ids and then set the cell to use
-     *     var texture = new IgeSpriteSheet('path/to/some/cellSheet.png', [
-     *         [0, 0, 40, 40, 'robotHead'],
-     *         [40, 0, 40, 40, 'humanHead'],
-     *     ]);
-     *
-     *     // Assign the texture, set the cell to use and then
-     *     // set the entity to the size of the cell automatically!
-     *     entity.texture(texture)
-     *         .cellById('robotHead')
-     *         .dimensionsFromCell();
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the current texture cell used when rendering the game
+	 * object's texture. If the texture is not cell-based, this value is
+	 * ignored. This differs from cell() in that it accepts a string id
+	 * as the cell
+	 * @param {Number=} val The cell id.
+	 * @example #Set the entity texture as a sprite sheet with cell ids and then set the cell to use
+	 *     var texture = new IgeSpriteSheet('path/to/some/cellSheet.png', [
+	 *         [0, 0, 40, 40, 'robotHead'],
+	 *         [40, 0, 40, 40, 'humanHead'],
+	 *     ]);
+	 *
+	 *     // Assign the texture, set the cell to use and then
+	 *     // set the entity to the size of the cell automatically!
+	 *     entity.texture(texture)
+	 *         .cellById('robotHead')
+	 *         .dimensionsFromCell();
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	cellById: function (val) {
 		if (val !== undefined) {
 			if (this._texture) {
@@ -1141,19 +1135,19 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Sets the geometry of the entity to match the width and height
-     * of the assigned texture.
-     * @param {Number=} percent The percentage size to resize to.
-     * @example #Set the entity dimensions based on the assigned texture
-     *     var texture = new IgeTexture('path/to/some/texture.png');
-     *
-     *     // Assign the texture, and then set the entity to the
-     *     // size of the texture automatically!
-     *     entity.texture(texture)
-     *         .dimensionsFromTexture();
-     * @return {*} The object this method was called from to allow
-     * method chaining.
-     */
+	 * Sets the geometry of the entity to match the width and height
+	 * of the assigned texture.
+	 * @param {Number=} percent The percentage size to resize to.
+	 * @example #Set the entity dimensions based on the assigned texture
+	 *     var texture = new IgeTexture('path/to/some/texture.png');
+	 *
+	 *     // Assign the texture, and then set the entity to the
+	 *     // size of the texture automatically!
+	 *     entity.texture(texture)
+	 *         .dimensionsFromTexture();
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
 	dimensionsFromTexture: function (percent) {
 		if (this._texture) {
 			if (percent === undefined) {
@@ -1172,24 +1166,24 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Sets the geometry of the entity to match the width and height
-     * of the assigned texture cell. If the texture is not cell-based
-     * the entire texture width / height will be used.
-     * @param {Number=} percent The percentage size to resize to.
-     * @example #Set the entity dimensions based on the assigned texture and cell
-     *     var texture = new IgeSpriteSheet('path/to/some/cellSheet.png', [
-     *         [0, 0, 40, 40, 'robotHead'],
-     *         [40, 0, 40, 40, 'humanHead'],
-     *     ]);
-     *
-     *     // Assign the texture, set the cell to use and then
-     *     // set the entity to the size of the cell automatically!
-     *     entity.texture(texture)
-     *         .cellById('robotHead')
-     *         .dimensionsFromCell();
-     * @return {*} The object this method was called from to allow
-     * method chaining
-     */
+	 * Sets the geometry of the entity to match the width and height
+	 * of the assigned texture cell. If the texture is not cell-based
+	 * the entire texture width / height will be used.
+	 * @param {Number=} percent The percentage size to resize to.
+	 * @example #Set the entity dimensions based on the assigned texture and cell
+	 *     var texture = new IgeSpriteSheet('path/to/some/cellSheet.png', [
+	 *         [0, 0, 40, 40, 'robotHead'],
+	 *         [40, 0, 40, 40, 'humanHead'],
+	 *     ]);
+	 *
+	 *     // Assign the texture, set the cell to use and then
+	 *     // set the entity to the size of the cell automatically!
+	 *     entity.texture(texture)
+	 *         .cellById('robotHead')
+	 *         .dimensionsFromCell();
+	 * @return {*} The object this method was called from to allow
+	 * method chaining
+	 */
 	dimensionsFromCell: function (percent) {
 		if (this._texture) {
 			if (this._texture._cells && this._texture._cells.length) {
@@ -1210,15 +1204,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the highlight mode. True is on false is off.
-     * @param {Boolean} val The highlight mode true or false.
-     * @example #Set the entity to render highlighted
-     *     entity.highlight(true);
-     * @example #Get the current highlight state
-     *     var isHighlighted = entity.highlight();
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the highlight mode. True is on false is off.
+	 * @param {Boolean} val The highlight mode true or false.
+	 * @example #Set the entity to render highlighted
+	 *     entity.highlight(true);
+	 * @example #Get the current highlight state
+	 *     var isHighlighted = entity.highlight();
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	highlight: function (val) {
 		if (val !== undefined) {
 			this._highlight = val;
@@ -1229,35 +1223,35 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Returns the absolute world position of the entity as an
-     * IgePoint3d.
-     * @example #Get the world position of the entity
-     *     var wordPos = entity.worldPosition();
-     * @return {IgePoint3d} The absolute world position of the
-     * entity.
-     */
+	 * Returns the absolute world position of the entity as an
+	 * IgePoint3d.
+	 * @example #Get the world position of the entity
+	 *     var wordPos = entity.worldPosition();
+	 * @return {IgePoint3d} The absolute world position of the
+	 * entity.
+	 */
 	worldPosition: function () {
 		return new IgePoint3d(this._worldMatrix.matrix[2], this._worldMatrix.matrix[5], 0);
 	},
 
 	/**
-     * Returns the absolute world rotation z of the entity as a
-     * value in radians.
-     * @example #Get the world rotation of the entity's z axis
-     *     var wordRot = entity.worldRotationZ();
-     * @return {Number} The absolute world rotation z of the
-     * entity.
-     */
+	 * Returns the absolute world rotation z of the entity as a
+	 * value in radians.
+	 * @example #Get the world rotation of the entity's z axis
+	 *     var wordRot = entity.worldRotationZ();
+	 * @return {Number} The absolute world rotation z of the
+	 * entity.
+	 */
 	worldRotationZ: function () {
 		return this._worldMatrix.rotationRadians();
 	},
 
 	/**
-     * Converts an array of points from local space to this entity's
-     * world space using it's world transform matrix. This will alter
-     * the points passed in the array directly.
-     * @param {Array} points The array of IgePoints to convert.
-     */
+	 * Converts an array of points from local space to this entity's
+	 * world space using it's world transform matrix. This will alter
+	 * the points passed in the array directly.
+	 * @param {Array} points The array of IgePoints to convert.
+	 */
 	localToWorld: function (points, viewport, inverse) {
 		viewport = viewport || ige._currentViewport;
 
@@ -1279,33 +1273,33 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Converts a point from local space to this entity's world space
-     * using it's world transform matrix. This will alter the point's
-     * data directly.
-     * @param {IgePoint3d} point The IgePoint3d to convert.
-     */
+	 * Converts a point from local space to this entity's world space
+	 * using it's world transform matrix. This will alter the point's
+	 * data directly.
+	 * @param {IgePoint3d} point The IgePoint3d to convert.
+	 */
 	localToWorldPoint: function (point, viewport) {
 		viewport = viewport || ige._currentViewport;
 		this._worldMatrix.transform([point], this);
 	},
 
 	/**
-     * Returns the screen position of the entity as an IgePoint3d where x is the
-     * "left" and y is the "top", useful for positioning HTML elements at the
-     * screen location of an IGE entity. This method assumes that the top-left
-     * of the main canvas element is at 0, 0. If not you can adjust the values
-     * yourself to allow for offset.
-     * @example #Get the screen position of the entity
-     *     var screenPos = entity.screenPosition();
-     * @return {IgePoint3d} The screen position of the entity.
-     */
+	 * Returns the screen position of the entity as an IgePoint3d where x is the
+	 * "left" and y is the "top", useful for positioning HTML elements at the
+	 * screen location of an IGE entity. This method assumes that the top-left
+	 * of the main canvas element is at 0, 0. If not you can adjust the values
+	 * yourself to allow for offset.
+	 * @example #Get the screen position of the entity
+	 *     var screenPos = entity.screenPosition();
+	 * @return {IgePoint3d} The screen position of the entity.
+	 */
 	screenPosition: function () {
 		return new IgePoint3d(Math.floor((this._worldMatrix.matrix[2] - ige._currentCamera._translate.x) * ige._currentCamera._scale.x + ige._bounds2d.x2), Math.floor((this._worldMatrix.matrix[5] - ige._currentCamera._translate.y) * ige._currentCamera._scale.y + ige._bounds2d.y2), 0);
 	},
 
 	/**
-     * @deprecated Use bounds3dPolygon instead
-     */
+	 * @deprecated Use bounds3dPolygon instead
+	 */
 	localIsoBoundsPoly: function () {},
 
 	localBounds3dPolygon: function (recalculate) {
@@ -1331,8 +1325,8 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * @deprecated Use bounds3dPolygon instead
-     */
+	 * @deprecated Use bounds3dPolygon instead
+	 */
 	isoBoundsPoly: function () {},
 
 	bounds3dPolygon: function (recalculate) {
@@ -1349,8 +1343,8 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * @deprecated Use mouseInBounds3d instead
-     */
+	 * @deprecated Use mouseInBounds3d instead
+	 */
 	mouseInIsoBounds: function () {},
 
 	mouseInBounds3d: function (recalculate) {
@@ -1361,27 +1355,27 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Calculates and returns the current axis-aligned bounding box in
-     * world co-ordinates.
-     * @param {Boolean=} recalculate If true this will force the
-     * recalculation of the AABB instead of returning a cached
-     * value.
-     * @example #Get the entity axis-aligned bounding box dimensions
-     *     var aabb = entity.aabb();
-     *
-     *     IgeEntity.prototype.log(aabb.x);
-     *     IgeEntity.prototype.log(aabb.y);
-     *     IgeEntity.prototype.log(aabb.width);
-     *     IgeEntity.prototype.log(aabb.height);
-     * @example #Get the entity axis-aligned bounding box dimensions forcing the engine to update the values first
-     *     var aabb = entity.aabb(true); // Call with true to force update
-     *
-     *     IgeEntity.prototype.log(aabb.x);
-     *     IgeEntity.prototype.log(aabb.y);
-     *     IgeEntity.prototype.log(aabb.width);
-     *     IgeEntity.prototype.log(aabb.height);
-     * @return {IgeRect} The axis-aligned bounding box in world co-ordinates.
-     */
+	 * Calculates and returns the current axis-aligned bounding box in
+	 * world co-ordinates.
+	 * @param {Boolean=} recalculate If true this will force the
+	 * recalculation of the AABB instead of returning a cached
+	 * value.
+	 * @example #Get the entity axis-aligned bounding box dimensions
+	 *     var aabb = entity.aabb();
+	 *
+	 *     IgeEntity.prototype.log(aabb.x);
+	 *     IgeEntity.prototype.log(aabb.y);
+	 *     IgeEntity.prototype.log(aabb.width);
+	 *     IgeEntity.prototype.log(aabb.height);
+	 * @example #Get the entity axis-aligned bounding box dimensions forcing the engine to update the values first
+	 *     var aabb = entity.aabb(true); // Call with true to force update
+	 *
+	 *     IgeEntity.prototype.log(aabb.x);
+	 *     IgeEntity.prototype.log(aabb.y);
+	 *     IgeEntity.prototype.log(aabb.width);
+	 *     IgeEntity.prototype.log(aabb.height);
+	 * @return {IgeRect} The axis-aligned bounding box in world co-ordinates.
+	 */
 	aabb: function (recalculate, inverse) {
 		if (this._aabbDirty || !this._aabb || recalculate) {
 			//  && this.newFrame()
@@ -1436,28 +1430,28 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Calculates and returns the local axis-aligned bounding box
-     * for the entity. This is the AABB relative to the entity's
-     * center point.
-     * @param {Boolean=} recalculate If true this will force the
-     * recalculation of the local AABB instead of returning a cached
-     * value.
-     * @example #Get the entity local axis-aligned bounding box dimensions
-     *     var aabb = entity.localAabb();
-     *
-     *     IgeEntity.prototype.log(aabb.x);
-     *     IgeEntity.prototype.log(aabb.y);
-     *     IgeEntity.prototype.log(aabb.width);
-     *     IgeEntity.prototype.log(aabb.height);
-     * @example #Get the entity local axis-aligned bounding box dimensions forcing the engine to update the values first
-     *     var aabb = entity.localAabb(true); // Call with true to force update
-     *
-     *     IgeEntity.prototype.log(aabb.x);
-     *     IgeEntity.prototype.log(aabb.y);
-     *     IgeEntity.prototype.log(aabb.width);
-     *     IgeEntity.prototype.log(aabb.height);
-     * @return {IgeRect} The local AABB.
-     */
+	 * Calculates and returns the local axis-aligned bounding box
+	 * for the entity. This is the AABB relative to the entity's
+	 * center point.
+	 * @param {Boolean=} recalculate If true this will force the
+	 * recalculation of the local AABB instead of returning a cached
+	 * value.
+	 * @example #Get the entity local axis-aligned bounding box dimensions
+	 *     var aabb = entity.localAabb();
+	 *
+	 *     IgeEntity.prototype.log(aabb.x);
+	 *     IgeEntity.prototype.log(aabb.y);
+	 *     IgeEntity.prototype.log(aabb.width);
+	 *     IgeEntity.prototype.log(aabb.height);
+	 * @example #Get the entity local axis-aligned bounding box dimensions forcing the engine to update the values first
+	 *     var aabb = entity.localAabb(true); // Call with true to force update
+	 *
+	 *     IgeEntity.prototype.log(aabb.x);
+	 *     IgeEntity.prototype.log(aabb.y);
+	 *     IgeEntity.prototype.log(aabb.width);
+	 *     IgeEntity.prototype.log(aabb.height);
+	 * @return {IgeRect} The local AABB.
+	 */
 	localAabb: function (recalculate) {
 		if (!this._localAabb || recalculate) {
 			var aabb = this.aabb();
@@ -1468,14 +1462,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Calculates the axis-aligned bounding box for this entity, including
-     * all child entity bounding boxes and returns the final composite
-     * bounds.
-     * @example #Get the composite AABB
-     *     var entity = new IgeEntity(),
-     *         aabb = entity.compositeAabb();
-     * @return {IgeRect}
-     */
+	 * Calculates the axis-aligned bounding box for this entity, including
+	 * all child entity bounding boxes and returns the final composite
+	 * bounds.
+	 * @example #Get the composite AABB
+	 *     var entity = new IgeEntity(),
+	 *         aabb = entity.compositeAabb();
+	 * @return {IgeRect}
+	 */
 	compositeAabb: function (inverse) {
 		var arr = this._children;
 		var arrCount;
@@ -1507,14 +1501,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the composite stream flag. If set to true, any objects
-     * mounted to this one will have their streamMode() set to the same
-     * value as this entity and will also have their compositeStream flag
-     * set to true. This allows you to easily automatically stream any
-     * objects mounted to a root object and stream them all.
-     * @param val
-     * @returns {*}
-     */
+	 * Gets / sets the composite stream flag. If set to true, any objects
+	 * mounted to this one will have their streamMode() set to the same
+	 * value as this entity and will also have their compositeStream flag
+	 * set to true. This allows you to easily automatically stream any
+	 * objects mounted to a root object and stream them all.
+	 * @param val
+	 * @returns {*}
+	 */
 	compositeStream: function (val) {
 		if (val !== undefined) {
 			this._compositeStream = val;
@@ -1525,10 +1519,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Override the _childMounted method and apply entity-based flags.
-     * @param {IgeEntity} child
-     * @private
-     */
+	 * Override the _childMounted method and apply entity-based flags.
+	 * @param {IgeEntity} child
+	 * @private
+	 */
 	_childMounted: function (child) {
 		// Check if we need to set the compositeStream and streamMode
 		if (this.compositeStream()) {
@@ -1546,15 +1540,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Takes two values and returns them as an array where index [0]
-     * is the y argument and index[1] is the x argument. This method
-     * is used specifically in the 3d bounds intersection process to
-     * determine entity depth sorting.
-     * @param {Number} x The first value.
-     * @param {Number} y The second value.
-     * @return {Array} The swapped arguments.
-     * @private
-     */
+	 * Takes two values and returns them as an array where index [0]
+	 * is the y argument and index[1] is the x argument. This method
+	 * is used specifically in the 3d bounds intersection process to
+	 * determine entity depth sorting.
+	 * @param {Number} x The first value.
+	 * @param {Number} y The second value.
+	 * @return {Array} The swapped arguments.
+	 * @private
+	 */
 	_swapVars: function (x, y) {
 		return [y, x];
 	},
@@ -1615,17 +1609,17 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Compares the current entity's 3d bounds to the passed entity and
-     * determines if the current entity is "behind" the passed one. If an
-     * entity is behind another, it is drawn first during the scenegraph
-     * render phase.
-     * @param {IgeEntity} otherObject The other entity to check this
-     * entity's 3d bounds against.
-     * @example #Determine if this entity is "behind" another entity based on the current depth-sort
-     *     var behind = entity.isBehind(otherEntity);
-     * @return {Boolean} If true this entity is "behind" the passed entity
-     * or false if not.
-     */
+	 * Compares the current entity's 3d bounds to the passed entity and
+	 * determines if the current entity is "behind" the passed one. If an
+	 * entity is behind another, it is drawn first during the scenegraph
+	 * render phase.
+	 * @param {IgeEntity} otherObject The other entity to check this
+	 * entity's 3d bounds against.
+	 * @example #Determine if this entity is "behind" another entity based on the current depth-sort
+	 *     var behind = entity.isBehind(otherEntity);
+	 * @return {Boolean} If true this entity is "behind" the passed entity
+	 * or false if not.
+	 */
 	isBehind: function (otherObject) {
 		var thisG3d = this._bounds3d;
 		var otherG3d = otherObject._bounds3d;
@@ -1681,20 +1675,20 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Get / set the flag determining if this entity will respond
-     * to mouse interaction or not. When you set a mouse* event e.g.
-     * mouseUp, mouseOver etc this flag will automatically be reset
-     * to true.
-     * @param {Boolean=} val The flag value true or false.
-     * @example #Set entity to ignore mouse events
-     *     entity.mouseEventsActive(false);
-     * @example #Set entity to receive mouse events
-     *     entity.mouseEventsActive(true);
-     * @example #Get current flag value
-     *     var val = entity.mouseEventsActive();
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Get / set the flag determining if this entity will respond
+	 * to mouse interaction or not. When you set a mouse* event e.g.
+	 * mouseUp, mouseOver etc this flag will automatically be reset
+	 * to true.
+	 * @param {Boolean=} val The flag value true or false.
+	 * @example #Set entity to ignore mouse events
+	 *     entity.mouseEventsActive(false);
+	 * @example #Set entity to receive mouse events
+	 *     entity.mouseEventsActive(true);
+	 * @example #Get current flag value
+	 *     var val = entity.mouseEventsActive();
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	mouseEventsActive: function (val) {
 		if (val !== undefined) {
 			this._mouseEventsActive = val;
@@ -1705,10 +1699,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Sets the _ignoreCamera internal flag to the value passed for this
-     * and all child entities down the scenegraph.
-     * @param val
-     */
+	 * Sets the _ignoreCamera internal flag to the value passed for this
+	 * and all child entities down the scenegraph.
+	 * @param val
+	 */
 	ignoreCameraComposite: function (val) {
 		var i;
 		var arr = this._children;
@@ -1724,41 +1718,41 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Determines if the frame alternator value for this entity
-     * matches the engine's frame alternator value. The entity's
-     * frame alternator value will be set to match the engine's
-     * after each call to the entity.tick() method so the return
-     * value of this method can be used to determine if the tick()
-     * method has already been run for this entity.
-     *
-     * This is useful if you have multiple viewports which will
-     * cause the entity tick() method to fire once for each viewport
-     * but you only want to execute update code such as movement etc
-     * on the first time the tick() method is called.
-     *
-     * @example #Determine if the entity has already had it's tick method called
-     *     var tickAlreadyCalled = entity.newFrame();
-     * @return {Boolean} If false, the entity's tick method has
-     * not yet been processed for this tick.
-     */
+	 * Determines if the frame alternator value for this entity
+	 * matches the engine's frame alternator value. The entity's
+	 * frame alternator value will be set to match the engine's
+	 * after each call to the entity.tick() method so the return
+	 * value of this method can be used to determine if the tick()
+	 * method has already been run for this entity.
+	 *
+	 * This is useful if you have multiple viewports which will
+	 * cause the entity tick() method to fire once for each viewport
+	 * but you only want to execute update code such as movement etc
+	 * on the first time the tick() method is called.
+	 *
+	 * @example #Determine if the entity has already had it's tick method called
+	 *     var tickAlreadyCalled = entity.newFrame();
+	 * @return {Boolean} If false, the entity's tick method has
+	 * not yet been processed for this tick.
+	 */
 	newFrame: function () {
 		return ige._frameAlternator !== this._frameAlternatorCurrent;
 	},
 
 	/**
-     * Sets the canvas context transform properties to match the the game
-     * object's current transform values.
-     * @param {CanvasRenderingContext2D} ctx The canvas context to apply
-     * the transformation matrix to.
-     * @example #Transform a canvas context to the entity's local matrix values
-     *     var canvas = document.createElement('canvas');
-     *     canvas.width = 800;
-     *     canvas.height = 600;
-     *
-     *     var ctx = canvas.getContext('2d');
-     *     entity._transformContext(ctx);
-     * @private
-     */
+	 * Sets the canvas context transform properties to match the the game
+	 * object's current transform values.
+	 * @param {CanvasRenderingContext2D} ctx The canvas context to apply
+	 * the transformation matrix to.
+	 * @example #Transform a canvas context to the entity's local matrix values
+	 *     var canvas = document.createElement('canvas');
+	 *     canvas.width = 800;
+	 *     canvas.height = 600;
+	 *
+	 *     var ctx = canvas.getContext('2d');
+	 *     entity._transformContext(ctx);
+	 * @private
+	 */
 	_transformContext: function (ctx, inverse) {
 		if (this._parent) {
 			ctx.globalAlpha = this._computedOpacity = this._parent._computedOpacity * this._opacity;
@@ -1783,15 +1777,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Processes the updates required each render frame. Any code in the update()
-     * method will be called ONCE for each render frame BEFORE the tick() method.
-     * This differs from the tick() method in that the tick method can be called
-     * multiple times during a render frame depending on how many viewports your
-     * simulation is being rendered to, whereas the update() method is only called
-     * once. It is therefore the perfect place to put code that will control your
-     * entity's motion, AI etc.
-     * @param {CanvasRenderingContext2D} ctx The canvas context to render to.
-     */
+	 * Processes the updates required each render frame. Any code in the update()
+	 * method will be called ONCE for each render frame BEFORE the tick() method.
+	 * This differs from the tick() method in that the tick method can be called
+	 * multiple times during a render frame depending on how many viewports your
+	 * simulation is being rendered to, whereas the update() method is only called
+	 * once. It is therefore the perfect place to put code that will control your
+	 * entity's motion, AI etc.
+	 * @param {CanvasRenderingContext2D} ctx The canvas context to render to.
+	 */
 	update: function (ctx, tickDelta, isForOrphans) {
 		// var category = this._category || 'etc';
 		// if (ige.updateCount[category] == undefined)
@@ -1818,7 +1812,7 @@ var IgeEntity = IgeObject.extend({
 
 				if (!isForOrphans && ige.gameLoopTickHasExecuted) {
 					// Process any behaviours assigned to the entity
-					this._processUpdateBehaviours(ctx, tickDelta);
+					this._processUpdateBehaviours();
 				}
 
 				// Update this object's current frame alternator value
@@ -1859,14 +1853,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Processes the actions required each render frame.
-     * @param {CanvasRenderingContext2D} ctx The canvas context to render to.
-     * @param {Boolean} dontTransform If set to true, the tick method will
-     * not transform the context based on the entity's matrices. This is useful
-     * if you have extended the class and want to process down the inheritance
-     * chain but have already transformed the entity in a previous overloaded
-     * method.
-     */
+	 * Processes the actions required each render frame.
+	 * @param {CanvasRenderingContext2D} ctx The canvas context to render to.
+	 * @param {Boolean} dontTransform If set to true, the tick method will
+	 * not transform the context based on the entity's matrices. This is useful
+	 * if you have extended the class and want to process down the inheritance
+	 * chain but have already transformed the entity in a previous overloaded
+	 * method.
+	 */
 	tick: function (ctx, dontTransform) {
 		if (this._inView) ige.inViewCount++;
 		if ((!this._hidden && this._inView && (!this._parent || this._parent._inView)) || mode != 'play') {
@@ -1877,7 +1871,7 @@ var IgeEntity = IgeObject.extend({
 			ige.tickCount++;
 
 			// Process any behaviours assigned to the entity
-			this._processTickBehaviours(ctx);
+			this._processTickBehaviours();
 
 			// Process any mouse events we need to do
 
@@ -1999,13 +1993,15 @@ var IgeEntity = IgeObject.extend({
 						}
 
 						projectile.defaultData = {
+							//type: effect.projectileType,
 							translate: {
 								x: position.x,
 								y: position.y
 							},
 							rotate: this._rotate.z
 						};
-
+						//fix added for correct phaser projectile texture
+						projectile.type = effect.projectileType;
 						new Projectile(projectile);
 					}
 				}
@@ -2108,9 +2104,9 @@ var IgeEntity = IgeObject.extend({
 			_ctx.translate(-aabbC.x, -aabbC.y);
 
 			/**
-             * Fires when the entity's composite cache is ready.
-             * @event IgeEntity#compositeReady
-             */
+			 * Fires when the entity's composite cache is ready.
+			 * @event IgeEntity#compositeReady
+			 */
 			this.emit('compositeReady');
 		} else {
 			if (this._bounds2d.x > 0 && this._bounds2d.y > 0) {
@@ -2138,38 +2134,28 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	flip: function (flip) {
-		// if (this._category == 'item') {
-		// 	if (flip == 1)
-		// 	console.trace()
-		// console.log("flip", flip)
-		// }
-		// execute below iff flip orientation changes
 		if (ige.isServer) {
 			if (flip !== this._stats.flip) {
-				// if (this._category == 'unit' && this._stats.name != 'm0dE')
 				this.streamUpdateData([{ flip: flip }]);
 			}
 
 		} else if (ige.isClient) {
 			if (this._stats.flip !== flip) {
-				// if (this._category =='unit' && this._stats.name != 'm0dE')
-
-				ige.client.emit('flipTexture', {entity: this, flip: flip});
+				this.emit('flip', [ flip ]);
 			}
 		}
-
 		this._stats.flip = flip;
 	},
 
 	/**
-     * Handles calling the texture.render() method if a texture
-     * is applied to the entity. This part of the tick process has
-     * been abstracted to allow it to be overridden by an extending
-     * class.
-     * @param {CanvasRenderingContext2D} ctx The canvas context to render
-     * the entity to.
-     * @private
-     */
+	 * Handles calling the texture.render() method if a texture
+	 * is applied to the entity. This part of the tick process has
+	 * been abstracted to allow it to be overridden by an extending
+	 * class.
+	 * @param {CanvasRenderingContext2D} ctx The canvas context to render
+	 * the entity to.
+	 * @private
+	 */
 	_renderEntity: function (ctx) {
 		if (this._opacity > 0) {
 			// Check if the entity has a background pattern
@@ -2257,12 +2243,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Draws the cached off-screen canvas image data to the passed canvas
-     * context.
-     * @param {CanvasRenderingContext2D} ctx The canvas context to render
-     * the entity to.
-     * @private
-     */
+	 * Draws the cached off-screen canvas image data to the passed canvas
+	 * context.
+	 * @param {CanvasRenderingContext2D} ctx The canvas context to render
+	 * the entity to.
+	 * @private
+	 */
 	_renderCache: function (ctx) {
 		ctx.save();
 		if (this._compositeCache) {
@@ -2301,18 +2287,18 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Transforms a point by the entity's parent world matrix and
-     * it's own local matrix transforming the point to this entity's
-     * world space.
-     * @param {IgePoint3d} point The point to transform.
-     * @example #Transform a point by the entity's world matrix values
-     *     var point = new IgePoint3d(0, 0, 0);
-     *     entity._transformPoint(point);
-     *
-     *     IgeEntity.prototype.log(point);
-     * @return {IgePoint3d} The transformed point.
-     * @private
-     */
+	 * Transforms a point by the entity's parent world matrix and
+	 * it's own local matrix transforming the point to this entity's
+	 * world space.
+	 * @param {IgePoint3d} point The point to transform.
+	 * @example #Transform a point by the entity's world matrix values
+	 *     var point = new IgePoint3d(0, 0, 0);
+	 *     entity._transformPoint(point);
+	 *
+	 *     IgeEntity.prototype.log(point);
+	 * @return {IgePoint3d} The transformed point.
+	 * @private
+	 */
 	_transformPoint: function (point) {
 		if (this._parent) {
 			var tempMat = new IgeMatrix2d();
@@ -2330,10 +2316,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Helper method to transform an array of points using _transformPoint.
-     * @param {Array} points The points array to transform.
-     * @private
-     */
+	 * Helper method to transform an array of points using _transformPoint.
+	 * @param {Array} points The points array to transform.
+	 * @private
+	 */
 	_transformPoints: function (points) {
 		var point;
 		var pointCount = points.length;
@@ -2361,14 +2347,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Generates a string containing a code fragment that when
-     * evaluated will reproduce this object's properties via
-     * chained commands. This method will only check for
-     * properties that are directly related to this class.
-     * Other properties are handled by their own class method.
-     * @return {String} The string code fragment that will
-     * reproduce this entity when evaluated.
-     */
+	 * Generates a string containing a code fragment that when
+	 * evaluated will reproduce this object's properties via
+	 * chained commands. This method will only check for
+	 * properties that are directly related to this class.
+	 * Other properties are handled by their own class method.
+	 * @return {String} The string code fragment that will
+	 * reproduce this entity when evaluated.
+	 */
 	_stringify: function (options) {
 		// Make sure we have an options object
 		if (options === undefined) {
@@ -2486,14 +2472,25 @@ var IgeEntity = IgeObject.extend({
 		}
 
 		if (ige.isClient) {
-			ige.client.emit('destroyTexture', this);
+			var entityId = this.entityId || this.id();
+			if (ige.entitiesToRender.trackEntityById[entityId]) {
+				if (
+					ige.client.myPlayer &&
+					ige.client.myPlayer.currentFollowUnit == this.id()
+				) {
+					ige.client.emit('stop-follow');
+				}
+
+				delete ige.entitiesToRender.trackEntityById[entityId];
+			}
+			this.emit('destroy');
 		}
 
 		/**
-         * Fires when the entity has been destroyed.
-         * @event IgeEntity#destroyed
-         * @param {IgeEntity} The entity that has been destroyed.
-         */
+		 * Fires when the entity has been destroyed.
+		 * @event IgeEntity#destroyed
+		 * @param {IgeEntity} The entity that has been destroyed.
+		 */
 		for (var region in ige.regionManager.entitiesInRegion) {
 			delete ige.regionManager.entitiesInRegion[region][this.id()];
 		}
@@ -2511,7 +2508,7 @@ var IgeEntity = IgeObject.extend({
 
 	// remove all pointers referencing to this entity
 	clearAllPointers: function () {
-		var keysToDelete = ['ability', 'animation', 'attribute', 'attributeBarsContainer', 'fadingTextContainer', 'inventory', 'minimapUnit', 'unitNameLabel', 'unitUi', '_aabb', '_bounds2d', '_bounds3d', '_rotate', '_velocity'];
+		var keysToDelete = ['ability', 'animation', 'attribute', 'inventory', 'minimapUnit', 'unitUi', '_aabb', '_bounds2d', '_bounds3d', '_rotate', '_velocity'];
 		for (var i = 0; i < keysToDelete.length; i++) {
 			var key = keysToDelete[i];
 			if (this[key] && typeof this[key].destroy === 'function') {
@@ -2552,23 +2549,23 @@ var IgeEntity = IgeObject.extend({
 	// INTERACTION
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-     * Gets / sets the callback that is fired when a mouse
-     * move event is triggered.
-     * @param {Function=} callback
-     * @example #Hook the mouse move event and stop it propagating further down the scenegraph
-     *     entity.mouseMove(function (event, control) {
-     *         // Mouse moved with button
-     *         IgeEntity.prototype.log('Mouse move button: ' + event.button);
-     *
-     *         // Stop the event propagating further down the scenegraph
-     *         control.stopPropagation();
-     *
-     *         // You can ALSO stop propagation without the control object
-     *         // reference via the global reference:
-     *         ige.input.stopPropagation();
-     *     });
-     * @return {*}
-     */
+	 * Gets / sets the callback that is fired when a mouse
+	 * move event is triggered.
+	 * @param {Function=} callback
+	 * @example #Hook the mouse move event and stop it propagating further down the scenegraph
+	 *     entity.mouseMove(function (event, control) {
+	 *         // Mouse moved with button
+	 *         IgeEntity.prototype.log('Mouse move button: ' + event.button);
+	 *
+	 *         // Stop the event propagating further down the scenegraph
+	 *         control.stopPropagation();
+	 *
+	 *         // You can ALSO stop propagation without the control object
+	 *         // reference via the global reference:
+	 *         ige.input.stopPropagation();
+	 *     });
+	 * @return {*}
+	 */
 	mouseMove: function (callback) {
 		if (callback) {
 			this._mouseMove = callback;
@@ -2580,23 +2577,23 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the callback that is fired when a mouse
-     * over event is triggered.
-     * @param {Function=} callback
-     * @example #Hook the mouse over event and stop it propagating further down the scenegraph
-     *     entity.mouseOver(function (event, control) {
-     *         // Mouse over with button
-     *         IgeEntity.prototype.log('Mouse over button: ' + event.button);
-     *
-     *         // Stop the event propagating further down the scenegraph
-     *         control.stopPropagation();
-     *
-     *         // You can ALSO stop propagation without the control object
-     *         // reference via the global reference:
-     *         ige.input.stopPropagation();
-     *     });
-     * @return {*}
-     */
+	 * Gets / sets the callback that is fired when a mouse
+	 * over event is triggered.
+	 * @param {Function=} callback
+	 * @example #Hook the mouse over event and stop it propagating further down the scenegraph
+	 *     entity.mouseOver(function (event, control) {
+	 *         // Mouse over with button
+	 *         IgeEntity.prototype.log('Mouse over button: ' + event.button);
+	 *
+	 *         // Stop the event propagating further down the scenegraph
+	 *         control.stopPropagation();
+	 *
+	 *         // You can ALSO stop propagation without the control object
+	 *         // reference via the global reference:
+	 *         ige.input.stopPropagation();
+	 *     });
+	 * @return {*}
+	 */
 	mouseOver: function (callback) {
 		if (callback) {
 			this._mouseOver = callback;
@@ -2608,23 +2605,23 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the callback that is fired when a mouse
-     * out event is triggered.
-     * @param {Function=} callback
-     * @example #Hook the mouse out event and stop it propagating further down the scenegraph
-     *     entity.mouseOut(function (event, control) {
-     *         // Mouse out with button
-     *         IgeEntity.prototype.log('Mouse out button: ' + event.button);
-     *
-     *         // Stop the event propagating further down the scenegraph
-     *         control.stopPropagation();
-     *
-     *         // You can ALSO stop propagation without the control object
-     *         // reference via the global reference:
-     *         ige.input.stopPropagation();
-     *     });
-     * @return {*}
-     */
+	 * Gets / sets the callback that is fired when a mouse
+	 * out event is triggered.
+	 * @param {Function=} callback
+	 * @example #Hook the mouse out event and stop it propagating further down the scenegraph
+	 *     entity.mouseOut(function (event, control) {
+	 *         // Mouse out with button
+	 *         IgeEntity.prototype.log('Mouse out button: ' + event.button);
+	 *
+	 *         // Stop the event propagating further down the scenegraph
+	 *         control.stopPropagation();
+	 *
+	 *         // You can ALSO stop propagation without the control object
+	 *         // reference via the global reference:
+	 *         ige.input.stopPropagation();
+	 *     });
+	 * @return {*}
+	 */
 	mouseOut: function (callback) {
 		if (callback) {
 			this._mouseOut = callback;
@@ -2636,23 +2633,23 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the callback that is fired when a mouse
-     * up event is triggered.
-     * @param {Function=} callback
-     * @example #Hook the mouse up event and stop it propagating further down the scenegraph
-     *     entity.mouseUp(function (event, control) {
-     *         // Mouse up with button
-     *         IgeEntity.prototype.log('Mouse up button: ' + event.button);
-     *
-     *         // Stop the event propagating further down the scenegraph
-     *         control.stopPropagation();
-     *
-     *         // You can ALSO stop propagation without the control object
-     *         // reference via the global reference:
-     *         ige.input.stopPropagation();
-     *     });
-     * @return {*}
-     */
+	 * Gets / sets the callback that is fired when a mouse
+	 * up event is triggered.
+	 * @param {Function=} callback
+	 * @example #Hook the mouse up event and stop it propagating further down the scenegraph
+	 *     entity.mouseUp(function (event, control) {
+	 *         // Mouse up with button
+	 *         IgeEntity.prototype.log('Mouse up button: ' + event.button);
+	 *
+	 *         // Stop the event propagating further down the scenegraph
+	 *         control.stopPropagation();
+	 *
+	 *         // You can ALSO stop propagation without the control object
+	 *         // reference via the global reference:
+	 *         ige.input.stopPropagation();
+	 *     });
+	 * @return {*}
+	 */
 	mouseUp: function (callback) {
 		if (callback) {
 			this._mouseUp = callback;
@@ -2664,23 +2661,23 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the callback that is fired when a mouse
-     * down event is triggered.
-     * @param {Function=} callback
-     * @example #Hook the mouse down event and stop it propagating further down the scenegraph
-     *     entity.mouseDown(function (event, control) {
-     *         // Mouse down with button
-     *         IgeEntity.prototype.log('Mouse down button: ' + event.button);
-     *
-     *         // Stop the event propagating further down the scenegraph
-     *         control.stopPropagation();
-     *
-     *         // You can ALSO stop propagation without the control object
-     *         // reference via the global reference:
-     *         ige.input.stopPropagation();
-     *     });
-     * @return {*}
-     */
+	 * Gets / sets the callback that is fired when a mouse
+	 * down event is triggered.
+	 * @param {Function=} callback
+	 * @example #Hook the mouse down event and stop it propagating further down the scenegraph
+	 *     entity.mouseDown(function (event, control) {
+	 *         // Mouse down with button
+	 *         IgeEntity.prototype.log('Mouse down button: ' + event.button);
+	 *
+	 *         // Stop the event propagating further down the scenegraph
+	 *         control.stopPropagation();
+	 *
+	 *         // You can ALSO stop propagation without the control object
+	 *         // reference via the global reference:
+	 *         ige.input.stopPropagation();
+	 *     });
+	 * @return {*}
+	 */
 	mouseDown: function (callback) {
 		if (callback) {
 			this._mouseDown = callback;
@@ -2692,24 +2689,24 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the callback that is fired when a mouse
-     * wheel event is triggered.
-     * @param {Function=} callback
-     * @example #Hook the mouse wheel event and stop it propagating further down the scenegraph
-     *     entity.mouseWheel(function (event, control) {
-     *         // Mouse wheel with button
-     *         IgeEntity.prototype.log('Mouse wheel button: ' + event.button);
-     *         IgeEntity.prototype.log('Mouse wheel delta: ' + event.wheelDelta);
-     *
-     *         // Stop the event propagating further down the scenegraph
-     *         control.stopPropagation();
-     *
-     *         // You can ALSO stop propagation without the control object
-     *         // reference via the global reference:
-     *         ige.input.stopPropagation();
-     *     });
-     * @return {*}
-     */
+	 * Gets / sets the callback that is fired when a mouse
+	 * wheel event is triggered.
+	 * @param {Function=} callback
+	 * @example #Hook the mouse wheel event and stop it propagating further down the scenegraph
+	 *     entity.mouseWheel(function (event, control) {
+	 *         // Mouse wheel with button
+	 *         IgeEntity.prototype.log('Mouse wheel button: ' + event.button);
+	 *         IgeEntity.prototype.log('Mouse wheel delta: ' + event.wheelDelta);
+	 *
+	 *         // Stop the event propagating further down the scenegraph
+	 *         control.stopPropagation();
+	 *
+	 *         // You can ALSO stop propagation without the control object
+	 *         // reference via the global reference:
+	 *         ige.input.stopPropagation();
+	 *     });
+	 * @return {*}
+	 */
 	mouseWheel: function (callback) {
 		if (callback) {
 			this._mouseWheel = callback;
@@ -2721,9 +2718,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the callback that is fired when a mouse
-     * move event is triggered.
-     */
+	 * Removes the callback that is fired when a mouse
+	 * move event is triggered.
+	 */
 	mouseMoveOff: function () {
 		delete this._mouseMove;
 
@@ -2731,9 +2728,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the callback that is fired when a mouse
-     * over event is triggered.
-     */
+	 * Removes the callback that is fired when a mouse
+	 * over event is triggered.
+	 */
 	mouseOverOff: function () {
 		delete this._mouseOver;
 
@@ -2741,9 +2738,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the callback that is fired when a mouse
-     * out event is triggered.
-     */
+	 * Removes the callback that is fired when a mouse
+	 * out event is triggered.
+	 */
 	mouseOutOff: function () {
 		delete this._mouseOut;
 
@@ -2751,9 +2748,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the callback that is fired when a mouse
-     * up event is triggered.
-     */
+	 * Removes the callback that is fired when a mouse
+	 * up event is triggered.
+	 */
 	mouseUpOff: function () {
 		delete this._mouseUp;
 
@@ -2761,10 +2758,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the callback that is fired when a mouse
-     * down event is triggered if the listener was registered
-     * via the mouseDown() method.
-     */
+	 * Removes the callback that is fired when a mouse
+	 * down event is triggered if the listener was registered
+	 * via the mouseDown() method.
+	 */
 	mouseDownOff: function () {
 		delete this._mouseDown;
 
@@ -2772,9 +2769,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes the callback that is fired when a mouse
-     * wheel event is triggered.
-     */
+	 * Removes the callback that is fired when a mouse
+	 * wheel event is triggered.
+	 */
 	mouseWheelOff: function () {
 		delete this._mouseWheel;
 
@@ -2791,13 +2788,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the shape / polygon that the mouse events
-     * are triggered against. There are two options, 'aabb' and
-     * 'isoBounds'. The default is 'aabb'.
-     * @param val
-     * @returns {*}
-     * @deprecated
-     */
+	 * Gets / sets the shape / polygon that the mouse events
+	 * are triggered against. There are two options, 'aabb' and
+	 * 'isoBounds'. The default is 'aabb'.
+	 * @param val
+	 * @returns {*}
+	 * @deprecated
+	 */
 	mouseEventTrigger: function (val) {
 		IgeEntity.prototype.log('mouseEventTrigger is no longer in use. Please see triggerPolygon() instead.', 'warning');
 		/* if (val !== undefined) {
@@ -2824,10 +2821,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Handler method that determines which mouse-move event
-     * to fire, a mouse-over or a mouse-move.
-     * @private
-     */
+	 * Handler method that determines which mouse-move event
+	 * to fire, a mouse-over or a mouse-move.
+	 * @private
+	 */
 	_handleMouseIn: function (event, evc, data) {
 		// Check if the mouse move is a mouse over
 		if (!this._mouseStateOver) {
@@ -2837,12 +2834,12 @@ var IgeEntity = IgeObject.extend({
 			}
 
 			/**
-             * Fires when the mouse moves over the entity.
-             * @event IgeEntity#mouseOver
-             * @param {Object} The DOM event object.
-             * @param {Object} The IGE event control object.
-             * @param {*} Any further event data.
-             */
+			 * Fires when the mouse moves over the entity.
+			 * @event IgeEntity#mouseOver
+			 * @param {Object} The DOM event object.
+			 * @param {Object} The IGE event control object.
+			 * @param {*} Any further event data.
+			 */
 			this.emit('mouseOver', [event, evc, data]);
 		}
 
@@ -2853,10 +2850,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Handler method that determines if a mouse-out event
-     * should be fired.
-     * @private
-     */
+	 * Handler method that determines if a mouse-out event
+	 * should be fired.
+	 * @private
+	 */
 	_handleMouseOut: function (event, evc, data) {
 		// The mouse went away from this entity so
 		// set mouse-down to false, regardless of the situation
@@ -2870,41 +2867,41 @@ var IgeEntity = IgeObject.extend({
 			}
 
 			/**
-             * Fires when the mouse moves away from the entity.
-             * @event IgeEntity#mouseOut
-             * @param {Object} The DOM event object.
-             * @param {Object} The IGE event control object.
-             * @param {*} Any further event data.
-             */
+			 * Fires when the mouse moves away from the entity.
+			 * @event IgeEntity#mouseOut
+			 * @param {Object} The DOM event object.
+			 * @param {Object} The IGE event control object.
+			 * @param {*} Any further event data.
+			 */
 			this.emit('mouseOut', [event, evc, data]);
 		}
 	},
 
 	/**
-     * Handler method that determines if a mouse-wheel event
-     * should be fired.
-     * @private
-     */
+	 * Handler method that determines if a mouse-wheel event
+	 * should be fired.
+	 * @private
+	 */
 	_handleMouseWheel: function (event, evc, data) {
 		if (this._mouseWheel) {
 			this._mouseWheel(event, evc, data);
 		}
 
 		/**
-         * Fires when the mouse wheel is moved over the entity.
-         * @event IgeEntity#mouseWheel
-         * @param {Object} The DOM event object.
-         * @param {Object} The IGE event control object.
-         * @param {*} Any further event data.
-         */
+		 * Fires when the mouse wheel is moved over the entity.
+		 * @event IgeEntity#mouseWheel
+		 * @param {Object} The DOM event object.
+		 * @param {Object} The IGE event control object.
+		 * @param {*} Any further event data.
+		 */
 		this.emit('mouseWheel', [event, evc, data]);
 	},
 
 	/**
-     * Handler method that determines if a mouse-up event
-     * should be fired.
-     * @private
-     */
+	 * Handler method that determines if a mouse-up event
+	 * should be fired.
+	 * @private
+	 */
 	_handleMouseUp: function (event, evc, data) {
 		// Reset the mouse-down flag
 		this._mouseStateDown = false;
@@ -2913,20 +2910,20 @@ var IgeEntity = IgeObject.extend({
 		}
 
 		/**
-         * Fires when a mouse up occurs on the entity.
-         * @event IgeEntity#mouseUp
-         * @param {Object} The DOM event object.
-         * @param {Object} The IGE event control object.
-         * @param {*} Any further event data.
-         */
+		 * Fires when a mouse up occurs on the entity.
+		 * @event IgeEntity#mouseUp
+		 * @param {Object} The DOM event object.
+		 * @param {Object} The IGE event control object.
+		 * @param {*} Any further event data.
+		 */
 		this.emit('mouseUp', [event, evc, data]);
 	},
 
 	/**
-     * Handler method that determines if a mouse-down event
-     * should be fired.
-     * @private
-     */
+	 * Handler method that determines if a mouse-down event
+	 * should be fired.
+	 * @private
+	 */
 	_handleMouseDown: function (event, evc, data) {
 		if (!this._mouseStateDown) {
 			this._mouseStateDown = true;
@@ -2935,25 +2932,25 @@ var IgeEntity = IgeObject.extend({
 			}
 
 			/**
-             * Fires when a mouse down occurs on the entity.
-             * @event IgeEntity#mouseDown
-             * @param {Object} The DOM event object.
-             * @param {Object} The IGE event control object.
-             * @param {*} Any further event data.
-             */
+			 * Fires when a mouse down occurs on the entity.
+			 * @event IgeEntity#mouseDown
+			 * @param {Object} The DOM event object.
+			 * @param {Object} The IGE event control object.
+			 * @param {*} Any further event data.
+			 */
 			this.emit('mouseDown', [event, evc, data]);
 		}
 	},
 
 	/**
-     * Checks mouse input types and fires the correct mouse event
-     * handler. This is an internal method that should never be
-     * called externally.
-     * @param {Object} evc The input component event control object.
-     * @param {Object} data Data passed by the input component into
-     * the new event.
-     * @private
-     */
+	 * Checks mouse input types and fires the correct mouse event
+	 * handler. This is an internal method that should never be
+	 * called externally.
+	 * @param {Object} evc The input component event control object.
+	 * @param {Object} data Data passed by the input component into
+	 * the new event.
+	 * @private
+	 */
 	_mouseInTrigger: function (evc, data) {
 		if (ige.input.mouseMove) {
 			// There is a mouse move event
@@ -2980,13 +2977,13 @@ var IgeEntity = IgeObject.extend({
 	// TRANSFORM
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-     * Enables tracing calls which inadvertently assign NaN values to
-     * transformation properties. When called on an entity this system
-     * will break with a debug line when a transform property is set
-     * to NaN allowing you to step back through the call stack and
-     * determine where the offending value originated.
-     * @returns {IgeEntity}
-     */
+	 * Enables tracing calls which inadvertently assign NaN values to
+	 * transformation properties. When called on an entity this system
+	 * will break with a debug line when a transform property is set
+	 * to NaN allowing you to step back through the call stack and
+	 * determine where the offending value originated.
+	 * @returns {IgeEntity}
+	 */
 	debugTransforms: function () {
 		ige.traceSet(this._translate, 'x', 1, function (val) {
 			return isNaN(val);
@@ -3052,15 +3049,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Translates the entity by adding the passed values to
-     * the current translation values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Translate the entity by 10 along the x axis
-     *     entity.translateBy(10, 0, 0);
-     * @return {*}
-     */
+	 * Translates the entity by adding the passed values to
+	 * the current translation values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Translate the entity by 10 along the x axis
+	 *     entity.translateBy(10, 0, 0);
+	 * @return {*}
+	 */
 	translateBy: function (x, y, z) {
 		if (!isNaN(x) && !isNaN(y) && !isNaN(z) && x !== undefined && y !== undefined && z !== undefined) {
 			this._translate.x += x;
@@ -3074,14 +3071,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Translates the entity to the passed values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Translate the entity to 10, 0, 0
-     *     entity.translateTo(10, 0, 0);
-     * @return {*}
-     */
+	 * Translates the entity to the passed values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Translate the entity to 10, 0, 0
+	 *     entity.translateTo(10, 0, 0);
+	 * @return {*}
+	 */
 	translateTo: function (x, y) {
 		// console.log('start translate', x, y)
 		if (x !== undefined && y !== undefined) {
@@ -3104,15 +3101,13 @@ var IgeEntity = IgeObject.extend({
 		return this._entity || this;
 	},
 
-	transformTexture: function (x, y, z, type) {
-		if (!ige.isClient) return;
+	transformTexture: function (x, y, z) {
+		if (!ige.isClient) return this;
 
-		ige.client.emit('transformTexture', {
-			entity: this,
+		this.emit('transform', {
 			x: x,
 			y: y,
-			z: z,
-			type: type
+			rotation: z,
 		});
 
 		return this;
@@ -3160,36 +3155,16 @@ var IgeEntity = IgeObject.extend({
 		}
 	},
 
-	isInVP: function (rect2) {
-		var vp = ige.pixi.viewport.getVisibleBounds();
-		var rect1 = {
-			x1: vp.x,
-			y1: vp.y,
-			x2: vp.x + vp.width,
-			y2: vp.y + vp.height
-		};
-		if (rect1.x1 >= rect2.x2 || rect2.x1 >= rect1.x2) {
-			return false;
-		}
-
-		// If one rectangle is above other
-		if (rect1.y1 >= rect2.y2 || rect2.y1 >= rect1.y2) {
-			return false;
-		}
-
-		return true;
-	},
-
 	/**
-     * Translates the entity to the passed point.
-     * @param {IgePoint3d} point The point with co-ordinates.
-     * @example #Translate the entity to 10, 0, 0
-     *     var point = new IgePoint3d(10, 0, 0),
-     *         entity = new IgeEntity();
-     *
-     *     entity.translateToPoint(point);
-     * @return {*}
-     */
+	 * Translates the entity to the passed point.
+	 * @param {IgePoint3d} point The point with co-ordinates.
+	 * @example #Translate the entity to 10, 0, 0
+	 *     var point = new IgePoint3d(10, 0, 0),
+	 *         entity = new IgeEntity();
+	 *
+	 *     entity.translateToPoint(point);
+	 * @return {*}
+	 */
 	translateToPoint: function (point) {
 		if (point !== undefined) {
 			this._translate.x = point.x;
@@ -3203,24 +3178,24 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Translates the object to the tile co-ordinates passed.
-     * @param {Number} x The x tile co-ordinate.
-     * @param {Number} y The y tile co-ordinate.
-     * @param {Number=} z The z tile co-ordinate.
-     * @example #Translate entity to tile
-     *     // Create a tile map
-     *     var tileMap = new IgeTileMap2d()
-     *         .tileWidth(40)
-     *         .tileHeight(40);
-     *
-     *     // Mount our entity to the tile map
-     *     entity.mount(tileMap);
-     *
-     *     // Translate the entity to the tile x:10, y:12
-     *     entity.translateToTile(10, 12, 0);
-     * @return {*} The object this method was called from to allow
-     * method chaining.
-     */
+	 * Translates the object to the tile co-ordinates passed.
+	 * @param {Number} x The x tile co-ordinate.
+	 * @param {Number} y The y tile co-ordinate.
+	 * @param {Number=} z The z tile co-ordinate.
+	 * @example #Translate entity to tile
+	 *     // Create a tile map
+	 *     var tileMap = new IgeTileMap2d()
+	 *         .tileWidth(40)
+	 *         .tileHeight(40);
+	 *
+	 *     // Mount our entity to the tile map
+	 *     entity.mount(tileMap);
+	 *
+	 *     // Translate the entity to the tile x:10, y:12
+	 *     entity.translateToTile(10, 12, 0);
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
 	translateToTile: function (x, y, z) {
 		if (this._parent && this._parent._tileWidth !== undefined && this._parent._tileHeight !== undefined) {
 			var finalZ;
@@ -3241,11 +3216,11 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the translate accessor object.
-     * @example #Use the translate accessor object to alter the y co-ordinate of the entity to 10
-     *     entity.translate().y(10);
-     * @return {*}
-     */
+	 * Gets the translate accessor object.
+	 * @example #Use the translate accessor object to alter the y co-ordinate of the entity to 10
+	 *     entity.translate().y(10);
+	 * @return {*}
+	 */
 	translate: function () {
 		if (arguments.length) {
 			IgeEntity.prototype.log('You called translate with arguments, did you mean translateTo or translateBy instead of translate?', 'warning');
@@ -3259,13 +3234,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The translate accessor method for the x axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.translate().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The translate accessor method for the x axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.translate().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_translateAccessorX: function (val) {
 		if (val !== undefined) {
 			this._translate.x = val;
@@ -3276,13 +3251,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The translate accessor method for the y axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.translate().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The translate accessor method for the y axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.translate().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_translateAccessorY: function (val) {
 		if (val !== undefined) {
 			this._translate.y = val;
@@ -3293,13 +3268,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The translate accessor method for the z axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.translate().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The translate accessor method for the z axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.translate().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_translateAccessorZ: function (val) {
 		// TODO: Do we need to do anything to the matrix here for iso views?
 		// this._localMatrix.translateTo(this._translate.x, this._translate.y);
@@ -3312,21 +3287,21 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Rotates the entity by adding the passed values to
-     * the current rotation values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Rotate the entity by 10 degrees about the z axis
-     *     entity.rotateBy(0, 0, Math.radians(10));
-     * @return {*}
-     */
+	 * Rotates the entity by adding the passed values to
+	 * the current rotation values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Rotate the entity by 10 degrees about the z axis
+	 *     entity.rotateBy(0, 0, Math.radians(10));
+	 * @return {*}
+	 */
 	rotateBy: function (x, y, z) {
 		if (!isNaN(x) && !isNaN(y) && !isNaN(z) && x !== undefined && y !== undefined && z !== undefined) {
 			this._rotate.x += x;
 			this._rotate.y += y;
 			this._rotate.z += z;
-			this.transformTexture(0, 0, z, 'rotateBy');
+			this.transformTexture(0, 0, z); // TODO x and y should probably not be 0
 		} else {
 			IgeEntity.prototype.log('rotateBy() called with a missing or undefined x, y or z parameter!', 'error');
 		}
@@ -3335,14 +3310,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Rotates the entity to the passed values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Rotate the entity to 10 degrees about the z axis
-     *     entity.rotateTo(0, 0, Math.radians(10));
-     * @return {*}
-     */
+	 * Rotates the entity to the passed values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Rotate the entity to 10 degrees about the z axis
+	 *     entity.rotateTo(0, 0, Math.radians(10));
+	 * @return {*}
+	 */
 	rotateTo: function (x, y, z) {
 		// if (this._category == 'item')
 		// 	console.log("asdf!", z)
@@ -3358,11 +3333,11 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the translate accessor object.
-     * @example #Use the rotate accessor object to rotate the entity about the z axis 10 degrees
-     *     entity.rotate().z(Math.radians(10));
-     * @return {*}
-     */
+	 * Gets the translate accessor object.
+	 * @example #Use the rotate accessor object to rotate the entity about the z axis 10 degrees
+	 *     entity.rotate().z(Math.radians(10));
+	 * @return {*}
+	 */
 	rotate: function () {
 		if (arguments.length) {
 			IgeEntity.prototype.log('You called rotate with arguments, did you mean rotateTo or rotateBy instead of rotate?', 'warning');
@@ -3376,13 +3351,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The rotate accessor method for the x axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.rotate().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The rotate accessor method for the x axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.rotate().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_rotateAccessorX: function (val) {
 		if (val !== undefined) {
 			this._rotate.x = val;
@@ -3393,13 +3368,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The rotate accessor method for the y axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.rotate().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The rotate accessor method for the y axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.rotate().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_rotateAccessorY: function (val) {
 		if (val !== undefined) {
 			this._rotate.y = val;
@@ -3410,13 +3385,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The rotate accessor method for the z axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.rotate().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The rotate accessor method for the z axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.rotate().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_rotateAccessorZ: function (val) {
 		if (val !== undefined) {
 			this._rotate.z = val;
@@ -3427,15 +3402,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Scales the entity by adding the passed values to
-     * the current scale values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Scale the entity by 2 on the x axis
-     *     entity.scaleBy(2, 0, 0);
-     * @return {*}
-     */
+	 * Scales the entity by adding the passed values to
+	 * the current scale values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Scale the entity by 2 on the x axis
+	 *     entity.scaleBy(2, 0, 0);
+	 * @return {*}
+	 */
 	scaleBy: function (x, y, z) {
 		if (x !== undefined && y !== undefined && z !== undefined) {
 			this._scale.x += x;
@@ -3449,18 +3424,17 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Scale the entity to the passed values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Set the entity scale to 1 on all axes
-     *     entity.scaleTo(1, 1, 1);
-     * @return {*}
-     */
+	 * Scale the entity to the passed values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Set the entity scale to 1 on all axes
+	 *     entity.scaleTo(1, 1, 1);
+	 * @return {*}
+	 */
 	scaleTo: function (x, y, z) {
 		if (ige.isClient) {
-			ige.client.emit('scale', {
-				entity: this,
+			this.emit('scale', {
 				x: x,
 				y: y
 			});
@@ -3497,11 +3471,11 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the scale accessor object.
-     * @example #Use the scale accessor object to set the scale of the entity on the x axis to 1
-     *     entity.scale().x(1);
-     * @return {*}
-     */
+	 * Gets the scale accessor object.
+	 * @example #Use the scale accessor object to set the scale of the entity on the x axis to 1
+	 *     entity.scale().x(1);
+	 * @return {*}
+	 */
 	scale: function () {
 		if (arguments.length) {
 			IgeEntity.prototype.log('You called scale with arguments, did you mean scaleTo or scaleBy instead of scale?', 'warning');
@@ -3515,13 +3489,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The scale accessor method for the x axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.scale().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The scale accessor method for the x axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.scale().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_scaleAccessorX: function (val) {
 		if (val !== undefined) {
 			this._scale.x = val;
@@ -3532,13 +3506,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The scale accessor method for the y axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.scale().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The scale accessor method for the y axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.scale().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_scaleAccessorY: function (val) {
 		if (val !== undefined) {
 			this._scale.y = val;
@@ -3549,13 +3523,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The scale accessor method for the z axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.scale().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The scale accessor method for the z axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.scale().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_scaleAccessorZ: function (val) {
 		if (val !== undefined) {
 			this._scale.z = val;
@@ -3566,15 +3540,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Sets the origin of the entity by adding the passed values to
-     * the current origin values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Add 0.5 to the origin on the x axis
-     *     entity.originBy(0.5, 0, 0);
-     * @return {*}
-     */
+	 * Sets the origin of the entity by adding the passed values to
+	 * the current origin values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Add 0.5 to the origin on the x axis
+	 *     entity.originBy(0.5, 0, 0);
+	 * @return {*}
+	 */
 	originBy: function (x, y, z) {
 		if (x !== undefined && y !== undefined && z !== undefined) {
 			this._origin.x += x;
@@ -3588,14 +3562,14 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Set the origin of the entity to the passed values.
-     * @param {Number} x The x co-ordinate.
-     * @param {Number} y The y co-ordinate.
-     * @param {Number} z The z co-ordinate.
-     * @example #Set the entity origin to 0.5 on all axes
-     *     entity.originTo(0.5, 0.5, 0.5);
-     * @return {*}
-     */
+	 * Set the origin of the entity to the passed values.
+	 * @param {Number} x The x co-ordinate.
+	 * @param {Number} y The y co-ordinate.
+	 * @param {Number} z The z co-ordinate.
+	 * @example #Set the entity origin to 0.5 on all axes
+	 *     entity.originTo(0.5, 0.5, 0.5);
+	 * @return {*}
+	 */
 	originTo: function (x, y, z) {
 		if (x !== undefined && y !== undefined && z !== undefined) {
 			this._origin.x = x;
@@ -3609,11 +3583,11 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets the origin accessor object.
-     * @example #Use the origin accessor object to set the origin of the entity on the x axis to 1
-     *     entity.origin().x(1);
-     * @return {*}
-     */
+	 * Gets the origin accessor object.
+	 * @example #Use the origin accessor object to set the origin of the entity on the x axis to 1
+	 *     entity.origin().x(1);
+	 * @return {*}
+	 */
 	origin: function () {
 		this.x = this._originAccessorX;
 		this.y = this._originAccessorY;
@@ -3623,13 +3597,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The origin accessor method for the x axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.origin().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The origin accessor method for the x axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.origin().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_originAccessorX: function (val) {
 		if (val !== undefined) {
 			this._origin.x = val;
@@ -3640,13 +3614,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The origin accessor method for the y axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.origin().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The origin accessor method for the y axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.origin().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_originAccessorY: function (val) {
 		if (val !== undefined) {
 			this._origin.y = val;
@@ -3657,13 +3631,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * The origin accessor method for the z axis. This
-     * method is not called directly but is accessed through
-     * the accessor object obtained by calling entity.origin().
-     * @param {Number=} val The new value to apply to the co-ordinate.
-     * @return {*}
-     * @private
-     */
+	 * The origin accessor method for the z axis. This
+	 * method is not called directly but is accessed through
+	 * the accessor object obtained by calling entity.origin().
+	 * @param {Number=} val The new value to apply to the co-ordinate.
+	 * @return {*}
+	 * @private
+	 */
 	_originAccessorZ: function (val) {
 		if (val !== undefined) {
 			this._origin.z = val;
@@ -3684,10 +3658,10 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Checks the current transform values against the previous ones. If
-     * any value is different, the appropriate method is called which will
-     * update the transformation matrix accordingly.
-     */
+	 * Checks the current transform values against the previous ones. If
+	 * any value is different, the appropriate method is called which will
+	 * update the transformation matrix accordingly.
+	 */
 	updateTransform: function () {
 		ige.updateTransform++;
 		this._localMatrix.identity();
@@ -3764,13 +3738,13 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the disable interpolation flag. If set to true then
-     * stream data being received by the client will not be interpolated
-     * and will be instantly assigned instead. Useful if your entity's
-     * transformations should not be interpolated over time.
-     * @param val
-     * @returns {*}
-     */
+	 * Gets / sets the disable interpolation flag. If set to true then
+	 * stream data being received by the client will not be interpolated
+	 * and will be instantly assigned instead. Useful if your entity's
+	 * transformations should not be interpolated over time.
+	 * @param val
+	 * @returns {*}
+	 */
 	disableInterpolation: function (val) {
 		if (val !== undefined) {
 			this._disableInterpolation = val;
@@ -3784,14 +3758,14 @@ var IgeEntity = IgeObject.extend({
 	// STREAM
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-     * Gets / sets the array of sections that this entity will
-     * encode into its stream data.
-     * @param {Array=} sectionArray An array of strings.
-     * @example #Define the sections this entity will use in the network stream. Use the default "transform" section as well as a "custom1" section
-     *     entity.streamSections('transform', 'custom1');
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the array of sections that this entity will
+	 * encode into its stream data.
+	 * @param {Array=} sectionArray An array of strings.
+	 * @example #Define the sections this entity will use in the network stream. Use the default "transform" section as well as a "custom1" section
+	 *     entity.streamSections('transform', 'custom1');
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	streamSections: function (sectionArray) {
 		if (sectionArray !== undefined) {
 			this._streamSections = sectionArray;
@@ -3802,9 +3776,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Adds a section into the existing streamed sections array.
-     * @param {String} sectionName The section name to add.
-     */
+	 * Adds a section into the existing streamed sections array.
+	 * @param {String} sectionName The section name to add.
+	 */
 	streamSectionsPush: function (sectionName) {
 		this._streamSections = this._streamSections || [];
 		this._streamSections.push(sectionName);
@@ -4027,6 +4001,7 @@ var IgeEntity = IgeObject.extend({
 			}
 		}
 	},
+	//mouseEvents for sandbox mode only
 	mouseEvents: function (defaultData) {
 		var self = this;
 		if (typeof mode === 'string' && mode === 'sandbox') {
@@ -4124,8 +4099,8 @@ var IgeEntity = IgeObject.extend({
 										var attribute = this._stats.attributes[attributeTypeId];
 										if (
 											((attribute.isVisible && typeof attribute.isVisible === 'boolean' && attribute.isVisible == false) || // will be deprecated.
-                                                (attribute.isVisible && attribute.isVisible.constructor === Array && attribute.isVisible.length == 0)) &&
-                                            attributeTypeId !== ige.game.data.settings.scoreAttributeId
+												(attribute.isVisible && attribute.isVisible.constructor === Array && attribute.isVisible.length == 0)) &&
+											attributeTypeId !== ige.game.data.settings.scoreAttributeId
 										) {
 											delete data[attrName];
 										}
@@ -4239,7 +4214,7 @@ var IgeEntity = IgeObject.extend({
 						switch (attrName) {
 							case 'anim':
 								var animationId = newValue;
-								this.applyAnimationById(animationId);								
+								this.applyAnimationById(animationId);
 								break;
 
 							case 'stateId':
@@ -4249,30 +4224,43 @@ var IgeEntity = IgeObject.extend({
 
 								if (this._category == 'item') {
 									var owner = this.getOwnerUnit();
-									// update state only iff it's not my unit's item								
+									// update state only iff it's not my unit's item
 									if (owner == ige.client.selectedUnit) {
 										// don't repeat whip-out tween for my own unit as it has already been executed from unit.changeItem()
 									} else if (stateId == 'selected') {
 										this.applyAnimationForState(stateId);
-		
+
 										// whip-out the new item using tween
 										let customTween = {
 											type: 'swing',
 											keyFrames: [[0, [0, 0, -1.57]], [100, [0, 0, 0]]]
 										};
 										this.tween.start(null, this._rotate.z, customTween);
+
+									}
+
+									// make sure item always has proper size defined by state
+									if (this._stats.states[stateId].body !== 'none') {
+										this.emit(
+											'size',
+											{
+												width: this._stats.currentBody.width,
+												height: this._stats.currentBody.height
+											}
+										);
 									}
 									// unmount item when item is in backpack
 									if (owner && this._stats.slotIndex >= owner._stats.inventorySize) {
 										this.unMount();
 									}
+
 								} else {
 									this.updateLayer();
 									this.applyAnimationForState(newValue);
 									this._scaleTexture();
 									this.scaleDimensions(this._stats.width, this._stats.height);
 								}
-								
+
 								break;
 							case 'effect':
 								// don't use streamed effect call for my own unit or its items
@@ -4295,12 +4283,12 @@ var IgeEntity = IgeObject.extend({
 								this.show();
 								break;
 							case 'hideNameLabel':
-								this.unitNameLabel && this.unitNameLabel.hide();
+								this.emit('hide-label');
 								break;
 							case 'showNameLabel':
-								this.unitNameLabel && this.unitNameLabel.show();
+								this.emit('show-label');
 								break;
-							
+
 						}
 					}
 				}
@@ -4315,9 +4303,9 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Removes a section into the existing streamed sections array.
-     * @param {String} sectionName The section name to remove.
-     */
+	 * Removes a section into the existing streamed sections array.
+	 * @param {String} sectionName The section name to remove.
+	 */
 	streamSectionsPull: function (sectionName) {
 		if (this._streamSections) {
 			this._streamSections.pull(sectionName);
@@ -4327,15 +4315,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets a streaming property on this entity. If set, the
-     * property's new value is streamed to clients on the next packet.
-     *
-     * @param {String} propName The name of the property to get / set.
-     * @param {*=} propVal Optional. If provided, the property is set
-     * to this value.
-     * @return {*} "this" when a propVal argument is passed to allow method
-     * chaining or the current value if no propVal argument is specified.
-     */
+	 * Gets / sets a streaming property on this entity. If set, the
+	 * property's new value is streamed to clients on the next packet.
+	 *
+	 * @param {String} propName The name of the property to get / set.
+	 * @param {*=} propVal Optional. If provided, the property is set
+	 * to this value.
+	 * @return {*} "this" when a propVal argument is passed to allow method
+	 * chaining or the current value if no propVal argument is specified.
+	 */
 	streamProperty: function (propName, propVal) {
 		this._streamProperty = this._streamProperty || {};
 		// this._streamPropertyChange = this._streamPropertyChange || {};
@@ -4355,20 +4343,20 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the data for the specified data section id. This method
-     * is usually not called directly and instead is part of the network
-     * stream system. General use case is to write your own custom streamSectionData
-     * method in a class that extends IgeEntity so that you can control the
-     * data that the entity will send and receive over the network stream.
-     * @param {String} sectionId A string identifying the section to
-     * handle data get / set for.
-     * @param {*=} data If present, this is the data that has been sent
-     * from the server to the client for this entity.
-     * @param {Boolean=} bypassSmoothing If true, will assign transform
-     * directly to entity instead of adding the values to the time stream.
-     * @return {*} "this" when a data argument is passed to allow method
-     * chaining or the current value if no data argument is specified.
-     */
+	 * Gets / sets the data for the specified data section id. This method
+	 * is usually not called directly and instead is part of the network
+	 * stream system. General use case is to write your own custom streamSectionData
+	 * method in a class that extends IgeEntity so that you can control the
+	 * data that the entity will send and receive over the network stream.
+	 * @param {String} sectionId A string identifying the section to
+	 * handle data get / set for.
+	 * @param {*=} data If present, this is the data that has been sent
+	 * from the server to the client for this entity.
+	 * @param {Boolean=} bypassSmoothing If true, will assign transform
+	 * directly to entity instead of adding the values to the time stream.
+	 * @return {*} "this" when a data argument is passed to allow method
+	 * chaining or the current value if no data argument is specified.
+	 */
 	streamSectionData: function (sectionId, data) {
 		switch (sectionId) {
 			case 'transform':
@@ -4541,18 +4529,18 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the stream mode that the stream system will use when
-     * handling pushing data updates to connected clients.
-     * @param {Number=} val A value representing the stream mode.
-     * @example #Set the entity to disable streaming
-     *     entity.streamMode(0);
-     * @example #Set the entity to automatic streaming
-     *     entity.streamMode(1);
-     * @example #Set the entity to manual (advanced mode) streaming
-     *     entity.streamMode(2);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the stream mode that the stream system will use when
+	 * handling pushing data updates to connected clients.
+	 * @param {Number=} val A value representing the stream mode.
+	 * @example #Set the entity to disable streaming
+	 *     entity.streamMode(0);
+	 * @example #Set the entity to automatic streaming
+	 *     entity.streamMode(1);
+	 * @example #Set the entity to manual (advanced mode) streaming
+	 *     entity.streamMode(2);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	streamMode: function (val) {
 		// console.log("streamMode (" + val + ")", (this._stats) ? this._stats.name : this._category)
 		if (val !== undefined) {
@@ -4564,29 +4552,29 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the stream control callback function that will be called
-     * each time the entity tick method is called and stream-able data is
-     * updated.
-     * @param {Function=} method The stream control method.
-     * @example #Set the entity's stream control method to control when this entity is streamed and when it is not
-     *     entity.streamControl(function (clientId) {
-     *         // Let's use an example where we only want this entity to stream
-     *         // to one particular client with the id 4039589434
-     *         if (clientId === '4039589434') {
-     *             // Returning true tells the network stream to send data
-     *             // about this entity to the client
-     *             return true;
-     *         } else {
-     *             // Returning false tells the network stream NOT to send
-     *             // data about this entity to the client
-     *             return false;
-     *         }
-     *     });
-     *
-     * Further reading: [Controlling Streaming](http://www.isogenicengine.com/documentation/isogenic-game-engine/versions/1-1-0/manual/networking-multiplayer/realtime-network-streaming/stream-modes-and-controlling-streaming/)
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the stream control callback function that will be called
+	 * each time the entity tick method is called and stream-able data is
+	 * updated.
+	 * @param {Function=} method The stream control method.
+	 * @example #Set the entity's stream control method to control when this entity is streamed and when it is not
+	 *     entity.streamControl(function (clientId) {
+	 *         // Let's use an example where we only want this entity to stream
+	 *         // to one particular client with the id 4039589434
+	 *         if (clientId === '4039589434') {
+	 *             // Returning true tells the network stream to send data
+	 *             // about this entity to the client
+	 *             return true;
+	 *         } else {
+	 *             // Returning false tells the network stream NOT to send
+	 *             // data about this entity to the client
+	 *             return false;
+	 *         }
+	 *     });
+	 *
+	 * Further reading: [Controlling Streaming](http://www.isogenicengine.com/documentation/isogenic-game-engine/versions/1-1-0/manual/networking-multiplayer/realtime-network-streaming/stream-modes-and-controlling-streaming/)
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	streamControl: function (method) {
 		if (method !== undefined) {
 			this._streamControl = method;
@@ -4597,22 +4585,22 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the stream sync interval. This value
-     * is in milliseconds and cannot be lower than 16. It will
-     * determine how often data from this entity is added to the
-     * stream queue.
-     * @param {Number=} val Number of milliseconds between adding
-     * stream data for this entity to the stream queue.
-     * @param {String=} sectionId Optional id of the stream data
-     * section you want to set the interval for. If omitted the
-     * interval will be applied to all sections.
-     * @example #Set the entity's stream update (sync) interval to 1 second because this entity's data is not highly important to the simulation so save some bandwidth!
-     *     entity.streamSyncInterval(1000);
-     * @example #Set the entity's stream update (sync) interval to 16 milliseconds because this entity's data is very important to the simulation so send as often as possible!
-     *     entity.streamSyncInterval(16);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the stream sync interval. This value
+	 * is in milliseconds and cannot be lower than 16. It will
+	 * determine how often data from this entity is added to the
+	 * stream queue.
+	 * @param {Number=} val Number of milliseconds between adding
+	 * stream data for this entity to the stream queue.
+	 * @param {String=} sectionId Optional id of the stream data
+	 * section you want to set the interval for. If omitted the
+	 * interval will be applied to all sections.
+	 * @example #Set the entity's stream update (sync) interval to 1 second because this entity's data is not highly important to the simulation so save some bandwidth!
+	 *     entity.streamSyncInterval(1000);
+	 * @example #Set the entity's stream update (sync) interval to 16 milliseconds because this entity's data is very important to the simulation so send as often as possible!
+	 *     entity.streamSyncInterval(16);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	streamSyncInterval: function (val, sectionId) {
 		if (val !== undefined) {
 			if (!sectionId) {
@@ -4639,20 +4627,20 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the precision by which floating-point values will
-     * be encoded and sent when packaged into stream data.
-     * @param {Number=} val The number of decimal places to preserve.
-     * @example #Set the float precision to 2
-     *     // This will mean that any data using floating-point values
-     *     // that gets sent across the network stream will be rounded
-     *     // to 2 decimal places. This helps save bandwidth by not
-     *     // having to send the entire number since precision above
-     *     // 2 decimal places is usually not that important to the
-     *     // simulation.
-     *     entity.streamFloatPrecision(2);
-     * @return {*} "this" when arguments are passed to allow method
-     * chaining or the current value if no arguments are specified.
-     */
+	 * Gets / sets the precision by which floating-point values will
+	 * be encoded and sent when packaged into stream data.
+	 * @param {Number=} val The number of decimal places to preserve.
+	 * @example #Set the float precision to 2
+	 *     // This will mean that any data using floating-point values
+	 *     // that gets sent across the network stream will be rounded
+	 *     // to 2 decimal places. This helps save bandwidth by not
+	 *     // having to send the entire number since precision above
+	 *     // 2 decimal places is usually not that important to the
+	 *     // simulation.
+	 *     entity.streamFloatPrecision(2);
+	 * @return {*} "this" when arguments are passed to allow method
+	 * chaining or the current value if no arguments are specified.
+	 */
 	streamFloatPrecision: function (val) {
 		if (val !== undefined) {
 			this._streamFloatPrecision = val;
@@ -4678,37 +4666,34 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Override this method if your entity should send data through to
-     * the client when it is being created on the client for the first
-     * time through the network stream. The data will be provided as the
-     * first argument in the constructor call to the entity class so
-     * you should expect to receive it as per this example:
-     * @example #Using and Receiving Stream Create Data
-     *     var MyNewClass = IgeEntity.extend({
-     *         classId: 'MyNewClass',
-     *
-     *         // Define the init with the parameter to receive the
-     *         // data you return in the streamCreateData() method
-     *         init: function (myCreateData) {
-     *             this._myData = myCreateData;
-     *         },
-     *
-     *         streamCreateData: function () {
-     *             return this._myData;
-     *         }
-     *     });
-     *
-     * Valid return values must not include circular references!
-     */
+	 * Override this method if your entity should send data through to
+	 * the client when it is being created on the client for the first
+	 * time through the network stream. The data will be provided as the
+	 * first argument in the constructor call to the entity class so
+	 * you should expect to receive it as per this example:
+	 * @example #Using and Receiving Stream Create Data
+	 *     var MyNewClass = IgeEntity.extend({
+	 *         classId: 'MyNewClass',
+	 *
+	 *         // Define the init with the parameter to receive the
+	 *         // data you return in the streamCreateData() method
+	 *         init: function (myCreateData) {
+	 *             this._myData = myCreateData;
+	 *         },
+	 *
+	 *         streamCreateData: function () {
+	 *             return this._myData;
+	 *         }
+	 *     });
+	 *
+	 * Valid return values must not include circular references!
+	 */
 	streamCreateData: function (clientId) {
 		if (ige.isServer) {
 			// remove _stats which are static and can be added from client as well. which will save our bandwidth
 			var keys = ige.server.keysToRemoveBeforeSend.slice();
 
-			if (this._category === 'debris' && keys.indexOf('cellSheet') > -1) {
-				keys.splice(keys.indexOf('cellSheet'), 1);
-				keys = keys.concat(['rotation', 'type', 'density', 'friction', 'restitution', 'rotation', 'y', 'x']);
-			} else if (this._category === 'region') {
+			if (this._category === 'region') {
 				keys = keys.concat('value');
 			}
 
@@ -4726,12 +4711,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Gets / sets the stream emit created flag. If set to true this entity
-     * emit a "streamCreated" event when it is created by the stream, but
-     * after the id and initial transform are set.
-     * @param val
-     * @returns {*}
-     */
+	 * Gets / sets the stream emit created flag. If set to true this entity
+	 * emit a "streamCreated" event when it is created by the stream, but
+	 * after the id and initial transform are set.
+	 * @param val
+	 * @returns {*}
+	 */
 	streamEmitCreated: function (val) {
 		if (val !== undefined) {
 			this._streamEmitCreated = val;
@@ -4742,12 +4727,12 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Queues stream data for this entity to be sent to the
-     * specified client id or array of client ids.
-     * @param {Array} clientId An array of string IDs of each
-     * client to send the stream data to.
-     * @return {IgeEntity} "this".
-     */
+	 * Queues stream data for this entity to be sent to the
+	 * specified client id or array of client ids.
+	 * @param {Array} clientId An array of string IDs of each
+	 * client to send the stream data to.
+	 * @return {IgeEntity} "this".
+	 */
 	streamSync: function (clientId) {
 		if (this._streamMode === 1 || this._streamMode === 2) {
 			// Check if we have a stream sync interval
@@ -4782,15 +4767,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Asks the stream system to queue the stream data to the specified
-     * client id or array of ids.
-     * @param {Array} recipientArr The array of ids of the client(s) to
-     * queue stream data for. The stream data being queued
-     * is returned by a call to this._streamData().
-     * @param {String} streamRoomId The id of the room the entity belongs
-     * in (can be undefined or null if no room assigned).
-     * @private
-     */
+	 * Asks the stream system to queue the stream data to the specified
+	 * client id or array of ids.
+	 * @param {Array} recipientArr The array of ids of the client(s) to
+	 * queue stream data for. The stream data being queued
+	 * is returned by a call to this._streamData().
+	 * @param {String} streamRoomId The id of the room the entity belongs
+	 * in (can be undefined or null if no room assigned).
+	 * @private
+	 */
 	_streamSync: function () {
 		var recipientArr = ige.network.clientIds;
 		var arrCount = recipientArr.length;
@@ -4823,20 +4808,20 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Issues a create entity command to the passed client id
-     * or array of ids. If no id is passed it will issue the
-     * command to all connected clients. If using streamMode(1)
-     * this method is called automatically.
-     * @param {*} clientId The id or array of ids to send
-     * the command to.
-     * @example #Send a create command for this entity to all clients
-     *     entity.streamCreate();
-     * @example #Send a create command for this entity to an array of client ids
-     *     entity.streamCreate(['43245325', '326755464', '436743453']);
-     * @example #Send a create command for this entity to a single client id
-     *     entity.streamCreate('43245325');
-     * @return {Boolean}
-     */
+	 * Issues a create entity command to the passed client id
+	 * or array of ids. If no id is passed it will issue the
+	 * command to all connected clients. If using streamMode(1)
+	 * this method is called automatically.
+	 * @param {*} clientId The id or array of ids to send
+	 * the command to.
+	 * @example #Send a create command for this entity to all clients
+	 *     entity.streamCreate();
+	 * @example #Send a create command for this entity to an array of client ids
+	 *     entity.streamCreate(['43245325', '326755464', '436743453']);
+	 * @example #Send a create command for this entity to a single client id
+	 *     entity.streamCreate('43245325');
+	 * @return {Boolean}
+	 */
 	streamCreate: function (clientId) {
 		// IgeEntity.prototype.log("streamCreate")
 
@@ -4874,20 +4859,20 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Issues a destroy entity command to the passed client id
-     * or array of ids. If no id is passed it will issue the
-     * command to all connected clients. If using streamMode(1)
-     * this method is called automatically.
-     * @param {*} clientId The id or array of ids to send
-     * the command to.
-     * @example #Send a destroy command for this entity to all clients
-     *     entity.streamDestroy();
-     * @example #Send a destroy command for this entity to an array of client ids
-     *     entity.streamDestroy(['43245325', '326755464', '436743453']);
-     * @example #Send a destroy command for this entity to a single client id
-     *     entity.streamDestroy('43245325');
-     * @return {Boolean}
-     */
+	 * Issues a destroy entity command to the passed client id
+	 * or array of ids. If no id is passed it will issue the
+	 * command to all connected clients. If using streamMode(1)
+	 * this method is called automatically.
+	 * @param {*} clientId The id or array of ids to send
+	 * the command to.
+	 * @example #Send a destroy command for this entity to all clients
+	 *     entity.streamDestroy();
+	 * @example #Send a destroy command for this entity to an array of client ids
+	 *     entity.streamDestroy(['43245325', '326755464', '436743453']);
+	 * @example #Send a destroy command for this entity to a single client id
+	 *     entity.streamDestroy('43245325');
+	 * @return {Boolean}
+	 */
 	streamDestroy: function (clientId) {
 		var thisId = this.id();
 		var arr;
@@ -4915,15 +4900,15 @@ var IgeEntity = IgeObject.extend({
 	},
 
 	/**
-     * Generates and returns the current stream data for this entity. The
-     * data will usually include only properties that have changed since
-     * the last time the stream data was generated. The returned data is
-     * a string that has been compressed in various ways to reduce network
-     * overhead during transmission.
-     * @return {String} The string representation of the stream data for
-     * this entity.
-     * @private
-     */
+	 * Generates and returns the current stream data for this entity. The
+	 * data will usually include only properties that have changed since
+	 * the last time the stream data was generated. The returned data is
+	 * a string that has been compressed in various ways to reduce network
+	 * overhead during transmission.
+	 * @return {String} The string representation of the stream data for
+	 * this entity.
+	 * @private
+	 */
 	_streamData: function () {
 		// Check if we already have a cached version of the streamData
 		if (this._streamDataCache) {
@@ -5000,15 +4985,15 @@ var IgeEntity = IgeObject.extend({
 	// INTERPOLATOR
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
-     * Calculates the current value based on the time along the
-     * value range.
-     * @param {Number} startValue The value that the interpolation started from.
-     * @param {Number} endValue The target value to be interpolated to.
-     * @param {Number} startTime The time the interpolation started.
-     * @param {Number} currentTime The current time.
-     * @param {Number} endTime The time the interpolation will end.
-     * @return {Number} The interpolated value.
-     */
+	 * Calculates the current value based on the time along the
+	 * value range.
+	 * @param {Number} startValue The value that the interpolation started from.
+	 * @param {Number} endValue The target value to be interpolated to.
+	 * @param {Number} startTime The time the interpolation started.
+	 * @param {Number} currentTime The current time.
+	 * @param {Number} endTime The time the interpolation will end.
+	 * @return {Number} The interpolated value.
+	 */
 	interpolateValue: function (startValue, endValue, startTime, currentTime, endTime) {
 		var totalValue = endValue - startValue;
 		var dataDelta = endTime - startTime;
@@ -5017,7 +5002,7 @@ var IgeEntity = IgeObject.extend({
 
 		// Clamp the current time from 0
 		if (deltaTime < 0) {
-        	deltaTime = 0;
+			deltaTime = 0;
 		}
 
 		return totalValue * deltaTime + startValue;
@@ -5038,13 +5023,13 @@ var IgeEntity = IgeObject.extend({
      */
 	_processTransform: function () {
 		if (
-		// prevent igePixi calling this function multiple times for a same entity
+			// prevent calling this function multiple times for a same entity
 			this._lastTransformAt == ige._currentTime ||
-            // entity has no body
-            this._translate == undefined ||
-            this._stats.currentBody == undefined ||
-            // ignore server stream of my own unit's sprite-only item
-            (this._stats.currentBody && this._stats.currentBody.type == 'spriteOnly' && (this.getOwnerUnit && this.getOwnerUnit()) == ige.client.selectedUnit)
+			// entity has no body
+			this._translate == undefined ||
+			this._stats.currentBody == undefined ||
+			// ignore server stream of my own unit's sprite-only item
+			(this._stats.currentBody && this._stats.currentBody.type == 'spriteOnly' && (this.getOwnerUnit && this.getOwnerUnit()) == ige.client.selectedUnit)
 		) {
 			return;
 		}

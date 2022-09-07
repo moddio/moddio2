@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 
 <head>
     <title>Taro</title>
@@ -10,7 +10,7 @@
     <meta property="og:description" content="A multiplayer HTML5 game engine">
 
     <!-- Icon -->
-    <link rel="icon" href="/assets/images/favicon.png" size="64">
+    <link rel="icon" href="/assets/images/favicon.png">
 
     <!-- CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
@@ -31,16 +31,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 
     <!-- LZ-String -->
-    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
 
     <!-- Lodash -->
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <!-- Sweet Alert -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.4.0/sweetalert2.min.js"></script>
-
-    <!-- Pixi.JS -->
-    <script src="https://cdn.jsdelivr.net/npm/pixi.js-legacy@6.2.2/dist/browser/pixi-legacy.min.js"></script>
 
     <!-- Game Variables -->
     <script>
@@ -54,7 +51,7 @@
         var playGameBtn;
         var connectPlayer = new Event('connectPlayer');
         //
-        // Trying to accomodate the format of production so we don't have the problem with
+        // Trying to accommodate the format of production so we don't have the problem with
         // duplicate callbacks in MenuUiComponent.js
         //
         window.onload = (event) => {
@@ -79,25 +76,25 @@
 </head>
 
 <body>
-    <div id="game-div" style="overflow: hidden">
-        <%- include('templates/dev-console'); -%>
-        <%- include('templates/menu'); -%>
-        <%- include('templates/shop'); -%>
-        <%- include('templates/gui'); -%>
-        <%- include('templates/chat'); -%>
-        <%- include('templates/inventory'); -%>
-        <%- include('templates/dialogue'); -%>
-        <%- include('templates/trade'); -%>
-    </div>
-    <%- include('templates/videochat.ejs'); -%>
+<div id="game-div" style="overflow: hidden">
+    <%- include('templates/dev-console'); -%>
+    <%- include('templates/menu'); -%>
+    <%- include('templates/shop'); -%>
+    <%- include('templates/gui'); -%>
+    <%- include('templates/chat'); -%>
+    <%- include('templates/inventory'); -%>
+    <%- include('templates/dialogue'); -%>
+    <%- include('templates/trade'); -%>
+</div>
+<%- include('templates/videochat.ejs'); -%>
 
-    <div class="modal fade" tabindex="-1" id="server-disconnect-modal" role="dialog" style=" top: 15%">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
+<div class="modal fade" tabindex="-1" id="server-disconnect-modal" role="dialog" style=" top: 15%">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
             <div class="modal-header d-flex hide-on-mobile">
                 <h5 class="modal-title">Connection Lost</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
@@ -105,63 +102,64 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- load engine -->
-    <script type="text/javascript">
-        var igeRoot = './engine/';
-        window.isStandalone = true;
-        gameStarted = false;
-    </script>
-    <script>
-            (function ($) {
-                $.fn.writeText = function (content, duration, callback) {
-                    content = content || '';
+<!-- load engine -->
+<script type="text/javascript">
+	var igeRoot = './engine/';
+	window.isStandalone = true;
+	gameStarted = false;
+</script>
+<script>
+	(function ($) {
+		$.fn.writeText = function (content, duration, callback) {
+			content = content || '';
 
-                    var contentArray = content.split(''),
-                        current = 0,
-                        elem = this;
+			var contentArray = content.split(''),
+				current = 0,
+				elem = this;
 
-                    if (isNaN(duration)) {
-                        duration = 20;
-                    }
+			if (isNaN(duration)) {
+				duration = 20;
+			}
 
-                    if (duration <= 0) {
-                        elem.html(content);
-                        callback();
-                        return;
-                    }
+			if (duration <= 0) {
+				elem.html(content);
+				callback();
+				return;
+			}
 
-                    var handle = setInterval(function () {
-                        if (current < contentArray.length) {
-                            var text = elem.html();
-                            var newText = contentArray[current];
+			var handle = setInterval(function () {
+				if (current < contentArray.length) {
+					var text = elem.html();
+					var newText = contentArray[current];
 
-                            if (newText === '<' && /\w/.test(contentArray[current + 1])) {
-                                do {
-                                    current++;
-                                    var nextChar = contentArray[current];
-                                    newText += nextChar;
-                                } while (nextChar !== '>');
-                            }
+					if (newText === '<' && /\w/.test(contentArray[current + 1])) {
+						do {
+							current++;
+							var nextChar = contentArray[current];
+							newText += nextChar;
+						} while (nextChar !== '>');
+					}
 
-                            elem.html(text + newText);
-                            current++;
-                        } else {
-                            clearInterval(handle);
-                            callback();
-                        }
-                    }, duration);
+					elem.html(text + newText);
+					current++;
+				} else {
+					clearInterval(handle);
+					callback();
+				}
+			}, duration);
 
-                    return handle;
-                };
-            })(jQuery);
-        </script>
+			return handle;
+		};
+	})(jQuery);
+</script>
 
-        <!-- below loads all uncompiled game files (your source code changes will reflect) -->
-        <script type="text/javascript" src="/engine/loader.js"></script>
+<!-- below loads all uncompiled game files (your source code changes will reflect) -->
+<script type="text/javascript" src="/engine/loader.js"></script>
 
-        <!-- below loads the compiled game file (much faster, your source code changes won't reflect until you compile again)-->
-        <!-- <script type="text/javascript" src="./src/game.js"></script> -->
+<!-- below loads the compiled game file (much faster, your source code changes won't reflect until you compile again)-->
+<!-- <script type="text/javascript" src="./src/game.js"></script> -->
 </body>
 
 </html>

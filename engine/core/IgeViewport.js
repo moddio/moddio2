@@ -136,7 +136,7 @@ var IgeViewport = IgeEntity.extend([
 
 			this._scene._parent = this;
 
-			this.camera.update(ctx, tickDelta);
+			this.camera.update();
 			IgeEntity.prototype.update.call(this, ctx, tickDelta);
 
 			if (this._scene.newFrame()) {
@@ -612,4 +612,6 @@ var IgeViewport = IgeEntity.extend([
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeViewport; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeViewport;
+}

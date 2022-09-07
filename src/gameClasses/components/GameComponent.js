@@ -11,7 +11,6 @@ var GameComponent = IgeEntity.extend({
 		this.food = {};
 		this.joints = {};
 		this.highlights = {};
-		this.debris = {};
 		this.createdEntities = [];
 		this.gameOverModalIsShowing = false;
 		this.isGameStarted = false;

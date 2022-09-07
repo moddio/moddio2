@@ -63,7 +63,7 @@ var VariableComponent = IgeEntity.extend({
 	},
 
 	isPositionInEntity: function (position) {
-		var entityCategory = ['unit', 'debris'];
+		var entityCategory = ['unit'];
 		var defaultArea = {
 			height: 100,
 			width: 100
@@ -356,15 +356,6 @@ var VariableComponent = IgeEntity.extend({
 					}
 					break;
 
-				case 'getTriggeringDebris':
-					if (vars && vars.triggeredBy && vars.triggeredBy.debrisId) {
-						var debris = ige.$(vars.triggeredBy.debrisId);
-						if (debris) {
-							returnValue = debris;
-						}
-					}
-					break;
-
 				case 'getTriggeringRegion':
 					if (vars && vars.triggeredBy && vars.triggeredBy.region) {
 						returnValue = vars.triggeredBy.region;
@@ -649,13 +640,6 @@ var VariableComponent = IgeEntity.extend({
 					}
 					break;
 
-				case 'selectedDebris':
-				case 'getSelectedDebris':
-					if (vars && vars.selectedDebris) {
-						return vars.selectedDebris;
-					}
-					break;
-
 				case 'selectedEntity':
 				case 'getSelectedEntity':
 					if (vars && vars.selectedEntity) {
@@ -719,14 +703,6 @@ var VariableComponent = IgeEntity.extend({
 					unit = ige.$(id);
 					if (unit && unit._category == 'unit') {
 						returnValue = unit;
-					}
-					break;
-
-				case 'getLastTouchedDebris':
-					var id = ige.game.lastTouchedDebrisId;
-					debris = ige.$(id);
-					if (debris && debris._category == 'debris') {
-						returnValue = debris;
 					}
 					break;
 
@@ -1470,16 +1446,6 @@ var VariableComponent = IgeEntity.extend({
 					returnValue = self.getVariable(text.variableName);
 					break;
 
-				case 'getDebrisVariable':
-					var debrisData = ige.map.getDebrisData(text.debrisId);
-					if (debrisData && debrisData.igeId) {
-						var debris = ige.$(debrisData.igeId);
-						if (debris) {
-							return debris;
-						}
-					}
-					break;
-
 				case 'getUnitData':
 					var unit = ige.variable.getValue(text.unit, vars);
 					var data = unit.getPersistentData('unit');
@@ -1733,10 +1699,6 @@ var VariableComponent = IgeEntity.extend({
 
 				case 'allItems':
 					returnValue = ige.$$('item');
-					break;
-
-				case 'allDebris':
-					returnValue = ige.$$('debris');
 					break;
 
 				case 'allProjectiles':
@@ -2092,12 +2054,6 @@ var VariableComponent = IgeEntity.extend({
 					`<td>${data.status.entityCount.player}</td>` +
 					`<td>${ige.$$('player').length}</td>` +
 					`<td>${data.status.bandwidth.player}</td>` +
-					'</tr>' +
-					'<tr>' +
-					'<td>Debris</td>' +
-					`<td>${data.status.entityCount.debris}</td>` +
-					`<td>${ige.$$('debris').length}</td>` +
-					`<td>${data.status.bandwidth.debris}</td>` +
 					'</tr>' +
 					'<tr>' +
 					'<td>Projectile</td>' +

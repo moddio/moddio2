@@ -889,11 +889,6 @@ var IgeObject = IgeEventingClass.extend({
 				return this;
 			}
 
-			if (ige.isClient) {
-				ige.client.emit('mount', { entity: this, parent: obj });
-				// we will return this later if we chose a valid obj to mount on
-			}
-
 			if (obj._children) {
 				// Check that the engine will allow us to register this object
 				this.id(); // Generates a new id if none is currently set, and registers it on the object register!
@@ -973,12 +968,6 @@ var IgeObject = IgeEventingClass.extend({
 	 * @return {*} Returns this on success or false on failure.
 	 */
 	unMount: function () {
-		if (ige.isClient) {
-			ige.client.emit('unMount', this);
-
-			//
-		}
-
 		if (this._parent) {
 			var childArr = this._parent._children;
 			var index = childArr.indexOf(this);
@@ -1040,12 +1029,20 @@ var IgeObject = IgeEventingClass.extend({
 	 */
 	clone: function (options) {
 		// Make sure we have an options object
-		if (options === undefined) { options = {}; }
+		if (options === undefined) {
+			options = {};
+		}
 
 		// Set some default option values
-		if (options.id === undefined) { options.id = false; }
-		if (options.mount === undefined) { options.mount = false; }
-		if (options.transform === undefined) { options.transform = true; }
+		if (options.id === undefined) {
+			options.id = false;
+		}
+		if (options.mount === undefined) {
+			options.mount = false;
+		}
+		if (options.transform === undefined) {
+			options.transform = true;
+		}
 
 		// Loop all children and clone them, then return cloned version of ourselves
 		var newObject = eval(this.stringify(options));
@@ -1199,7 +1196,9 @@ var IgeObject = IgeEventingClass.extend({
 		if (val !== undefined) {
 			this._layer = val;
 
-			if (ige.isClient) ige.client.emit('setLayer', { entity: this, layer: val });
+			if (ige.isClient) {
+				this.emit('layer', [ val ]);
+			}
 
 			return this;
 		}
@@ -1253,7 +1252,10 @@ var IgeObject = IgeEventingClass.extend({
 		if (val !== undefined) {
 			this._depth = val;
 
-			if (ige.isClient) ige.client.emit('setDepth', { entity: this, depth: val });
+			if (ige.isClient) {
+				this.emit('depth', [ val ]);
+			}
+
 			return this;
 		}
 
@@ -1545,47 +1547,15 @@ var IgeObject = IgeEventingClass.extend({
 		if (this._alive) {
 			if (ige.isClient && !this._inView) return;
 
-			// ige.client.tickAndUpdateData[this.id()] = this;
-			// if(ige.isClient){
-			// 	if (!ige.client.countingEntities) {
-			// 		ige.client.countingEntities = {};
-			// 	}
-			// 	if (this._category === undefined) {
-			// 		this._category = 0;
-			// 	}
-			// 	if(ige.client.countingEntities[this._category] ==undefined){
-			// 		ige.client.countingEntities[this._category] = {};
-			// 	}
-			// 	if (ige.client.countingEntities[this._category][this.id()] === undefined) {
-			// 		ige.client.countingEntities[this._category][this.id()] = 0;
-			// 	}
-			// 	else {
-			// 		ige.client.countingEntities[this._category][this.id()] += 1;
-			// 	}
-			// }
-			if (this._newBorn) { this._newBorn = false; }
+			if (this._newBorn) {
+				this._newBorn = false;
+			}
 			var arr = this._children;
 			var arrCount;
 			var ts; var td;
 
 			if (arr) {
 				arrCount = arr.length;
-
-				// Depth sort all child objects
-				// if (arrCount && !ige._headless) {
-				// 	if (igeConfig.debug._timing) {
-				// 		if (!ige._timeSpentLastTick[this.id()]) {
-				// 			ige._timeSpentLastTick[this.id()] = {};
-				// 		}
-
-				// 		ts = new Date().getTime();
-				// 		this.depthSortChildren();
-				// 		td = new Date().getTime() - ts;
-				// 		ige._timeSpentLastTick[this.id()].depthSortChildren = td;
-				// 	} else {
-				// 		this.depthSortChildren();
-				// 	}
-				// }
 
 				// Loop our children and call their update methods
 				if (igeConfig.debug._timing) {
@@ -1633,7 +1603,12 @@ var IgeObject = IgeEventingClass.extend({
 				this.viewCheckChildren();
 			}
 			// dont render regions if they are not visible
-			if (this._category === 'regionUi' && this._stats.default && !(this._stats.default.inside || this._stats.default.outside)) {
+
+			if (
+				this._category === 'region' &&
+				this._stats.default &&
+				!this._stats.default.inside
+			) {
 				return;
 			}
 			// Loop the child objects of this object
@@ -1767,7 +1742,7 @@ var IgeObject = IgeEventingClass.extend({
 	 * Calls each behaviour method for the object.
 	 * @private
 	 */
-	_processUpdateBehaviours: function (ctx, tickDelta) {
+	_processUpdateBehaviours: function () {
 		var arr = this._updateBehaviours;
 		var arrCount;
 
@@ -1783,7 +1758,7 @@ var IgeObject = IgeEventingClass.extend({
 	 * Calls each behaviour method for the object.
 	 * @private
 	 */
-	_processTickBehaviours: function (ctx) {
+	_processTickBehaviours: function () {
 		var arr = this._tickBehaviours;
 		var arrCount;
 
@@ -2068,7 +2043,9 @@ var IgeObject = IgeEventingClass.extend({
 	 */
 	stringify: function (options) {
 		// Make sure we have an options object
-		if (options === undefined) { options = {}; }
+		if (options === undefined) {
+			options = {};
+		}
 
 		var str = `new ${this.classId()}()`;
 
@@ -2098,7 +2075,9 @@ var IgeObject = IgeEventingClass.extend({
 	 */
 	_stringify: function (options) {
 		// Make sure we have an options object
-		if (options === undefined) { options = {}; }
+		if (options === undefined) {
+			options = {};
+		}
 
 		var str = ''; var i;
 
@@ -2141,4 +2120,6 @@ var IgeObject = IgeEventingClass.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeObject; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = IgeObject;
+}
