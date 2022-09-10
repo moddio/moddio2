@@ -4257,8 +4257,9 @@ var IgeEntity = IgeObject.extend({
 
 									}
 
+									const bodyId = this._stats.states[stateId].body;
 									// make sure item always has proper size defined by state
-									if (this._stats.states[stateId].body !== 'none') {
+									if (this._stats.bodies[bodyId] && bodyId !== 'none') { // first part is for legacy 'unSelected'
 
 										this.emit(
 											'size',
@@ -4267,6 +4268,8 @@ var IgeEntity = IgeObject.extend({
 												height: this._stats.currentBody.height
 											}
 										);
+									} else {
+										console.log('that\'s undefined, brother');
 									}
 									// unmount item when item is in backpack
 									if (owner && this._stats.slotIndex >= owner._stats.inventorySize) {
