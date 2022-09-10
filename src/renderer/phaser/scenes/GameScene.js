@@ -265,11 +265,12 @@ var GameScene = /** @class */ (function (_super) {
                 y: worldPoint.y,
             }]);
         this.renderedEntities.forEach(function (element) {
-            element.setVisible(false).setActive(false);
+            element.setVisible(false);
         });
         this.cameras.main.cull(this.renderedEntities).forEach(function (element) {
-            if (!element.hidden)
-                element.setActive(true).setVisible(true);
+            if (!element.hidden) {
+                element.setVisible(true);
+            }
         });
     };
     return GameScene;
