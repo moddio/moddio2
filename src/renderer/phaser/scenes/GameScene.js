@@ -30,11 +30,14 @@ var GameScene = /** @class */ (function (_super) {
         this.scale.on(Phaser.Scale.Events.RESIZE, function () {
             if (_this.zoomSize) {
                 camera.zoom = _this.calculateZoom();
+                ige.client.emit('scale', { ratio: camera.zoom });
             }
         });
         ige.client.on('zoom', function (height) {
             _this.setZoomSize(height);
-            camera.zoomTo(_this.calculateZoom(), 1000, Phaser.Math.Easing.Quadratic.Out, true);
+            var ratio = _this.calculateZoom();
+            camera.zoomTo(ratio, 1000, Phaser.Math.Easing.Quadratic.Out, true);
+            ige.client.emit('scale', { ratio: ratio });
         });
         ige.client.on('create-unit', function (unit) {
             new PhaserUnit(_this, unit);

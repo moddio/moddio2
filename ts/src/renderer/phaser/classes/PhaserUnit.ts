@@ -41,7 +41,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 			'render-chat-bubble': entity.on('render-chat-bubble', this.renderChat, this),
 		});
 
-		this.zoomEvtListener = ige.client.on('zoom', this.scaleElements, this);
+		this.zoomEvtListener = ige.client.on('scale', this.scaleElements, this);
 	}
 
 	protected updateTexture (usingSkin) {
@@ -238,9 +238,11 @@ class PhaserUnit extends PhaserAnimatedEntity {
 		}
 	}
 
-	private scaleElements (height: number): void {
-		const defaultZoom = ige.game.data.settings.camera?.zoom?.default || 1000;
-		const targetScale = height / defaultZoom;
+	private scaleElements (data: { ratio: number }): void {
+		const { ratio } = data;
+		const inverseRatio = 1 / ratio;
+		const targetScale = Math.min(Math.max(inverseRatio, 0.5), 2.5);
+
 		this.scaleTween = this.scene.tweens.add({
 			targets: [this.label, this.attributesContainer, this.chat],
 			duration: 1000,
@@ -255,7 +257,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 	protected destroy (): void {
 
 		this.scene.renderedEntities = this.scene.renderedEntities.filter(item => item !== this.gameObject);
-		ige.client.off('zoom', this.zoomEvtListener);
+		ige.client.off('scale', this.zoomEvtListener);
 		this.zoomEvtListener = null;
 
 		if (this.scaleTween) {
