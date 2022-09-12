@@ -240,8 +240,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 
 	private scaleElements (data: { ratio: number }): void {
 		const { ratio } = data;
-		const inverseRatio = 1 / ratio;
-		const targetScale = Math.min(Math.max(inverseRatio, 0.5), 2.5);
+		const targetScale = 1 / ratio;
 
 		this.scaleTween = this.scene.tweens.add({
 			targets: [this.label, this.attributesContainer, this.chat],

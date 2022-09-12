@@ -199,8 +199,7 @@ var PhaserUnit = /** @class */ (function (_super) {
     PhaserUnit.prototype.scaleElements = function (data) {
         var _this = this;
         var ratio = data.ratio;
-        var inverseRatio = 1 / ratio;
-        var targetScale = Math.min(Math.max(inverseRatio, 0.5), 2.5);
+        var targetScale = 1 / ratio;
         this.scaleTween = this.scene.tweens.add({
             targets: [this.label, this.attributesContainer, this.chat],
             duration: 1000,
