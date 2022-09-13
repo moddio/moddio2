@@ -69,8 +69,11 @@ var PhaserAttributeBar = /** @class */ (function (_super) {
         bar.lineStyle(2, 0x000000, 1);
         bar.strokeRoundedRect(-w / 2, -h / 2, w, h, borderRadius);
         this.text.setText(data.displayValue ?
-            (typeof data.value === 'number' ?
-                data.value.toFixed(0) : '0') : '');
+            (
+            // client taro making 'my' unit's attribute.value type string every other call
+            typeof data.value === 'number' ?
+                data.value.toFixed(data.decimalPlaces) : Number(data.value).toFixed(data.decimalPlaces)) :
+            '');
         this.y = (data.index - 1) * h * 1.1;
         this.resetFadeOut();
         if ((data.showWhen instanceof Array &&

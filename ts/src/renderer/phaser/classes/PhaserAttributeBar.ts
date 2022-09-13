@@ -95,9 +95,15 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 			borderRadius
 		);
 
-		this.text.setText(data.displayValue ?
-			(typeof data.value === 'number' ?
-				data.value.toFixed(0) : '0') : '');
+		this.text.setText(
+			data.displayValue ?
+				(
+					// client taro making 'my' unit's attribute.value type string every other call
+					typeof data.value === 'number' ?
+						data.value.toFixed(data.decimalPlaces) : Number(data.value).toFixed(data.decimalPlaces)
+				) :
+				''
+		);
 
 		this.y = (data.index - 1) * h*1.1;
 

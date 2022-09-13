@@ -67,7 +67,10 @@ var UnitAttributeBar = IgeEntity.extend({
 		var self = this;
 		var progressValueInPercent = (attributeData.value / attributeData.max) * 100;
 
-		var newValue = attributeData.value.toFixed ? attributeData.value.toFixed(0) : 0;
+		var newValue =
+			attributeData.decimalPlaces ?
+				attributeData.value : // .toFixed(attributeData.decimalPlaces)
+				attributeData.value; // .toFixed(0)
 
 		if (self.lastValue.value && self.lastValue.value === newValue) {
 			return;
