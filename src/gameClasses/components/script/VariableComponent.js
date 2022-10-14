@@ -1212,8 +1212,7 @@ var VariableComponent = IgeEntity.extend({
 						positionB,
 						{
 							method: 'multiple',
-							projType: null,
-							rotation: null,
+							projType: null
 						}
 					);
 

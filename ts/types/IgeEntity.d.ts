@@ -25,9 +25,5 @@ declare class IgeEntity extends IgeObject {
 	streamUpdateData (queuedData: UpdateData[]);
 	transformTexture (x: number, y: number, z: number, type?: boolean);
 
-	flip (flip: FlipMode): void;
-
-	// raycast
-	point: any;
-	raycastFraction: number;
+	flip (flip: FlipMode): void
 }
