@@ -157,7 +157,9 @@ var BuffComponent = TaroEntity.extend({
 		var entity = self._entity;
 		var ownerPlayer = entity.getOwner();
 		if (!taro.isServer && ownerPlayer && entity._stats.clientId === taro.network.id() && ownerPlayer._stats.selectedUnitId == entity.id()) {
-			$(`#${buffId}`).remove();
+			var element = $(`#${buffId}`)
+			element.popover('hide');
+			element.remove();
 		};
 	},
 
