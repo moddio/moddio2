@@ -1918,12 +1918,13 @@ var VariableComponent = TaroEntity.extend({
 						returnValue = {
 							name: name, 
 							description: description,
-							effects: {attributes: {}, stuns: false},
+							attributes: {},
+							stun: false,
 							image: image,
 							maxStacks: 1,
 							unique: true
 						};
-						returnValue.effects.attributes[attribute] = number;
+						returnValue.attributes[attribute] = number;
 						return returnValue;
 					};
 					break;
