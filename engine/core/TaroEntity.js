@@ -106,10 +106,10 @@ var TaroEntity = TaroObject.extend({
 
 		if (taro.isServer) {
 			// this._hidden = false; // never hide it, because it'll stop processing stream queue
-			this.streamUpdateData([{ isHidden: false }]);
 		} else if (taro.isClient) {
 			// this.disableInterpolation(false)
 			// add a little bit of delay before showing the item, so we don't see item translating from old location to new location
+			this.streamUpdateData([{ isHidden: false }]);
 			this._hidden = false;
 			this.emit('show');
 		}
@@ -175,10 +175,9 @@ var TaroEntity = TaroObject.extend({
 	hide: function () {
 		if (taro.isServer) {
 			// self._hidden = true; // never hide it, because it'll stop processing stream queue
-			this.streamUpdateData([{ isHidden: true }]);
 		} else if (taro.isClient) {
 			// this.disableInterpolation(true)
-
+			this.streamUpdateData([{ isHidden: true }]);
 			this._hidden = true;
 			this.emit('hide');
 

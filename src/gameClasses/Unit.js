@@ -1565,13 +1565,10 @@ var Unit = TaroEntityPhysics.extend({
 						break;
 					case 'isHidden':
 						self._stats[attrName] = newValue;
-						if (taro.isClient) {
-							if (newValue == true) {
-								self.hide();
-							} else {
-								self.show();
-							}
-						}
+						var item = self.getCurrentItem();
+						if (item) {
+							item.updateTexture();
+						};
 						break;
 
 					case 'setFadingText':

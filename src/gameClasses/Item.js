@@ -186,9 +186,10 @@ var Item = TaroEntityPhysics.extend({
 			var ownerPlayer = ownerUnit.getOwner();
 			// item should be invisible to myPlayer if this item is held by invisible hostile unit
 			var isInvisible = self.shouldBeInvisible(ownerPlayer, taro.client.myPlayer);
+			var isHidden = ownerUnit._stats.isHidden;
 			var hasBody = self._stats.currentBody && self._stats.currentBody.type !== 'none';
 
-			if (isInvisible || !hasBody) {
+			if (isInvisible || !hasBody || isHidden) {
 				self.hide();
 				this.emit('hide');
 				return;
