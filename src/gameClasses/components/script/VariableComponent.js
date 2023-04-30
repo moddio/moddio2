@@ -767,7 +767,17 @@ var VariableComponent = TaroEntity.extend({
 						returnValue = projectile;
 					}
 					break;
+					
+				case 'getLastTouchingProjectile':
+					var id = taro.game.lastTouchingProjectileId;
 
+					projectile = taro.$(id);
+					if (projectile && projectile._category == 'projectile') {
+						returnValue = projectile;
+					}
+					break;
+
+					
 				case 'getSourceItemOfProjectile':
 					if (entity && entity._category == 'projectile') {
 						var item = entity.getSourceItem();
