@@ -738,6 +738,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 				break;
 			case 'projectile':
 				triggeredBy.projectileId = entityA.id();
+				taro.game.lastTouchingProjectileId = entityA.id();
 				break;
 		}
 
@@ -755,6 +756,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 				entityA.script.trigger("entityTouchesItem", triggeredBy);
 				break;
 			case 'projectile':
+				taro.game.lastTouchedProjectileId = entityA.id();
 				triggeredBy.projectileId = triggeredBy.projectileId || entityB.id();
 				triggeredBy.collidingEntity = entityA.id();
 
