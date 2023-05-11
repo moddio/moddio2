@@ -21,7 +21,7 @@ var BuffComponent = TaroEntity.extend({
 		};
 		if (taro.isServer) {
 			buff.id = '_' + Math.random().toString(36).substring(2, 9);
-			unit.streamUpdateData([{ buff: {data: buff, action: 'add', duration: duration}}]);
+			taro.network.send('buff', {buffData: buff, action: 'add', duration: duration,id: id, unitId: unit.id()});
 		};
 		
 		var isDuplicated = false;
@@ -166,6 +166,10 @@ var BuffComponent = TaroEntity.extend({
 	removeBuffType (buff) {
 		var self = this;
 		var unit = self._entity;
+
+		if (taro.isServer) {
+			taro.network.send('buff', {buffData: buff, action: 'remove', unitId: unit.id()});
+		};
 
 		var buffsToRemove = [];
 		unit._stats.buffs.forEach(function(item){

@@ -676,6 +676,7 @@ var Server = TaroClass.extend({
 		taro.network.define('updateUnit', self._onUpdateUnit);
 		taro.network.define('updateItem', this._onUpdateItem);
 		taro.network.define('updateProjectile', this._onUpdateProjectile);
+		taro.network.define('buff', this._onSomeBullshit)
 
 		taro.network.define('recordSocketMsgs', this._onRecordSocketMsgs);
 		taro.network.define('getSocketMsgs', this._onGetSocketMsgs);

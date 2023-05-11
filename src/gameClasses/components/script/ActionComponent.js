@@ -2260,7 +2260,7 @@ var ActionComponent = TaroEntity.extend({
 						var buff = taro.game.getAsset('buffTypes', buffId);
 
 						if(unit && unit._stats && unit._stats.buffs && buff){
-							unit.streamUpdateData([{ buff: {data: buff, action: 'remove'}}]);	
+							unit.buff.removeBuffType(buff);
 						};
 						break;
 

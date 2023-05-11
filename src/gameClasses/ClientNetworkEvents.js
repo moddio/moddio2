@@ -590,6 +590,20 @@ var ClientNetworkEvents = {
 			}
 		}
 	},
+	
+	_onBuff: function (data) {
+		var unit = taro.$(data.unitId);
+		if (unit) {
+			switch (data.action) {
+				case 'add':
+					unit.buff.addBuff(data.buffData, data.duration);
+					break;
+				case 'remove':
+					unit.buff.removeBuffType(data.buffData);
+					break;
+			}
+		}
+	},
 
 	_onCamera: function (data) {
 		// camera zoom change
