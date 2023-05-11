@@ -51,12 +51,17 @@ class TileMarker {
 		return image;
 	}
 
-	changeImage (tile: Phaser.Tilemaps.Tile, i: number, j: number): void {
-		if (tile && tile.index !== 0) {
+	changeImage (tile: number, i: number, j: number): void {
+		if (tile && tile !== 0 && tile !== -1) {
 			if (!this.images[i][j])  {
 				this.images[i][j] = this.addImage(i, j);
 			} 
-			this.images[i][j].setTexture(this.extrudedKey, tile.index - 1).setAlpha(0.75);
+			this.images[i][j].setTexture(this.extrudedKey, tile - 1).setAlpha(0.75);
+			// apply tint to palette tile
+			const paletteLayer = this.devModeScene.tileEditor.tilePalette.map.layers[0];
+			const row = Math.floor((tile - 1) / paletteLayer.width);
+			const paletteTile = paletteLayer?.data[row]?.[tile - 1 - (row * paletteLayer.width)];
+			if (paletteTile) paletteTile.tint = 0x87cfff;
 		} else if (this.images[i][j]) this.images[i][j].setAlpha(0);
 	}
 

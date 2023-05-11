@@ -9,6 +9,7 @@ const fs = require('fs');
 const cluster = require('cluster');
 const { RateLimiterMemory } = require('rate-limiter-flexible');
 _ = require('lodash');
+const currency = require("currency.js");
 
 const config = require('../config');
 const Console = console.constructor;
@@ -42,6 +43,14 @@ global.rollbar = {
 	},
 };
 
+global.coinHelper = {
+	value: (x) => currency(x).value,
+	add: (x, y) => currency(x).add(y).value,
+	subtract: (x, y) => currency(x).subtract(y).value,
+	multiply: (x, y) => currency(x).multiply(y).value,
+	divide: (x, y) => currency(x).divide(y).value,
+};
+
 global.lastRollbarUuid = null;
 
 global.mixpanel = {
@@ -49,6 +58,12 @@ global.mixpanel = {
 		// do nothing
 	},
 };
+
+global.posthog = {
+	capture: function () {
+		// do nothing
+	},
+}
 
 console.log("process.env.ENV = ", process.env.ENV)
 if (process.env.ENV == 'production') {
@@ -68,9 +83,14 @@ if (process.env.ENV == 'production') {
 
 // initialize mixpanel.
 var Mixpanel = require('mixpanel');
+var { PostHog } = require('posthog-node')
 // create an instance of the mixpanel client
 if(process.env.MIXPANEL_TOKEN) {
 	global.mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
+}
+
+if (process.env.POSTHOG_TOKEN) {
+	global.posthog = new PostHog(process.env.POSTHOG_TOKEN, { host: 'https://app.posthog.com' } );
 }
 
 process.on('exit', function () {
@@ -105,11 +125,14 @@ var Server = TaroClass.extend({
 		self.usedConnectionJwts = {}; // these jwts used for gs connection verification, stored in memory to prevent a token being used multiple times
 		self.COIN_JWT_EXPIRES_IN = 15 * 1000; // token expires in 15 seconds
 		self.usedCoinJwts = {}; // these jwts used for coin transaction, stored in memory to prevent a token being used multiple times
+		self.usedAdRewardJwts = {};
+		self.AD_REWARD_JWT_EXPIRES_IN = 5 * 60 * 1000; // token expires in 5 minutes
 		self.logTriggers = {
 
 		};
 		self.developerClientIds = [];
-
+		self.userAdStats = {};
+		
 		taro.env = process.env.ENV || 'production';
 		self.config = config[taro.env];
 
@@ -618,6 +641,8 @@ var Server = TaroClass.extend({
 
 		taro.network.define('swapInventory', self._onSwapInventory);
 
+		taro.network.define('playAdCallback', self._onPlayAdCallback);
+
 		// bullshit that's necessary for sending data to client
 		taro.network.define('makePlayerCameraTrackUnit', self._onSomeBullshit);
 		taro.network.define('changePlayerCameraPanSpeed', self._onSomeBullshit);
@@ -721,27 +746,16 @@ var Server = TaroClass.extend({
 			}
 		}
 	},
-
-	giveCoinToUser: function (player, coin, itemName) {
-		if (coin && player._stats && player._stats.userId && (taro.game.data.defaultData.tier == 3 || taro.game.data.defaultData.tier == 4)) {
-
-			taro.clusterClient && taro.clusterClient.giveCoinToUser({
-				creatorId: taro.game.data.defaultData.owner,
-				userId: player._stats.userId,
-				coins: coin,
-				game: taro.game.data.defaultData._id,
-				itemName
-			});
-		}
-	},
 	
-	sendCoinsToPlayer: function (userId, coins) {
-		if (userId && coins && taro.game.data.defaultData.tier != 2) {
+	sendCoinsToPlayer: function (userId, coins, deductFeeFromOwnerBalance = false) {
+		coins = Math.floor(coins);
+		if (userId && coins) {
 			taro.clusterClient && taro.clusterClient.sendCoinsToPlayer({
 				creatorId: taro.game.data.defaultData.owner,
 				userId,
 				coins,
 				game: taro.game.data.defaultData._id,
+				deductFeeFromOwnerBalance
 			});
 		}
 	},
@@ -757,29 +771,64 @@ var Server = TaroClass.extend({
 						userId
 					} = body.message;
 					
+
 					var creator = taro.$$('player').find(function (player) {
 						return player && player._stats && player._stats.userId == creatorId;
 					});
+
 					if (creator) {
 						creator.streamUpdateData([{ coins: updatedCoinsCreator }]);
 					}
-					
+
 					var player = taro.$$('player').find(function (player) {
 						return player && player._stats && player._stats.userId == userId;
 					});
+
 					if (player) {
+						taro.script.trigger('sendCoinsSuccess', { playerId: player.id() });
 						player.streamUpdateData([{ coins: updatedCoinsPlayer }]);
 					}
 				}
 			}
 			if (body.status === 'error') {
 				console.log('error in sending coins')
+
+				if (!body.reason || !body.message) {
+					return;
+				}
+
+				const reason = body.reason;				
+				
+				const {
+					creatorId,
+					userId
+				} = body.message;
+
+				let player = taro.$$('player').find(function (player) {
+					return player && player._stats && player._stats.userId == userId;
+				});
+				
+				if (!player) {
+					return;
+				}
+
+				switch (reason) {
+					case 'insufficient creator coins':
+						taro.script.trigger('coinSendFailureDueToInsufficientCoins', { playerId: player.id() });
+						break;
+					case 'daily coin transfer limit exceeded':
+						taro.script.trigger('coinSendFailureDueToDailyLimit', { playerId: player.id() });
+						break;
+					default:
+						break;
+				}
 			}
 		}
 	},
 	
 	consumeCoinFromUser: function (player, coins, boughtItemId) {
 		var self = this;
+		coins = Math.floor(coins);
 		if (player && coins && (taro.game.data.defaultData.tier >= 2)) {
 			if (taro.game.data.defaultData.owner != player._stats.userId) {
 				if (!self.coinUpdate[player._stats.clientId]) {
@@ -791,7 +840,7 @@ var Server = TaroClass.extend({
 						boughtItems: []
 					};
 				} else {
-					self.coinUpdate[player._stats.clientId].coins += coins;
+					self.coinUpdate[player._stats.clientId].coins = global.coinHelper.add(self.coinUpdate[player._stats.clientId].coins, coins);
 				}
 				if (self.coinUpdate[player._stats.clientId].boughtItems) {
 					self.coinUpdate[player._stats.clientId].boughtItems.push({
@@ -830,6 +879,87 @@ var Server = TaroClass.extend({
 				console.log('error in buying item')
 			}
 		}
+	},
+	
+	creditAdRewardToOwner: function (data, clientId) {
+		const token = data.token;
+		if (token && data.status && clientId) {
+			try {
+				const isUsedToken = taro.server.usedAdRewardJwts[token];
+				if (isUsedToken) {
+					console.log('creditAdRewardToOwner - Token has been used already', token);
+					return;
+				}
+				
+				const jwt = require("jsonwebtoken");
+				
+				const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+				const {type, clientId: decodedClientId, createdAt} = decodedToken;
+				
+				if (type === 'creditAdRewardToken' && decodedClientId === clientId) {
+					// allow transaction since token has been verified
+					
+					// store token for current client
+					taro.server.usedAdRewardJwts[token] = createdAt;
+					
+					// remove expired tokens
+					const filteredUsedAdRewardJwts = {};
+					const usedTokenEntries = Object.entries(taro.server.usedAdRewardJwts).filter(([token, tokenCreatedAt]) => (Date.now() - tokenCreatedAt) < taro.server.AD_REWARD_JWT_EXPIRES_IN);
+					for (const [key, value] of usedTokenEntries) {
+						if (typeof value === 'number') {
+							filteredUsedAdRewardJwts[key] = value;
+						}
+					}
+					taro.server.usedAdRewardJwts = filteredUsedAdRewardJwts;
+					
+				} else {
+					return;
+				}
+				
+				var player = taro.game.getPlayerByClientId(clientId);
+				
+				taro.clusterClient && taro.clusterClient.creditAdRewardToOwner({
+					creatorId: taro.game.data.defaultData.owner,
+					game: taro.game.data.defaultData._id,
+					userId: player._stats.userId,
+					clientId,
+					status: data.status,
+				});
+				
+			} catch (e) {
+				console.log('creditAdRewardToOwner - invalid token', e.message, data.token);
+			}
+		}
+	},
+	
+	creditAdRewardToOwnerCallback: function (body) {
+		if (body) {
+			if (body.status === 'success') {
+				if (body.message && body.message.userId && body.message.creatorId) {
+					const {
+						updatedCoinsCreator,
+						creatorId
+					} = body.message;
+					
+					var creator = taro.$$('player').find(function (player) {
+						return player && player._stats && player._stats.userId == creatorId;
+					});
+					if (creator) {
+						creator.streamUpdateData([{ coins: updatedCoinsCreator }]);
+					}
+				}
+			}
+			if (body.status === 'error') {
+				console.log('error in crediting ad-reward coins')
+			}
+		}
+	},
+	
+	addServerLog: function (type, reason) {
+		taro.clusterClient && taro.clusterClient.addServerLog({
+			type,
+			reason
+		});
 	},
 	
 	getStatus: function () {

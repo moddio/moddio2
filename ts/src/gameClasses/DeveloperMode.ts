@@ -52,7 +52,10 @@ class DeveloperMode {
 					serverData.x,
 					serverData.y
 					);
-			} else {
+			} else if (data.tool === 'clear') {
+				this.clearLayer(serverData.layer);
+			}
+			else {
 				//save tile change to taro.game.data.map and taro.map.data
 				gameMap.layers[serverData.layer].data[serverData.y * width + serverData.x] = serverData.gid;
 				taro.map.data.layers[serverData.layer].data[serverData.y * width + serverData.x] = serverData.gid;
@@ -91,6 +94,19 @@ class DeveloperMode {
             this.floodTiles(layer, oldTile, newTile, x, y + 1);
         }
 	}
+
+	clearLayer (layer: number): void {
+		const map = taro.game.data.map;
+		const width = map.width;
+		for (let i = 0; i < map.width; i++) {
+			for (let j = 0; j < map.height; j++) {
+				if (map.layers[layer].data[j * width + i] !== 0) {
+					//save tile change to taro.game.map.data
+					map.layers[layer].data[j*width + i] = 0;
+				}
+			}
+		}
+	 }
 
 	editRegion (data: RegionData, clientId: string): void {
 		// only allow developers to modify regions
@@ -355,6 +371,7 @@ class DeveloperMode {
 		console.log ('map data was edited', data.mapData.wasEdited);
 		if (data.mapData.wasEdited) {
 			data.mapData.wasEdited = false;
+			data.mapData.haveUnsavedChanges = true;
 			taro.game.data.map = data.mapData;
 			if (taro.physics) {
 				//if changes was in 'walls' layer we destroy all old walls and create new staticsFromMap

@@ -84,6 +84,10 @@ class DevTooltip extends Phaser.GameObjects.Container {
 		));
 
 		this.drawBubble();
+
+		if (labelText === 'Position') {
+			this.fadeOut();
+		}
 	}
 
 	fadeOut(): void {

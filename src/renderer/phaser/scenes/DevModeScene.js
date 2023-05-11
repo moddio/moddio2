@@ -21,6 +21,7 @@ var DevModeScene = /** @class */ (function (_super) {
     DevModeScene.prototype.init = function () {
         var _this = this;
         this.gameScene = taro.renderer.scene.getScene('Game');
+        this.pointerInsideButtons = false;
         this.regions = [];
         taro.client.on('unlockCamera', function () {
             _this.gameScene.cameras.main.stopFollow();
@@ -89,6 +90,8 @@ var DevModeScene = /** @class */ (function (_super) {
         this.load.image('eyeopen', 'https://cache.modd.io/asset/spriteImage/1669820752914_eyeopen.png');
         this.load.image('eyeclosed', 'https://cache.modd.io/asset/spriteImage/1669821066279_eyeclosed.png');
         this.load.image('fill', 'https://cache.modd.io/asset/spriteImage/1675428550006_fill_(1).png');
+        this.load.image('clear', 'https://cache.modd.io/asset/spriteImage/1681917489086_layerClear.png');
+        this.load.image('save', 'https://cache.modd.io/asset/spriteImage/1681916834218_saveIcon.png');
         this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 
         //'src/renderer/phaser/rexuiplugin.min.js',
         'rexUI', 'rexUI');
@@ -123,7 +126,8 @@ var DevModeScene = /** @class */ (function (_super) {
         this.devModeTools.enterMapTab();
     };
     DevModeScene.prototype.leaveMapTab = function () {
-        this.devModeTools.leaveMapTab();
+        if (this.devModeTools)
+            this.devModeTools.leaveMapTab();
     };
     DevModeScene.prototype.pointerInsideMap = function (pointerX, pointerY, map) {
         return (0 <= pointerX && pointerX < map.width
@@ -148,16 +152,6 @@ var DevModeScene = /** @class */ (function (_super) {
             && this.input.activePointer.x < this.tilePalette.scrollBarContainer.x + this.tilePalette.scrollBarContainer.width
             && this.input.activePointer.y > this.tilePalette.scrollBarContainer.y - 30
             && this.input.activePointer.y < this.tilePalette.scrollBarContainer.y + this.tilePalette.scrollBarContainer.height);
-    };
-    DevModeScene.prototype.pointerInsideButtons = function () {
-        return ((this.input.activePointer.x > this.devModeTools.layerButtonsContainer.x
-            && this.input.activePointer.x < this.devModeTools.layerButtonsContainer.x + this.devModeTools.layerButtonsContainer.width
-            && this.input.activePointer.y > this.devModeTools.layerButtonsContainer.y
-            && this.input.activePointer.y < this.devModeTools.layerButtonsContainer.y + this.devModeTools.layerButtonsContainer.height)
-            || (this.input.activePointer.x > this.devModeTools.toolButtonsContainer.x
-                && this.input.activePointer.x < this.devModeTools.toolButtonsContainer.x + this.devModeTools.toolButtonsContainer.width
-                && this.input.activePointer.y > this.devModeTools.toolButtonsContainer.y
-                && this.input.activePointer.y < this.devModeTools.toolButtonsContainer.y + this.devModeTools.toolButtonsContainer.height));
     };
     DevModeScene.prototype.update = function () {
         if (this.tileEditor)

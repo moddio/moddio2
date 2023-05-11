@@ -34,7 +34,7 @@ var MenuUiComponent = TaroEntity.extend({
 			// });
 
 			$('#resolution-high').on('click', function () {
-				localStorage.setItem('resolution', 'high');
+				self.setItem('resolution', 'high');
 				self.setResolution();
 			});
 
@@ -42,7 +42,7 @@ var MenuUiComponent = TaroEntity.extend({
 				// setting 640x480 resolution as low resolution
 				var canvas = $('#game-div canvas');
 				if (canvas.attr('width') != 640 && canvas.attr('height') != 480) {
-					localStorage.setItem('resolution', 'low');
+					self.setItem('resolution', 'low');
 					self.setResolution();
 					if (typeof incrLowResolution === 'function') {
 						incrLowResolution();
@@ -141,7 +141,7 @@ var MenuUiComponent = TaroEntity.extend({
 					return;
 				}
 				if((['1', '4', '5'].includes(window.gameDetails?.tier)) || window.isStandalone) {
-					console.log("taro developermode: ", taro.developerMode)
+					// console.log("taro developermode: ", taro.developerMode);
 					taro.developerMode.enter();
 
 					loadEditor();
@@ -215,7 +215,7 @@ var MenuUiComponent = TaroEntity.extend({
 
 			// once modal is hidden, then it's no longer shown when the game starts
 			$('#help-modal').on('hidden.bs.modal', function (e) {
-				localStorage.setItem('tutorial', 'off');
+				self.setItem('tutorial', 'off');
 			});
 
 			$('#server-list').on('change', function () {
@@ -309,6 +309,23 @@ var MenuUiComponent = TaroEntity.extend({
 			});
 		}
 	},
+
+	setItem: function (key, value) {
+		if (USE_LOCAL_STORAGE) {
+			return JSON.stringify(localStorage.setItem(key, value));
+		}
+
+		return storage[key] = value;
+	},
+
+	getItem: function (key) {
+		if (USE_LOCAL_STORAGE) {
+			return JSON.parse(localStorage.getItem(key));
+		}
+
+		return storage[key];
+	},
+
 	toggleButton: function (type, mode) {
 		if (mode == 'on') {
 			$(`#${type}-on`)
@@ -398,7 +415,8 @@ var MenuUiComponent = TaroEntity.extend({
 	kickPlayerFromGame: function (excludeEntity) {
 		var self = this;
 		var players = taro.$$('player').filter(function (player) {
-			if (player && player._stats && player._stats.controlledBy === 'human' && player._alive && player.id() !== excludeEntity) return true;
+			if (player && player._stats && player._stats.controlledBy === 'human' && player._alive && player.id() !== excludeEntity) 
+				return true;
 		});
 		var html = '<table class="table table-hover">';
 		html += '<tr class="border-bottom">';
@@ -640,7 +658,6 @@ var MenuUiComponent = TaroEntity.extend({
 			var friendsPanel = $('#friends-panel');
 			var mobileChatBox = $('#mobile-chat-box');
 			var shopButton = $('#mobile-shop-button');
-			var shopButton = $('#mobile-shop-button');
 			var homeButton = $('#home-button');
 
 			if (isMenuVisible) {
@@ -783,7 +800,8 @@ var MenuUiComponent = TaroEntity.extend({
 	},
 	setResolution: function () {
 		if (taro.isMobile) return;
-		var resolution = localStorage.getItem('resolution') || 'high';
+		var self = this;
+		var resolution = self.getItem('resolution') || 'high';
 		if (resolution == 'high') {
 			taro.client.resolutionQuality = 'high';
 			taro._resizeEvent();
@@ -797,9 +815,8 @@ var MenuUiComponent = TaroEntity.extend({
 		}
 	},
 	setForceCanvas: function (enabled) {
-		const forceCanvas = JSON.parse(
-			localStorage.getItem('forceCanvas')
-		) || {};
+		var self = this;
+		const forceCanvas = self.getItem('forceCanvas') || {};
 
 		if (enabled) {
 			forceCanvas[0] = enabled;
@@ -807,12 +824,11 @@ var MenuUiComponent = TaroEntity.extend({
 			delete forceCanvas[0];
 		}
 
-		localStorage.setItem('forceCanvas', JSON.stringify(forceCanvas));
+		self.setItem('forceCanvas', forceCanvas);
 	},
 	getForceCanvas: function() {
-		const forceCanvas = JSON.parse(
-			localStorage.getItem('forceCanvas')
-		) || {};
+		var self = this;
+		const forceCanvas = self.getItem('forceCanvas') || {};
 		return forceCanvas[0];
 	}
 });

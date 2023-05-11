@@ -549,9 +549,9 @@ NetIo.Server = NetIo.EventingClass.extend({
 		var self = this;
 		this._port = port;
 
-		// Cloudflare SSL flexible mode only encrypt traffic between browser and cloudflare. All the https/wss traffic is diverted to http/ws from Clouflare to server hence https proxy server is not needed.
+		// Cloudflare SSL flexible mode only encrypt traffic between browser and cloudflare. All the https/wss traffic is diverted to http/ws from Cloudflare to server hence https proxy server is not needed.
 		// Https/wss server is not being used currently on production
-		var secure = false; // to turn on/off https
+		var secure = true; // to turn on/off https
 
 		if (process.env.ENV == 'local' || process.env.ENV == 'standalone' || process.env.ENV == 'standalone-remote') {
 			secure = false;
@@ -606,15 +606,18 @@ NetIo.Server = NetIo.EventingClass.extend({
 
 			console.log(`https port ${taro.server.httpsPort}`);
 			self._portSecure = taro.server.httpsPort;
-			var privateKey = this._fs.readFileSync('../sslcert/modd_ssl.key', 'utf8');
-			var certificate = this._fs.readFileSync('../sslcert/modd_ssl.crt', 'utf8');
+			
+			var privateKey = this._fs.readFileSync(`${__dirname}/../../../../../../sslcert/modd_ssl.key`, 'utf8');
+			var certificate = this._fs.readFileSync(`${__dirname}/../../../../../../sslcert/modd_ssl.crt`, 'utf8');
+			
 			var options = { key: privateKey, cert: certificate };
 			this._httpsServer = this._https.createServer(options, function (request, response) {
 				response.writeHead(404);
 				response.end();
 			});
 			this._socketServerHttps = new this._websocket.Server({
-			    server: this._httpsServer
+			    server: this._httpsServer,
+					maxPayload: 100 * 1024, // 100 KB - The maximum allowed message size
 			});
 			// this._socketServerHttps = new this._websocket.WebSocketServer({
 			// 	server: this._httpsServer
@@ -670,7 +673,7 @@ NetIo.Server = NetIo.EventingClass.extend({
 		socket._decode = self._decode;
 		socket._remoteAddress = (request.headers['x-forwarded-for'] && request.headers['x-forwarded-for'].split(',').shift()) || ws._socket.remoteAddress;
 		socket._fromPingService = request.headers[PING_SERVICE_HEADER] && request.headers[PING_SERVICE_HEADER] === process.env.PING_SERVICE_HEADER_SECRET;
-		
+		console.log('x-forwarded-for', request.headers['x-forwarded-for'], socket._remoteAddress);
 		if (!socket._fromPingService) {
 			
 			// if token does not exist in request close the socket.
@@ -700,6 +703,7 @@ NetIo.Server = NetIo.EventingClass.extend({
 					userId: decodedToken.userId,
 					sessionId: decodedToken.sessionId,
 					distinctId : searchParams.get('distinctId'),
+					posthogDistinctId : searchParams.get('posthogDistinctId'),
 					token,
 					tokenCreatedAt: decodedToken.createdAt
 				};

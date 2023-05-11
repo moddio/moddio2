@@ -120,9 +120,9 @@ var PlayerUiComponent = TaroEntity.extend({
 	},
 
 	updatePlayerCoin: function (newValue) {
-		var coin = parseInt($('.player-coins').html());
+		var coin = parseFloat($('.player-coins').html());
 		if (coin != NaN) {
-			$('.player-coins').html(parseInt(newValue));
+			$('.player-coins').html(parseFloat(newValue));
 		}
 	},
 

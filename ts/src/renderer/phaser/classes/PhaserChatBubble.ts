@@ -1,8 +1,9 @@
 class PhaserChatBubble extends Phaser.GameObjects.Container {
 
 	private readonly bubble: Phaser.GameObjects.Graphics;
-	private readonly bitmapText: Phaser.GameObjects.BitmapText;
-	private readonly rtText: Phaser.GameObjects.RenderTexture;
+	private readonly textObject: Phaser.GameObjects.Text;
+	//private readonly bitmapText: Phaser.GameObjects.BitmapText;
+	//private readonly rtText: Phaser.GameObjects.RenderTexture;
 
 	private offset: number;
 
@@ -19,29 +20,44 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 		const bubble = this.bubble = scene.add.graphics();
 		this.add(bubble);
 
-		const text = this.bitmapText = scene.add.bitmapText(
+		/*const text = this.bitmapText = scene.add.bitmapText(
 			0, 0,
 			BitmapFontManager.font(scene, 'Arial', true, false, '#FFFFFF')
+		);*/
+		const text = this.textObject = scene.add.text(
+			0,
+			0,
+			this.trimText(chatText),
+			{
+				font: '600 24px Arial',
+				color: '#ffffff',
+				align: 'center'
+			}
 		);
+
+		text.setOrigin(0.5);
+		text.depth = 1;
+		if (this.scene.renderer.type !== Phaser.CANVAS) text.setResolution(2);
+		//this.textObject.setScale(0.5);
 
 		// needs to be created with the correct scale of the client
 		this.setScale(1 / this.scene.cameras.main.zoom);
 
 		text.setFontSize(12);
-		text.setCenterAlign();
+		//text.setCenterAlign();
 		text.setOrigin(0.5);
-		text.letterSpacing = -0.6;
+		//text.letterSpacing = -0.6;
 
 		this.add(text);
 
 		if (scene.renderer.type === Phaser.CANVAS) {
 
-			text.visible = false;
+			//text.visible = false;
 
-			const rt = this.rtText = scene.add.renderTexture(0, 0);
+			/*const rt = this.rtText = scene.add.renderTexture(0, 0);
 			rt.setOrigin(0.5);
 
-			this.add(rt);
+			this.add(rt);*/
 		}
 
 		scene.add.existing(this);
@@ -50,17 +66,19 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 	}
 
 	showMessage(chatText: string): void {
-		const text = this.bitmapText;
-		text.setText(BitmapFontManager.sanitize(
+		//const text = this.bitmapText;
+		/*text.setText(BitmapFontManager.sanitize(
 			text.fontData, this.trimText(chatText)
-		));
+		));*/
+		const text = this.textObject;
+		text.setText(this.trimText(chatText));
 
-		const rt = this.rtText;
+		/*const rt = this.rtText;
 		if (rt) {
 			rt.resize(text.width, text.height);
 			rt.clear();
 			rt.draw(text, text.width/2, text.height/2);
-		}
+		}*/
 
 		this.drawBubble();
 
@@ -114,7 +132,8 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 
 	private drawBubble (): void {
 		const bubble = this.bubble;
-		const text = this.rtText || this.bitmapText;
+		//const text = this.rtText || this.bitmapText;
+		const text = this.textObject;
 		const width = text.width + 20;
 		const height = text.height + 10;
 

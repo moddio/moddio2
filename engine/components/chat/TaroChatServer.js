@@ -4,12 +4,12 @@
  */
 var TaroChatServer = {
 	/**
-     * Creates a new room with the specified room name and options.
-     * @param roomName The display name of the room.
-     * @param options An object containing options key/values.
+	 * Creates a new room with the specified room name and options.
+	 * @param roomName The display name of the room.
+	 * @param options An object containing options key/values.
 	 * @param {String=} roomId If specified, becomes the new room's ID.
-     * @return {String} The new room's ID.
-     */
+	 * @return {String} The new room's ID.
+	 */
 	createRoom: function (roomName, options, roomId) {
 		var self = taro.chat;
 		var newRoomId = roomId || taro.newIdHex();
@@ -198,7 +198,16 @@ var TaroChatServer = {
 		// no filter on standalone
 		//
 		if (process.env.ENV != 'standalone') {
+			const unfilteredMessage = msg.text;
 			msg.text = self.filter.cleanHacked(msg.text); // https://github.com/web-mech/badwords/issues/93
+
+			const userId = taro.game.getPlayerByClientId(clientId)?._stats?.userId;
+			msg && msg.text && userId && global.mixpanel.track('Chat Message Sent', {
+				distinct_id: userId,
+				gameSlug: taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
+				gameId: taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
+				containsBadWord: msg.text != unfilteredMessage
+			});
 		}
 		//
 

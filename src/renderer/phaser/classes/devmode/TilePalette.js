@@ -79,8 +79,21 @@ var TilePalette = /** @class */ (function (_super) {
         scrollBarContainer.width = camera.width + scrollBarRight.width + 60;
         scrollBarContainer.height = camera.height + scrollBarBottom.height + 60;
         _this.scene.scale.on(Phaser.Scale.Events.RESIZE, function () {
+            var paletteWidth = _this.paletteWidth = _this.scene.sys.game.canvas.width * 0.25;
+            var paletteHeight = _this.paletteHeight = _this.scene.sys.game.canvas.height * 0.25;
             camera.x = _this.scene.sys.game.canvas.width - paletteWidth - 40;
+            camera.y = _this.scene.sys.game.canvas.height - paletteHeight - 40;
+            camera.width = paletteWidth;
+            camera.height = paletteHeight;
             scrollBarContainer.x = _this.camera.x;
+            scrollBarContainer.x = camera.x;
+            scrollBarContainer.y = camera.y;
+            scrollBarContainer.width = camera.width + scrollBarRight.width + 60;
+            scrollBarContainer.height = camera.height + scrollBarBottom.height + 60;
+            scrollBarRight.setPosition(_this.camera.width, 0);
+            scrollBarRight.setScale(1, _this.camera.height / scrollBarRight.height);
+            scrollBarBottom.setPosition(0, _this.camera.height);
+            scrollBarBottom.setScale(_this.camera.width / scrollBarBottom.width, 1);
         });
         var pointerover;
         texturesLayer.on('pointerover', function (p) {

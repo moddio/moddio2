@@ -8,6 +8,8 @@ class DevModeScene extends PhaserScene {
 	tileEditor: TileEditor;
 	gameEditorWidgets: Array<DOMRect>;
 
+	pointerInsideButtons: boolean;
+
 	tilePalette: TilePalette;
 	tilemap: Phaser.Tilemaps.Tilemap;
 	tileset: Phaser.Tilemaps.Tileset;
@@ -20,6 +22,7 @@ class DevModeScene extends PhaserScene {
 
 	init (): void {
 		this.gameScene = taro.renderer.scene.getScene('Game');
+		this.pointerInsideButtons = false;
 		this.regions = [];
 
 		taro.client.on('unlockCamera', () => {
@@ -96,6 +99,8 @@ class DevModeScene extends PhaserScene {
 		this.load.image('eyeopen', 'https://cache.modd.io/asset/spriteImage/1669820752914_eyeopen.png');
 		this.load.image('eyeclosed', 'https://cache.modd.io/asset/spriteImage/1669821066279_eyeclosed.png');
 		this.load.image('fill', 'https://cache.modd.io/asset/spriteImage/1675428550006_fill_(1).png');
+		this.load.image('clear', 'https://cache.modd.io/asset/spriteImage/1681917489086_layerClear.png');
+		this.load.image('save', 'https://cache.modd.io/asset/spriteImage/1681916834218_saveIcon.png');
 		
 
 		this.load.scenePlugin(
@@ -145,7 +150,7 @@ class DevModeScene extends PhaserScene {
 	}
 
 	leaveMapTab (): void {
-		this.devModeTools.leaveMapTab();
+		if (this.devModeTools) this.devModeTools.leaveMapTab();
 	}
 
 	pointerInsideMap(pointerX: number, pointerY: number, map: Phaser.Tilemaps.Tilemap): boolean {
@@ -174,17 +179,6 @@ class DevModeScene extends PhaserScene {
 			&& this.input.activePointer.x < this.tilePalette.scrollBarContainer.x + this.tilePalette.scrollBarContainer.width
 			&& this.input.activePointer.y > this.tilePalette.scrollBarContainer.y - 30
 			&& this.input.activePointer.y < this.tilePalette.scrollBarContainer.y + this.tilePalette.scrollBarContainer.height);
-	}
-
-	pointerInsideButtons(): boolean {
-		return ((this.input.activePointer.x > this.devModeTools.layerButtonsContainer.x
-			&& this.input.activePointer.x < this.devModeTools.layerButtonsContainer.x + this.devModeTools.layerButtonsContainer.width
-			&& this.input.activePointer.y > this.devModeTools.layerButtonsContainer.y
-			&& this.input.activePointer.y < this.devModeTools.layerButtonsContainer.y + this.devModeTools.layerButtonsContainer.height)
-			|| (this.input.activePointer.x > this.devModeTools.toolButtonsContainer.x
-			&& this.input.activePointer.x < this.devModeTools.toolButtonsContainer.x + this.devModeTools.toolButtonsContainer.width
-			&& this.input.activePointer.y > this.devModeTools.toolButtonsContainer.y
-			&& this.input.activePointer.y < this.devModeTools.toolButtonsContainer.y + this.devModeTools.toolButtonsContainer.height));
 	}
 
 	update (): void {

@@ -37,9 +37,7 @@ var Projectile = TaroEntityPhysics.extend({
 			self.mount(taro.$('baseScene'));
 		}
 
-		if (taro.isClient) {
-			taro.client.emit('create-projectile', this);
-		}
+		if (self._stats.sourceItemId === undefined || self._streamMode) this.startRendering();
 
 		if (self._stats.states) {
 			var currentState = self._stats.states[self._stats.stateId];
@@ -103,6 +101,13 @@ var Projectile = TaroEntityPhysics.extend({
 		// add behaviour also have isClient block so we will have to execute this in both client and server
 		this.addBehaviour('projectileBehaviour', this._behaviour);
 		this.scaleDimensions(this._stats.width, this._stats.height);
+	},
+
+	startRendering: function () {
+		if (taro.isClient) {
+			this.renderingStarted = true;
+			taro.client.emit('create-projectile', this);
+		}
 	},
 
 	_behaviour: function (ctx) {

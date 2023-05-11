@@ -557,7 +557,7 @@ var Unit = TaroEntityPhysics.extend({
 						taro.server.consumeCoinFromUser(ownerPlayer, shopData.price.coins, itemTypeId);
 														
 						ownerPlayer.streamUpdateData([{
-								coins: ownerPlayer._stats.coins - shopData.price.coins
+								coins: global.coinHelper.subtract(ownerPlayer._stats.coins, shopData.price.coins)
 						}])
 					}
 				}
@@ -1761,7 +1761,7 @@ var Unit = TaroEntityPhysics.extend({
 
 			// desktop control: if this unit's not under a command, rotate to mouse xy coordinate
 			} else {
-				var mouse = ownerPlayer.control.input.mouse;
+				var mouse = ownerPlayer.control?.input?.mouse;
 				if (mouse) {
 					var a = this._translate.x - mouse.x;
 					var b = this._translate.y - mouse.y;

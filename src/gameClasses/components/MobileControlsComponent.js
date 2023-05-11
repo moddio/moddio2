@@ -89,7 +89,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	upPressed: function () {
 		if (this.debug) console.log('UP PRESSED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		unit.ability.moveUp();
+		if (unit) unit.ability.moveUp();
 		if (taro.isClient) {
 			taro.network.send('playerKeyDown', { device: 'key', key: 'w' });
 		}
@@ -98,7 +98,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	downPressed: function () {
 		if (this.debug) console.log('DOWN PRESSED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		unit.ability.moveDown();
+		if (unit) unit.ability.moveDown();
 		if (taro.isClient) {
 			taro.network.send('playerKeyDown', { device: 'key', key: 's' });
 		}
@@ -107,7 +107,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	leftPressed: function () {
 		if (this.debug) console.log('LEFT PRESSED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		unit.ability.moveLeft();
+		if (unit) unit.ability.moveLeft();
 		if (taro.isClient) {
 			taro.network.send('playerKeyDown', { device: 'key', key: 'a' });
 		}
@@ -116,7 +116,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	rightPressed: function () {
 		if (self.debug) console.log('RIGHT PRESSED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		unit.ability.moveRight();
+		if (unit) unit.ability.moveRight();
 		if (taro.isClient) {
 			taro.network.send('playerKeyDown', { device: 'key', key: 'd' });
 		}
@@ -125,7 +125,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	upReleased: function () {
 		if (this.debug) console.log('UP RELEASED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		if (unit.direction.y == -1) unit.ability.stopMovingY();
+		if (unit && unit.direction.y == -1) unit.ability.stopMovingY();
 		if (taro.isClient) {
 			taro.network.send('playerKeyUp', { device: 'key', key: 'w' });
 		}
@@ -134,7 +134,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	downReleased: function () {
 		if (this.debug) console.log('DOWN RELEASED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		if (unit.direction.y == 1) unit.ability.stopMovingY();
+		if (unit && unit.direction.y == 1) unit.ability.stopMovingY();
 		if (taro.isClient) {
 			taro.network.send('playerKeyUp', { device: 'key', key: 's' });
 		}
@@ -143,7 +143,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	leftReleased: function () {
 		if (this.debug) console.log('LEFT RELEASED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		if (unit.direction.x == -1) unit.ability.stopMovingX();
+		if (unit && unit.direction.x == -1) unit.ability.stopMovingX();
 		if (taro.isClient) {
 			taro.network.send('playerKeyUp', { device: 'key', key: 'a' });
 		}
@@ -152,7 +152,7 @@ var MobileControlsComponent = TaroEntity.extend({
 	rightReleased: function () {
 		if (this.debug) console.log('RIGHT RELEASED');
 		var unit = taro.client.myPlayer.getSelectedUnit();
-		if (unit.direction.x == 1) unit.ability.stopMovingX();
+		if (unit && unit.direction.x == 1) unit.ability.stopMovingX();
 		if (taro.isClient) {
 			taro.network.send('playerKeyUp', { device: 'key', key: 'd' });
 		}
@@ -274,10 +274,13 @@ var MobileControlsComponent = TaroEntity.extend({
 							// Convert into compass style angle (zero degrees NORTH and positive clockwise)
 							var compassAngle = -(data.angle - 90);
 
+							var unit = taro.client.myPlayer.getSelectedUnit();
 							// simulate mouse movement 10 units away from player (scaled by joystick "power") character but at the angle
-							var unitTranslate = taro.client.myPlayer.getSelectedUnit()._translate;
-							var mx = unitTranslate.x + Math.sin(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
-							var my = unitTranslate.y - Math.cos(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
+							if (unit) {
+								var unitTranslate = unit._translate;
+								var mx = unitTranslate.x + Math.sin(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
+								var my = unitTranslate.y - Math.cos(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
+							}
 
 							taro.client.myPlayer.control.input.mouse.x = mx;
 							taro.client.myPlayer.control.input.mouse.y = my;
@@ -301,10 +304,13 @@ var MobileControlsComponent = TaroEntity.extend({
 							// Convert into compass style angle (zero degrees NORTH and positive clockwise)
 							var compassAngle = -(data.angle - 90);
 
+							var unit = taro.client.myPlayer.getSelectedUnit();
 							// simulate mouse movement 10 units away from player (scaled by joystick "power") character but at the angle
-							var unitTranslate = taro.client.myPlayer.getSelectedUnit()._translate;
-							var mx = unitTranslate.x + Math.sin(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
-							var my = unitTranslate.y - Math.cos(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
+							if (unit) {
+								var unitTranslate = unit._translate;
+								var mx = unitTranslate.x + Math.sin(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
+								var my = unitTranslate.y - Math.cos(compassAngle / 360 * 2 * Math.PI) * 10 * data.power;
+							}
 
 							taro.client.myPlayer.control.input.mouse.x = mx;
 							taro.client.myPlayer.control.input.mouse.y = my;

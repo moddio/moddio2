@@ -1,4 +1,5 @@
 class DevToolButton {
+	name: string;
 	button: Phaser.GameObjects.Rectangle;
 	active: boolean;
 	hidden: boolean;
@@ -17,11 +18,8 @@ class DevToolButton {
 		func: (...args: any[]) => void,
 		value?: number
 	) {
-		//const text = '+';
-		//const w = 30;
-		const h = 30;
-		//const x = 0;
-		//const y = -h -1;
+		this.name = text;
+		const h = devModeTools.BUTTON_HEIGHT;
 		const scene = devModeTools.scene;
 		const button = this.button = scene.add.rectangle(x + w/2, y + h/2, w, h, devModeTools.COLOR_WHITE);
 		button.setInteractive();
@@ -62,9 +60,11 @@ class DevToolButton {
 			else func();
 		});
 		button.on('pointerover', () => {
+			scene.pointerInsideButtons = true;
 			devModeTools.tooltip.showMessage(tooltipLabel, tooltipText);
 		});
 		button.on('pointerout', () => {
+			scene.pointerInsideButtons = false;
 			devModeTools.tooltip.fadeOut();
 		});
 	}
@@ -93,7 +93,7 @@ class DevToolButton {
 	}
 
 	increaseSize (value: boolean): void {
-		this.button.setScale(1 + (Number(value) * 0.3), 1 + (Number(value) * 0.15));
+		this.button.setScale(1 + (Number(value) * 0.2), 1 + (Number(value) * 0.10));
 		/*if (value) {
 			this.button.setStrokeStyle(2, 0x000000, 1);
 		}

@@ -645,7 +645,8 @@ var TaroInputComponent = TaroEventingClass.extend({
 
 				setTimeout(function () {
 					$('#message').focus();
-				}, 0);
+				}, 1);
+
 				// }
 				// else {
 				// 	$('#enter-email-modal').modal({

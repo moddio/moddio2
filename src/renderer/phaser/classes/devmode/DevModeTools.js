@@ -13,22 +13,13 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var DevModeTools = /** @class */ (function (_super) {
     __extends(DevModeTools, _super);
     function DevModeTools(scene) {
         var _this = _super.call(this, scene) || this;
         _this.scene = scene;
+        _this.BUTTON_HEIGHT = 30;
+        _this.BUTTON_INTERSPACE = 4;
         var palette = _this.palette = new TilePalette(_this.scene, _this.scene.tileset, _this.scene.rexUI);
         _this.tileEditor = new TileEditor(_this.scene.gameScene, _this.scene, _this);
         _this.regionEditor = new RegionEditor(_this.scene.gameScene, _this.scene, _this);
@@ -38,43 +29,44 @@ var DevModeTools = /** @class */ (function (_super) {
         _this.COLOR_LIGHT = palette.COLOR_LIGHT;
         _this.COLOR_WHITE = palette.COLOR_WHITE;
         _this.COLOR_GRAY = palette.COLOR_GRAY;
+        var h = _this.BUTTON_HEIGHT;
+        var s = _this.BUTTON_INTERSPACE;
         _this.scene.scale.on(Phaser.Scale.Events.RESIZE, function () {
-            layerButtonsContainer.x = palette.camera.x + palette.paletteWidth - 98;
-            layerButtonsContainer.y = palette.camera.y - 170;
-            toolButtonsContainer.x = palette.camera.x + palette.paletteWidth - 98;
-            toolButtonsContainer.y = palette.camera.y - layerButtonsContainer.height - 170;
+            toolButtonsContainer.height = (h + s) * 13;
+            if (toolButtonsContainer.height > _this.scene.sys.game.canvas.height * 0.5) {
+                toolButtonsContainer.scale = (_this.scene.sys.game.canvas.height * 0.5) / toolButtonsContainer.height;
+            }
+            toolButtonsContainer.x = palette.camera.x + palette.paletteWidth - ((h * 4) * toolButtonsContainer.scale) + 22;
+            toolButtonsContainer.y = palette.camera.y - (toolButtonsContainer.height * toolButtonsContainer.scale);
         });
-        new DevToolButton(_this, '+', '+', 'Zoom in (+)', null, 0, -34, 30, palette.scrollBarContainer, palette.zoom.bind(palette), -1);
-        new DevToolButton(_this, '-', '-', 'Zoom out (-)', null, 34, -34, 30, palette.scrollBarContainer, palette.zoom.bind(palette), 1);
-        var layerButtonsContainer = _this.layerButtonsContainer = new Phaser.GameObjects.Container(scene);
-        layerButtonsContainer.width = 120;
-        layerButtonsContainer.height = 204;
-        layerButtonsContainer.x = palette.camera.x + palette.paletteWidth - 98;
-        layerButtonsContainer.y = palette.camera.y - 204;
-        scene.add.existing(layerButtonsContainer);
-        _this.paletteButton = new DevToolButton(_this, 'palette', 'Palette', 'show/hide palette', null, 0, 170, 120, layerButtonsContainer, palette.toggle.bind(palette));
-        _this.layerButtons = [];
-        _this.layerButtons.push(new DevToolButton(_this, 'floor', 'Layer (1)', 'select the Floor layer', null, 30, 102, 85, layerButtonsContainer, _this.switchLayer.bind(_this), 0), new DevToolButton(_this, 'floor2', 'Layer (2)', 'select the Floor 2 layer', null, 30, 68, 85, layerButtonsContainer, _this.switchLayer.bind(_this), 1), new DevToolButton(_this, 'walls', 'Layer (3)', 'select the Walls layer', null, 30, 34, 85, layerButtonsContainer, _this.switchLayer.bind(_this), 2), new DevToolButton(_this, 'trees', 'Layer (4)', 'select the Trees layer', null, 30, 0, 85, layerButtonsContainer, _this.switchLayer.bind(_this), 3));
-        _this.layerButtons[0].highlight('active');
-        _this.layerHideButtons = [];
-        _this.layerHideButtons.push(new DevToolButton(_this, '', 'Layer visibility (shift-1)', 'show/hide floor layer', 'eyeopen', 0, 102, 35, layerButtonsContainer, _this.hideLayer.bind(_this), 0), new DevToolButton(_this, '', 'Layer visibility (shift-2)', 'show/hide floor 2 layer', 'eyeopen', 0, 68, 35, layerButtonsContainer, _this.hideLayer.bind(_this), 1), new DevToolButton(_this, '', 'Layer visibility (shift-3)', 'show/hide walls layer', 'eyeopen', 0, 34, 35, layerButtonsContainer, _this.hideLayer.bind(_this), 2), new DevToolButton(_this, '', 'Layer visibility (shift-4)', 'show/hide trees layer', 'eyeopen', 0, 0, 35, layerButtonsContainer, _this.hideLayer.bind(_this), 3));
-        _this.layerHideButtons[0].highlight('active');
+        new DevToolButton(_this, '+', '+', 'Zoom in (+)', null, 0, -(h + s), h, palette.scrollBarContainer, palette.zoom.bind(palette), -1);
+        new DevToolButton(_this, '-', '-', 'Zoom out (-)', null, h + s, -(h + s), h, palette.scrollBarContainer, palette.zoom.bind(palette), 1);
         var toolButtonsContainer = _this.toolButtonsContainer = new Phaser.GameObjects.Container(scene);
-        toolButtonsContainer.x = palette.camera.x + palette.paletteWidth - 98;
-        toolButtonsContainer.y = palette.camera.y - layerButtonsContainer.height - 204;
-        toolButtonsContainer.width = 120;
-        toolButtonsContainer.height = 170;
+        toolButtonsContainer.height = (h + s) * 13;
+        if (toolButtonsContainer.height > _this.scene.sys.game.canvas.height * 0.5) {
+            toolButtonsContainer.scale = (_this.scene.sys.game.canvas.height * 0.5) / toolButtonsContainer.height;
+        }
+        toolButtonsContainer.x = palette.camera.x + palette.paletteWidth - ((h * 4) * toolButtonsContainer.scale) + 22;
+        toolButtonsContainer.y = palette.camera.y - (toolButtonsContainer.height * toolButtonsContainer.scale);
         scene.add.existing(toolButtonsContainer);
         _this.modeButtons = [];
-        _this.modeButtons.push(new DevToolButton(_this, '', 'Cursor Tool (C)', 'interact with regions and entities', 'cursor', 0, 0, 56, toolButtonsContainer, _this.cursor.bind(_this)), new DevToolButton(_this, '', 'Region Tool (R)', 'draw new region', 'region', 60, 0, 56, toolButtonsContainer, _this.drawRegion.bind(_this)), new DevToolButton(_this, '', 'Stamp Brush (B)', 'LMB: place selected tiles. RMB: copy tiles', 'stamp', 0, 34, 56, toolButtonsContainer, _this.brush.bind(_this)), new DevToolButton(_this, '', 'Eraser (E)', 'delete tiles from selected layer', 'eraser', 60, 34, 56, toolButtonsContainer, _this.emptyTile.bind(_this)), new DevToolButton(_this, '', 'Bucket Fill (F)', 'fill an area with the selected tile', 'fill', 0, 68, 56, toolButtonsContainer, _this.fill.bind(_this)));
+        _this.modeButtons.push(new DevToolButton(_this, '', 'Cursor Tool (C)', 'interact with regions and entities', 'cursor', 0, 0, h * 2 - s, toolButtonsContainer, _this.cursor.bind(_this)), new DevToolButton(_this, '', 'Region Tool (R)', 'draw new region', 'region', h * 2, 0, h * 2 - s, toolButtonsContainer, _this.drawRegion.bind(_this)), new DevToolButton(_this, '', 'Stamp Brush (B)', 'LMB: place selected tiles. RMB: copy tiles', 'stamp', 0, h + s, h * 2 - s, toolButtonsContainer, _this.brush.bind(_this)), new DevToolButton(_this, '', 'Eraser (E)', 'delete tiles from selected layer', 'eraser', h * 2, h + s, h * 2 - s, toolButtonsContainer, _this.emptyTile.bind(_this)), new DevToolButton(_this, '', 'Bucket Fill (F)', 'fill an area with the selected tile', 'fill', 0, (h + s) * 2, h * 2 - s, toolButtonsContainer, _this.fill.bind(_this)), new DevToolButton(_this, '', 'Clear Layer (L)', 'clear selected layer', 'clear', h * 2, (h + s) * 2, h * 2 - s, toolButtonsContainer, _this.clear.bind(_this)), new DevToolButton(_this, '', 'Save Map (S)', 'save all changes', 'save', 0, (h + s) * 3, h * 2 - s, toolButtonsContainer, _this.save.bind(_this)));
         _this.cursorButton = _this.modeButtons[0];
         _this.highlightModeButton(0);
         _this.brushButtons = [];
-        _this.brushButtons.push(new DevToolButton(_this, '1x1', '1x1', 'changes the brush size to 1x1', null, 0, 136, 56, toolButtonsContainer, _this.selectSingle.bind(_this)), new DevToolButton(_this, '2x2', '2x2', 'changes the brush size to 2x2', null, 60, 136, 56, toolButtonsContainer, _this.selectArea.bind(_this)));
+        _this.brushButtons.push(new DevToolButton(_this, '1x1', '1x1', 'changes the brush size to 1x1', null, 0, (h + s) * 5, h * 2 - s, toolButtonsContainer, _this.selectSingle.bind(_this)), new DevToolButton(_this, '2x2', '2x2', 'changes the brush size to 2x2', null, h * 2, (h + s) * 5, h * 2 - s, toolButtonsContainer, _this.selectArea.bind(_this)));
         _this.brushButtons[0].highlight('active');
+        _this.layerButtons = [];
+        _this.layerButtons.push(new DevToolButton(_this, 'floor', 'Layer (1)', 'select the Floor layer', null, h + s, (h + s) * 10, h * 2 + 25, toolButtonsContainer, _this.switchLayer.bind(_this), 0), new DevToolButton(_this, 'floor2', 'Layer (2)', 'select the Floor 2 layer', null, h + s, (h + s) * 9, h * 2 + 25, toolButtonsContainer, _this.switchLayer.bind(_this), 1), new DevToolButton(_this, 'walls', 'Layer (3)', 'select the Walls layer', null, h + s, (h + s) * 8, h * 2 + 25, toolButtonsContainer, _this.switchLayer.bind(_this), 2), new DevToolButton(_this, 'trees', 'Layer (4)', 'select the Trees layer', null, h + s, (h + s) * 7, h * 2 + 25, toolButtonsContainer, _this.switchLayer.bind(_this), 3));
+        _this.layerButtons[0].highlight('active');
+        _this.layerButtons[0].increaseSize(true);
+        _this.layerHideButtons = [];
+        _this.layerHideButtons.push(new DevToolButton(_this, '', 'Layer visibility (shift-1)', 'show/hide floor layer', 'eyeopen', 0, (h + s) * 10, h * 2 - 25, toolButtonsContainer, _this.hideLayer.bind(_this), 0), new DevToolButton(_this, '', 'Layer visibility (shift-2)', 'show/hide floor 2 layer', 'eyeopen', 0, (h + s) * 9, h * 2 - 25, toolButtonsContainer, _this.hideLayer.bind(_this), 1), new DevToolButton(_this, '', 'Layer visibility (shift-3)', 'show/hide walls layer', 'eyeopen', 0, (h + s) * 8, h * 2 - 25, toolButtonsContainer, _this.hideLayer.bind(_this), 2), new DevToolButton(_this, '', 'Layer visibility (shift-4)', 'show/hide trees layer', 'eyeopen', 0, (h + s) * 7, h * 2 - 25, toolButtonsContainer, _this.hideLayer.bind(_this), 3));
+        _this.layerHideButtons[0].highlight('active');
+        _this.layerHideButtons[0].increaseSize(true);
+        _this.paletteButton = new DevToolButton(_this, 'palette', 'Palette', 'show/hide palette', null, 0, (h + s) * 12, h * 4, toolButtonsContainer, palette.toggle.bind(palette));
         _this.tooltip = new DevTooltip(_this.scene);
         _this.palette.hide();
-        _this.layerButtonsContainer.setVisible(false);
         _this.toolButtonsContainer.setVisible(false);
         _this.regionEditor.hideRegions();
         var ctrlKey = _this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL, false);
@@ -91,7 +83,6 @@ var DevModeTools = /** @class */ (function (_super) {
         return _this;
     }
     DevModeTools.prototype.enterMapTab = function () {
-        this.layerButtonsContainer.setVisible(true);
         this.toolButtonsContainer.setVisible(true);
         this.palette.show();
         this.regionEditor.showRegions();
@@ -99,7 +90,6 @@ var DevModeTools = /** @class */ (function (_super) {
     DevModeTools.prototype.leaveMapTab = function () {
         this.regionEditor.cancelDrawRegion();
         this.palette.hide();
-        this.layerButtonsContainer.setVisible(false);
         this.toolButtonsContainer.setVisible(false);
         this.regionEditor.hideRegions();
     };
@@ -108,9 +98,12 @@ var DevModeTools = /** @class */ (function (_super) {
             .map(function (widget) { return widget.getBoundingClientRect(); });
     };
     DevModeTools.prototype.checkIfInputModalPresent = function () {
-        var customModals = document.querySelectorAll(".winbox, .modal, .custom-editor-modal");
+        var customModals = document.querySelectorAll(".winbox, .modal, .custom-editor-modal, #chat-message-input");
         for (var _i = 0, customModals_1 = customModals; _i < customModals_1.length; _i++) {
             var customModal = customModals_1[_i];
+            if (customModal.style.display === 'none') {
+                continue;
+            }
             var inputs = customModal.querySelectorAll("input, select, textarea, button");
             for (var i = 0; i < inputs.length; i++) {
                 if (inputs[i] === document.activeElement) {
@@ -143,51 +136,63 @@ var DevModeTools = /** @class */ (function (_super) {
         });
         var plusKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.PLUS, false);
         plusKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 var zoom = (gameScene.zoomSize / 2.15) / 1.1;
                 taro.client.emit('zoom', zoom);
             }
         });
         var minusKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS, false);
         minusKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 var zoom = (gameScene.zoomSize / 2.15) * 1.1;
                 taro.client.emit('zoom', zoom);
             }
         });
         var cKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C, false);
         cKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 _this.cursor();
             }
         });
         var rKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R, false);
         rKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 _this.drawRegion();
             }
         });
         var bKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B, false);
-        bKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+        bKey.on('down', function (key) {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 _this.brush();
             }
         });
         var eKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E, false);
         eKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 _this.emptyTile();
             }
         });
         var fKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         fKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
                 _this.fill();
+            }
+        });
+        var lKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L, false);
+        lKey.on('down', function () {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+                _this.clear();
+            }
+        });
+        var sKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S, false);
+        sKey.on('down', function () {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+                _this.save();
             }
         });
         var oneKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE, false);
         oneKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
                 if (shiftKey.isDown) {
                     _this.hideLayer(0);
                 }
@@ -198,7 +203,7 @@ var DevModeTools = /** @class */ (function (_super) {
         });
         var twoKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO, false);
         twoKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
                 if (shiftKey.isDown) {
                     _this.hideLayer(1);
                 }
@@ -209,7 +214,7 @@ var DevModeTools = /** @class */ (function (_super) {
         });
         var threeKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE, false);
         threeKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
                 if (shiftKey.isDown) {
                     _this.hideLayer(2);
                 }
@@ -220,7 +225,7 @@ var DevModeTools = /** @class */ (function (_super) {
         });
         var fourKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR, false);
         fourKey.on('down', function () {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
                 if (shiftKey.isDown) {
                     _this.hideLayer(3);
                 }
@@ -254,10 +259,8 @@ var DevModeTools = /** @class */ (function (_super) {
         if (!this.modeButtons[3].active) {
             this.tileEditor.lastSelectedTile = this.tileEditor.selectedTile;
             this.tileEditor.lastSelectedTileArea = this.tileEditor.selectedTileArea;
-            var copy = __assign({}, this.tileEditor.selectedTile);
-            copy.index = 0;
-            this.tileEditor.selectedTile = copy;
-            this.tileEditor.selectedTileArea = [[copy, copy], [copy, copy]];
+            this.tileEditor.selectedTile = -1;
+            this.tileEditor.selectedTileArea = [[-1, -1], [-1, -1]];
             this.tileEditor.activateMarkers(true);
             this.tileEditor.marker.changePreview();
             this.scene.regionEditor.regionTool = false;
@@ -275,6 +278,14 @@ var DevModeTools = /** @class */ (function (_super) {
         this.selectSingle();
         this.highlightModeButton(4);
     };
+    DevModeTools.prototype.clear = function () {
+        var gameMap = this.scene.gameScene.tilemap;
+        //this.tileEditor.clearLayer(gameMap.currentLayerIndex, false);
+        inGameEditor.showClearLayerConfirmation({ gid: 0, layer: gameMap.currentLayerIndex, layerName: this.layerButtons[gameMap.currentLayerIndex].name, x: 0, y: 0, tool: 'clear' });
+    };
+    DevModeTools.prototype.save = function () {
+        inGameEditor.saveMap();
+    };
     DevModeTools.prototype.highlightModeButton = function (n) {
         this.modeButtons.forEach(function (button, index) {
             if (index === n)
@@ -284,12 +295,7 @@ var DevModeTools = /** @class */ (function (_super) {
         });
     };
     DevModeTools.prototype.selectSingle = function () {
-        for (var i = 0; i < this.tileEditor.area.x; i++) {
-            for (var j = 0; j < this.tileEditor.area.y; j++) {
-                if (this.tileEditor.selectedTileArea[i][j])
-                    this.tileEditor.selectedTileArea[i][j].tint = 0xffffff;
-            }
-        }
+        this.tileEditor.clearTint();
         this.tileEditor.area = { x: 1, y: 1 };
         this.brushButtons[0].highlight('active');
         this.brushButtons[1].highlight('no');
@@ -301,8 +307,7 @@ var DevModeTools = /** @class */ (function (_super) {
         }
     };
     DevModeTools.prototype.selectArea = function () {
-        if (this.tileEditor.selectedTile)
-            this.tileEditor.selectedTile.tint = 0xffffff;
+        this.tileEditor.clearTint();
         this.tileEditor.area = { x: 2, y: 2 };
         this.brushButtons[1].highlight('active');
         this.brushButtons[0].highlight('no');
