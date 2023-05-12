@@ -2297,7 +2297,6 @@ var ActionComponent = TaroEntity.extend({
 						break;
 
 					case 'giveBuffToUnit':
-
 						var buff = self._script.variable.getValue(action.buff, vars);
 						var entity = self._script.variable.getValue(action.entity, vars);
 						var duration = self._script.variable.getValue(action.number, vars);

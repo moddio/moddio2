@@ -170,7 +170,7 @@ var BuffComponent = TaroEntity.extend({
 		if (taro.isServer) {
 			taro.network.send('buff', {buffData: buff, action: 'remove', unitId: unit.id()});
 		};
-
+    
 		var buffsToRemove = [];
 		unit._stats.buffs.forEach(function(item){
 			if (item.name == buff.name) {

@@ -369,9 +369,7 @@ var ControlComponent = TaroEntity.extend({
 		if (unit && !unit._stats.aiEnabled && !unit._stats.isDisabled) {
 			unit.updateAngleToTarget();			
 		}
-		
 	}
-
 });
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {

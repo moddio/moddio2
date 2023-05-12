@@ -1518,6 +1518,18 @@ var Unit = TaroEntityPhysics.extend({
 							self.setOwnerPlayer(newValue);
 						}
 						break;
+					case 'buff':
+						switch (newValue.action) {
+							case 'add':
+								if (taro.isClient) {
+									self.buff.addBuff(newValue.data, newValue.duration);
+								}
+								break;
+							case 'remove':
+								self.buff.removeBuffType(newValue.data);
+								break;
+						};
+						break;
 				}
 
 
