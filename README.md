@@ -49,13 +49,15 @@ You can download Game JSON from your modd.io's game's sandbox ([example](https:/
 
 <img src="./assets/images/gamejson.png" width="600" alt="How to get game json">
 
+Next, rename the downloaded Game JSON as `game.json` and move it to the `./src` directory.
+
 ## Quick start example - Run "Two Houses" locally
 
 Install [Node 14](https://nodejs.org) or later and then...
 
 ```
 git clone https://github.com/moddio/taro2.git
-cd taro
+cd taro2
 npm install
 npm run server
 ```

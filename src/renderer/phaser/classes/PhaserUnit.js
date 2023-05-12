@@ -124,11 +124,11 @@ var PhaserUnit = /** @class */ (function (_super) {
     PhaserUnit.prototype.updateLabelOffset = function () {
         if (this.label) {
             var _a = this.sprite, displayHeight = _a.displayHeight, displayWidth = _a.displayWidth;
-            var labelHeight = this.label.getTextBounds(true).global.height;
+            var labelHeight = this.label.getBounds().height;
             this.label.y = -displayHeight / 2 - labelHeight * 1.5;
-            if (this.rtLabel) {
+            /*if (this.rtLabel) {
                 this.rtLabel.y = this.label.y;
-            }
+            }*/
         }
         this.updateGameObjectSize();
     };
@@ -163,52 +163,85 @@ var PhaserUnit = /** @class */ (function (_super) {
     PhaserUnit.prototype.getLabel = function () {
         if (!this.label) {
             var scene = this.scene;
-            var label = this.label = scene.add.bitmapText(0, 0, BitmapFontManager.font(scene, // default font
-            'Verdana', false, false, '#FFFFFF'), 'cccccc', 16);
+            /*const label = this.label = scene.add.bitmapText(0, 0,
+                BitmapFontManager.font(scene, // default font
+                    'Verdana', false, false, '#FFFFFF'
+                ),
+                'cccccc',
+                16
+            );
             label.letterSpacing = 1.3;
+
             // needs to be created with the correct scale of the client
-            label.setScale(1 / scene.cameras.main.zoom);
+            label.setScale(1 / scene.cameras.main.zoom);*/
+            var label = this.label = scene.add.text(0, 0, 'cccccc');
+            // needs to be created with the correct scale of the client
+            this.label.setScale(1 / scene.cameras.main.zoom);
             label.setOrigin(0.5);
             this.gameObject.add(label);
-            if (scene.renderer.type === Phaser.CANVAS) {
-                var rt = this.rtLabel = scene.add.renderTexture(0, 0);
+            /*if (scene.renderer.type === Phaser.CANVAS) {
+                const rt = this.rtLabel = scene.add.renderTexture(0, 0);
                 rt.setScale(label.scale);
                 rt.setOrigin(0.5);
+
                 this.gameObject.add(rt);
-            }
+            }*/
         }
         return this.label;
     };
     PhaserUnit.prototype.updateLabel = function (data) {
         var label = this.getLabel();
-        var rt = this.rtLabel;
-        label.visible = !rt;
-        label.setFont(BitmapFontManager.font(this.scene, 'Verdana', data.bold, taro.game.data.settings
-            .addStrokeToNameAndAttributes !== false, data.color || '#FFFFFF'));
-        label.setText(BitmapFontManager.sanitize(label.fontData, data.text || ''));
-        if (rt) {
-            var tempScale = label.scale;
+        //const rt = this.rtLabel;
+        //label.visible = !rt;
+        /*label.setFont(BitmapFontManager.font(this.scene,
+            'Verdana', data.bold,
+            taro.game.data.settings
+                .addStrokeToNameAndAttributes !== false,
+            data.color || '#FFFFFF'
+        ));
+        label.setText(BitmapFontManager.sanitize(
+            label.fontData, data.text || ''
+        ));*/
+        label.visible = true;
+        label.setFontFamily('Verdana');
+        label.setFontSize(16);
+        label.setFontStyle(data.bold ? 'bold' : 'normal');
+        label.setFill(data.color || '#fff');
+        if (this.scene.renderer.type !== Phaser.CANVAS)
+            label.setResolution(4);
+        var strokeThickness = taro.game.data.settings
+            .addStrokeToNameAndAttributes !== false ? 4 : 0;
+        label.setStroke('#000', strokeThickness);
+        label.setText(data.text || '');
+        /*if (rt) {
+            const tempScale = label.scale;
             label.setScale(1);
+
             rt.visible = true;
             rt.resize(label.width, label.height);
             rt.clear();
-            rt.draw(label, label.width / 2, label.height / 2);
+            rt.draw(label, label.width/2, label.height/2);
+
             label.setScale(tempScale);
-        }
+        }*/
         this.updateLabelOffset();
         this.updateGameObjectSize();
     };
     PhaserUnit.prototype.showLabel = function () {
-        var label = this.getLabel();
-        var rt = this.rtLabel;
+        /*const label = this.getLabel();
+        const rt = this.rtLabel;
+
         label.visible = !rt;
-        rt && (rt.visible = true);
+        rt && (rt.visible = true);*/
+        this.getLabel().visible = true;
     };
     PhaserUnit.prototype.hideLabel = function () {
-        var label = this.getLabel();
-        var rt = this.rtLabel;
+        /*const label = this.getLabel();
+        const rt = this.rtLabel;
+
         label.visible = false;
-        rt && (rt.visible = false);
+        rt && (rt.visible = false);*/
+        this.getLabel().visible = false;
     };
     PhaserUnit.prototype.fadingText = function (data) {
         var offset = -25 - Math.max(this.sprite.displayHeight, this.sprite.displayWidth) / 2;
@@ -295,9 +328,9 @@ var PhaserUnit = /** @class */ (function (_super) {
         }
         if (this.label) {
             targets.push(this.label);
-            if (this.rtLabel) {
+            /*if (this.rtLabel) {
                 targets.push(this.rtLabel);
-            }
+            }*/
         }
         this.scaleTween = this.scene.tweens.add({
             targets: targets,
@@ -333,7 +366,7 @@ var PhaserUnit = /** @class */ (function (_super) {
         this.attributesContainer = null;
         this.attributes = null;
         this.label = null;
-        this.rtLabel = null;
+        //this.rtLabel = null;
         this.scene = null;
         _super.prototype.destroy.call(this);
     };

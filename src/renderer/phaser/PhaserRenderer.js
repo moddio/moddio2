@@ -18,7 +18,9 @@ var PhaserRenderer = /** @class */ (function (_super) {
     __extends(PhaserRenderer, _super);
     function PhaserRenderer() {
         var _this = this;
-        var forceCanvas = JSON.parse(localStorage.getItem('forceCanvas')) || {};
+        var forceCanvas = (USE_LOCAL_STORAGE ?
+            JSON.parse(localStorage.getItem('forceCanvas')) || {} :
+            storage['force-canvas']);
         _this = _super.call(this, {
             type: forceCanvas[gameId] || forceCanvas[0] ?
                 Phaser.CANVAS : Phaser.AUTO,
@@ -63,13 +65,6 @@ var PhaserRenderer = /** @class */ (function (_super) {
         }
         else {
             _this.events.once(Phaser.Core.Events.BOOT, _this.setupInputListeners, _this);
-        }
-        if (typeof ga != 'undefined' && taro.env != 'local') {
-            ga('send', {
-                hitType: 'event',
-                eventCategory: 'Rendering Engine',
-                eventAction: _this.renderer.type
-            });
         }
         return _this;
     }

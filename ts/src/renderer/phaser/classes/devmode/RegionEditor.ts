@@ -107,7 +107,7 @@ class RegionEditor {
 			if (this.clickedList.length === 1) {
 				inGameEditor.addNewRegion && inGameEditor.addNewRegion(this.clickedList[0]);
 			} else if ( this.clickedList.length > 1 ) {
-				taro.showRegionList && taro.showRegionList(this.clickedList);
+				inGameEditor.showRegionList && inGameEditor.showRegionList(this.clickedList);
 			}
 		}
 		

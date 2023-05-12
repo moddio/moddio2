@@ -65,13 +65,13 @@ var TaroEngine = TaroEntity.extend({
 		// restarts of the engine, new ids will still always be created compared to earlier runs -
 		// which is important when storing persistent data with ids etc
 		this._idCounter = new Date().getTime();
+		this.lastCheckedAt = Date.now();
 
 		// use small numbers on the serverside for ids
 		if (this.isServer) {
 			// this._idCounter = 0
 			this.sanitizer = require('sanitizer').sanitize;
-			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins
-			this.lastCheckedAt = Date.now();
+			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins			
 		}
 
 		// Setup components
@@ -1610,6 +1610,66 @@ var TaroEngine = TaroEntity.extend({
 			taro.triggerProfiler = {};
 			taro.triggersQueued = []; // only empties on server-side as client-side never reaches here
 
+			// periodical checks running every second
+			if (taro.now - self.lastCheckedAt > 1000) {
+				// kill tier 1 servers that has been empty for over 15 minutes
+				var playerCount = self.getPlayerCount();
+				self.lastCheckedAt = taro.now;
+
+				if (taro.isClient) {
+					// if I'm the only player in the game, suggest me a different game to play
+					// wait at least 5s, because playerCount is not accurate at the beginning
+					if (playerCount == 1 && !taro.client.myPlayer?.isDeveloper() && taro._currentTime - taro.client.playerJoinedAt > 5000) {
+						// log the event to posthog for AB testing players who join a game with 1 player
+						if (window.posthog) {
+							if (window.posthogEventCaptured === undefined) {
+								window.posthogEventCaptured = true;
+								console.log('player is alone ;-;');
+								window.posthog.capture('player is alone in the game');
+							}
+						}
+
+						if (typeof window.raidAlert === 'function') {
+							window.raidAlert()
+						}							
+					}
+				} else if (taro.isServer) {
+					if (playerCount <= 0) {
+						if (!self.serverEmptySince) {
+							self.serverEmptySince = taro.now;
+						}
+
+						const gameTier = taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.tier;
+						// gameTier and serverTier could be different in some cases since Tier 4 games are now being hosted on Tier 2 servers.
+						// Kill T1 T2, T5 or any other server if it's been empty for 10+ mins. Also, do not kill T2 servers if they are hosting a T4 game
+						if (gameTier !== '4' && taro.now - self.serverEmptySince > self.emptyTimeLimit) {
+							taro.server.kill('game\'s been empty for too long (10 min)');
+						}
+					} else {
+						self.serverEmptySince = null;
+					}
+
+					var lifeSpan = self.getLifeSpan();
+
+					// if server's lifeSpan is over, kill it (e.g. kill server after 5 hours)
+					var age = taro.now - taro.server.gameStartedAt;
+
+					var shouldLog = taro.server.logTriggers && taro.server.logTriggers.timerLogs;
+					if (shouldLog) {
+						console.log(taro.now, taro.server.gameStartedAt, age, lifeSpan, age > lifeSpan);
+					}
+					if (age > lifeSpan) {
+						console.log({
+							lifeSpan,
+							age,
+							now: taro.now,
+							startedAt: taro.server.gameStartedAt
+						});
+						taro.server.kill(`server lifespan expired ${lifeSpan}`);
+					}
+				}
+			}
+
 			if (taro.isClient) {
 				if (taro.client.myPlayer) {
 					taro.client.myPlayer.control._behaviour();
@@ -1672,51 +1732,6 @@ var TaroEngine = TaroEntity.extend({
 			self.lastTick = self._tickStart;
 			self._dpf = self._drawCount;
 			self._drawCount = 0;
-
-			if (taro.isServer) {
-				if (taro.now - self.lastCheckedAt > 1000) {
-					self.lastCheckedAt = taro.now;
-
-					// kill tier 1 servers that has been empty for over 15 minutes
-					var playerCount = taro.$$('player').filter(function (player) {
-						return player._stats.controlledBy == 'human';
-					}).length;
-
-					if (playerCount <= 0) {
-						if (!self.serverEmptySince) {
-							self.serverEmptySince = taro.now;
-						}
-
-						const gameTier = taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.tier;
-						// gameTier and serverTier could be different in some cases since Tier 4 games are now being hosted on Tier 2 servers.
-						// Kill T1 T2, T5 or any other server if it's been empty for 10+ mins. Also, do not kill T2 servers if they are hosting a T4 game
-						if (gameTier !== '4' && taro.now - self.serverEmptySince > self.emptyTimeLimit) {
-							taro.server.kill('game\'s been empty for too long (10 min)');
-						}
-					} else {
-						self.serverEmptySince = null;
-					}
-
-					var lifeSpan = self.getLifeSpan();
-
-					// if server's lifeSpan is over, kill it (e.g. kill server after 5 hours)
-					var age = taro.now - taro.server.gameStartedAt;
-
-					var shouldLog = taro.server.logTriggers && taro.server.logTriggers.timerLogs;
-					if (shouldLog) {
-						console.log(taro.now, taro.server.gameStartedAt, age, lifeSpan, age > lifeSpan);
-					}
-					if (age > lifeSpan) {
-						console.log({
-							lifeSpan,
-							age,
-							now: taro.now,
-							startedAt: taro.server.gameStartedAt
-						});
-						taro.server.kill(`server lifespan expired ${lifeSpan}`);
-					}
-				}
-			}
 
 			/// / for debugging
 			// if (taro.$$("unit")[0]) {
@@ -2158,6 +2173,12 @@ var TaroEngine = TaroEntity.extend({
 		TaroEngine.prototype.log('Engine destroy complete.');
 	},
 
+	getPlayerCount: function() {
+		return taro.$$('player').filter(function (player) {
+			return player._stats.controlledBy == 'human';
+		}).length;
+	},
+	
 	devLog: function () {
 		// return;
 		// if (taro.env == 'local') {

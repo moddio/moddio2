@@ -14,6 +14,8 @@ var TaroEntity = TaroObject.extend({
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
 		var rotate = defaultData.rotate || 0;
 
+		this.prevPhysicsFrame = [taro._currentTime, [translateX, translateY, rotate]];
+
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
 		this._specialProp.push('_aabb');
@@ -239,18 +241,20 @@ var TaroEntity = TaroObject.extend({
 
 		var body = self._stats.currentBody;
 
-		if (body && !body['z-index']) {
-			body['z-index'] = defaultLayer;
+		if (body) {
+			if (!body['z-index']) {
+				body['z-index'] = defaultLayer;
+			}
+	
+			if (isNaN(body['z-index'].depth)) {
+				body['z-index'].depth = defaultLayer.depth;
+			}
+			if (isNaN(body['z-index'].layer)) {
+				body['z-index'].layer = defaultLayer.layer;
+			}
+			self.layer(body['z-index'].layer) // above "floor 2 layer", but under "trees layer"
+				.depth(body['z-index'].depth);
 		}
-
-		if (isNaN(body['z-index'].depth)) {
-			body['z-index'].depth = defaultLayer.depth;
-		}
-		if (isNaN(body['z-index'].layer)) {
-			body['z-index'].layer = defaultLayer.layer;
-		}
-		self.layer(body['z-index'].layer) // above "floor 2 layer", but under "trees layer"
-			.depth(body['z-index'].depth);
 	},
 
 	applyAnimationById: function (animationId) {
@@ -2468,7 +2472,7 @@ var TaroEntity = TaroObject.extend({
      *     entity.destroy();
      */
 	destroy: function (destroyOrphan) {
-		TaroEntity.prototype.log(`taroEntity: destroy ${this._category} ${this.id()}`);
+		// console.log(`taroEntity: destroy ${this._category} ${this.id()}`);
 
 		this._alive = false;
 		/* CEXCLUDE */
@@ -5165,6 +5169,7 @@ var TaroEntity = TaroObject.extend({
 			var nextTransform = (this.nextPhysicsFrame) ? this.nextPhysicsFrame[1] : undefined;
 
 			if (prevTransform && nextTransform) {
+				if (!this.renderingStarted) this.startRendering();
 				xStart = prevTransform[0]
 				yStart = prevTransform[1]
 				xEnd = nextTransform[0]

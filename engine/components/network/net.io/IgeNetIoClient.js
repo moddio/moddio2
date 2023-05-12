@@ -2,7 +2,7 @@
  * The client-side net.io component. Handles all client-side
  * networking systems.
  */
-var TaroNetIoClient = {
+var IgeNetIoClient = {
 	version: '1.0.0',
 	_initDone: false,
 	_idCounter: 0,
@@ -31,12 +31,13 @@ var TaroNetIoClient = {
 				callback(server);
 			}
 		} else {
-
-			this._discrepancySamples = [];
+			this.artificialDelay = 0;
+			this.lagVariance = 0;
+			this._discrepancySamples = []
 			this.medianDiscrepancy = undefined;
 			var self = this;
 
-			var gameId = taro.client.servers[0].gameId;
+			var gameId = ige.client.servers[0].gameId;
 
 			self._startCallback = callback;
 
@@ -44,7 +45,7 @@ var TaroNetIoClient = {
 			var ignoreServerIds = [server.id];
 
 			// let's not try to connect to multiple servers at the same time, only connect with user's selected server
-			// while (server = taro.client.getBestServer(ignoreServerIds)) {
+			// while (server = ige.client.getBestServer(ignoreServerIds)) {
 			// 	ignoreServerIds.push(server.id);
 			// 	sortedServers.push(server);
 			// }
@@ -114,10 +115,9 @@ var TaroNetIoClient = {
 								'</div>' +
 								'</div>');
 							$('#play-game-button').prop('disabled', false);
-							console.log(taro.client.eventLog);
 							window.activatePlayGame = true;
 						} else {
-							taro.menuUi.onDisconnectFromServer('taroNetIoClient #143');
+							ige.menuUi.onDisconnectFromServer('igeNetIoClient #143');
 						}
 					}
 				});
@@ -192,14 +192,14 @@ var TaroNetIoClient = {
 					}
 
 					// Setup default commands
-					self.define('_taroRequest', function () { self._onRequest.apply(self, arguments); });
-					self.define('_taroResponse', function () { self._onResponse.apply(self, arguments); });
-					self.define('_taroNetTimeSync', function () { self._onTimeSync.apply(self, arguments); });
+					self.define('_igeRequest', function () { self._onRequest.apply(self, arguments); });
+					self.define('_igeResponse', function () { self._onResponse.apply(self, arguments); });
+					self.define('_igeNetTimeSync', function () { self._onTimeSync.apply(self, arguments); });
 
 					self.log(`Received network command list with count: ${commandCount}`);
 
 					// Setup time scale and current time
-					taro.timeScale(parseFloat(data.ts));
+					ige.timeScale(parseFloat(data.ts));
 
 					// Now fire the start() callback
 					if (typeof (self._startCallback) === 'function') {
@@ -251,7 +251,7 @@ var TaroNetIoClient = {
 			var code = data.code;
 			var wasClean = data.wasClean;
 
-			taro.menuUi.onDisconnectFromServer('taroNetIoClient #263', reason);
+			ige.menuUi.onDisconnectFromServer('igeNetIoClient #263', reason);
 		});
 
 		// Define error listener
@@ -316,8 +316,14 @@ var TaroNetIoClient = {
 
 			ciEncoded = String.fromCharCode(commandIndex);
 
-			this._io.send([ciEncoded, data]);
-
+			if (ige.env) {
+				setTimeout(function (ci, d) {
+					self._io.send([ci, d]);
+				}, (Math.random() * self.lagVariance) + self.artificialDelay, ciEncoded, data);
+			} else {
+				this._io.send([ciEncoded, data]);
+			}
+			// console.log("sent");
 		} else {
 			// console.log("error ?");
 			this.log(`Cannot send network packet with command "${commandName}" because the command has not been defined!`, 'error');
@@ -327,7 +333,7 @@ var TaroNetIoClient = {
 	/**
 	 * Sends a network request. This is different from a standard
 	 * call to send() because the recipient code will be able to
-	 * respond by calling taro.network.response(). When the response
+	 * respond by calling ige.network.response(). When the response
 	 * is received, the callback method that was passed in the
 	 * callback parameter will be fired with the response data.
 	 * @param {String} commandName
@@ -349,7 +355,7 @@ var TaroNetIoClient = {
 
 		// Send the network request packet
 		this.send(
-			'_taroRequest',
+			'_igeRequest',
 			{
 				id: req.id,
 				cmd: commandName,
@@ -370,7 +376,7 @@ var TaroNetIoClient = {
 		if (req) {
 			// Send the network response packet
 			this.send(
-				'_taroResponse',
+				'_igeResponse',
 				{
 					id: requestId,
 					cmd: req.commandName,
@@ -453,6 +459,7 @@ var TaroNetIoClient = {
 	_onMessageFromServer: function (data) {
 		var ciDecoded = data[0].charCodeAt(0);
 		var commandName = this._networkCommandsIndex[ciDecoded];
+		// console.log("name = " + commandName, data);
 
 		if (commandName === '_snapshot') {
 			var snapshot = _.cloneDeep(data)[1];
@@ -467,7 +474,7 @@ var TaroNetIoClient = {
 					var commandName = this._networkCommandsIndex[ciDecoded];
 					var entityData = snapshot[i][1];
 
-					if (commandName === '_taroStreamData') {
+					if (commandName === '_igeStreamData') {
 						var entityData = snapshot[i].slice(1).split('&');
 						var entityId = entityData[0];
 						entityData.splice(0, 1); // removing entityId
@@ -475,23 +482,21 @@ var TaroNetIoClient = {
 						entityData = [
 							parseInt(entityData[0], 16), // x
 							parseInt(entityData[1], 16), // y
-							parseInt(entityData[2], 16) / 1000, // rotation
-							Boolean(parseInt(entityData[3], 16)) // teleported boolean
+							parseInt(entityData[2], 16) / 1000 // rotation
+							// teleport flag
 						];
 
 						obj[entityId] = entityData;
 
 						// update each entities' final position, so player knows where everything are when returning from a different browser tab
-						// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
-						var entity = taro.$(entityId);
-						if (entity && entityData[3]) {
-							entity.teleportTo(entityData[0], entityData[1], entityData[2]);
-						}
+						// we are not executing this in igeEngine or igeEntity, becuase they don't execute when browser tab is inactive
+						var entity = ige.$(entityId);
+
 						// if csp movement is enabled, don't use server-streamed position for my unit
 						// instead, we'll use position updated by physics engine
-						else if (taro.game.cspEnabled && entity && 
+						if (ige.game.cspEnabled && entity && 
 							entity.finalKeyFrame[0] < newSnapshotTimestamp && 
-							entity != taro.client.selectedUnit
+							entity != ige.client.selectedUnit
 						) {
 							entity.finalKeyFrame = [newSnapshotTimestamp, obj[entityId]]
 						}
@@ -504,18 +509,18 @@ var TaroNetIoClient = {
 				if (Object.keys(obj).length) {
 
 					var newSnapshot = [newSnapshotTimestamp, obj];
-					taro.snapshots.push(newSnapshot);
+					ige.snapshots.push(newSnapshot);
 					
 					// prevent memory leak that's caused when the client's browser tab isn't focused
-					if (taro.snapshots.length > 2) {
-						taro.snapshots.shift();
+					if (ige.snapshots.length > 2) {
+						ige.snapshots.shift();
 					}
 
                     let now = Date.now();
 
                     // if cspEnabled, we ignore server-streamed timestamp as all entities rubber-banded towards 
                     // their latest server-streamed position regardless of their timestamp
-                    if (!taro.game.cspEnabled) {
+                    if (!ige.game.cspEnabled) {
                     	// if client's timestamp more than 100ms behind the server's timestamp, immediately update it to be 50ms behind the server's
 						// otherwise, apply rubberbanding
 						this._discrepancySamples.push(newSnapshotTimestamp - now)
@@ -526,13 +531,13 @@ var TaroNetIoClient = {
 							this.medianDiscrepancy = this.getMedian(this._discrepancySamples);
 							this._discrepancySamples = [];
 
-							if (taro._currentTime > newSnapshotTimestamp - 10 || taro._currentTime < newSnapshotTimestamp - 100) {
+							if (ige._currentTime > newSnapshotTimestamp - 10 || ige._currentTime < newSnapshotTimestamp - 100) {
 								// currentTime will be 3 frames behind the nextSnapshot's timestamp, so the entities have time to interpolate
 								// 1 frame = 1000/60 = 16ms. 3 frames = 50ms
-								taro.timeDiscrepancy = this.medianDiscrepancy - 50;
+								ige.timeDiscrepancy = this.medianDiscrepancy - 50;
 							} else {
 								// rubberband currentTime to be nextSnapshot's timestamp - 50ms
-								taro.timeDiscrepancy += ((this.medianDiscrepancy - 50) - taro.timeDiscrepancy) / 10;
+								ige.timeDiscrepancy += ((this.medianDiscrepancy - 50) - ige.timeDiscrepancy) / 10;
 							}
 						}
 
@@ -593,4 +598,4 @@ var TaroNetIoClient = {
 	}
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroNetIoClient; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = IgeNetIoClient; }

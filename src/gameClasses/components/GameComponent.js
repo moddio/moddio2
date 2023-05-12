@@ -159,7 +159,7 @@ var GameComponent = TaroEntity.extend({
 		// if (player) {
 		// 	player.streamUpdateData([{ playerJoined: false }]);
 		// }
-
+		console.log("kicking player")
 		var player = taro.$(playerId);
 
 		if (player) {

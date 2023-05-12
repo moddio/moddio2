@@ -20,33 +20,51 @@ var PhaserChatBubble = /** @class */ (function (_super) {
         _this.unit = unit;
         var bubble = _this.bubble = scene.add.graphics();
         _this.add(bubble);
-        var text = _this.bitmapText = scene.add.bitmapText(0, 0, BitmapFontManager.font(scene, 'Arial', true, false, '#FFFFFF'));
+        /*const text = this.bitmapText = scene.add.bitmapText(
+            0, 0,
+            BitmapFontManager.font(scene, 'Arial', true, false, '#FFFFFF')
+        );*/
+        var text = _this.textObject = scene.add.text(0, 0, _this.trimText(chatText), {
+            font: '600 24px Arial',
+            color: '#ffffff',
+            align: 'center'
+        });
+        text.setOrigin(0.5);
+        text.depth = 1;
+        if (_this.scene.renderer.type !== Phaser.CANVAS)
+            text.setResolution(2);
+        //this.textObject.setScale(0.5);
         // needs to be created with the correct scale of the client
         _this.setScale(1 / _this.scene.cameras.main.zoom);
         text.setFontSize(12);
-        text.setCenterAlign();
+        //text.setCenterAlign();
         text.setOrigin(0.5);
-        text.letterSpacing = -0.6;
+        //text.letterSpacing = -0.6;
         _this.add(text);
         if (scene.renderer.type === Phaser.CANVAS) {
-            text.visible = false;
-            var rt = _this.rtText = scene.add.renderTexture(0, 0);
+            //text.visible = false;
+            /*const rt = this.rtText = scene.add.renderTexture(0, 0);
             rt.setOrigin(0.5);
-            _this.add(rt);
+
+            this.add(rt);*/
         }
         scene.add.existing(_this);
         _this.showMessage(chatText);
         return _this;
     }
     PhaserChatBubble.prototype.showMessage = function (chatText) {
-        var text = this.bitmapText;
-        text.setText(BitmapFontManager.sanitize(text.fontData, this.trimText(chatText)));
-        var rt = this.rtText;
+        //const text = this.bitmapText;
+        /*text.setText(BitmapFontManager.sanitize(
+            text.fontData, this.trimText(chatText)
+        ));*/
+        var text = this.textObject;
+        text.setText(this.trimText(chatText));
+        /*const rt = this.rtText;
         if (rt) {
             rt.resize(text.width, text.height);
             rt.clear();
-            rt.draw(text, text.width / 2, text.height / 2);
-        }
+            rt.draw(text, text.width/2, text.height/2);
+        }*/
         this.drawBubble();
         this.updateScale();
         this.updateOffset();
@@ -91,7 +109,8 @@ var PhaserChatBubble = /** @class */ (function (_super) {
     };
     PhaserChatBubble.prototype.drawBubble = function () {
         var bubble = this.bubble;
-        var text = this.rtText || this.bitmapText;
+        //const text = this.rtText || this.bitmapText;
+        var text = this.textObject;
         var width = text.width + 20;
         var height = text.height + 10;
         bubble.clear();

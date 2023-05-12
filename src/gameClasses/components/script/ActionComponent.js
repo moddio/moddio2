@@ -19,12 +19,13 @@ var ActionComponent = TaroEntity.extend({
 			var action = actionList[i];
 
 			if (!action || action.disabled == true || // if action is disabled or
-				(taro.isClient && (!action.runOnClient || action.runMode == 0)) || // don't run on client if runMode is 'server authoratative'
-				(taro.isServer && action.runMode == 1) // don't run on server if runMode is 'client only'
-			) {
-				continue;
-			}
-			
+                (taro.isClient && action.runMode == 0) || // don't run on client if runMode is 'server authoratative'
+                (taro.isServer && action.runMode == 1) || // don't run on server if runMode is 'client only'
+                (taro.isClient && (!action.runOnClient && !action.runMode)) // backward compatibility for older versions
+            ) {
+                continue;
+            }
+
 			// if CSP is enabled, then server will pause streaming
 			// the server side is still running (e.g. creating entities), but it won't be streamed to the client
 			if (taro.isServer) {
@@ -119,12 +120,13 @@ var ActionComponent = TaroEntity.extend({
 						// const use for creating new instance of variable every time.
 						const setTimeOutActions = JSON.parse(JSON.stringify(action.actions));
 						// const setTimeoutVars = _.cloneDeep(vars);
+						var duration = self._script.variable.getValue(action.duration, vars);
 						setTimeout(function (actions, currentScriptId) {
 							let previousScriptId = currentScriptId;
 							self._script.currentScriptId = currentScriptId;
 							self.run(actions, vars);
 							self._script.currentScriptId = previousScriptId;
-						}, action.duration, setTimeOutActions, self._script.currentScriptId);
+						}, duration, setTimeOutActions, self._script.currentScriptId);
 						break;
 
 					case 'repeat':
@@ -487,13 +489,26 @@ var ActionComponent = TaroEntity.extend({
 						break;
 					
 					/* Coins */
+					// fee is deducted from the player to whom sending the coins
 					case 'sendCoinsToPlayer':
 						var coins = self._script.variable.getValue(action.coins, vars);
 						var player = self._script.variable.getValue(action.player, vars);
 						var userId = player && player._stats && player._stats.userId;
 
-						if (player && userId && coins && parseFloat(coins) > 0) {
+						if (player && userId && coins && Math.floor(coins) > 0) {
 							taro.server.sendCoinsToPlayer(userId, coins);
+						}
+						break;
+
+					// fee is deducted from the owner end
+					case 'sendCoinsToPlayer2':
+						var coins = self._script.variable.getValue(action.coins, vars);
+						var player = self._script.variable.getValue(action.player, vars);
+						var userId = player && player._stats && player._stats.userId;
+
+						if (player && userId && coins && Math.floor(coins) > 0) {
+							// only difference is the addition *10/9 
+							taro.server.sendCoinsToPlayer(userId, coins, true);
 						}
 						break;
 						
@@ -1109,6 +1124,40 @@ var ActionComponent = TaroEntity.extend({
 						if (sensor && sensor._category == 'sensor') {
 							if (!isNaN(radius)) {
 								sensor.updateRadius(radius);
+							}
+						}
+						break;
+
+					case 'setMaxAttackRange':
+						var unit = self._script.variable.getValue(action.unit, vars);
+						var value = self._script.variable.getValue(action.number, vars);
+						if (unit) {
+							if (!isNaN(value)) {
+								unit.ai.maxAttackRange = value;
+							}
+						}
+						break;
+
+					case 'setLetGoDistance':
+						var unit = self._script.variable.getValue(action.unit, vars);
+						var value = self._script.variable.getValue(action.number, vars);
+						if (unit) {
+							if (!isNaN(value)) {
+								unit.ai.letGoDistance = value;
+							} else {
+								unit.ai.letGoDistance = undefined;
+							}
+						}
+						break;
+
+					case 'setMaxTravelDistance':
+						var unit = self._script.variable.getValue(action.unit, vars);
+						var value = self._script.variable.getValue(action.number, vars);
+						if (unit) {
+							if (!isNaN(value)) {
+								unit.ai.maxTravelDistance = value;
+							} else {
+								unit.ai.maxTravelDistance = undefined;
 							}
 						}
 						break;
@@ -1817,6 +1866,8 @@ var ActionComponent = TaroEntity.extend({
 						if (!taro.ad.lastPlayedAd || ((Date.now() - taro.ad.lastPlayedAd) >= 60000)) {
 							taro.ad.play({ type: 'preroll' });
 							taro.ad.lastPlayedAd = Date.now();
+						} else {
+							taro.ad.prerollEventHandler('video-ad-action-limit-reached');
 						}
 						break;
 
@@ -1826,6 +1877,8 @@ var ActionComponent = TaroEntity.extend({
 							if (unit && unit._stats && unit._stats.clientId) {
 								if (!taro.ad.lastPlayedAd || ((Date.now() - taro.ad.lastPlayedAd) >= 60000)) {
 									taro.ad.play({ type: 'preroll' }, unit._stats.clientId);
+								} else {
+									taro.ad.prerollEventHandler('video-ad-action-limit-reached', unit._stats.clientId);
 								}
 							}
 						}
@@ -2244,7 +2297,6 @@ var ActionComponent = TaroEntity.extend({
 						break;
 
 					case 'giveBuffToUnit':
-
 						var buff = self._script.variable.getValue(action.buff, vars);
 						var entity = self._script.variable.getValue(action.entity, vars);
 						var duration = self._script.variable.getValue(action.number, vars);
@@ -2260,7 +2312,7 @@ var ActionComponent = TaroEntity.extend({
 						var buff = taro.game.getAsset('buffTypes', buffId);
 
 						if(unit && unit._stats && unit._stats.buffs && buff){
-							unit.streamUpdateData([{ buff: {data: buff, action: 'remove'}}]);	
+							unit.buff.removeBuffType(buff);
 						};
 						break;
 

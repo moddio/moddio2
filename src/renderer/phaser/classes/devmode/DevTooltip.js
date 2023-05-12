@@ -67,6 +67,9 @@ var DevTooltip = /** @class */ (function (_super) {
         var text = this.bitmapText;
         text.setText(BitmapFontManager.sanitize(text.fontData, tooltipText));
         this.drawBubble();
+        if (labelText === 'Position') {
+            this.fadeOut();
+        }
     };
     DevTooltip.prototype.fadeOut = function () {
         var _this = this;

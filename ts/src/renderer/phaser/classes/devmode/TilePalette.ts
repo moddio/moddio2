@@ -95,8 +95,24 @@ class TilePalette extends Phaser.GameObjects.Container {
 		scrollBarContainer.height = camera.height + scrollBarBottom.height + 60;
 
 		this.scene.scale.on(Phaser.Scale.Events.RESIZE, () => {
+			const paletteWidth = this.paletteWidth = this.scene.sys.game.canvas.width * 0.25;
+			const paletteHeight = this.paletteHeight = this.scene.sys.game.canvas.height * 0.25;
 			camera.x = this.scene.sys.game.canvas.width - paletteWidth - 40;
+			camera.y = this.scene.sys.game.canvas.height - paletteHeight - 40;
+			camera.width = paletteWidth;
+			camera.height = paletteHeight;
+
 			scrollBarContainer.x = this.camera.x;
+
+			scrollBarContainer.x = camera.x;
+			scrollBarContainer.y = camera.y;
+			scrollBarContainer.width = camera.width + scrollBarRight.width + 60;
+			scrollBarContainer.height = camera.height + scrollBarBottom.height + 60;
+
+			scrollBarRight.setPosition(this.camera.width, 0);
+			scrollBarRight.setScale(1, this.camera.height / scrollBarRight.height);
+			scrollBarBottom.setPosition(0, this.camera.height);
+			scrollBarBottom.setScale(this.camera.width / scrollBarBottom.width, 1);
 		});
 
 		let pointerover;

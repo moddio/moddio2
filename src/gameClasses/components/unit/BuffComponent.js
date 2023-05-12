@@ -21,7 +21,7 @@ var BuffComponent = TaroEntity.extend({
 		};
 		if (taro.isServer) {
 			buff.id = '_' + Math.random().toString(36).substring(2, 9);
-			unit.streamUpdateData([{ buff: {data: buff, action: 'add', duration: duration}}]);
+			taro.network.send('buff', {buffData: buff, action: 'add', duration: duration,id: id, unitId: unit.id()});
 		};
 		
 		var isDuplicated = false;
@@ -48,20 +48,21 @@ var BuffComponent = TaroEntity.extend({
 				duration: duration,
 				description: buff.description,
 				image: buff.image,
-				effects: buff.effects,
+				attributes: buff.attributes,
+				stun: buff.stun,
 				stacks: 1,
 				maxStacks: buff.maxStacks,
 				unique: buff.unique
 			};
 			unit._stats.buffs.push(newBuff);
-			if (buff.effects.stuns) {
+			if (buff.stun) {
 				unit._stats.isDisabled = true;
 			};
 			self.createBuffIcon(newBuff);
 		};
 		
-		if (taro.isServer && buff.effects.attributes) {
-			_.forEach(buff.effects.attributes, function (value, attrKey) {
+		if (taro.isServer && buff.attributes) {
+			_.forEach(buff.attributes, function (value, attrKey) {
 				var selectedAttribute = unit._stats.attributes[attrKey];
 				if (selectedAttribute) {
 					var currentAttributeValue = parseFloat(selectedAttribute.value) || 1;
@@ -87,8 +88,8 @@ var BuffComponent = TaroEntity.extend({
 			return;
 		};
 
-		if (taro.isServer && buff.effects.attributes) {
-			_.forEach(buff.effects.attributes, function (value, attrKey) {
+		if (taro.isServer && buff.attributes) {
+			_.forEach(buff.attributes, function (value, attrKey) {
 				var selectedAttribute = unit._stats.attributes[attrKey];
 				if (selectedAttribute) {
 					var currentAttributeValue = parseFloat(selectedAttribute.value) || 1;
@@ -106,8 +107,8 @@ var BuffComponent = TaroEntity.extend({
 
 		var index = unit._stats.buffs.map(e => e.id).indexOf(buff.id);
 		self.removeBuffIcon(buff.id);
-		if (buff.effects.stuns) {
-			if (unit._stats.buffs.every(item => item == buff || !item.effects.stuns)) {
+		if (buff.stun) {
+			if (unit._stats.buffs.every(item => item == buff || !item.stun)) {
 				unit._stats.isDisabled = false;
 			};
 		};
@@ -156,7 +157,9 @@ var BuffComponent = TaroEntity.extend({
 		var entity = self._entity;
 		var ownerPlayer = entity.getOwner();
 		if (!taro.isServer && ownerPlayer && entity._stats.clientId === taro.network.id() && ownerPlayer._stats.selectedUnitId == entity.id()) {
-			$(`#${buffId}`).remove();
+			var element = $(`#${buffId}`)
+			element.popover('hide');
+			element.remove();
 		};
 	},
 
@@ -164,6 +167,10 @@ var BuffComponent = TaroEntity.extend({
 		var self = this;
 		var unit = self._entity;
 
+		if (taro.isServer) {
+			taro.network.send('buff', {buffData: buff, action: 'remove', unitId: unit.id()});
+		};
+    
 		var buffsToRemove = [];
 		unit._stats.buffs.forEach(function(item){
 			if (item.name == buff.name) {

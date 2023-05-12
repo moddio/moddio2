@@ -11,6 +11,25 @@ $(document).mousedown(function() {
 	mouseIsDown = false;
 });
 
+// explain this
+const USE_LOCAL_STORAGE = (() => {
+	try {
+		return !!localStorage.getItem;
+	} catch(e) {
+		return false;
+	}
+})();
+
+	storage = {
+		// running locally, these are the only ones that appear
+		sound: 'on',
+		'sound-volume': 100,
+		music: 'on',
+		'music-volume': 100,
+		'force-canvas': false,
+	};
+
+
 const statsPanels = {}; // will we need this?
 
 const Client = TaroEventingClass.extend({
@@ -32,7 +51,7 @@ const Client = TaroEventingClass.extend({
 
 		$('coin-icon').append(
 			$('<img/>', {
-				src: `${this.host}/assets/images/coin.png`,
+				src: `${this.host}/assets/images/coin.svg`,
 				width: 32,
 				height: 32
 			})
@@ -106,6 +125,7 @@ const Client = TaroEventingClass.extend({
 		//go fetch
 
 		taro.addComponent(GameComponent);
+		taro.addComponent(MenuUiComponent);
 		// we're going to try and insert the fetch here
 		let promise = new Promise((resolve, reject) => {
 			// if the gameJson is available as a global object, use it instead of sending another ajax request
@@ -117,7 +137,6 @@ const Client = TaroEventingClass.extend({
 					dataType: 'json',
 					type: 'GET',
 					success: (game) => {
-
 						resolve(game);
 					}
 				});
@@ -133,7 +152,6 @@ const Client = TaroEventingClass.extend({
 						game.defaultData = game;
 
 						for (let [key, value] of Object.entries(game)) {
-
 							data['data'][key] = value;
 						}
 
@@ -143,6 +161,7 @@ const Client = TaroEventingClass.extend({
 						}
 
 						resolve(data);
+
 					}
 				});
 			}
@@ -164,20 +183,18 @@ const Client = TaroEventingClass.extend({
 			// old comment => 'components required for client-side game logic'
 			taro.addComponent(TaroNetIoComponent);
 			taro.addComponent(SoundComponent);
-
-			taro.addComponent(MenuUiComponent);
 			taro.addComponent(TradeUiComponent); // could we comment this one out?
 
 			if (taro.isMobile) {
 				taro.addComponent(MobileControlsComponent);
 			}
+
+			this.configureEngine();
+
 		})
-			.catch((err) => {
-				console.error(err);
-			})
-			.finally(() => {
-				this.configureEngine();
-			});
+		.catch((err) => {
+			console.error(err);
+		});
 
 		// these were under separate conditionals before. idk why.
 		if (mode == 'play') {
@@ -256,7 +273,7 @@ const Client = TaroEventingClass.extend({
 		this.physicsConfigLoaded.resolve();
 	},
 
-	loadMap: function() {
+	 loadMap: function() {
 		//we need the contents of physicsConfig to progress
 		taro.addComponent(MapComponent);
 		taro.addComponent(RegionManager);
@@ -281,7 +298,6 @@ const Client = TaroEventingClass.extend({
 		this.loadPhysics();
 
 		$.when(this.physicsConfigLoaded).done(() => {
-
 			this.startTaroEngine();
 
 			this.loadMap();
@@ -295,6 +311,8 @@ const Client = TaroEventingClass.extend({
 
 				taro.addComponent(DevConsoleComponent);
 			}
+
+
 		});
 
 		//this doesn't depend on physics config
@@ -312,6 +330,7 @@ const Client = TaroEventingClass.extend({
 		// we can move the Deferred for mapLoaded to before engine start
 
 		$.when(this.taroEngineStarted, this.mapLoaded, this.rendererLoaded).done(() => {
+
 			// old comment => 'center camera while loading'
 			const tileWidth = taro.scaleMapDetails.tileWidth;
 			const tileHeight = taro.scaleMapDetails.tileHeight;
@@ -534,9 +553,9 @@ const Client = TaroEventingClass.extend({
 					if (player._stats.controlledBy == 'human') {
 						// old comment => 'if the player is me'
 						if (player._stats.clientId == taro.network.id()) {
-
+							taro.client.playerJoinedAt = taro._currentTime;
 							taro.client.eventLog.push([
-								taro._currentTime - taro.client.eventLogStartTime,
+								taro._currentTime - taro.client.playerJoinedAt,
 								'My player created'
 							]);
 							// old comment => 'declare my player'
@@ -571,7 +590,6 @@ const Client = TaroEventingClass.extend({
 			taro.network.stream.on('entityDestroyed', (entityBeingDestroyed) => { // renamed param from 'unitBeingDestroyed' to 'entityBeingDestroyed'
 
 				if (entityBeingDestroyed._category == 'unit') {
-
 					entityBeingDestroyed.remove();
 
 				} else if (
@@ -584,7 +602,6 @@ const Client = TaroEventingClass.extend({
 					) &&
 					entityBeingDestroyed._category == 'player'
 				) {
-
 					taro.menuUi.kickPlayerFromGame(entityBeingDestroyed.id()); // this is inside the 'Moderate' menu
 				} else {
 					try {
@@ -688,6 +705,7 @@ const Client = TaroEventingClass.extend({
 		taro.network.define('updateUnit', this._onUpdateUnit);
 		taro.network.define('updateItem', this._onUpdateItem);
 		taro.network.define('updateProjectile', this._onUpdateProjectile);
+		taro.network.define('buff', this._onBuff);
 
 		taro.network.define('renderSocketLogs', this._onRenderSocketLogs);
 	},
@@ -712,7 +730,6 @@ const Client = TaroEventingClass.extend({
 					this.joinGame();
 
 				} else {
-
 					$('#login-error-message').html(data.message).show().fadeOut(7000)
 				}
 			}
@@ -723,8 +740,9 @@ const Client = TaroEventingClass.extend({
 	//i'm not going to change the join game function
 	//
 	joinGame: function(wasGamePaused = false) {
-
-		let isAdBlockEnabled = true;
+		
+		// if the AdInPlay player is initialised, means the ad blocker is not enabled
+		let isAdBlockEnabled = window.isAdBlockEnabled || typeof window?.aiptag?.adplayer === 'undefined';
 		const data = {
 			number: (Math.floor(Math.random() * 999) + 100) // yeah ok cool, why?
 		};
@@ -747,37 +765,10 @@ const Client = TaroEventingClass.extend({
 
 		// old comment => 'try loading an ad to find out whether adblocker is active or not
 		if (window.isStandalone) {
-
 			isAdBlockEnabled = false;
-
-			if (typeof adBlockStatus == 'function') {
-
-				adBlockStatus(false);
-			}
-
-		} else {
-
-			$.ajax(
-				'/showads.js',
-				{
-					async: false,
-					success: () => {
-						isAdBlockEnabled = false;
-						adBlockStatus(true);
-					},
-					fail: () => {
-						adBlockStatus(true);
-					}
-				}
-			);
-			//notify for ad block
-			if (window.isAdBlockEnabled) {
-
-				notifyAboutAdBlocker();
-			}
 		}
 
-		// old comment => 'show popover on settings icon for low fram rate'
+		// old comment => 'show popover on settings icon for low frame rate'
 		if (!taro.isMobile) {
 
 			setTimeout(() => {
@@ -816,8 +807,6 @@ const Client = TaroEventingClass.extend({
 				0,
 				`joinGame sent. userId: ${userId}`
 			]);
-			taro.client.eventLogStartTime = taro._currentTime;
-
 		}
 	},
 

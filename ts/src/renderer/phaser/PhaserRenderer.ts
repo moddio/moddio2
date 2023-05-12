@@ -4,9 +4,13 @@ class PhaserRenderer extends Phaser.Game {
 
 	constructor () {
 
-		const forceCanvas = JSON.parse(
-			localStorage.getItem('forceCanvas')
-		) || {};
+		const forceCanvas = (
+			USE_LOCAL_STORAGE ?
+				JSON.parse(
+					localStorage.getItem('forceCanvas')
+				) || {}:
+				storage['force-canvas']
+		);
 
 		super({
 			type: forceCanvas[gameId] || forceCanvas[0] ?
@@ -54,14 +58,6 @@ class PhaserRenderer extends Phaser.Game {
 			this.events.once(Phaser.Core.Events.BOOT,
 				this.setupInputListeners, this
 			);
-		}
-
-		if (typeof ga != 'undefined' && taro.env != 'local') {
-			ga('send', {
-				hitType: 'event',
-				eventCategory: 'Rendering Engine',
-				eventAction: this.renderer.type
-			});
 		}
 	}
 

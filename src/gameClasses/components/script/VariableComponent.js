@@ -269,7 +269,7 @@ var VariableComponent = TaroEntity.extend({
 					var sourceString = self.getValue(text.sourceString, vars);
 					var patternString = self.getValue(text.patternString, vars);
 
-					if (sourceString && patternString && typeof sourceString == 'string' && typeof patternString == 'string') {
+					if (typeof sourceString == 'string' && typeof patternString == 'string') {
 						returnValue = sourceString.includes(patternString);
 					}
 					break;
@@ -414,7 +414,14 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
-				case 'getUnitFromId':
+				case 'getUnitFromId': //should remove soon and replace with the below one
+					var id = self.getValue(text.string, vars);
+					if (id) {
+						returnValue = taro.$(id);
+					}
+					break;
+
+				case 'getEntityFromId':
 					var id = self.getValue(text.string, vars);
 					if (id) {
 						returnValue = taro.$(id);
@@ -953,9 +960,7 @@ var VariableComponent = TaroEntity.extend({
 					break;
 
 				case 'getPlayerCount':
-					returnValue = taro.$$('player').filter(function (player) {
-						return player._stats.controlledBy == 'human' && player._stats.playerJoined == true;
-					}).length;
+					returnValue = taro.getPlayerCount();
 					break;
 
 				case 'getNumberOfItemsPresent':
@@ -1556,6 +1561,13 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
+				case 'getEntityId':
+					var entity = self.getValue(text.entity, vars);
+					if (entity) {
+						returnValue = entity.id()
+					}
+					break;
+
 				case 'getLengthOfString':
 					var string = self.getValue(text.string, vars);
 					if (string && !isNaN(string.length)) {
@@ -1662,7 +1674,7 @@ var VariableComponent = TaroEntity.extend({
 					var sourceString = self.getValue(text.sourceString, vars);
 					var patternString = self.getValue(text.patternString, vars);
 
-					if (sourceString && patternString && typeof sourceString == 'string' && typeof patternString == 'string') {
+					if (typeof sourceString == 'string' && typeof patternString == 'string') {
 						returnValue = sourceString.startsWith(patternString);
 					}
 					break;
@@ -1670,7 +1682,7 @@ var VariableComponent = TaroEntity.extend({
 					var sourceString = self.getValue(text.sourceString, vars);
 					var patternString = self.getValue(text.patternString, vars);
 
-					if (sourceString && patternString && typeof sourceString == 'string' && typeof patternString == 'string') {
+					if (typeof sourceString == 'string' && typeof patternString == 'string') {
 						returnValue = sourceString.endsWith(patternString);
 					}
 					break;
@@ -1679,7 +1691,7 @@ var VariableComponent = TaroEntity.extend({
 					var matchString = self.getValue(text.matchString, vars);
 					var newString = self.getValue(text.newString, vars);
 
-					if (sourceString && matchString && newString && typeof sourceString == 'string' && typeof matchString == 'string' && typeof newString == 'string') {
+					if (typeof sourceString == 'string' && typeof matchString == 'string' && typeof newString == 'string') {
 						returnValue = sourceString.split(matchString).join(newString);
 					}
 					break;
@@ -1687,16 +1699,14 @@ var VariableComponent = TaroEntity.extend({
 					var stringA = self.getValue(text.textA, vars);
 					var stringB = self.getValue(text.textB, vars);
 
-					// isNaN('') is true
-					if (typeof stringA === 'string' && stringA.length && !isNaN(stringA)) {
-						stringA = parseFloat(stringA).toFixed(0);
-					}
-
-					if (typeof stringB === 'string' && stringB.length && !isNaN(stringB)) {
-						stringB = parseFloat(stringB).toFixed(0);
-					}
-
 					returnValue = `${stringA}${stringB}`;
+					break;
+
+				case 'filterString':
+					var string = self.getValue(text.string, vars);
+					if (taro.chat && taro.chat.filter){
+						returnValue = taro.chat.filter.cleanHacked(string);
+					}
 					break;
 
 				case 'getMin':
@@ -1916,12 +1926,13 @@ var VariableComponent = TaroEntity.extend({
 						returnValue = {
 							name: name, 
 							description: description,
-							effects: {attributes: {}, stuns: false},
+							attributes: {},
+							stun: false,
 							image: image,
 							maxStacks: 1,
 							unique: true
 						};
-						returnValue.effects.attributes[attribute] = number;
+						returnValue.attributes[attribute] = number;
 						return returnValue;
 					};
 					break;

@@ -14,6 +14,7 @@ interface EntityData {
 
 interface MapData {
 	wasEdited: boolean;
+	haveUnsavedChanges: boolean;
 	tilewidth: number;
 	tileheight: number;
 	width: number,

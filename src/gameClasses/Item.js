@@ -570,7 +570,6 @@ var Item = TaroEntityPhysics.extend({
 							}
 
 							if (taro.isServer && self._stats && self._stats.bonus && self._stats.bonus.consume && self._stats.bonus.consume.coin) {
-								// taro.server.giveCoinToUser(player, self._stats.bonus.consume.coin, self._stats.name);
 								// player.streamUpdateData([{
 								// 	coins: self._stats.bonus.consume.coin + player._stats.coins
 								// }]);

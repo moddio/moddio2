@@ -9,17 +9,17 @@ var SoundComponent = TaroEntity.extend({
 		self.preLoadedSounds = {};
 		self.preLoadedMusic = {};
 		if (taro.isClient) {
-			var soundSetting = localStorage.getItem('sound');
-			var musicSetting = localStorage.getItem('music');
+			var soundSetting = self.getItem('sound');
+			var musicSetting = self.getItem('music');
 			if (soundSetting == undefined || soundSetting == 'on') {
-				localStorage.setItem('sound', 'on');
+				self.setItem('sound', 'on');
 				self.toggleButton('sound', 'on');
 			} else if (soundSetting == 'off') {
 				self.toggleButton('sound', 'off');
 			}
 
 			if (musicSetting == undefined || musicSetting == 'on') {
-				localStorage.setItem('music', 'on');
+				self.setItem('music', 'on');
 				self.toggleButton('music', 'on');
 			} else if (musicSetting == 'off') {
 				self.toggleButton('music', 'off');
@@ -30,17 +30,17 @@ var SoundComponent = TaroEntity.extend({
 
 			$('#sound-on').on('click', function () {
 				self.toggleButton('sound', 'on');
-				localStorage.setItem('sound', 'on');
+				self.setItem('sound', 'on');
 			});
 
 			$('#sound-off').on('click', function () {
 				self.toggleButton('sound', 'off');
-				localStorage.setItem('sound', 'off');
+				self.setItem('sound', 'off');
 			});
 
 			$('#music-on').on('click', function () {
 				self.toggleButton('music', 'on');
-				localStorage.setItem('music', 'on');
+				self.setItem('music', 'on');
 				if (self.musicCurrentlyPlaying) {
 					self.startMusic();
 				}
@@ -48,13 +48,30 @@ var SoundComponent = TaroEntity.extend({
 
 			$('#music-off').on('click', function () {
 				self.toggleButton('music', 'off');
-				localStorage.setItem('music', 'off');
+				self.setItem('music', 'off');
 				if (self.musicCurrentlyPlaying) {
 					self.stopMusic();
 				}
 			});
 		}
 	},
+
+	setItem: function (key, value) {
+		if (USE_LOCAL_STORAGE) {
+			return localStorage.setItem(key, value);
+		}
+
+		return storage[key] = value;
+	},
+
+	getItem: function (key) {
+		if (USE_LOCAL_STORAGE) {
+			return localStorage.getItem(key);
+		}
+
+		return storage[key];
+	},
+
 	toggleButton: function (type, mode) {
 		if (mode == 'on') {
 			$(`#${type}-on`)
@@ -100,7 +117,7 @@ var SoundComponent = TaroEntity.extend({
 	},
 
 	getVolume: function (position, volume = 0) {
-		var settingsVolume = parseFloat(localStorage.getItem('sound-volume'));
+		var settingsVolume = parseFloat(self.getItem('sound-volume'));
 		settingsVolume = isNaN(settingsVolume) ? 1 : settingsVolume / 100;
 
 		var distanceSoundShouldHeard = 500;
@@ -126,7 +143,7 @@ var SoundComponent = TaroEntity.extend({
 	playSound: function (sound, position, key, shouldRepeat = false) {
 		var self = this;
 		if (taro.isClient) {
-			var soundSetting = localStorage.getItem('sound');
+			var soundSetting = self.getItem('sound');
 
 			if (soundSetting == 'on') {
 				// adjust volume based on distance between my unit and sound source
@@ -134,7 +151,7 @@ var SoundComponent = TaroEntity.extend({
 				if (position) {
 					volume = this.getVolume(position, sound.volume);
 				} else {
-					var settingsVolume = parseFloat(localStorage.getItem('sound-volume'));
+					var settingsVolume = parseFloat(self.getItem('sound-volume'));
 					settingsVolume = isNaN(settingsVolume) ? 1 : settingsVolume / 100;
 					volume = settingsVolume * volume;
 				}
@@ -182,8 +199,8 @@ var SoundComponent = TaroEntity.extend({
 		var self = this;
 		var playMusic;
 		if (taro.isClient) {
-			var musicSetting = localStorage.getItem('music');
-			var settingsVolume = parseFloat(localStorage.getItem('music-volume'));
+			var musicSetting = self.getItem('music');
+			var settingsVolume = parseFloat(self.getItem('music-volume'));
 			settingsVolume = isNaN(settingsVolume) ? 1 : settingsVolume / 100;
 
 			var volume = music.volume === undefined ? 1 : Math.min(music.volume / 100, 1);

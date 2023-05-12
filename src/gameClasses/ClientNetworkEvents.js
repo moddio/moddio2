@@ -128,13 +128,17 @@ var ClientNetworkEvents = {
 	_onOpenShop: function (data) {
 		if (data.type) {
 			var shopName = taro.game.data.shops[data.type] ? taro.game.data.shops[data.type].name : 'Item shop';
+			var shopDescription = taro.game.data.shops[data.type] ? taro.game.data.shops[data.type].description : '';
 			$('#modd-item-shop-header').text(shopName);
+			
+			if (shopDescription?.length) {
+				$('#modd-item-shop-description').text(shopDescription);
+			} else {
+				$('#modd-item-shop-description').text('');
+			}
+
 			taro.shop.openItemShop(data.type);
 			$('#modd-item-shop-modal').modal('show');
-			var player = taro.client.myPlayer;
-			if (typeof countAdImpression === 'function' && player && !player._stats.isAdBlockEnabled) {
-				countAdImpression(gameId, 'shop');
-			}
 		}
 	},
 	_onCreateFloatingText: function (data) {
@@ -278,10 +282,6 @@ var ClientNetworkEvents = {
 	},
 
 	_onPlayAd: function (data) {
-		var player = taro.client.myPlayer;
-		if (typeof countAdImpression === 'function' && player && !player._stats.isAdBlockEnabled) {
-			countAdImpression(gameId, 'video');
-		}
 		taro.ad.play(data);
 	},
 
@@ -587,6 +587,20 @@ var ClientNetworkEvents = {
 					.translateTo(parseFloat(data.position.x), parseFloat(data.position.y), 0) // Move the particle emitter to the bottom of the ship
 					.mount(taro.client.mainScene)
 					.emitOnce();*/
+			}
+		}
+	},
+	
+	_onBuff: function (data) {
+		var unit = taro.$(data.unitId);
+		if (unit) {
+			switch (data.action) {
+				case 'add':
+					unit.buff.addBuff(data.buffData, data.duration);
+					break;
+				case 'remove':
+					unit.buff.removeBuffType(data.buffData);
+					break;
 			}
 		}
 	},

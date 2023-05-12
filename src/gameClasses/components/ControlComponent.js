@@ -7,10 +7,12 @@ var ControlComponent = TaroEntity.extend({
 		this._entity = entity;
 
 		this.lastInputSent = 0;
+		this.sendMobileInput = true;
 
 		// Store any options that were passed to us
 		this._options = options;
-		this.lastActionAt = undefined;
+		this.lastActionAt = Date.now();
+		
 		this.lastMousePosition = [undefined, undefined];
 		this.mouseLocked = false;
 
@@ -279,24 +281,34 @@ var ControlComponent = TaroEntity.extend({
 		if (!player) return;		
 		var unit = player.getSelectedUnit();
 		
-		if (unit) {
-			if (taro.isClient) {
+		if (taro.isClient) {
+			
+			if (unit) {
+				// check if sending player input is due (every 100ms)
+				if (taro._currentTime - self.lastInputSent > 100) {
+					self.sendMobileInput = true;
+					self.sendPlayerInput = true;
+					self.lastInputSent = taro._currentTime;
+				}
+
 				for (device in self.input) {
 					for (key in self.input[device]) {
 						if (taro.input.actionState(key)) {
 							if (self.input[device][key] == false) {
-								if (taro.isMobile && device == 'mouse') {
+								if (taro.isMobile && self.sendMobileInput && device == 'mouse') {
 									// tap on mobile will be detected as right click for now, so old games with joysticks will not have problems
 									self.keyDown('mouse', 'button3');
+									self.sendMobileInput = false;
 								} else {
 									self.keyDown(device, key);
 								}
 							}
 						} else {
 							if (self.input[device][key] == true) {
-								if (taro.isMobile && device == 'mouse') {
+								if (taro.isMobile && self.sendMobileInput && device == 'mouse') {
 									// tap on mobile will be detected as right click for now, so old games with joysticks will not have problems
 									self.keyUp('mouse', 'button3');
+									self.sendMobileInput = false;
 								} else {
 									self.keyUp(device, key);
 								}
@@ -305,11 +317,6 @@ var ControlComponent = TaroEntity.extend({
 					}
 				}
 	
-				// check if sending player input is due (every 100ms)
-				if (taro._currentTime - self.lastInputSent > 100) {
-					self.sendPlayerInput = true;
-					self.lastInputSent = taro._currentTime;
-				}
 				if (self.newMousePosition && (self.newMousePosition[0] != self.lastMousePosition[0] || self.newMousePosition[1] != self.lastMousePosition[1])) {
 					// if we are using mobile controls don't send mouse moves to server here as we will do so from a look touch stick
 					if (!taro.isMobile) {
@@ -356,14 +363,13 @@ var ControlComponent = TaroEntity.extend({
 				
 				self.sendPlayerInput = false;
 			}
-			
-			// unit rotation for human player. this runs on client-side only
-			if (!unit._stats.aiEnabled && !unit._stats.isDisabled) {
-				unit.updateAngleToTarget();			
-			}
-		}	
-	}
+		}
 
+		// unit rotation for human player. this runs on client-side only
+		if (unit && !unit._stats.aiEnabled && !unit._stats.isDisabled) {
+			unit.updateAngleToTarget();			
+		}
+	}
 });
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {

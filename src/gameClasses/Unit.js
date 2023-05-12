@@ -1773,7 +1773,7 @@ var Unit = TaroEntityPhysics.extend({
 
 			// desktop control: if this unit's not under a command, rotate to mouse xy coordinate
 			} else {
-				var mouse = ownerPlayer.control.input.mouse;
+				var mouse = ownerPlayer.control?.input?.mouse;
 				if (mouse) {
 					var a = this._translate.x - mouse.x;
 					var b = this._translate.y - mouse.y;
