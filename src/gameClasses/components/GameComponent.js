@@ -154,7 +154,7 @@ var GameComponent = TaroEntity.extend({
 		// get existing players to re-join
 	},
 
-	kickPlayer: function(playerId, modPlayerId) {
+	kickPlayer: function(playerId, { modPlayerId, reason }) {
 		// var player = this.getPlayerByClientId(clientId);		
 		// if (player) {
 		// 	player.streamUpdateData([{ playerJoined: false }]);
@@ -173,7 +173,8 @@ var GameComponent = TaroEntity.extend({
 						modPlayerName = modPlayer && modPlayer._stats && modPlayer._stats.name;
 					}
 
-					client.socket.close('You were kicked by ' + modPlayerName)
+					if (reason) client.socket.close(reason); // custom kick message
+					else client.socket.close('You were kicked by ' + modPlayerName) // default kick message
 				}
 			} else {
 				// bot players don't have clientId
