@@ -180,34 +180,36 @@ var TilePalette = /** @class */ (function (_super) {
             thumbHeight = (length - 60) / 2;
             posX = this.camera.width;
         }
-        var scrollBar = this.rexUI.add.scrollBar((_a = {},
-            _a[orientSize] = length,
-            _a.orientation = orient,
-            _a.background = this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, this.COLOR_WHITE),
-            _a.buttons = {
-                left: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
-                right: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
-            },
-            _a.slider = {
-                thumb: this.rexUI.add.roundRectangle(0, 0, thumbWidth, thumbHeight, 1, this.COLOR_LIGHT),
-            },
-            _a.space = {
-                left: 1, right: 1, top: 1, bottom: 1
-            },
-            _a));
-        scrollBar.value = 0.5;
-        this.scrollBarContainer.add(scrollBar);
-        scrollBar.setPosition(posX, posY).setOrigin(0, 0).setScrollFactor(0, 0).layout();
-        scrollBar.on('valuechange', function (newValue, oldValue, scrollBar) {
-            if (!isNaN(newValue) && !scrollBar.blocked) {
-                newValue -= 0.5;
-                if (orient === 'x')
-                    this.camera.scrollX = this.x + (this.camera.width * newValue);
-                else if (orient === 'y')
-                    this.camera.scrollY = this.y + (this.camera.height * newValue);
-            }
-        }, this);
-        return scrollBar;
+        if (this.rexUI) {
+            var scrollBar = this.rexUI.add.scrollBar((_a = {},
+                _a[orientSize] = length,
+                _a.orientation = orient,
+                _a.background = this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, this.COLOR_WHITE),
+                _a.buttons = {
+                    left: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
+                    right: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
+                },
+                _a.slider = {
+                    thumb: this.rexUI.add.roundRectangle(0, 0, thumbWidth, thumbHeight, 1, this.COLOR_LIGHT),
+                },
+                _a.space = {
+                    left: 1, right: 1, top: 1, bottom: 1
+                },
+                _a));
+            scrollBar.value = 0.5;
+            this.scrollBarContainer.add(scrollBar);
+            scrollBar.setPosition(posX, posY).setOrigin(0, 0).setScrollFactor(0, 0).layout();
+            scrollBar.on('valuechange', function (newValue, oldValue, scrollBar) {
+                if (!isNaN(newValue) && !scrollBar.blocked) {
+                    newValue -= 0.5;
+                    if (orient === 'x')
+                        this.camera.scrollX = this.x + (this.camera.width * newValue);
+                    else if (orient === 'y')
+                        this.camera.scrollY = this.y + (this.camera.height * newValue);
+                }
+            }, this);
+            return scrollBar;
+        }
     };
     return TilePalette;
 }(Phaser.GameObjects.Container));

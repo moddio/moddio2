@@ -81,7 +81,10 @@ var PhaserAttributeBar = /** @class */ (function (_super) {
             .HexStringToColor(color)
             .color);
         if (value !== 0) {
-            bar.fillRoundedRect(-w / 2, -h / 2, Math.max(w * value / max, borderRadius * 1.5), h, borderRadius);
+            bar.fillRoundedRect(-w / 2, -h / 2, 
+            // we should not clamp here because it will mask whether or not there is a fault elsewhere in the attribute logic
+            // because of this, changed from Math.max(w * Math.min(value, max)/ max...)
+            Math.max(w * value / max, borderRadius * 1.5), h, borderRadius);
         }
         bar.lineStyle(2, 0x000000, 1);
         bar.strokeRoundedRect(-w / 2, -h / 2, w, h, borderRadius);

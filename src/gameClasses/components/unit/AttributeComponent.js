@@ -9,6 +9,16 @@ var AttributeComponent = TaroEntity.extend({
 		self.now = Date.now();
 		self.lastRegenerated = self.now;
 		self.lastSynced = self.now;
+
+		// attributes is an object
+		if (entity._stats.attributes) {
+			const attributes = entity._stats.attributes;
+
+			for (var attrId in attributes) {
+				const individualAttribute = attributes[attrId];
+				individualAttribute.value = Math.max(individualAttribute.min, Math.min(individualAttribute.max, individualAttribute.value));
+			}
+		}
 	},
 
 	// decay / regenerate

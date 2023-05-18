@@ -605,7 +605,7 @@ var TaroNetIoServer = {
 						var end = Date.now();
 						taro.server.socketConnectionCount.disconnected++;
 
-						if (end - self._socketById[socket.id].start < 3000) {
+						if (self._socketById[socket.id]?.start && end - self._socketById[socket.id].start < 3000) {
 							taro.server.socketConnectionCount.immediatelyDisconnected++;
 						}
 					}
@@ -687,7 +687,7 @@ var TaroNetIoServer = {
 		}
 
 		var socket = taro.network._socketById[clientId];
-		
+
 		// check if the clientId belongs to this socket connection.
 		if (socket && socket._token && socket._token.clientId) {
 			if (socket._token.clientId !== clientId) {

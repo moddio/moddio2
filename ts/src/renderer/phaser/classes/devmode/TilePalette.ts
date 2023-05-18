@@ -20,7 +20,7 @@ class TilePalette extends Phaser.GameObjects.Container {
 	constructor(
 		public scene: DevModeScene,
 		tileset: Phaser.Tilemaps.Tileset,
-		rexUI?: any
+		rexUI: any
 	) {
 		super(scene);
 
@@ -200,36 +200,38 @@ class TilePalette extends Phaser.GameObjects.Container {
 			thumbHeight = (length - 60) / 2;
 			posX = this.camera.width;
 		}
-		const scrollBar = this.rexUI.add.scrollBar({
-			[orientSize]: length,
-			orientation: orient,
-			background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, this.COLOR_WHITE),
-			buttons: {
-				left: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
-				right: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
-			},
-			slider: {
-				thumb: this.rexUI.add.roundRectangle(0, 0, thumbWidth, thumbHeight, 1, this.COLOR_LIGHT),
-			},
-			space: {
-				left: 1, right: 1, top: 1, bottom: 1
-			}
-		});
-		scrollBar.value = 0.5;
-		this.scrollBarContainer.add(scrollBar);
-		scrollBar.setPosition(posX, posY).setOrigin(0, 0).setScrollFactor(0,0).layout();
-
-		scrollBar.on('valuechange',
-			function (newValue, oldValue, scrollBar) {
-				if (!isNaN(newValue) && !scrollBar.blocked) {
-					newValue -= 0.5;
-					if (orient === 'x') this.camera.scrollX = this.x + (this.camera.width * newValue);
-					else if (orient === 'y') this.camera.scrollY = this.y + (this.camera.height * newValue);
+		if (this.rexUI) {
+			const scrollBar = this.rexUI.add.scrollBar({
+				[orientSize]: length,
+				orientation: orient,
+				background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 0, this.COLOR_WHITE),
+				buttons: {
+					left: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
+					right: this.rexUI.add.roundRectangle(0, 0, 20, 20, 0, this.COLOR_PRIMARY),
+				},
+				slider: {
+					thumb: this.rexUI.add.roundRectangle(0, 0, thumbWidth, thumbHeight, 1, this.COLOR_LIGHT),
+				},
+				space: {
+					left: 1, right: 1, top: 1, bottom: 1
 				}
-			},
-			this
-		);
+			});
+			scrollBar.value = 0.5;
+			this.scrollBarContainer.add(scrollBar);
+			scrollBar.setPosition(posX, posY).setOrigin(0, 0).setScrollFactor(0,0).layout();
 
-		return scrollBar;
+			scrollBar.on('valuechange',
+				function (newValue, oldValue, scrollBar) {
+					if (!isNaN(newValue) && !scrollBar.blocked) {
+						newValue -= 0.5;
+						if (orient === 'x') this.camera.scrollX = this.x + (this.camera.width * newValue);
+						else if (orient === 'y') this.camera.scrollY = this.y + (this.camera.height * newValue);
+					}
+				},
+				this
+			);
+
+			return scrollBar;
+		}
 	}
 }

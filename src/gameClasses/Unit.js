@@ -68,9 +68,6 @@ var Unit = TaroEntityPhysics.extend({
 		// initialize body & texture of the unit
 		self.changeUnitType(data.type, data.defaultData, true);
 
-		if (self._stats.scale) {
-
-		}
 		if (self._stats.scaleBody) {
 			self._stats.scale = parseFloat(self._stats.scaleBody);
 		} else {
