@@ -808,7 +808,16 @@ var MenuUiComponent = TaroEntity.extend({
 		// 	}, 200);
 		// } else {
 		// window.preventFurtherAutoJoin = true;
-		$('#server-disconnect-modal .modal-body').html(message || defaultContent);
+
+		if (typeof message == 'object' && message.type === 'SERVER_FULL') {
+			$('#server-disconnect-modal .modal-body').html(message.message || defaultContent);
+			$('#return-to-homepage-server').hide();
+			$('#join-another-server').show();
+		} else {
+			$('#server-disconnect-modal .modal-body').html(message || defaultContent);
+			$('#return-to-homepage-server').show();
+			$('#join-another-server').hide();
+		}
 		$('#server-disconnect-modal').modal('show');
 		// }
 

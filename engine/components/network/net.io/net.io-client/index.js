@@ -443,6 +443,7 @@ NetIo.Client = NetIo.EventingClass.extend({
 		// If we were trying to connect...
 		if (this._state === 1) {
 			this._state = 0;
+			taro.menuUi.onDisconnectFromServer('netio-client index:446','Error trying to contact server. Please refresh this page or visit our homepage.');
 			this.emit('error', { reason: 'Cannot establish connection, is server running?' });
 		}
 

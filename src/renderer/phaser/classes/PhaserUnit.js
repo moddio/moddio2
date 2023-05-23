@@ -38,6 +38,15 @@ var PhaserUnit = /** @class */ (function (_super) {
         _this.scene.unitsList.push(_this);
         _this.scene.renderedEntities.push(_this.gameObject);
         _this.zoomEvtListener = taro.client.on('scale', _this.scaleElements, _this);
+        _this.sprite.setInteractive();
+        _this.sprite.on('pointerdown', function (p) {
+            if (taro.game.data.defaultData.contextMenuEnabled && (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab === 'play')) && p.rightButtonDown()) {
+                var ownerPlayer = taro.$(_this.entity._stats.ownerId);
+                if (ownerPlayer._stats.controlledBy === 'human') {
+                    reactApp && reactApp.showUnitOwnerDropdown && reactApp.showUnitOwnerDropdown(_this.entity._stats.ownerId, p);
+                }
+            }
+        });
         return _this;
     }
     PhaserUnit.prototype.updateTexture = function (data) {
@@ -151,13 +160,16 @@ var PhaserUnit = /** @class */ (function (_super) {
         this.gameObject.setSize(containerSize, containerSize + height);
     };
     PhaserUnit.prototype.follow = function () {
+        var _a, _b, _c, _d;
         var camera = this.scene.cameras.main;
         if (camera._follow === this.gameObject) {
             return;
         }
         this.scene.cameraTarget = this.gameObject;
         if (!taro.developerMode.active || taro.developerMode.activeTab === 'play') {
-            camera.startFollow(this.gameObject, false, 0.05, 0.05);
+            var trackingDelay = ((_d = (_c = (_b = (_a = taro === null || taro === void 0 ? void 0 : taro.game) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c.camera) === null || _d === void 0 ? void 0 : _d.trackingDelay) || 3;
+            trackingDelay = trackingDelay / 60;
+            camera.startFollow(this.gameObject, false, trackingDelay, trackingDelay);
         }
     };
     PhaserUnit.prototype.getLabel = function () {

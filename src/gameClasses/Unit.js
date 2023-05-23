@@ -1352,12 +1352,12 @@ var Unit = TaroEntityPhysics.extend({
 				taro.game.lastAttackingUnitId = damageData.sourceUnitId;
 				taro.game.lastAttackedUnitId = this.id();
 				taro.game.lastAttackingItemId = damageData.sourceItemId;
-				this.lastAttackedBy = sourceUnit;
+				this.lastAttackedBy = damageData.sourceUnitId;
 
 				if (taro.isClient) {
-					this.playEffect('attacked');
 					return true;
 				}
+				this.playEffect('attacked', {attackerId: damageData.sourceUnitId});
 
 				var triggeredBy = {
 					unitId: taro.game.lastAttackingUnitId,

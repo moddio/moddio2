@@ -49,6 +49,17 @@ class PhaserUnit extends PhaserAnimatedEntity {
 
 		this.scene.renderedEntities.push(this.gameObject);
 		this.zoomEvtListener = taro.client.on('scale', this.scaleElements, this);
+
+		this.sprite.setInteractive();
+		this.sprite.on('pointerdown', (p) => {
+			if (taro.game.data.defaultData.contextMenuEnabled && (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab === 'play')) && p.rightButtonDown()) {
+				const ownerPlayer = taro.$(this.entity._stats.ownerId);
+				if (ownerPlayer._stats.controlledBy === 'human') {
+					reactApp && reactApp.showUnitOwnerDropdown && reactApp.showUnitOwnerDropdown(this.entity._stats.ownerId, p);
+				}
+				
+			}
+		});
 	}
 
 	protected updateTexture (data) {
@@ -182,7 +193,9 @@ class PhaserUnit extends PhaserAnimatedEntity {
 		}
 		this.scene.cameraTarget = this.gameObject;
 		if (!taro.developerMode.active || taro.developerMode.activeTab === 'play') {
-			camera.startFollow(this.gameObject, false, 0.05, 0.05);
+			let trackingDelay = taro?.game?.data?.settings?.camera?.trackingDelay || 3;
+			trackingDelay = trackingDelay / 60;
+			camera.startFollow(this.gameObject, false, trackingDelay, trackingDelay);
 		}
 	}
 

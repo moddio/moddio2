@@ -1963,7 +1963,7 @@ var TaroEntity = TaroObject.extend({
 			}
 		}
 	},
-	playEffect: function (type) {
+	playEffect: function (type, data) {
 		if (this._stats && this._stats.effects && this._stats.effects[type]) {
 			var effect = this._stats.effects[type];
 
@@ -1976,7 +1976,9 @@ var TaroEntity = TaroObject.extend({
 
 			if (taro.isServer) {
 				if (type == 'move' || type == 'idle' || type == 'none') {
-					this.streamUpdateData([{ effect: type }]);
+					this.streamUpdateData([{ effect: {type: type} }]);
+				} else if (type == 'attacked') {
+					this.streamUpdateData([{ effect: {type: type, data: data} }]);
 				}
 
 			} else if (taro.isClient) {
@@ -2058,7 +2060,7 @@ var TaroEntity = TaroObject.extend({
 				var angle = this._rotate.z;
 				if (type == 'attacked') {
 					// get angle between attacked unit and attacking unit
-					var attacker = this.lastAttackedBy;
+					var attacker = taro.$(data?.attackerId);
 					if (attacker) {
 						angle = Math.atan2(attacker._translate.y - this._translate.y, attacker._translate.x - this._translate.x) + Math.radians(90);
 					}
@@ -4158,6 +4160,12 @@ var TaroEntity = TaroObject.extend({
 							this.oldOwnerId = this._stats[attrName];
 							break;
 
+						case 'rotate':
+							if (typeof newValue === 'number') {
+								this.rotateTo(0, 0, newValue);
+							}
+							break;
+
 						default:
 							if (taro.isServer) {
 								this._stats[attrName] = newValue;
@@ -4239,12 +4247,13 @@ var TaroEntity = TaroObject.extend({
 								break;
 							case 'effect':
 								// don't use streamed effect call for my own unit or its items
-								if (this == taro.client.selectedUnit ||
-									(this._category == 'item' && this.getOwnerUnit() == taro.client.selectedUnit)
+								if (newValue.type != 'attacked' && 
+									(this == taro.client.selectedUnit ||
+									(this._category == 'item' && this.getOwnerUnit() == taro.client.selectedUnit))
 								) {
 									return;
 								}
-								this.playEffect(newValue);
+								this.playEffect(newValue.type, newValue.data ? newValue.data : {});
 								break;
 							case 'makePlayerSelectUnit':
 								// this unit was queued to be selected by a player
@@ -4707,7 +4716,7 @@ var TaroEntity = TaroObject.extend({
 
 				case 'player':
 					// purchasables is required for rendering this player's owned skin to the other players
-					keys = ['name', 'clientId', 'playerTypeId', 'controlledBy', 'playerJoined', 'unitIds', 'selectedUnitId', 'userId', 'banChat', 'purchasables'];
+					keys = ['name', 'clientId', 'playerTypeId', 'controlledBy', 'playerJoined', 'unitIds', 'selectedUnitId', 'userId', 'banChat', 'purchasables', 'username'];
 					data = {
 						attributes: {},
 						// variables: {}

@@ -27,9 +27,12 @@ var DevModeScene = /** @class */ (function (_super) {
             _this.gameScene.cameras.main.stopFollow();
         });
         taro.client.on('lockCamera', function () {
+            var _a, _b, _c, _d;
             taro.client.emit('zoom', taro.client.zoom);
+            var trackingDelay = ((_d = (_c = (_b = (_a = taro === null || taro === void 0 ? void 0 : taro.game) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c.camera) === null || _d === void 0 ? void 0 : _d.trackingDelay) || 3;
+            trackingDelay = trackingDelay / 60;
             if (_this.gameScene.cameraTarget)
-                _this.gameScene.cameras.main.startFollow(_this.gameScene.cameraTarget, false, 0.05, 0.05);
+                _this.gameScene.cameras.main.startFollow(_this.gameScene.cameraTarget, false, trackingDelay, trackingDelay);
         });
         taro.client.on('enterMapTab', function () {
             _this.enterMapTab();

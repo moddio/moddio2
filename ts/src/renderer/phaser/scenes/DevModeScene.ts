@@ -31,7 +31,9 @@ class DevModeScene extends PhaserScene {
 
 		taro.client.on('lockCamera', () => {
 			taro.client.emit('zoom', taro.client.zoom);
-			if (this.gameScene.cameraTarget) this.gameScene.cameras.main.startFollow(this.gameScene.cameraTarget, false, 0.05, 0.05);
+			let trackingDelay = taro?.game?.data?.settings?.camera?.trackingDelay || 3;
+			trackingDelay = trackingDelay / 60;
+			if (this.gameScene.cameraTarget) this.gameScene.cameras.main.startFollow(this.gameScene.cameraTarget, false, trackingDelay, trackingDelay);
 		});
 
 		taro.client.on('enterMapTab', () => {

@@ -93,7 +93,8 @@ var GameComponent = TaroEntity.extend({
 			// isEmailVerified: true,
 			// isUserVerified: true,
 			isEmailVerified: data.isEmailVerified,
-			isUserVerified: data.isUserVerified
+			isUserVerified: data.isUserVerified,
+			username: data.name
 		};
 
 		var player = new Player(playerData);

@@ -100,11 +100,6 @@ var MobileControlsScene = /** @class */ (function (_super) {
             _this.scene.setVisible(value);
         });
         this.input.on('pointerdown', function (pointer) {
-            reactApp.handlePointerDownForMobile && reactApp.handlePointerDownForMobile(pointer);
-            this.initialPosition = {
-                x: pointer.x,
-                y: pointer.y,
-            };
             var emitPointerPosition = true;
             Object.keys(taro.mobileControls.controls).forEach(function (control) {
                 if (control === 'lookWheel' || control === 'lookAndFireWheel')
@@ -148,27 +143,6 @@ var MobileControlsScene = /** @class */ (function (_super) {
             }
         }, this);
         this.input.on('pointerup', function (pointer) {
-            this.finalPosition = {
-                x: pointer.x,
-                y: pointer.y,
-            };
-            var maxMovementWindow = 5;
-            // if joystick isn't dragged or moved
-            if (Math.abs(this.initialPosition.x - this.finalPosition.x) < maxMovementWindow && Math.abs(this.initialPosition.y - this.finalPosition.y) < maxMovementWindow) {
-                // select the element and check if the element position is within the joystick
-                var chatEle = $('#mobile-chat-container');
-                var chatElePos = chatEle.position();
-                var chatEleWidth = chatEle.width();
-                var chatEleHeight = chatEle.height();
-                var chatEleX = chatElePos.left;
-                var chatEleY = chatElePos.top;
-                var chatEleX2 = chatEleX + chatEleWidth;
-                var chatEleY2 = chatEleY + chatEleHeight;
-                // if the pointer is within the joystick
-                if (pointer.x > chatEleX && pointer.x < chatEleX2 && pointer.y > chatEleY && pointer.y < chatEleY2) {
-                    reactApp.openExpendedChat();
-                }
-            }
             if (!this.disablePointerEvents) {
                 var touchX = pointer.x;
                 if (touchX < this.cameras.main.displayWidth / 2.4) {

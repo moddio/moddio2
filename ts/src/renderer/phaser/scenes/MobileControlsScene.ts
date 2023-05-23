@@ -139,11 +139,6 @@ class MobileControlsScene extends PhaserScene {
 		});
 
 		this.input.on('pointerdown', function(pointer) {
-			reactApp.handlePointerDownForMobile && reactApp.handlePointerDownForMobile(pointer);
-			this.initialPosition = {
-				x: pointer.x,
-				y: pointer.y,
-			};
 			let emitPointerPosition = true;
 			Object.keys(taro.mobileControls.controls).forEach(control => {
 				if (control === 'lookWheel' || control === 'lookAndFireWheel') emitPointerPosition = false;
@@ -182,28 +177,6 @@ class MobileControlsScene extends PhaserScene {
 		}, this);
 
 		this.input.on('pointerup', function(pointer) {
-			this.finalPosition = {
-				x: pointer.x,
-				y: pointer.y,
-			};
-
-			const maxMovementWindow = 5;
-			// if joystick isn't dragged or moved
-			if (Math.abs(this.initialPosition.x - this.finalPosition.x) < maxMovementWindow && Math.abs(this.initialPosition.y - this.finalPosition.y) < maxMovementWindow) {	
-				// select the element and check if the element position is within the joystick
-				const chatEle = $('#mobile-chat-container');
-				const chatElePos = chatEle.position();
-				const chatEleWidth = chatEle.width();
-				const chatEleHeight = chatEle.height();
-				const chatEleX = chatElePos.left;
-				const chatEleY = chatElePos.top;
-				const chatEleX2 = chatEleX + chatEleWidth;
-				const chatEleY2 = chatEleY + chatEleHeight;
-				// if the pointer is within the joystick
-				if (pointer.x > chatEleX && pointer.x < chatEleX2 && pointer.y > chatEleY && pointer.y < chatEleY2) {
-					reactApp.openExpendedChat();
-				}
-			}
 			if (!this.disablePointerEvents) {
 				var touchX = pointer.x;
 				if (touchX < this.cameras.main.displayWidth / 2.4) {

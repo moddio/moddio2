@@ -2427,7 +2427,11 @@ var ActionComponent = TaroEntity.extend({
 						var radians = self._script.variable.getValue(action.radians, vars);
 						if (entity && self.entityCategories.indexOf(entity._category) > -1 && radians !== undefined && !isNaN(radians)) {
 							// hack to rotate entity properly
-							entity.rotateTo(0, 0, radians);
+							if (taro.isClient) {
+								entity.rotateTo(0, 0, radians);
+							} else {
+								entity.streamUpdateData([{ rotate: radians}]);
+							}
 						}
 
 						break;
@@ -2466,7 +2470,7 @@ var ActionComponent = TaroEntity.extend({
 								// if (!isNaN(rotateDiff)) {
 								//     entity.rotateBy(0, 0, -rotateDiff);
 								// }
-								entity.rotateTo(0, 0, newFacingAngle);
+								entity.streamUpdateData([{ rotate: newFacingAngle}]);
 								// console.log('rotating')
 							}
 							// &&
