@@ -209,7 +209,7 @@ var AttributeComponent = TaroEntity.extend({
 						) {
 							self._entity._stats.attributes[attributeTypeId].lastSynced = self.now;
 							self._entity._stats.attributes[attributeTypeId].lastSyncedValue = newValue;
-							attrData = { attributes: {} };
+							let attrData = { attributes: {} };
 							attrData.attributes[attributeTypeId] = newValue;
 							self._entity.streamUpdateData([attrData]);
 						}

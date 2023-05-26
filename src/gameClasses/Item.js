@@ -500,16 +500,15 @@ var Item = TaroEntityPhysics.extend({
 						self.quantityCost = 1;
 					}
 
-					attrData = { attributes: {} };
+					let attrData = { attributes: {} };
 					if (self._stats.bonus && self._stats.bonus.consume) {
 						// apply unit bonuses
 						var unitAttributeBonuses = self._stats.bonus.consume.unitAttribute;
 						if (unitAttributeBonuses) {
 							for (var attrId in unitAttributeBonuses) {
-								if (attrData.attributes) {
-									var newValue = owner.attribute.getValue(attrId) + parseFloat(unitAttributeBonuses[attrId]);
-									attrData.attributes[attrId] = owner.attribute.update(attrId, newValue, true);
-								}
+								var newValue = owner.attribute.getValue(attrId) + parseFloat(unitAttributeBonuses[attrId]);
+								attrData.attributes[attrId] = owner.attribute.update(attrId, newValue, true);
+
 							}
 						}
 

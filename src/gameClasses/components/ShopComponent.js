@@ -903,7 +903,7 @@ var ShopComponent = TaroEntity.extend({
 				return aOrder - bOrder;
 			});
 		}
-		
+
 		var shopUnitsKeys = taro.game.data.shops[self.currentType] ? Object.keys(taro.game.data.shops[self.currentType].unitTypes || {}) : [];
 		shopUnitsKeys = shopUnitsKeys.sort();
 		var shopItems = taro.game.data.shops[self.currentType] ? _.cloneDeep(taro.game.data.shops[self.currentType].itemTypes) : [];
@@ -991,7 +991,7 @@ var ShopComponent = TaroEntity.extend({
 							for (var j = 0; j < requiredItemTypesKeys.length; j++) {
 								var itemKey = requiredItemTypesKeys[j];
 								var requiredQuantity = shopItem.requirement.requiredItemTypes[itemKey];
-								requirementsSatisfied = ownerUnit.inventory.hasRequiredQuantity(itemKey, requiredQuantity);
+								requirementsSatisfied = ownerUnit?.inventory?.hasRequiredQuantity(itemKey, requiredQuantity);
 								if (!requiredItemTypesKeys) {
 									break;
 								}
@@ -1016,7 +1016,7 @@ var ShopComponent = TaroEntity.extend({
 							for (var j = 0; j < requiredItemTypesKeys.length; j++) {
 								var itemKey = requiredItemTypesKeys[j];
 								var requiredQuantity = shopItem.price.requiredItemTypes[itemKey];
-								isItemAffordable = ownerUnit.inventory.hasRequiredQuantity(itemKey, requiredQuantity);
+								isItemAffordable = ownerUnit?.inventory?.hasRequiredQuantity(itemKey, requiredQuantity);
 								if (!isItemAffordable) {
 									break;
 								}
