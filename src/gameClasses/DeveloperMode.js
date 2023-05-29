@@ -295,7 +295,7 @@ var DeveloperMode = /** @class */ (function () {
                 if (data.entityType === 'unit') {
                     switch (data.action) {
                         case 'create':
-                            //this.createUnit(data);
+                            this.createUnit(data);
                             break;
                         case 'update':
                             this.updateUnit(data);
