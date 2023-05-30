@@ -265,9 +265,20 @@ const Client = TaroEventingClass.extend({
 
 		if (clientPhysicsEngine) {
 
-			taro.addComponent(PhysicsComponent)
-				.physics.sleep(true);
+			if (clientPhysicsEngine !== 'crash') {
+				taroClassStore['TaroEntityPhysics'].prototype.implement(taroClassStore['TaroEntityBox2d']);
+				taro.addComponent(Box2dComponent);
+			} else {
+				taroClassStore['TaroEntityPhysics'].prototype.implement(taroClassStore['TaroEntityCrash']);
+				taro.addComponent(CrashComponent);
+			}
 
+			taro.physics.sleep(true);
+
+		} else if (serverPhysicsEngine !== 'crash') {
+			taroClassStore['TaroEntityPhysics'].prototype.implement(taroClassStore['TaroEntityBox2d']);
+		} else if (serverPhysicsEngine == 'crash') {
+			taroClassStore['TaroEntityPhysics'].prototype.implement(taroClassStore['TaroEntityCrash']);
 		}
 
 		this.physicsConfigLoaded.resolve();

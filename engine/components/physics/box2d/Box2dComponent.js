@@ -666,7 +666,7 @@ var Box2dComponent = TaroEventingClass.extend({
 							}
 
 
-							entity.body.setPosition({ x: x / entity._b2dRef._scaleRatio, y: y / entity._b2dRef._scaleRatio });
+							entity.body.setPosition({ x: x / this._scaleRatio, y: y / this._scaleRatio });
 							entity.body.setAngle(angle);
 
 
