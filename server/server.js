@@ -83,7 +83,12 @@ if (process.env.ENV == 'production') {
 
 // initialize mixpanel.
 var Mixpanel = require('mixpanel');
-var { PostHog } = require('posthog-node')
+var { PostHog } = require('posthog-node');
+const CrashComponent = require('../engine/components/physics/crash/CrashComponent');
+const TaroEntityBox2d = require('../engine/components/physics/box2d/TaroEntityBox2d');
+const TaroClass = require('../engine/core/TaroClass');
+const TaroEntityCrash = require('../engine/components/physics/crash/TaroEntityCrash');
+const TaroEntityPhysics = require('../engine/components/physics/TaroEntityPhysics');
 // create an instance of the mixpanel client
 if(process.env.MIXPANEL_TOKEN) {
 	global.mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
@@ -509,8 +514,15 @@ var Server = TaroClass.extend({
 
 				// Add physics and setup physics world
 
-				taro.addComponent(PhysicsComponent)
-					.physics.sleep(true)
+				if (game.data.defaultData.physicsEngine !== 'crash') {
+					taroClassStore['TaroEntityPhysics'].prototype.implement(taroClassStore['TaroEntityBox2d']);
+					taro.addComponent(Box2dComponent);
+				} else {
+					taroClassStore['TaroEntityPhysics'].prototype.implement(taroClassStore['TaroEntityCrash']);
+					taro.addComponent(CrashComponent);
+				}
+
+				taro.physics.sleep(true)
 					.physics.tilesizeRatio(tilesizeRatio);
 
 				if (game.data.settings) {

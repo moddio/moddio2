@@ -1,4 +1,7 @@
 var taroPhysicsConfig = {
+	/*
+	 * NOT IN USE
+	*/
 
 	taroPhysicsChoices: {
 		/* Includes for the main taro loader. Flags are indicated as:

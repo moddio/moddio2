@@ -1,11 +1,12 @@
 /**
  * Creates a new entity with crash integration.
  */
-const TaroEntityPhysics = TaroEntity.extend({
-	classId: 'TaroEntityPhysics',
+const TaroEntityCrash = TaroEntity.extend({
+	classId: 'TaroEntityCrash',
 
 	init: function (defaultData = {}) {
 		TaroEntity.prototype.init.call(this, defaultData);
+		this.class = 'crash entity';
 		const self = this;
 
 		// this._b2dRef = taro.physics;
@@ -463,5 +464,5 @@ const TaroEntityPhysics = TaroEntity.extend({
 });
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
-	module.exports = TaroEntityPhysics;
+	module.exports = TaroEntityCrash;
 }

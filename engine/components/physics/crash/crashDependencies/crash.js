@@ -264,7 +264,7 @@
 		var points = collider.sat.calcPoints;
 		var aabb = collider.aabb;
 		var pos = collider.sat.pos;
-
+		console.log(points);
 		aabb.x1 = pos.x + points[0].x;
 		aabb.y1 = pos.y + points[0].y;
 		aabb.x2 = pos.x + points[2].x;

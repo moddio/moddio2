@@ -2,8 +2,8 @@
  * The engine's crash component class.
  */
 
-const PhysicsComponent = TaroEventingClass.extend({
-	classId: 'PhysicsComponent',
+const CrashComponent = TaroEventingClass.extend({
+	classId: 'CrashComponent',
 	componentId: 'physics',
 
 	init: function (entity, options) {
@@ -305,7 +305,7 @@ const PhysicsComponent = TaroEventingClass.extend({
 				}
 			}
 		} else {
-			PhysicsComponent.prototype.log('Cannot extract static bodies from map data because passed map does not have a .map property.', 'error');
+			CrashComponent.prototype.log('Cannot extract static bodies from map data because passed map does not have a .map property.', 'error');
 		}
 	},
 
@@ -363,4 +363,4 @@ const PhysicsComponent = TaroEventingClass.extend({
 	}*/
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PhysicsComponent; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = CrashComponent; }

@@ -2,8 +2,8 @@
  * The engine's box2d component class.
  */
 
-var PhysicsComponent = TaroEventingClass.extend({
-	classId: 'PhysicsComponent',
+var Box2dComponent = TaroEventingClass.extend({
+	classId: 'Box2dComponent',
 	componentId: 'physics',
 
 	init: function (entity, options) {
@@ -67,7 +67,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 			return this._useWorker;
 		} else {
-			PhysicsComponent.prototype.log('Web workers were not detected on this browser. Cannot access useWorker() method.', 'warning');
+			Box2dComponent.prototype.log('Web workers were not detected on this browser. Cannot access useWorker() method.', 'warning');
 		}
 	},
 
@@ -205,7 +205,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 				entity._box2dTheirContactFixture = null;
 			}
 		} else {
-			PhysicsComponent.prototype.log('failed to destroy body - body doesn\'t exist.');
+			Box2dComponent.prototype.log('failed to destroy body - body doesn\'t exist.');
 		}
 	},
 
@@ -225,7 +225,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 				delete entityB.jointsAttached[entityA.id()];
 			}
 		} else {
-			PhysicsComponent.prototype.log('joint cannot be destroyed: one or more bodies missing');
+			Box2dComponent.prototype.log('joint cannot be destroyed: one or more bodies missing');
 		}
 	},
 
@@ -276,7 +276,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 	 */
 	staticsFromMap: function (mapLayer, callback) {
 		if (mapLayer == undefined) {
-			taro.server.unpublish('PhysicsComponent#51');
+			taro.server.unpublish('Box2dComponent#51');
 		}
 
 		if (mapLayer.map) {
@@ -345,7 +345,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 				}
 			}
 		} else {
-			PhysicsComponent.prototype.log('Cannot extract box2d static bodies from map data because passed map does not have a .map property!', 'error');
+			Box2dComponent.prototype.log('Cannot extract box2d static bodies from map data because passed map does not have a .map property!', 'error');
 		}
 	},
 
@@ -442,7 +442,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 				.drawBounds(false)
 				.mount(mountScene);
 		} else {
-			PhysicsComponent.prototype.log('Cannot enable box2d debug drawing because the passed argument is not an object on the scenegraph.', 'error');
+			Box2dComponent.prototype.log('Cannot enable box2d debug drawing because the passed argument is not an object on the scenegraph.', 'error');
 		}
 	},
 
@@ -511,7 +511,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 	},
 
 	queueAction: function (action) {
-		// PhysicsComponent.prototype.log("queueAction: "+action.type);
+		// Box2dComponent.prototype.log("queueAction: "+action.type);
 		this._actionQueue.push(action);
 	},
 
@@ -527,7 +527,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 					var action = self._actionQueue.shift();
 					queueSize++;
 					if (queueSize > 1000) {
-						taro.devLog(`PhysicsComponent.js _behaviour queue looped over 1000 times. Currently processing action: ${action.type}`);
+						taro.devLog(`Box2dComponent.js _behaviour queue looped over 1000 times. Currently processing action: ${action.type}`);
 					}
 
 					// console.log(action.type, "entity:", action.entity != null, (action.entity != null)?action.entity._category + " " + action.entity._stats.name:"null", " entityA:",  action.entityA != null, (action.entityA != null)?action.entityA._category + " " +action.entityA._stats.name:"null", " entityB:",  action.entityB != null, (action.entityB != null)?action.entityB._category + " " +action.entityB._stats.name:"null")
@@ -872,4 +872,4 @@ var PhysicsComponent = TaroEventingClass.extend({
 	}
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PhysicsComponent; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = Box2dComponent; }

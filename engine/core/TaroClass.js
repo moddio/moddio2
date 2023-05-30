@@ -162,9 +162,7 @@ var TaroClass = (function () {
 		 */
 	var addComponent = function (component, options) {
 		try {
-			console.log('added component: ',component, options);
 			var newComponent = new component(this, options);
-			console.log('added component: ',newComponent);
 			this[newComponent.componentId] = newComponent;
 
 			// Add the component reference to the class component array
@@ -326,7 +324,6 @@ var TaroClass = (function () {
 			throw ('Cannot create a new class without giving the class a classId property!');
 		}
 
-		console.log('loading class: ', prop.classId, taroClassStore);
 		// Check that the classId is not already in use
 		if (taroClassStore[prop.classId]) {
 			// This classId has already been used, bug out

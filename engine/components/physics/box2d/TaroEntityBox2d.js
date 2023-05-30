@@ -1,8 +1,8 @@
 /**
  * Creates a new entity with box2d integration.
  */
-var TaroEntityPhysics = TaroEntity.extend({
-	classId: 'TaroEntityPhysics',
+var TaroEntityBox2d = TaroEntity.extend({
+	classId: 'TaroEntityBox2d',
 
 	init: function (defaultData = {}) {
 		TaroEntity.prototype.init.call(this, defaultData);
@@ -820,5 +820,5 @@ var TaroEntityPhysics = TaroEntity.extend({
 });
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
-	module.exports = TaroEntityPhysics;
+	module.exports = TaroEntityBox2d;
 }

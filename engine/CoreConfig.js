@@ -58,9 +58,10 @@ var taroCoreConfig = {
 		/* Engine Actual */
 		['csap', 'TaroEngine', 'core/TaroEngine.js'],
 		/* Physics Libraries */
+		['csap', 'TaroEntityPhysics', './components/physics/TaroEntityPhysics.js'],
 		/* Box2d */
-		// ['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
-		// ['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],
+		['csap', 'Box2dComponent', './components/physics/box2d/Box2dComponent.js'],
+		['csap', 'TaroEntityBox2d', './components/physics/box2d/TaroEntityBox2d.js'],
 		['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
 		['csap', 'dists', './components/physics/box2d/dists.js'],
 		['csap', 'planck', './components/physics/box2d/dists/planck/planck.js'],
@@ -68,8 +69,8 @@ var taroCoreConfig = {
 		['csap', 'box2dninja', './components/physics/box2d/dists/box2dweb/box2d_ninja.js', 'box2dninja'],
 		['csap', 'box2dts', './components/physics/box2d/dists/flyoverbox2dts/bundle.js'],
 		/* Crash */
-		['csap', 'PhysicsComponent', './components/physics/crash/CrashComponent.js'],
-		['csap', 'TaroEntityPhysics', './components/physics/crash/TaroEntityPhysics.js'],
+		['csap', 'CrashComponent', './components/physics/crash/CrashComponent.js'],
+		['csap', 'TaroEntityCrash', './components/physics/crash/TaroEntityCrash.js'],
 		['csap', 'CollisionController', './components/physics/crash/CollisionController.js'],
 		['csap', 'quickselect', './components/physics/crash/crashDependencies/quickselect.js'],
 		['csap', 'rbush', './components/physics/crash/crashDependencies/rbush.js'],
