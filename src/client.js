@@ -418,8 +418,7 @@ const Client = TaroEventingClass.extend({
 				params.joinGame == 'true' &&
 				userId
 			) {
-
-				this.connectToServer();
+				window.playButtonClick.dispatchEvent(new Event('click'));
 			}
 		});
 
