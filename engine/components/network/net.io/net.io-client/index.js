@@ -183,7 +183,7 @@ NetIo.Client = NetIo.EventingClass.extend({
 					wsServerUrl: taro.client.server.url,
 					wsLatency: endTime - data.clientSentAt,
 					wsStartTime: data.clientSentAt,
-					wsEndTime: endTime
+					wsEndTime: endTime,
 				});
 			}
 		} else {
@@ -201,7 +201,8 @@ NetIo.Client = NetIo.EventingClass.extend({
 					wsStartTimeSinceLoad: this.startTimeSinceLoad,
 					wsEndTimeSinceLoad: endTimeSinceLoad,
 					wsStartTime: this.wsStartTime,
-					wsEndTime: Date.now()
+					wsEndTime: Date.now(),
+					wsReason: data?.reason,
 				});
 			}
 			
@@ -317,7 +318,7 @@ NetIo.Client = NetIo.EventingClass.extend({
 	},
 
 	_onClose: function (event) {
-		this.trackLatency('gs-websocket-connect', 'onclose');
+		this.trackLatency('gs-websocket-connect', 'onclose', { reason: this._disconnectReason });
 		
 		var wasClean = event.wasClean;
 		var reason = event.reason;

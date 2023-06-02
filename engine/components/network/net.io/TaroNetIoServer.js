@@ -66,7 +66,7 @@ var TaroNetIoServer = {
 					var player = taro.game.getPlayerByIp(ip);
 					
 					taro.server.bannedIps.push(ip);
-					socket.close();
+					socket.close('User kicked for spamming network commands.');
 					
 					let playerName = 'guest user'
 					var player = taro.game.getPlayerByClientId(socket.id)
