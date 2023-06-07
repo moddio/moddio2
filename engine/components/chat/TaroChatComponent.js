@@ -124,6 +124,7 @@ var TaroChatComponent = TaroEventingClass.extend({
 				}
 
 				window.reactApp?.pushMessageToChat && window.reactApp.pushMessageToChat({ message: msgData.text, isHtml: msgData.isHtml, from: 'system' });
+				window.pushMessageToChat && window.pushMessageToChat({ message: msgData.text, isHtml: msgData.isHtml, from: 'system' });
 			}
 
 			// append new message for both mobile & web chat-history div

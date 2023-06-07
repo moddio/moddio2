@@ -646,6 +646,7 @@ var Player = TaroEntity.extend({
 			}
 
 			window.reactApp && window.reactApp.playerJoinedGame && window.reactApp.playerJoinedGame();
+			window && window.playerJoinedGame && window.playerJoinedGame();
 			window.playerJoinedTheGame = true;
 			
 			if (typeof (userId) !== 'undefined' && typeof (sessionId) !== 'undefined') {
