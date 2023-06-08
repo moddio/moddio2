@@ -2728,17 +2728,25 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
-                    
-					case 'editMapTile':
-						var tileGid = self._script.variable.getValue(action.gid, vars);
-						var tileLayer = self._script.variable.getValue(action.layer, vars);
-						var tileX = self._script.variable.getValue(action.x, vars);
-						var tileY = self._script.variable.getValue(action.y, vars);
-						//var tileTool = self._script.variable.getValue(action.tool, vars);
-						if (!isNaN(tileGid) && !isNaN(tileLayer) && !isNaN(tileX) && !isNaN(tileY)) {
-							taro.developerMode.editTile ({gid: tileGid, layer: tileLayer, x: tileX, y: tileY },"server");
-						}
-						break;
+                    case 'editMapTile':
+                        var tileGid = self._script.variable.getValue(action.gid, vars);
+                        var tileLayer = self._script.variable.getValue(action.layer, vars);
+                        var tileX = self._script.variable.getValue(action.x, vars);
+                        var tileY = self._script.variable.getValue(action.y, vars);
+                        if (Number.isInteger(tileGid) && Number.isInteger(tileLayer) && Number.isInteger(tileX) && Number.isInteger(tileY)) {
+                            if (tileGid < 0 || tileGid > taro.game.data.map.tilesets[0].tilecount) {
+                                break;
+                            } else if (tileLayer > 3 || tileLayer < 0){
+                                break;
+                            } else if (tileX < 0 || tileX >= taro.game.data.map.width) {
+                                break;
+                            } else if (tileY < 0 || tileY >= taro.game.data.map.height) {
+                                break;
+                            } else {
+                                taro.developerMode.editTile ({gid: tileGid, layer: tileLayer, x: tileX, y: tileY},"server");
+                            }
+                        }
+                        break;
 
 					case 'comment':
 						break;
