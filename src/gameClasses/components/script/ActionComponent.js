@@ -2728,6 +2728,18 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+                    
+					case 'editMapTile':
+						var tileGid = self._script.variable.getValue(action.gid, vars);
+						var tileLayer = self._script.variable.getValue(action.layer, vars);
+						var tileX = self._script.variable.getValue(action.x, vars);
+						var tileY = self._script.variable.getValue(action.y, vars);
+						var tileTool = self._script.variable.getValue(action.tool, vars);
+						if (!isNaN(tileGid) && !isNaN(tileLayer) && !isNaN(tileX) && !isNaN(tileY) && tileTool) {
+							taro.developerMode.editTile ({             gid: tileGid,             layer: tileLayer,             x: tileX,             y: tileY,             tool: tileTool },"server");
+						}
+						break;
+
 					case 'comment':
 						break;
 					default:

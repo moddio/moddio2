@@ -37,7 +37,7 @@ class DeveloperMode {
 
 	editTile (data: TileData, clientId: string): void {
 		// only allow developers to modify the tiles
-		if (taro.server.developerClientIds.includes(clientId)) {
+		if (taro.server.developerClientIds.includes(clientId) || clientId == "server") {
 			const gameMap = taro.game.data.map;
 			gameMap.wasEdited = true;
 			taro.network.send('editTile', data);
