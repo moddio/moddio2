@@ -32,7 +32,7 @@ var DeveloperMode = /** @class */ (function () {
     };
     DeveloperMode.prototype.editTile = function (data, clientId) {
         // only allow developers to modify the tiles
-        if (taro.server.developerClientIds.includes(clientId)) {
+        if (taro.server.developerClientIds.includes(clientId) || clientId == "server") {
             var gameMap = taro.game.data.map;
             gameMap.wasEdited = true;
             taro.network.send('editTile', data);
