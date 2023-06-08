@@ -151,8 +151,8 @@ var ClientNetworkEvents = {
 	},
 
 	_onOpenDialogue: function (data) {
-		if (data.type) {
-			taro.playerUi.openDialogueModal(data.type, data.extraData);
+		if (data.dialogueId) {
+			taro.playerUi.openDialogueModal(data.dialogueId, data.extraData);
 		}
 	},
 

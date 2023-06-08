@@ -158,13 +158,13 @@ class GameScene extends PhaserScene {
 				const length = layer.data.length;
 				layer.width = data.map.width;
 				layer.height = data.map.height;
-				console.log('before', layer.name, length, tilesPerLayer);
+				// console.log('before', layer.name, length, tilesPerLayer);
 				if (length < tilesPerLayer) {
 					for (let i = length + 1; i < tilesPerLayer; i++) {
 						layer.data[i] = 0;
 					}
 				}
-				console.log('after', layer.name, layer.data.length, tilesPerLayer);
+				// console.log('after', layer.name, layer.data.length, tilesPerLayer);
 			}
 		});
 
@@ -242,7 +242,7 @@ class GameScene extends PhaserScene {
 		const data = taro.game.data;
 		const scaleFactor = taro.scaleMapDetails.scaleFactor;
 
-		console.log('map data', data.map);
+		// console.log('map data', data.map);
 
 		data.map.tilesets.forEach((tileset) => {
 			const key = `tiles/${tileset.name}`;

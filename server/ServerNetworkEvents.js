@@ -760,7 +760,7 @@ var ServerNetworkEvents = {
 				}
 				if (selectedOption.followUpDialogue) {
 					taro.network.send('openDialogue', {
-						type: selectedOption.followUpDialogue,
+						dialogueId: selectedOption.followUpDialogue,
 						extraData: {
 							playerName: player._stats.name,
 							dialogueTemplate: _.get(taro, 'game.data.ui.dialogueview.htmlData', '')

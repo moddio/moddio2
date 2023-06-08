@@ -95,7 +95,7 @@ var TaroNetIoClient = {
 				.done(function () {
 					// we have gone through every possible server
 					// and still client's not connected properly
-					console.log('final stage', self._state);
+					// console.log('final stage', self._state);
 					if (self._state < 3) {
 						console.log('disconnecting from the server');
 						self._state = 0; // Disconnected
