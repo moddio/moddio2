@@ -39,6 +39,48 @@ global.rollbar = {
 	},
 };
 
+// override console.log and error to print additional data
+console.basicLog = console.log;
+console.log = function () {
+	
+	const log = [];
+	
+	log.push(new Date());
+	log.push(cluster.isMaster ? 'master' : 'worker');
+	
+	if (taro?.server?.httpsPort) {
+		log.push(taro?.server?.httpsPort);
+	}
+	
+	if (taro?.game?.data?.defaultData?.gameSlug) {
+		log.push(taro?.game?.data?.defaultData?.gameSlug);
+	}
+	
+	log.push(...arguments);
+	
+	console.basicLog(...log);
+};
+
+console.basicError = console.error;
+console.error = function () {
+	const log = [];
+	
+	log.push(new Date());
+	log.push(cluster.isMaster ? 'master' : 'worker');
+	
+	if (taro?.server?.httpsPort) {
+		log.push(taro?.server?.httpsPort);
+	}
+	
+	if (taro?.game?.data?.defaultData?.gameSlug) {
+		log.push(taro?.game?.data?.defaultData?.gameSlug);
+	}
+	
+	log.push(...arguments);
+	
+	console.basicError(...log);
+};
+
 global.mixpanel = {
 	track: function () {
 		// do nothing
