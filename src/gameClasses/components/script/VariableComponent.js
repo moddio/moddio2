@@ -895,6 +895,21 @@ var VariableComponent = TaroEntity.extend({
 					returnValue = taro.$(id);
 					break;
 
+				case 'getDialogueByDialogueName': // return the first found dialogue with the given string
+					var name = self.getValue(text.name, vars);
+					var dialogues = taro.game.data.dialogues;
+					for (const id in dialogues) {
+						console.log(dialogues[id].name, name);
+						if (dialogues[id].name == name) {
+							returnValue = id;
+							break;
+						}
+					}
+					if (returnValue == undefined) {
+						taro.script.errorLog('dialogue does not exist');
+					}
+					break;
+
 				case 'getLastCastingUnit':
 					var id = taro.game.lastCastingUnitId;
 					var unit = taro.$(id);
