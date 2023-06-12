@@ -1040,6 +1040,10 @@ var VariableComponent = TaroEntity.extend({
 					returnValue = tileWidth * worldWidth;
 					break;
 
+                case 'getMapJson':
+                    returnValue =  JSON.stringify(taro.map.data);						;
+                    break;
+
 				case 'entityWidth':
 					if (entity && self._entity.script.action.entityCategories.indexOf(entity._category) > -1) {
 						// returnValue = entity._aabb.width;

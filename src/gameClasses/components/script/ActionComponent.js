@@ -2759,6 +2759,22 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+                    case 'loadMapFromString':
+                        var data = self._script.variable.getValue(action.string, vars);
+                        if (data) {
+                                taro.map.data = JSON.parse(data);
+                                taro.game.data.map = JSON.parse(data);
+                                var gameMap = taro.game.data.map;
+                                gameMap.wasEdited = true;
+
+                                taro.physics.destroyWalls();
+                                var map = taro.scaleMap(_.cloneDeep(gameMap));
+                                taro.tiled.loadJson(map, function (layerArray, layersById) {
+                                    taro.physics.staticsFromMap(layersById.walls);
+                                });
+                        }
+                        break;
+
 					case 'comment':
 						break;
 					default:
