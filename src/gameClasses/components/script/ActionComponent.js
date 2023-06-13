@@ -2759,21 +2759,31 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
-                    case 'loadMapFromString':
-                        var data = self._script.variable.getValue(action.string, vars);
-                        if (data) {
+                        case 'loadMapFromString':
+                            //WON'T CHANGE CONNECTED PLAYERS MAP
+                            //needs to be run before players join
+                            var data = self._script.variable.getValue(action.string, vars);
+                            var players = taro.$$('player').filter((player) => {
+                                return player._stats.playerTypeId !== undefined;
+                            });
+                            try {
+                                JSON.parse(data);
+                            } catch (e) {
+                                break;
+                            }
+                            if (data && players.length <= 0) {
                                 taro.map.data = JSON.parse(data);
                                 taro.game.data.map = JSON.parse(data);
                                 var gameMap = taro.game.data.map;
                                 gameMap.wasEdited = true;
-
+    
                                 taro.physics.destroyWalls();
                                 var map = taro.scaleMap(_.cloneDeep(gameMap));
                                 taro.tiled.loadJson(map, function (layerArray, layersById) {
                                     taro.physics.staticsFromMap(layersById.walls);
                                 });
-                        }
-                        break;
+                            }
+                            break;
 
 					case 'comment':
 						break;
