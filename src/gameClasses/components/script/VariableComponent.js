@@ -899,7 +899,6 @@ var VariableComponent = TaroEntity.extend({
 					var name = self.getValue(text.name, vars);
 					var dialogues = taro.game.data.dialogues;
 					for (const id in dialogues) {
-						console.log(dialogues[id].name, name);
 						if (dialogues[id].name == name) {
 							returnValue = id;
 							break;
