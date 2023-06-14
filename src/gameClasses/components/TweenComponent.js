@@ -40,6 +40,16 @@ var TweenComponent = TaroEntity.extend({
 				type: 'swing',
 				loopCount: 1,
 				keyFrames: [[0, [0, 0, 0]], [100, [0, 0, -3.14]], [250, [0, 0, 0]]]
+			},
+			halfSwingCW: {
+				type: 'swing',
+				loopCount: 1,
+				keyFrames: [[0, [0, 0, 0]], [100, [0, 0, 1.57]], [250, [0, 0, 0]]]
+			},
+			halfSwingCCW: {
+				type: 'swing',
+				loopCount: 1,
+				keyFrames: [[0, [0, 0, 0]], [100, [0, 0, -1.57]], [250, [0, 0, 0]]]
 			}
 		};
 	},
