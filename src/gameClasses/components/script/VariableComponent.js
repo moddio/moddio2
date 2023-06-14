@@ -1284,9 +1284,10 @@ var VariableComponent = TaroEntity.extend({
 					if (player && player._category == 'player' && player.control) {
 						if (player.control.input.mouse.x != undefined && player.control.input.mouse.y != undefined &&
 							!isNaN(player.control.input.mouse.x) && !isNaN(player.control.input.mouse.y))
+							 // only !isNaN cannot filter x or y with value false (0)，add logical OR to avoid NaN returned
 							returnValue = {
-								x: parseInt(player.control.input.mouse.x),
-								y: parseInt(player.control.input.mouse.y)
+								x: parseInt(player.control.input.mouse.x || 0),
+								y: parseInt(player.control.input.mouse.y || 0)
 							};
 					}
 					break;
