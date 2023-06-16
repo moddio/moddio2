@@ -198,16 +198,7 @@ var TaroChatServer = {
 		// no filter on standalone
 		//
 		if (process.env.ENV != 'standalone') {
-			const unfilteredMessage = msg.text;
 			msg.text = self.filter.cleanHacked(msg.text); // https://github.com/web-mech/badwords/issues/93
-
-			const userId = taro.game.getPlayerByClientId(clientId)?._stats?.userId;
-			msg && msg.text && userId && global.mixpanel.track('Chat Message Sent', {
-				distinct_id: userId,
-				gameSlug: taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
-				gameId: taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
-				containsBadWord: msg.text != unfilteredMessage
-			});
 		}
 		//
 
