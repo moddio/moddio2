@@ -2645,8 +2645,28 @@ var ActionComponent = TaroEntity.extend({
 						if (entity && self.entityCategories.indexOf(entity._category) > -1) {
 							entity.setState(stateId);
 						}
-
 						break;
+					
+					case 'setAnimationOfEntityState':
+						var entity = self._script.variable.getValue(action.entity, vars);
+						var stateId = action.state;
+						var animationId = self._script.variable.getValue(action.animation, vars);
+
+						if (entity && self.entityCategories.indexOf(entity._category) > -1) {
+							entity.setAnimationOfState(stateId, animationId);
+						}
+						break;
+					
+					case 'setBodyOfEntityState':
+						var entity = self._script.variable.getValue(action.entity, vars);
+						var stateId = action.state;
+						var bodyId = self._script.variable.getValue(action.body, vars);
+						
+						if (entity && self.entityCategories.indexOf(entity._category) > -1) {
+							entity.setBodyOfState(stateId, bodyId);
+						}
+						break;
+
 					case 'increaseVariableByNumber':
 						var newValue = self._script.variable.getValue(action.number, vars);
 						if (taro.game.data.variables.hasOwnProperty(action.variable) && !_.isNaN(newValue) && !_.isNil(newValue)) {

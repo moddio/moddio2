@@ -167,6 +167,48 @@ var TaroEntity = TaroObject.extend({
 		self.updateBody(defaultData);
 	},
 
+	setAnimationOfState: function (stateId, animationId) {
+		if (stateId == undefined || this._stats.states == undefined || this._stats.states[stateId] == undefined) {
+			return;
+		}
+		var targetState = (this._stats.states && this._stats.states[stateId]) || {};
+		if (this._stats.animations[animationId]) {
+			this._stats.animationId = animationId;
+			targetState.animation = animationId;
+			if (taro.isServer) {
+				this.streamUpdateData([{ stateAnim: { state: stateId, anim: animationId } }])
+			}
+			this.applyAnimationForState(stateId);
+		}
+	},
+
+	setBodyOfState: function (stateId, bodyId) {
+		if (stateId == undefined || this._stats.states == undefined || this._stats.states[stateId] == undefined) {
+			return;
+		}
+		var targetState = (this._stats.states && this._stats.states[stateId]) || {};
+		if (this._stats.bodies[bodyId]) {
+			targetState.body = bodyId;
+			if (targetState && targetState.body) {
+				this._stats.currentBody = this._stats.bodies[targetState.body];
+				if (taro.isServer) {			
+					this.streamUpdateData([{ stateBody: { state: stateId, body: bodyId } }]);
+				} else if (taro.isClient) {		
+					if (taro.game.data.defaultData.heightBasedZIndex) {
+						// code for height-based-zindex
+						if (this._category === 'unit') {
+							this.emit('dynamic', this._stats.currentBody.type === 'dynamic');
+		
+						} else if (this._category === 'item') {
+							this.emit('dynamic', true);
+						}
+					}
+				}
+			}
+		} else {
+		}
+	},
+
 	/**
 	 * Sets the entity as hidden and cannot be interacted with.
 	 * @example #Hide a visible entity
@@ -4196,6 +4238,21 @@ var TaroEntity = TaroObject.extend({
 								var animationId = newValue;
 								this.applyAnimationById(animationId);
 								break;
+
+							case 'stateAnim': // tell client to override the aniamtion of state
+								var stateId = newValue.state;
+								var animationId = newValue.anim;
+								console.log(stateId, animationId);
+								this.setAnimationOfState(stateId, animationId);
+								break;
+							
+							case 'stateBody': // tell client to override the body of state
+								var stateId = newValue.state;
+								var bodyId = newValue.body;
+								console.log(stateId, bodyId);
+								this.setBodyOfState(stateId, bodyId);
+								break;
+
 
 							case 'stateId':
 								var stateId = newValue;
