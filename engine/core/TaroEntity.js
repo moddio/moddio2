@@ -205,7 +205,6 @@ var TaroEntity = TaroObject.extend({
 					}
 				}
 			}
-		} else {
 		}
 	},
 
