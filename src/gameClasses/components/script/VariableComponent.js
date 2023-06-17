@@ -1697,7 +1697,7 @@ var VariableComponent = TaroEntity.extend({
 					var key = self.getValue(text.key, vars);
 					if (string && key != undefined) {
 						try {
-							var array = _.cloneDeep(JSON.parse(string));
+							var array = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
@@ -1712,7 +1712,7 @@ var VariableComponent = TaroEntity.extend({
 					var value = self.getValue(text.value, vars);
 					if (string && key != undefined) {
 						try {
-							var array = _.cloneDeep(JSON.parse(string));
+							var array = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
@@ -1731,7 +1731,7 @@ var VariableComponent = TaroEntity.extend({
 					var value = self.getValue(text.value, vars);
 					if (string && key != undefined) {
 						try {
-							var array = _.cloneDeep(JSON.parse(string));
+							var array = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
@@ -1745,7 +1745,7 @@ var VariableComponent = TaroEntity.extend({
 					var key = self.getValue(text.key, vars);
 					if (string && key != undefined) {
 						try {
-							var array = _.cloneDeep(JSON.parse(string));
+							var array = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
