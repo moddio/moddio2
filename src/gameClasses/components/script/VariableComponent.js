@@ -1705,7 +1705,7 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
-				case 'AddStringObjectElement': 
+				case 'addStringObjectElement': 
 					// if replace value is not intented, use this
 					var string = self.getValue(text.string, vars);
 					var key = self.getValue(text.key, vars);
