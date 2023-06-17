@@ -1691,6 +1691,69 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
+				case 'getStringObjectElement':
+					// if replace value is not intented, use this
+					var string = self.getValue(text.string, vars);
+					var key = self.getValue(text.key, vars);
+					if (string && key != undefined) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							console.error(err);
+						}
+						returnValue = array[key];
+					}
+					break;
+
+				case 'AddStringObjectElement': 
+					// if replace value is not intented, use this
+					var string = self.getValue(text.string, vars);
+					var key = self.getValue(text.key, vars);
+					var value = self.getValue(text.value, vars);
+					if (string && key != undefined) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							console.error(err);
+						}
+						if (array[key] == undefined) {
+							array[key] = value;
+						}
+						returnValue = JSON.stringify(array);
+					}
+					break;
+
+				case 'updateStringObjectElement': 
+					// if replace value is intended, use this
+					// if the key able to find a value, replace it, else create new
+					var string = self.getValue(text.string, vars);
+					var key = self.getValue(text.key, vars);
+					var value = self.getValue(text.value, vars);
+					if (string && key != undefined) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							console.error(err);
+						}
+						array[key] = value;
+						returnValue = JSON.stringify(array);
+					}
+					break;
+
+				case 'removeStringObjectElement':
+					var string = self.getValue(text.string, vars);
+					var key = self.getValue(text.key, vars);
+					if (string && key != undefined) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							console.error(err);
+						}
+						array[key] = undefined;
+						returnValue = JSON.stringify(array);
+					}
+					break;
+
 				case 'toLowerCase':
 					var string = self.getValue(text.string, vars);
 					if (string && !isNaN(string.length)) {
