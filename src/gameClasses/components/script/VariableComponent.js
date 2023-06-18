@@ -1645,6 +1645,9 @@ var VariableComponent = TaroEntity.extend({
 							console.error(err);
 						}
 						returnValue = array[index];
+						if (typeof returnValue == 'object') {
+							returnValue = JSON.stringify(returnValue);
+						}
 					}
 					break;
 
