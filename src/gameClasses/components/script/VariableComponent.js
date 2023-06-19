@@ -1,3 +1,5 @@
+const { entries } = require("lodash");
+
 var VariableComponent = TaroEntity.extend({
 	classId: 'VariableComponent',
 	componentId: 'variable',
@@ -1698,10 +1700,12 @@ var VariableComponent = TaroEntity.extend({
 					if (string && delimiter != undefined) {
 						try {
 							strArr = string.split(delimiter);
+							returnValue = JSON.stringify(strArr);
 						} catch (err) {
 							console.error(err);
+							returnValue = "undefined";
 						}
-						returnValue = JSON.stringify(strArr);
+						
 					}
 					break;
 
@@ -1712,16 +1716,18 @@ var VariableComponent = TaroEntity.extend({
 					if (string && delimiter != undefined) {
 						try {
 							var array = JSON.parse(string);
+							if (Array.isArray(array) == true) {
+								// If the string passed is a real array
+								returnValue = array.join(delimiter); 
+							} else if (array !== null && typeof array === 'object') {
+								// If the string passed is a JSON object, not a real array, get all the values, concatenate, and return
+								returnValue = (Object.values(array)).join(delimiter);
+							}
 						} catch (err) {
 							console.error(err);
+							returnValue = "undefined";
 						}
-						if (Array.isArray(array) == true) {
-							// If the string passed is a real array
-							returnValue = array.join(delimiter); 
-						} else if (array !== null && typeof array === 'object') {
-							// If the string passed is a JSON object, not a real array, get all the values, concatenate, and return
-							returnValue = (Object.values(array)).join(delimiter);
-						}
+						
 						
 					}
 					break;
@@ -1779,11 +1785,57 @@ var VariableComponent = TaroEntity.extend({
 							}            
 						} catch (err) {
 							console.error(err);
+							returnValue = "undefined";
 						}
 				
 						
 					}
 					break;
+
+					case 'sortTwoStringArrays':
+						var string = self.getValue(text.string, vars);
+						var string2 = self.getValue(text.string2, vars);
+						var mode = self.getValue(text.mode, vars);
+						var returnValue = undefined;
+					
+						if (string && mode != undefined) {
+							try {
+								var array = JSON.parse(string);
+								var array2 = JSON.parse(string2);
+								if ((Array.isArray(array) == true) && (Array.isArray(array2) == true)) {
+									entriess = [];
+									for (var i = 0; i < array.length; i++) {
+										entriess.push([array[i], (i < array2.length) ? array2[i] : undefined]);
+									}
+									// If the string passed is a real array
+									if (mode == "alphabetical") {
+										entriess.sort((a, b) => {
+											if (a[0] < b[0]) return -1;
+											else if (a[0] == b[0]) return 0;
+											else return 1;
+										}  );
+									} else if (mode == "alphabeticalReverse") {
+										entriess.sort((a, b) => {
+											
+											if (a[0] < b[0]) return 1;
+											else if (a[0] == b[0]) return 0;
+											else return -1;
+										}  );
+									} else if (mode == "numericalAscending") {
+										entriess.sort((a, b) => Number(a[0]) - Number(b[0]));
+									} else if (mode == "numericalDescending") {
+										entriess.sort((a, b) => Number(b[0]) - Number(a[0]));
+									}
+									returnValue = JSON.stringify(entriess.map(i => i[1]));
+								}           
+							} catch (err) {
+								console.error(err);
+								returnValue = "undefined";
+							}
+					
+							
+						}
+						break;
 
 				case 'toLowerCase':
 					var string = self.getValue(text.string, vars);
