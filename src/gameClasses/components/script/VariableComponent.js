@@ -1771,9 +1771,9 @@ var VariableComponent = TaroEntity.extend({
 										else return -1;
 									}  );
 								} else if (mode == "numericalAscending") {
-									values.sort((a, b) => Number(a[1]) - Number(b[1]));
+									values.sort((a, b) => Number(a) - Number(b));
 								} else if (mode == "numericalDescending") {
-									values.sort((a, b) => Number(b[1]) - Number(a[1]));
+									values.sort((a, b) => Number(b) - Number(a));
 								}
 								returnValue = JSON.stringify(values);
 							}            
