@@ -1727,8 +1727,8 @@ var VariableComponent = TaroEntity.extend({
 					break;
 
 				case 'sortStringArray':
-					var string = text.string;
-					var mode = text.mode;
+					var string = self.getValue(text.string, vars);
+					var mode = self.getValue(text.mode, vars);
 					var returnValue = undefined;
 				
 					if (string && mode != undefined) {
