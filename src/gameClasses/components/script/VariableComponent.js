@@ -1760,8 +1760,8 @@ var VariableComponent = TaroEntity.extend({
 								var values = Object.values(array);
 								if (mode == "alphabetical") {
 									values.sort((a, b) => {
-										if (a[1] < b[1]) return -1;
-										else if (a[1] == b[1]) return 0;
+										if (a < b) return -1;
+										else if (a == b) return 0;
 										else return 1;
 									}  );
 								} else if (mode == "alphabeticalReverse") {
@@ -1784,7 +1784,7 @@ var VariableComponent = TaroEntity.extend({
 						
 					}
 					break;
-				
+
 				case 'toLowerCase':
 					var string = self.getValue(text.string, vars);
 					if (string && !isNaN(string.length)) {
