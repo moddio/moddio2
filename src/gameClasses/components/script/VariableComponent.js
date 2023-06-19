@@ -1691,6 +1691,100 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
+				case 'splitStringByDelimiter':
+					var string = self.getValue(text.string, vars);
+					var delimiter = self.getValue(text.delimiter, vars);
+					var strArr;
+					if (string && delimiter != undefined) {
+						try {
+							strArr = string.split(delimiter);
+						} catch (err) {
+							console.error(err);
+						}
+						returnValue = JSON.stringify(strArr);
+					}
+					break;
+
+				case 'joinStringArrayByDelimiter':
+					var string = self.getValue(text.string, vars);
+					var delimiter = self.getValue(text.delimiter, vars);
+					
+					if (string && delimiter != undefined) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							console.error(err);
+						}
+						if (Array.isArray(array) == true) {
+							// If the string passed is a real array
+							returnValue = array.join(delimiter); 
+						} else if (array !== null && typeof array === 'object') {
+							// If the string passed is a JSON object, not a real array, get all the values, concatenate, and return
+							returnValue = (Object.values(array)).join(delimiter);
+						}
+						
+					}
+					break;
+
+				case 'sortStringArray':
+					var string = text.string;
+					var mode = text.mode;
+					var returnValue = undefined;
+				
+					if (string && mode != undefined) {
+						try {
+							var array = JSON.parse(string);
+							if (Array.isArray(array) == true) {
+								// If the string passed is a real array
+								if (mode == "alphabetical") {
+									array.sort((a, b) => {
+										if (a < b) return -1;
+										else if (a == b) return 0;
+										else return 1;
+									}  );
+								} else if (mode == "alphabeticalReverse") {
+									array.sort((a, b) => {
+										
+										if (a < b) return 1;
+										else if (a == b) return 0;
+										else return -1;
+									}  );
+								} else if (mode == "numericalAscending") {
+									array.sort((a, b) => Number(a) - Number(b));
+								} else if (mode == "numericalDescending") {
+									array.sort((a, b) => Number(b) - Number(a));
+								}
+								returnValue = JSON.stringify(array);
+							} else if (array !== null && typeof array === 'object') {
+								// If the string passed is a JSON object, it will still return an array.
+								var values = Object.values(array);
+								if (mode == "alphabetical") {
+									values.sort((a, b) => {
+										if (a[1] < b[1]) return -1;
+										else if (a[1] == b[1]) return 0;
+										else return 1;
+									}  );
+								} else if (mode == "alphabeticalReverse") {
+									values.sort((a, b) => {
+										if (a < b) return 1;
+										else if (a == b) return 0;
+										else return -1;
+									}  );
+								} else if (mode == "numericalAscending") {
+									values.sort((a, b) => Number(a[1]) - Number(b[1]));
+								} else if (mode == "numericalDescending") {
+									values.sort((a, b) => Number(b[1]) - Number(a[1]));
+								}
+								returnValue = JSON.stringify(values);
+							}            
+						} catch (err) {
+							console.error(err);
+						}
+				
+						
+					}
+					break;
+				
 				case 'toLowerCase':
 					var string = self.getValue(text.string, vars);
 					if (string && !isNaN(string.length)) {
