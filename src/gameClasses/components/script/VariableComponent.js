@@ -1756,7 +1756,7 @@ var VariableComponent = TaroEntity.extend({
 								else if (mode == "alphabeticalReverse") {
 									array.sort().reverse();
 								} else if (mode == "numericalDescending") {
-									array.sort((a, b) => Number(a) - Number(b));
+									array.sort((a, b) => Number(b) - Number(a));
 								} else {
 									taro.script.errorLog("nonexistent mode for sorting");
 									break;
