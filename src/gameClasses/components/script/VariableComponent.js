@@ -1818,7 +1818,7 @@ var VariableComponent = TaroEntity.extend({
 						}
 						break;
 
-				case "concatenateTwoArrays":
+				case "concatenateTwoStringArrays":
 					var string = self.getValue(text.string, vars);
 					var string2 = self.getValue(text.string2, vars);
 					try {
