@@ -1,5 +1,3 @@
-const { entries } = require("lodash");
-
 var VariableComponent = TaroEntity.extend({
 	classId: 'VariableComponent',
 	componentId: 'variable',
