@@ -263,30 +263,6 @@ var AttributeComponent = TaroEntity.extend({
 						}
 					}
 
-					// track guided tutorial progress
-					var parentGameId = taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.parentGameId;
-					if (parentGameId == '646d39f8d9317a8253b8a143' && attribute.name == 'progress' && self._entity._category == 'player') {
-						// for tracking user progress in tutorials
-						var client = taro.server.clients[self._entity._stats.clientId];
-						var socket = client.socket;
-
-						if (newValue !== this.lastProgressTrackedValue) {
-							global.trackEvent && global.trackEvent({
-								eventName: 'Tutorial Progress Updated',
-								properties: {
-									'$ip': socket._remoteAddress,
-									'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
-									'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
-									'parentGameId': parentGameId,
-									'progress': newValue
-								},
-								posthogDistinctId: socket?._token.posthogDistinctId,
-								mixpanelDistinctId: socket?._token?.distinctId,
-							});
-						}
-
-						this.lastProgressTrackedValue = newValue;
-					}
 				} else if (taro.isClient) {
 					if (taro.client.myPlayer) {
 						var unit = null;

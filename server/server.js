@@ -135,7 +135,10 @@ if (process.env.POSTHOG_TOKEN) {
 	global.posthog = new PostHog(process.env.POSTHOG_TOKEN, { host: 'https://app.posthog.com' } );
 }
 
-global.trackEvent = function ({ eventName, properties, posthogDistinctId, mixpanelDistinctId, target = "all" }) {
+global.trackServerEvent = function ({ eventName, properties, target = "all" }, socket) {
+	var posthogDistinctId = socket?._token.posthogDistinctId;
+	var mixpanelDistinctId = socket?._token?.distinctId;
+
 	if (global.mixpanel && mixpanelDistinctId && (target === "all" || target === "mixpanel")) {
 		global.mixpanel.track(eventName, {
 			'distinct_id' : mixpanelDistinctId,
