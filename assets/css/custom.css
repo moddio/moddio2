@@ -158,6 +158,10 @@ canvas {
   z-index: 10000;
 }
 
+.popover {
+  z-index: 10000 !important;
+}
+
 #login-div {
   padding: 10px;
   color: white;
