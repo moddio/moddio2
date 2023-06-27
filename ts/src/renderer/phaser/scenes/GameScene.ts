@@ -24,6 +24,7 @@ class GameScene extends PhaserScene {
 		}
 
 		const camera = this.cameras.main;
+		camera.setRoundPixels(true);
 		camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
 
 		this.scale.on(Phaser.Scale.Events.RESIZE, () => {
@@ -545,7 +546,7 @@ class GameScene extends PhaserScene {
 			x: worldPoint.x,
 			y: worldPoint.y,
 		}]);
-		
+
 		this.renderedEntities.forEach(element => {
 			element.setVisible(false);
 		});

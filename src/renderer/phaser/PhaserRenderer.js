@@ -35,20 +35,43 @@ var PhaserRenderer = /** @class */ (function (_super) {
                 }
             }
         }
+        var targetWidth = 600; // the width of the game we want
+        var targetHeight = 400; // the height of the game we want
+        // additional ratios
+        //Small – 360x240
+        //Normal – 480x320
+        //Large – 720x480
+        //XLarge – 960x640
+        //XXLarge – 1440x960
+        var deviceRatio = (window.innerWidth / window.innerHeight); //device aspect ratio
+        var newRatio = (targetHeight / targetWidth) * deviceRatio; //new ratio to fit the screen
+        var newWidth = targetWidth * newRatio;
+        var newHeight = targetHeight;
+        var gameWidth = newWidth;
+        var gameHeight = newHeight;
+        var gameRendrer = Phaser.AUTO;
         _this = _super.call(this, {
-            type: forceCanvas[gameId] || forceCanvas[0] ?
-                Phaser.CANVAS : Phaser.AUTO,
+            // type: forceCanvas[gameId] || forceCanvas[0] ?
+            // 	Phaser.CANVAS : Phaser.AUTO,
+            type: Phaser.WEBGL,
             scale: {
-                width: 600,
-                height: 400,
+                // width: 600,
+                // height: 400,
+                width: window.innerWidth * window.devicePixelRatio,
+                height: window.innerHeight * window.devicePixelRatio,
+                // width: newWidth,
+                // height: newHeight,
                 parent: 'game-div',
                 mode: Phaser.Scale.ScaleModes.RESIZE,
                 autoRound: true,
+                // autoRound: false,
                 resizeInterval: 100
             },
             render: {
                 pixelArt: false,
-                transparent: false
+                transparent: false,
+                antialias: true,
+                antialiasGL: true
             },
             fps: {
                 smoothStep: false

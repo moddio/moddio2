@@ -28,6 +28,7 @@ var GameScene = /** @class */ (function (_super) {
             this.scene.launch('MobileControls');
         }
         var camera = this.cameras.main;
+        camera.setRoundPixels(true);
         camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
         this.scale.on(Phaser.Scale.Events.RESIZE, function () {
             if (_this.zoomSize) {
