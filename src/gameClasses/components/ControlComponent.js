@@ -92,7 +92,7 @@ var ControlComponent = TaroEntity.extend({
 				($('#modd-dialogue-modal').hasClass('show') && !$('#modd-dialogue-modal').attr('stream-keybindings')) ||
 				$('#player-input-modal').hasClass('show') ||
 				$('#modd-item-shop-modal').hasClass('show') ||
-				($('#custom-modal').hasClass('show') && !$('#custom-modal').attr('stream-keybindings'));
+				$('#custom-modal').hasClass('show');
 		}
 
 		this.lastActionAt = Date.now();
