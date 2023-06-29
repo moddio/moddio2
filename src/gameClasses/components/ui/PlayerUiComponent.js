@@ -308,7 +308,8 @@ var PlayerUiComponent = TaroEntity.extend({
 					...dialogue,
 					message: '',
 					options: [],
-					letterPrintSpeed: 0
+					letterPrintSpeed: 0,
+					streamKeybindings: false
 				}
 			}, dialogueTemplate);
 
