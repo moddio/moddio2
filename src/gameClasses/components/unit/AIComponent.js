@@ -262,10 +262,12 @@ var AIComponent = TaroEntity.extend({
 		if (this.maxAttackRange < this.getDistanceToTarget()) { // only need to move if the maxAttackRange is not enough to reach the target
 			this._entity.startMoving();
 		}
-		// let targetAngle = this.getAngleToTarget(); // rotating here cause inaccurate rotation on AI unit
-		// if (targetAngle && !this._entity._stats.currentBody?.fixedRotation) {
-		// 	this._entity.streamUpdateData([{rotate: targetAngle}]);
-		// }
+
+ 		// this part tell the client to rotate if the target is not moving
+		let targetAngle = this.getAngleToTarget();
+		if (targetAngle && !this._entity._stats.currentBody?.fixedRotation) {
+			this._entity.streamUpdateData([{rotate: targetAngle}]);
+		}
 	},
 
 	moveToTargetPosition: function (x, y) {
