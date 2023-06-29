@@ -89,10 +89,10 @@ var ControlComponent = TaroEntity.extend({
 		// check for input modal is open
 		if (taro.isClient) {
 			this.isChatOpen = ($('#message').is(':focus') && !$('#player-input-field').is(':focus')) ||
-				$('#modd-dialogue-modal').hasClass('show') ||
+				($('#modd-dialogue-modal').hasClass('show') && !$('#modd-dialogue-modal').attr('stream-keybindings')) ||
 				$('#player-input-modal').hasClass('show') ||
 				$('#modd-item-shop-modal').hasClass('show') ||
-				$('#custom-modal').hasClass('show');
+				($('#custom-modal').hasClass('show') && !$('#custom-modal').attr('stream-keybindings'));
 		}
 
 		this.lastActionAt = Date.now();
