@@ -2055,6 +2055,67 @@ var VariableComponent = TaroEntity.extend({
 					break;
 					/* Groups */
 
+				case 'getBitwiseAND':
+					var op1 = self.getValue(text.op1, vars);
+					var op2 = self.getValue(text.op2, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (op1 & op2);
+					}
+					break;
+				
+				case 'getBitwiseOR':
+					var op1 = self.getValue(text.op1, vars);
+					var op2 = self.getValue(text.op2, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (op1 | op2);
+					}
+					break;
+				
+				case 'getBitwiseXOR':
+					var op1 = self.getValue(text.op1, vars);
+					var op2 = self.getValue(text.op2, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (op1 ^ op2);
+					}
+					break;
+
+				case 'getBitwiseLeftShift':
+					var op1 = self.getValue(text.op1, vars);
+					var op2 = self.getValue(text.op2, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (op1 << op2);
+					}
+					break;
+				
+				case 'getBitwiseRightShift':
+					var op1 = self.getValue(text.op1, vars);
+					var op2 = self.getValue(text.op2, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (op1 >> op2);
+					}
+					break;
+				
+				case 'getBitwiseUnsignedRightShift':
+					var op1 = self.getValue(text.op1, vars);
+					var op2 = self.getValue(text.op2, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (op1 >>> op2);
+					}
+					break;
+				
+				case 'getBitwiseInversion':
+					var op1 = self.getValue(text.op1, vars);
+
+					if (op1 != undefined && op2 != undefined) {
+						returnValue = (~op1);
+					}
+					break;
 				case 'allUnits':
 					returnValue = taro.$$('unit');
 
