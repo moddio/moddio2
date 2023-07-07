@@ -41,8 +41,11 @@ var TaroEngine = TaroEntity.extend({
 				Windows: function () {
 					return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
 				},
+                RNapp: function () {
+					return navigator.userAgent.match(/moddioapp/i);
+				},
 				any: function () {
-					return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+					return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows() || isMobile.RNapp());
 				}
 			};
 			return isMobile.any() != null;
