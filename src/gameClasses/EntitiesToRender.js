@@ -80,6 +80,12 @@ var EntitiesToRender = /** @class */ (function () {
                                 y = ownerUnit._translate.y + entity.anchoredOffset.y;
                                 rotate = entity.anchoredOffset.rotate;
                             }
+
+                            // preparing for item drop position. without this, the item will interpolate from the previous position it was dropped
+                            entity.latestKeyFrame[1] = [x, y, rotate];
+                            entity._translate.x = x;
+                            entity._translate.y = y;
+                            entity._rotate.z = rotate; 
                         }
                     }
                     if (entity.tween && entity.tween.isTweening) {

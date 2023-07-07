@@ -5157,7 +5157,7 @@ var TaroEntity = TaroObject.extend({
 	        }
 		}
 
-		// ignore streamed angle if this unit control is set to face mouse cursor instantly.
+		// for my own unit, ignore streamed angle if this unit control is set to face mouse cursor instantly.
 		if (this == taro.client.selectedUnit &&
 			this.angleToTarget != undefined && !isNaN(this.angleToTarget) &&
 			this._stats.controls && this._stats.controls.mouseBehaviour.rotateToFaceMouseCursor &&
@@ -5169,6 +5169,7 @@ var TaroEntity = TaroObject.extend({
 		this._translate.x = x;
 		this._translate.y = y;
 		this._rotate.z = rotate;
+		
 		// this.rotateTo(0, 0, rotate);
 		// this.translateTo(x, y, 0);
 		this._lastTransformAt = taro._currentTime;

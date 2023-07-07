@@ -791,8 +791,11 @@ var Item = TaroEntityPhysics.extend({
 			if (self._stats.currentBody) {
 				var unitRotate = ownerUnit._rotate.z;
 
-				if (self._stats.currentBody.fixedRotation) {
+				// inhereit unit's rotation if the jointType is weldJoint
+				if (self._stats.currentBody?.jointType == 'weldJoint') {
 					rotate = unitRotate;
+				} else if (self._stats.controls?.mouseBehaviour?.rotateToFaceMouseCursor) {
+
 				}
 
 				// get translation offset based on unitAnchor
@@ -829,13 +832,10 @@ var Item = TaroEntityPhysics.extend({
 					
 					offset.x = (unitAnchoredPosition.x) + (itemAnchorOffsetX * Math.cos(rotate)) + (itemAnchorOffsetY * Math.sin(rotate)),
 					offset.y = (unitAnchoredPosition.y) + (itemAnchorOffsetX * Math.sin(rotate)) - (itemAnchorOffsetY * Math.cos(rotate));
+					offset.rotate = rotate;
 					
-					if (self._stats.controls && self._stats.controls.mouseBehaviour) {
-						if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor || (self._stats.currentBody && (self._stats.currentBody.jointType == 'weldJoint'))) {
-							offset.rotate = rotate;
-						}
-					}
 				}
+				
 			}
 		}
 
@@ -1157,40 +1157,29 @@ var Item = TaroEntityPhysics.extend({
 				rotate = ownerUnit._rotate.z;
 			}
 
-			self.anchoredOffset = self.getAnchoredOffset(rotate);
-			var x = ownerUnit._translate.x + self.anchoredOffset.x;
-			var y = ownerUnit._translate.y + self.anchoredOffset.y;
+			// self.anchoredOffset = self.getAnchoredOffset(rotate);
+			// var x = ownerUnit._translate.x + self.anchoredOffset.x;
+			// var y = ownerUnit._translate.y + self.anchoredOffset.y;
 
-			if (taro.isServer || (taro.isClient && taro.client.selectedUnit == ownerUnit)) {
-				if (
-					self._stats.controls &&
-					self._stats.controls.mouseBehaviour &&
-					self._stats.controls.mouseBehaviour.flipSpriteHorizontallyWRTMouse
-				) {
-					if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor) {
-						if (rotate > 0 && rotate < Math.PI) {
-							self.flip(0);
-						} else {
-							self.flip(1);
-						}
-					} else {
-						self.flip(ownerUnit._stats.flip);
-					}
-				}
-			}
-
-			// run both server & client.
-			// it's important that this runs on client side, because it prepares this item's position when it's dropped
-			self.translateTo(x, y);
-			self.rotateTo(0, 0, rotate);
-
-			// if (this.getOwnerUnit() != taro.client.selectedUnit)	 {
-			// 	console.log(x, y, rotate, ownerUnit.angleToTarget, this._rotate.z)
+			// if (taro.isServer || (taro.isClient && taro.client.selectedUnit == ownerUnit)) {
+			// 	if (
+			// 		self._stats.controls &&
+			// 		self._stats.controls.mouseBehaviour &&
+			// 		self._stats.controls.mouseBehaviour.flipSpriteHorizontallyWRTMouse
+			// 	) {
+			// 		if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor) {
+			// 			if (rotate > 0 && rotate < Math.PI) {
+			// 				self.flip(0);
+			// 			} else {
+			// 				self.flip(1);
+			// 			}
+			// 		} else {
+			// 			self.flip(ownerUnit._stats.flip);
+			// 		}
+			// 	}
 			// }
 
-			if (taro.game.cspEnabled && taro.isClient) {
-				self.latestKeyFrame[1] = [x, y, rotate]; // prepare position for when this item's dropped. without this, item will appear at an incorrect position
-			}
+			
 		}
 
 		if (this._stats.isBeingUsed) {

@@ -496,8 +496,6 @@ var TaroNetIoClient = {
 							// instead, we'll use position updated by physics engine
 							!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 						) {
-							if (entity == taro.client.selectedUnit)
-								console.log("latestKeyFrame set", entityData)
 							entity.latestKeyFrame = [newSnapshotTimestamp, entityData];
 						}
 
