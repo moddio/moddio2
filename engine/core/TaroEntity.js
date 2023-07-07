@@ -5112,10 +5112,6 @@ var TaroEntity = TaroObject.extend({
 		}
 
 		// interpolate projectiles using data provided by physicsComponent. as snapshot data isn't streamed from server.
-		let xStart = null;
-		let yStart = null;
-		let xEnd = null;
-		let yEnd = null;
 		let xDiff = null;
 		let yDiff = null;
 		let rotateStart = null;
@@ -5124,8 +5120,6 @@ var TaroEntity = TaroObject.extend({
 		let x = this._translate.x;
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
-		let prevKeyFrame = null;
-		let nextKeyFrame = null;
 		let fps = taro.fps() || 60;
 		let rubberBandConstant = Math.max(3, Math.min(10, (fps/6)));
 
@@ -5141,20 +5135,19 @@ var TaroEntity = TaroObject.extend({
 	        	y = y + yDiff / rubberBandConstant;
 	        }
 			
-	        if (
-	        	// interpolate item rotation
-	        	(this._stats.controls && this._stats.controls.mouseBehaviour.rotateToFaceMouseCursor)
-			) {
-				rotateStart = rotate;
-	        	rotateEnd = latestTransform[2];
-	        	// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
-				if (Math.abs(rotateEnd - rotateStart) > Math.PI) {
-					if (rotateEnd > rotateStart) rotateStart += Math.PI * 2;
-					else rotateStart -= Math.PI * 2;
-				}
+			rotateStart = rotate;
+	        rotateEnd = latestTransform[2];
 
-	        	rotate = this.interpolateValue(rotateStart, rotateEnd, taro._currentTime - 16, taro._currentTime, taro._currentTime + 16);
-	        }
+			// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
+			if (Math.abs(rotateEnd - rotateStart) > Math.PI) {
+				if (rotateEnd > rotateStart) {
+					rotateStart += Math.PI * 2;
+				} else {
+					rotateStart -= Math.PI * 2;
+				}
+			}			
+			
+			rotate = this.interpolateValue(rotateStart, rotateEnd, taro._currentTime - 16, taro._currentTime, taro._currentTime + 16);
 		}
 
 		// for my own unit, ignore streamed angle if this unit control is set to face mouse cursor instantly.
@@ -5169,7 +5162,7 @@ var TaroEntity = TaroObject.extend({
 		this._translate.x = x;
 		this._translate.y = y;
 		this._rotate.z = rotate;
-		
+
 		// this.rotateTo(0, 0, rotate);
 		// this.translateTo(x, y, 0);
 		this._lastTransformAt = taro._currentTime;

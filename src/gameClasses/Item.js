@@ -835,7 +835,6 @@ var Item = TaroEntityPhysics.extend({
 					offset.rotate = rotate;
 					
 				}
-				
 			}
 		}
 
@@ -1157,29 +1156,32 @@ var Item = TaroEntityPhysics.extend({
 				rotate = ownerUnit._rotate.z;
 			}
 
-			// self.anchoredOffset = self.getAnchoredOffset(rotate);
-			// var x = ownerUnit._translate.x + self.anchoredOffset.x;
-			// var y = ownerUnit._translate.y + self.anchoredOffset.y;
+			if (taro.isServer) {
+				self.anchoredOffset = self.getAnchoredOffset(rotate);
+				var x = ownerUnit._translate.x + self.anchoredOffset.x;
+				var y = ownerUnit._translate.y + self.anchoredOffset.y;
 
-			// if (taro.isServer || (taro.isClient && taro.client.selectedUnit == ownerUnit)) {
-			// 	if (
-			// 		self._stats.controls &&
-			// 		self._stats.controls.mouseBehaviour &&
-			// 		self._stats.controls.mouseBehaviour.flipSpriteHorizontallyWRTMouse
-			// 	) {
-			// 		if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor) {
-			// 			if (rotate > 0 && rotate < Math.PI) {
-			// 				self.flip(0);
-			// 			} else {
-			// 				self.flip(1);
-			// 			}
-			// 		} else {
-			// 			self.flip(ownerUnit._stats.flip);
-			// 		}
-			// 	}
-			// }
+				if (
+					self._stats.controls &&
+					self._stats.controls.mouseBehaviour &&
+					self._stats.controls.mouseBehaviour.flipSpriteHorizontallyWRTMouse
+				) {
+					if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor) {
+						if (rotate > 0 && rotate < Math.PI) {
+							self.flip(0);
+						} else {
+							self.flip(1);
+						}
+					} else {
+						self.flip(ownerUnit._stats.flip);
+					}
+				}
 
-			
+				// run both server & client.
+				// it's important that this runs on client side, because it prepares this item's position when it's dropped
+				self.translateTo(x, y);
+				self.rotateTo(0, 0, rotate);
+			}
 		}
 
 		if (this._stats.isBeingUsed) {

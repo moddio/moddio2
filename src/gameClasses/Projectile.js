@@ -37,12 +37,17 @@ var Projectile = TaroEntityPhysics.extend({
 			self.mount(taro.$('baseScene'));
 		}
 
-		if (
-			!taro.game.cspEnabled || // server-streamed projectiles are always rendered
-			(taro.game.cspEnabled && self._stats.sourceItemId === undefined || self._stats.streamMode) // if CSP is enabled
-		) {
-			this.startRendering();
-		}
+		// if (
+		// 	// projectiles are always rendered if...
+		// 	!taro.physics || //  csp is disabled or
+		// 	self._stats.streamMode || //  projectile is server-streamed or...
+		// 	!self._stats.sourceItemId // projectile has no parent item
+		// ) {
+		// 	this.startRendering();	
+		// }
+
+		console.log("start rendering!")
+		this.startRendering();
 
 		if (self._stats.states) {
 			var currentState = self._stats.states[self._stats.stateId];
