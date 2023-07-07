@@ -490,13 +490,15 @@ var TaroNetIoClient = {
 						if (entity && entityData[3]) {
 							entity.teleportTo(entityData[0], entityData[1], entityData[2], entityData[4]);
 						}
-						// if csp movement is enabled, don't use server-streamed position for my unit
-						// instead, we'll use position updated by physics engine
-						else if (taro.game.cspEnabled && entity &&
-							entity.latestKeyFrame[0] < newSnapshotTimestamp &&
-							entity != taro.client.selectedUnit
+						else if (
+							entity && entity.latestKeyFrame[0] < newSnapshotTimestamp && 
+							// if csp movement is enabled, don't use server-streamed position for my unit. 
+							// instead, we'll use position updated by physics engine
+							!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 						) {
-							entity.latestKeyFrame = [newSnapshotTimestamp, obj[entityId]];
+							if (entity == taro.client.selectedUnit)
+								console.log("latestKeyFrame set", entityData)
+							entity.latestKeyFrame = [newSnapshotTimestamp, entityData];
 						}
 
 					} else {
@@ -516,29 +518,27 @@ var TaroNetIoClient = {
 
 					let now = Date.now();
 
-					// if cspEnabled, we ignore server-streamed timestamp as all entities rubber-banded towards 
-					// their latest server-streamed position regardless of their timestamp
-					if (!taro.game.cspEnabled) {
-                    	// if client's timestamp more than 100ms behind the server's timestamp, immediately update it to be 50ms behind the server's
-						// otherwise, apply rubberbanding
-						this._discrepancySamples.push(newSnapshotTimestamp - now);
+					// // if cspEnabled, we ignore server-streamed timestamp as all entities rubber-banded towards 
+					// // their latest server-streamed position regardless of their timestamp
+					// // if client's timestamp more than 100ms behind the server's timestamp, immediately update it to be 50ms behind the server's
+					// // otherwise, apply rubberbanding
+					// this._discrepancySamples.push(newSnapshotTimestamp - now);
 
-						if ((this.medianDiscrepancy == undefined && this._discrepancySamples.length > 2) ||
-							this._discrepancySamples.length > 5
-						) {
-							this.medianDiscrepancy = this.getMedian(this._discrepancySamples);
-							this._discrepancySamples = [];
+					// if ((this.medianDiscrepancy == undefined && this._discrepancySamples.length > 2) ||
+					// 	this._discrepancySamples.length > 5
+					// ) {
+					// 	this.medianDiscrepancy = this.getMedian(this._discrepancySamples);
+					// 	this._discrepancySamples = [];
 
-							if (taro._currentTime > newSnapshotTimestamp - 10 || taro._currentTime < newSnapshotTimestamp - 100) {
-								// currentTime will be 3 frames behind the nextSnapshot's timestamp, so the entities have time to interpolate
-								// 1 frame = 1000/60 = 16ms. 3 frames = 50ms
-								taro.timeDiscrepancy = this.medianDiscrepancy - 50;
-							} else {
-								// rubberband currentTime to be nextSnapshot's timestamp - 50ms
-								taro.timeDiscrepancy += ((this.medianDiscrepancy - 50) - taro.timeDiscrepancy) / 10;
-							}
-						}
-					}
+					// 	if (taro._currentTime > newSnapshotTimestamp - 10 || taro._currentTime < newSnapshotTimestamp - 100) {
+					// 		// currentTime will be 3 frames behind the nextSnapshot's timestamp, so the entities have time to interpolate
+					// 		// 1 frame = 1000/60 = 16ms. 3 frames = 50ms
+					// 		taro.timeDiscrepancy = this.medianDiscrepancy - 50;
+					// 	} else {
+					// 		// rubberband currentTime to be nextSnapshot's timestamp - 50ms
+					// 		taro.timeDiscrepancy += ((this.medianDiscrepancy - 50) - taro.timeDiscrepancy) / 10;
+					// 	}
+					// }
 				}
 			}
 		} else {

@@ -157,7 +157,7 @@ var TaroEngine = TaroEntity.extend({
 		this.tempSnapshot = [0, {}];
 		this.nextSnapshot = [0, {}];
 		this.renderTime = 0;
-		this.timeDiscrepancy = 0; // engine timestamp discrepancy between client-side & sever-side
+		// this.timeDiscrepancy = 0; // engine timestamp discrepancy between client-side & sever-side
 
 		this.remainderFromLastStep = 0;
 
@@ -1377,7 +1377,8 @@ var TaroEngine = TaroEntity.extend({
 
 		if (!this._pause) {
 
-			this._currentTime = (now + this.timeDiscrepancy) * this._timeScale;
+			// this._currentTime = (now + this.timeDiscrepancy) * this._timeScale;
+			this._currentTime = now * this._timeScale;
 			this.renderTime = this._currentTime;
 		}
 

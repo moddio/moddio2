@@ -649,6 +649,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit) {
 										entity.latestKeyFrame= [taro._currentTime, [x, y, angle]];
+										console.log(entity.latestKeyFrame)
 									}
 									// projectiles don't use server-streamed position
 									else if (entity._category == 'projectile' && !entity._stats.streamMode
