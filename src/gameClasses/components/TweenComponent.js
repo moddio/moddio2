@@ -144,6 +144,13 @@ var TweenComponent = TaroEntity.extend({
 					if (this.offset.rotate != 0) {
 						rotate = this._entity._rotate.z;
 
+						var unitAnchorOffsetRotate = Math.radians(self._stats.currentBody.unitAnchor.rotation || 0);					
+						if (ownerUnit._stats.flip == 1) {
+							rotate -= unitAnchorOffsetRotate;
+						} else {
+							rotate += unitAnchorOffsetRotate;
+						}
+						
 						var before = this._entity.getAnchoredOffset(rotate);
 						var after = this._entity.getAnchoredOffset(rotate + interpolatedRotate);
 						this.offset.x = after.x - before.x;
