@@ -808,7 +808,6 @@ var Item = TaroEntityPhysics.extend({
 					// console.log(itemAngle, unitAnchoredPosition)
 					// }
 
-					var unitAnchorOffsetRotate = Math.radians(self._stats.currentBody.unitAnchor.rotation || 0);					
 					var unitAnchorOffsetY = self._stats.currentBody.unitAnchor.y || 0;					
 					var itemAnchorOffsetY = self._stats.currentBody.itemAnchor?.y || 0; // get translation offset based on itemAnchor
 
@@ -817,12 +816,10 @@ var Item = TaroEntityPhysics.extend({
 						var unitAnchorOffsetX = -self._stats.currentBody.unitAnchor.x || 0;
 						var itemAnchorOffsetX = -self._stats.currentBody.itemAnchor?.x || 0;
 					
-						// rotate -= unitAnchorOffsetRotate;
 					} else {
 						var unitAnchorOffsetX = self._stats.currentBody.unitAnchor.x || 0;
 						var itemAnchorOffsetX = self._stats.currentBody.itemAnchor?.x || 0;
 					
-						// rotate += unitAnchorOffsetRotate;
 					}
 
 

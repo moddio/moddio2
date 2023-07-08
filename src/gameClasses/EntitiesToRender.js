@@ -74,6 +74,16 @@ var EntitiesToRender = /** @class */ (function () {
                                 }
                                 entity._rotate.z = rotate; // update the item's rotation immediately for more accurate aiming (instead of 20fps)
                             }
+
+                            var unitAnchorOffsetRotate = Math.radians(entity._stats.currentBody?.unitAnchor?.rotation || 0);					                            
+                            
+                            // item is flipped, then mirror the rotation
+                            if (ownerUnit._stats.flip == 1) {
+                                rotate -= unitAnchorOffsetRotate;
+                            } else {
+                                rotate += unitAnchorOffsetRotate;
+                            }
+
                             entity.anchoredOffset = entity.getAnchoredOffset(rotate);
                             if (entity.anchoredOffset) {
                                 x = ownerUnit._translate.x + entity.anchoredOffset.x;
