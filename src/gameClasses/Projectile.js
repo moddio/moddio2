@@ -46,7 +46,6 @@ var Projectile = TaroEntityPhysics.extend({
 		// 	this.startRendering();	
 		// }
 
-		console.log("start rendering!")
 		this.startRendering();
 
 		if (self._stats.states) {
@@ -65,7 +64,6 @@ var Projectile = TaroEntityPhysics.extend({
 		}
 
 		self.addComponent(AttributeComponent); // every projectile gets one
-
 		self.addComponent(ScriptComponent); // entity-scripting
 		self.script.load(data.scripts);
 

@@ -104,8 +104,6 @@ var TaroEngine = TaroEntity.extend({
 		this._updateTime = 'NA'; // The time the tick update section took to process
 
 		this._tickDelta = 0; // The time between the last tick and the current one
-		this._lastTimeStamp = new Date().getTime();
-
 		this._fpsRate = 60; // Sets the frames per second to execute engine tick's at
 		this._gameLoopTickRate = 20; // "frameTick", input, and streaming
 
@@ -156,7 +154,6 @@ var TaroEngine = TaroEntity.extend({
 		this.prevSnapshot = undefined;
 		this.tempSnapshot = [0, {}];
 		this.nextSnapshot = [0, {}];
-		this.renderTime = 0;
 		// this.timeDiscrepancy = 0; // engine timestamp discrepancy between client-side & sever-side
 
 		this.remainderFromLastStep = 0;
@@ -1372,17 +1369,18 @@ var TaroEngine = TaroEntity.extend({
 	 * delta internally in the method.
 	 * @returns {Number}
 	 */
-	 incrementTime: function () {
-		const now = new Date().getTime();
-
+	 incrementTime: function (val, lastVal) {		
 		if (!this._pause) {
 
+			if (!lastVal) { 
+				lastVal = val; 
+			}
+
+			this._currentTime += ((val - lastVal) * this._timeScale);
+
 			// this._currentTime = (now + this.timeDiscrepancy) * this._timeScale;
-			this._currentTime = now * this._timeScale;
-			this.renderTime = this._currentTime;
 		}
 
-		this._lastTimeStamp = now;
 		return this._currentTime;
 	},
 
@@ -1522,7 +1520,8 @@ var TaroEngine = TaroEntity.extend({
 		var unbornIndex;
 		var unbornEntity;
 
-		self.incrementTime();
+		self.incrementTime(timeStamp, self._timeScaleLastTimestamp);
+		self._timeScaleLastTimestamp = timeStamp;
 		timeStamp = Math.floor(self._currentTime);
 
 		if (timeStamp - self.lastSecond >= 1000) {

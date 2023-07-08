@@ -67,7 +67,7 @@ var TaroEntity = TaroObject.extend({
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.latestKeyFrame = [taro.now, [this._translate.x, this._translate.y, this._rotate.z]];
+		this.latestKeyFrame = [0, [this._translate.x, this._translate.y, this._rotate.z]];
 		this.latestTimeStamp = 0;
 		this.prevKeyFrame = this.latestKeyFrame
 		this._lastTransformAt = null;
@@ -5098,7 +5098,7 @@ var TaroEntity = TaroObject.extend({
 	_processTransform: function () {
 		if (
 			// prevent calling this function multiple times for a same entity
-			this._lastTransformAt == taro._currentTime ||
+			// this._lastTransformAt == taro._currentTime ||
 			// entity has no body
 			this._translate == undefined ||
 			this._stats.currentBody == undefined ||
@@ -5111,7 +5111,6 @@ var TaroEntity = TaroObject.extend({
 			return;
 		}
 
-		// interpolate projectiles using data provided by physicsComponent. as snapshot data isn't streamed from server.
 		let xDiff = null;
 		let yDiff = null;
 		let rotateStart = null;
@@ -5121,7 +5120,7 @@ var TaroEntity = TaroObject.extend({
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
 		let fps = taro.fps() || 60;
-		let rubberBandConstant = Math.max(3, Math.min(10, (fps/6)));
+		let rubberBandConstant = Math.max(2, Math.min(6, (fps/6)));
 
 		var latestTransform = this.latestKeyFrame[1];
 		// using cspMovement for my unit will cause it to rubberband to the latest known position
@@ -5149,7 +5148,7 @@ var TaroEntity = TaroObject.extend({
 			
 			rotate = this.interpolateValue(rotateStart, rotateEnd, taro._currentTime - 16, taro._currentTime, taro._currentTime + 16);
 		}
-
+		
 		// for my own unit, ignore streamed angle if this unit control is set to face mouse cursor instantly.
 		if (this == taro.client.selectedUnit &&
 			this.angleToTarget != undefined && !isNaN(this.angleToTarget) &&
