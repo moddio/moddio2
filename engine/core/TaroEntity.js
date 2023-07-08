@@ -5120,9 +5120,7 @@ var TaroEntity = TaroObject.extend({
 		let x = this._translate.x;
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
-		let fps = taro.fps() || 60;
-		let rubberBandConstant = Math.max(2, Math.min(6, (fps/6)));
-
+		
 		var latestTransform = this.latestKeyFrame[1];
 		// using cspMovement for my unit will cause it to rubberband to the latest known position
 		if (latestTransform) {
@@ -5131,8 +5129,8 @@ var TaroEntity = TaroObject.extend({
 				xDiff = (latestTransform[0] - x);
 				yDiff = (latestTransform[1] - y);
 
-				x = x + xDiff / rubberBandConstant;
-	        	y = y + yDiff / rubberBandConstant;
+				x = x + xDiff / taro.rubberBandStrength;
+	        	y = y + yDiff / taro.rubberBandStrength;
 	        }
 			
 			rotateStart = rotate;

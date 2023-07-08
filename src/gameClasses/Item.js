@@ -272,6 +272,7 @@ var Item = TaroEntityPhysics.extend({
 		var ownerId = (owner) ? owner.id() : undefined;
 		var player = owner && owner.getOwner();
 		var isUsed = false;
+		// console.trace()
 		// console.log(`calling Item.use by ${ownerId}`);
 
 		// if item has no owner, or item is unusable type, or it cannot be used by its current owner, then return
@@ -305,6 +306,7 @@ var Item = TaroEntityPhysics.extend({
 				taro.script.trigger('unitUsesItem', triggerParams);
 
 				if (taro.physics && self._stats.type == 'weapon') {
+					
 					if (self._stats.isGun) {
 						if (self._stats.bulletStartPosition) {
 							var rotate = this._rotate.z;
@@ -727,7 +729,7 @@ var Item = TaroEntityPhysics.extend({
 
 		if (self._stats.isBeingUsed)
 			return;
-
+		
 		self.use(); // use item immediately
 		self._stats.isBeingUsed = true;
 		
