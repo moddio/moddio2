@@ -728,7 +728,9 @@ var Item = TaroEntityPhysics.extend({
 		if (self._stats.isBeingUsed)
 			return;
 
+		self.use(); // use item immediately
 		self._stats.isBeingUsed = true;
+		
 		var owner = this.getOwnerUnit();
 		if (taro.isServer) {
 			this.quantityAtStartusing = this._stats.quantity;

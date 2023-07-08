@@ -92,7 +92,6 @@ var ItemUiComponent = TaroEntity.extend({
 
 		var owner = item.getOwnerUnit();
 		if (owner && parseFloat(item._stats.quantity) <= 0 && item._stats.removeWhenEmpty == true) {
-			item.remove();
 			var indexOfItem = owner._stats.itemIds.indexOf(item.id());
 			if (indexOfItem > -1) {
 				owner._stats.itemIds.splice(indexOfItem, 1);

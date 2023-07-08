@@ -2479,6 +2479,7 @@ var TaroEntity = TaroObject.extend({
      */
 	destroy: function (destroyOrphan) {
 		// console.log(`taroEntity: destroy ${this._category} ${this.id()}`);
+		// console.trace()
 
 		this._alive = false;
 		/* CEXCLUDE */
