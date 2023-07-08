@@ -817,12 +817,12 @@ var Item = TaroEntityPhysics.extend({
 						var unitAnchorOffsetX = -self._stats.currentBody.unitAnchor.x || 0;
 						var itemAnchorOffsetX = -self._stats.currentBody.itemAnchor?.x || 0;
 					
-						rotate -= unitAnchorOffsetRotate;
+						// rotate -= unitAnchorOffsetRotate;
 					} else {
 						var unitAnchorOffsetX = self._stats.currentBody.unitAnchor.x || 0;
 						var itemAnchorOffsetX = self._stats.currentBody.itemAnchor?.x || 0;
 					
-						rotate += unitAnchorOffsetRotate;
+						// rotate += unitAnchorOffsetRotate;
 					}
 
 
@@ -831,9 +831,14 @@ var Item = TaroEntityPhysics.extend({
 						y: (unitAnchorOffsetX * Math.sin(unitRotate)) - (unitAnchorOffsetY * Math.cos(unitRotate))
 					};
 
+					var itemAnchoredPosition = {
+						x: (itemAnchorOffsetX * Math.cos(rotate)) + (itemAnchorOffsetY * Math.sin(rotate)),
+						y: (itemAnchorOffsetX * Math.sin(rotate)) - (itemAnchorOffsetY * Math.cos(rotate))
+					}
 					
-					offset.x = (unitAnchoredPosition.x) + (itemAnchorOffsetX * Math.cos(rotate)) + (itemAnchorOffsetY * Math.sin(rotate)),
-					offset.y = (unitAnchoredPosition.y) + (itemAnchorOffsetX * Math.sin(rotate)) - (itemAnchorOffsetY * Math.cos(rotate));
+					offset.x = unitAnchoredPosition.x + itemAnchoredPosition.x;
+					offset.y = unitAnchoredPosition.y + itemAnchoredPosition.y;
+
 					offset.rotate = rotate;
 					
 				}
