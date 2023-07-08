@@ -458,7 +458,7 @@ var TaroNetIoClient = {
 		if (commandName === '_snapshot') {
 			var snapshot = _.cloneDeep(data)[1];
 			var newSnapshotTimestamp = snapshot[snapshot.length - 1][1];
-
+							
 			// see how far apart the newly received snapshot is from currentTime
 			if (snapshot.length) {
 				var obj = {};
@@ -487,17 +487,23 @@ var TaroNetIoClient = {
 						// update each entities' final position, so player knows where everything are when returning from a different browser tab
 						// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
 						var entity = taro.$(entityId);
-						
+						var timeTilNextSnapshot = 200; // it should be ~50ms, but we'll give it some buffer
+
 						if (entity && entityData[3]) {
 							entity.teleportTo(entityData[0], entityData[1], entityData[2], entityData[4]);
 						}
 						else if (
-							entity && entity.latestKeyFrame[0] < newSnapshotTimestamp && 
+							// entity && entity.latestKeyFrame[0] < newSnapshotTimestamp && 
 							// if csp movement is enabled, don't use server-streamed position for my unit. 
 							// instead, we'll use position updated by physics engine
 							!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 						) {
-							entity.latestKeyFrame = [newSnapshotTimestamp, entityData];
+							// entity.latestKeyFrame = [newSnapshotTimestamp, entityData];
+							entity.latestKeyFrame = [taro._currentTime + timeTilNextSnapshot, entityData];
+		
+							// calculate the speed based on the distance it needs to move until the next snapshot
+							let distanceToTarget = Math.sqrt(Math.pow(entityData[0] - entity._translate.x, 2) + Math.pow(entityData[1] - entity._translate.y, 2))
+							entity.speed = distanceToTarget / timeTilNextSnapshot;
 						}
 
 					} else {
@@ -540,6 +546,7 @@ var TaroNetIoClient = {
 					// }
 				}
 			}
+			this._lastSnapshotTimestamp = newSnapshotTimestamp;
 		} else {
 			if (this._networkCommands[commandName]) {
 				if (this.debug()) {

@@ -1338,7 +1338,7 @@ var TaroEngine = TaroEntity.extend({
 		// if 240 fps, the strength should be ~17.5
 		// if 60 fps, the strength should be ~9.74
 		// if 30 fps, the strength should be ~7.47
-		self.rubberBandStrength = Math.max(2, Math.min(Math.sqrt(self._renderFPS) + 2, 20));
+		self.rubberBandStrength = Math.max(2, Math.min(self._renderFPS / 7, 32));
 		self._physicsFPS = self._physicsFrames;
 
 		// Store draws per second

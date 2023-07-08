@@ -14,6 +14,7 @@ var TaroEntity = TaroObject.extend({
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
 		var rotate = defaultData.rotate || 0;
 
+		this.speed = 0;
 		this.prevPhysicsFrame = [taro._currentTime, [translateX, translateY, rotate]];
 
 		this._specialProp.push('_texture');
@@ -5122,17 +5123,20 @@ var TaroEntity = TaroObject.extend({
 		let rotate = this._rotate.z;
 		
 		var latestTransform = this.latestKeyFrame[1];
-		// using cspMovement for my unit will cause it to rubberband to the latest known position
+		
 		if (latestTransform) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
 			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
 				xDiff = (latestTransform[0] - x);
 				yDiff = (latestTransform[1] - y);
 
-				x = x + xDiff / taro.rubberBandStrength;
-	        	y = y + yDiff / taro.rubberBandStrength;
+				x += xDiff * this.speed
+				y += yDiff * this.speed
 	        }
-			
+
+
+			// console.log(this.speed, distanceToTarget, xDiff, yDiff, x, y, latestTransform[0], latestTransform[1]);
+
 			rotateStart = rotate;
 	        rotateEnd = latestTransform[2];
 
