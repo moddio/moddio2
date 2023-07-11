@@ -74,7 +74,7 @@ var TaroEngine = TaroEntity.extend({
 		if (this.isServer) {
 			// this._idCounter = 0
 			this.sanitizer = require('sanitizer').sanitize;
-			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins			
+			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins
 		}
 
 		// Setup components
@@ -112,6 +112,9 @@ var TaroEngine = TaroEntity.extend({
 		this._lastGameLoopTickAt = 0;
 		this._gameLoopTickRemainder = 0;
 		this.gameLoopTickHasExecuted = true;
+
+		this.accumulator = 0;
+		this.lastMsElapsed = Date.now();
 
 		this._aSecondAgo = 0;
 
@@ -1498,6 +1501,25 @@ var TaroEngine = TaroEntity.extend({
 		this.triggersQueued.push({name: triggerName, params: parameters});
 	},
 
+	// physics tick (fixed time step)
+	physicsStep: function() {
+		// calculate delta time
+		const msElapsed = taro.now - this.lastMsElapsed;
+		this.lastMsElapsed = taro.now;
+		const delta = msElapsed / 1000;
+
+		// calculate timestep
+		const frameTime = Math.min(delta, 0.25); // max frame time to avoid spiral of death (on slow devices)
+		this.accumulator += frameTime;
+		const timeStep = 1.0 / taro.game.data.defaultData.frameRate;
+
+		// step physics
+		while (this.accumulator >= timeStep) {
+			taro.physics.update(timeStep * 1000);
+			this.accumulator -= timeStep;
+		}
+	},
+
 	/**
 	 * Called each frame to traverse and render the scenegraph.
 	 */
@@ -1572,12 +1594,11 @@ var TaroEngine = TaroEntity.extend({
 				taro._lastGameLoopTickAt = taro.now;
 				taro._gameLoopTickRemainder = Math.min(timeElapsed - ((1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder), (1000 / taro._gameLoopTickRate));
 				taro.gameLoopTickHasExecuted = true;
-				if (taro.physics) {
-					taro.physics.update(timeElapsed);
-				}
 
 				taro.queueTrigger('frameTick');
 			}
+
+			self.physicsStep();
 
 			taro.tickCount = 0;
 			taro.updateTransform = 0;
@@ -1634,7 +1655,7 @@ var TaroEngine = TaroEntity.extend({
 
 						if (typeof window.raidAlert === 'function') {
 							window.raidAlert()
-						}							
+						}
 					}
 				} else if (taro.isServer) {
 					if (playerCount <= 0) {
@@ -2181,7 +2202,7 @@ var TaroEngine = TaroEntity.extend({
 			return player._stats.controlledBy == 'human';
 		}).length;
 	},
-	
+
 	devLog: function () {
 		// return;
 		// if (taro.env == 'local') {
