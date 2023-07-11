@@ -266,7 +266,7 @@ var ShopComponent = TaroEntity.extend({
 	loadShopItems: function () {
 		let self = this;
 		$.ajax({
-			url:`/api/game/${gameId}/shopCount`,
+			url:`/api/game/${gameId}/shopCount/`,
 			type: 'GET',
 			success: function (response) {
 				if(response.status == 'success') {
@@ -545,7 +545,7 @@ var ShopComponent = TaroEntity.extend({
 		}
 
 		$.ajax({
-			url: `/api/game/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/shopCount`,
+			url: `/api/game/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/shopCount/`,
 			type: 'GET',
 			success: function (data) {
 				if (data.status === 'success') {
@@ -711,7 +711,7 @@ var ShopComponent = TaroEntity.extend({
 		if (self.shopType == 'unitSkins' || self.shopType == 'itemSkins') // skins
 		{
 			$.ajax({
-				url: `/api/game/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/shop`,
+				url: `/api/game/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/shop/`,
 				data: {
 					type: self.shopType === 'unitSkins' ? 'unit' : 'item',
 					key: self.shopKey,

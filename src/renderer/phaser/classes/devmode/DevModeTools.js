@@ -163,16 +163,14 @@ var DevModeTools = /** @class */ (function (_super) {
         });
         var plusKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.PLUS, false);
         plusKey.on('down', function () {
-            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-                var zoom = (gameScene.zoomSize / 2.15) / 1.1;
-                taro.client.emit('zoom', zoom);
+            if (!_this.checkIfInputModalPresent()) {
+                _this.tileEditor.tilePalette.changeBrushSize(-1);
             }
         });
         var minusKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS, false);
         minusKey.on('down', function () {
-            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-                var zoom = (gameScene.zoomSize / 2.15) * 1.1;
-                taro.client.emit('zoom', zoom);
+            if (!_this.checkIfInputModalPresent()) {
+                _this.tileEditor.tilePalette.changeBrushSize(1);
             }
         });
         var cKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C, false);

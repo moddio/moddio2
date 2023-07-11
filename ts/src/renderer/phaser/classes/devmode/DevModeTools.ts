@@ -7,6 +7,7 @@ class DevModeTools extends Phaser.GameObjects.Container {
 	public entityEditor: EntityEditor;
 	public gameEditorWidgets: Array<DOMRect>;
 	public commandController: CommandController;
+
 	cursorButton: DevToolButton;
 	paletteButton: DevToolButton;
 	layerButtonsContainer: Phaser.GameObjects.Container;
@@ -224,16 +225,14 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		});
 		const plusKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.PLUS, false);
 		plusKey.on('down', () => {
-			if (!this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-				const zoom = (gameScene.zoomSize / 2.15) / 1.1;
-				taro.client.emit('zoom', zoom);
+			if (!this.checkIfInputModalPresent()) {
+                this.tileEditor.tilePalette.changeBrushSize(-1);
 			}
 		});
 		const minusKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.MINUS, false);
 		minusKey.on('down', () => {
-			if (!this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-				const zoom = (gameScene.zoomSize / 2.15) * 1.1;
-				taro.client.emit('zoom', zoom);
+			if (!this.checkIfInputModalPresent()) {
+                this.tileEditor.tilePalette.changeBrushSize(1);
 			}
 		});
 		const cKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C, false);

@@ -18,6 +18,7 @@ var TilePalette = /** @class */ (function (_super) {
     function TilePalette(scene, tileset, rexUI, commandController) {
         var _this = _super.call(this, scene) || this;
         _this.scene = scene;
+        _this.commandController = commandController;
         _this.devModeScene = scene;
         _this.rexUI = rexUI;
         // Load a map from a 2D array of tile indices
@@ -96,40 +97,43 @@ var TilePalette = /** @class */ (function (_super) {
             scrollBarBottom.setPosition(0, _this.camera.height);
             scrollBarBottom.setScale(_this.camera.width / scrollBarBottom.width, 1);
         });
-        var pointerover;
         texturesLayer.on('pointerover', function (p) {
-            pointerover = true;
+            _this.pointerover = true;
         });
         texturesLayer.on('pointerout', function (p) {
-            pointerover = false;
+            _this.pointerover = false;
         });
         _this.scene.input.on('wheel', function (pointer, gameObjects, deltaX, deltaY, deltaZ) {
-            if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
-                if (_this.devModeScene.devModeTools.altKey.isDown && !_this.devModeScene.devModeTools.isForceTo1x1()) {
-                    if (deltaY > 0) {
-                        commandController.defaultCommands.decreaseBrushSize();
-                    }
-                    else if (deltaY < 0) {
-                        commandController.defaultCommands.increaseBrushSize();
-                    }
-                }
-                else {
-                    if (_this.visible && pointerover) {
-                        _this.zoom(deltaY);
-                    }
-                    else if (deltaY < 0) {
-                        var zoom = (_this.scene.gameScene.zoomSize / 2.15) / 1.1;
-                        taro.client.emit('zoom', zoom);
-                    }
-                    else if (deltaY > 0) {
-                        var zoom = (_this.scene.gameScene.zoomSize / 2.15) * 1.1;
-                        taro.client.emit('zoom', zoom);
-                    }
-                }
-            }
+            _this.changeBrushSize(deltaY);
         });
         return _this;
     }
+    TilePalette.prototype.changeBrushSize = function (deltaY) {
+        var commandController = this.commandController;
+        if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
+            if (this.devModeScene.devModeTools.altKey.isDown && !this.devModeScene.devModeTools.isForceTo1x1()) {
+                if (deltaY > 0) {
+                    commandController.defaultCommands.decreaseBrushSize();
+                }
+                else if (deltaY < 0) {
+                    commandController.defaultCommands.increaseBrushSize();
+                }
+            }
+            else {
+                if (this.visible && this.pointerover) {
+                    this.zoom(deltaY);
+                }
+                else if (deltaY < 0) {
+                    var zoom = (this.scene.gameScene.zoomSize / 2.15) / 1.1;
+                    taro.client.emit('zoom', zoom);
+                }
+                else if (deltaY > 0) {
+                    var zoom = (this.scene.gameScene.zoomSize / 2.15) * 1.1;
+                    taro.client.emit('zoom', zoom);
+                }
+            }
+        }
+    };
     TilePalette.prototype.toggle = function () {
         if (this.visible) {
             this.scene.devModeTools.paletteButton.highlight('hidden');

@@ -22,11 +22,14 @@ class TilePalette extends Phaser.GameObjects.Container {
 	paletteWidth: number;
 	paletteHeight: number;
 	devModeScene: DevModeScene;
+
+    pointerover: boolean;
+
 	constructor(
 		public scene: DevModeScene,
 		tileset: Phaser.Tilemaps.Tileset,
 		rexUI: any,
-		commandController: CommandController
+		private commandController: CommandController
 	) {
 		super(scene);
 		this.devModeScene = scene;
@@ -120,37 +123,40 @@ class TilePalette extends Phaser.GameObjects.Container {
 			scrollBarBottom.setScale(this.camera.width / scrollBarBottom.width, 1);
 		});
 
-		let pointerover;
 		texturesLayer.on('pointerover', (p) => {
-			pointerover = true;
+			this.pointerover = true;
 		});
 		texturesLayer.on('pointerout', (p) => {
-			pointerover = false;
+			this.pointerover = false;
 		});
 
 		this.scene.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
-			if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
-				if (this.devModeScene.devModeTools.altKey.isDown && !this.devModeScene.devModeTools.isForceTo1x1()) {
-					if (deltaY > 0) {
-						commandController.defaultCommands.decreaseBrushSize();
-					} else if (deltaY < 0) {
-						commandController.defaultCommands.increaseBrushSize();
-					}
-				} else {
-					if (this.visible && pointerover) {
-						this.zoom(deltaY);
-					} else if (deltaY < 0) {
-						const zoom = (this.scene.gameScene.zoomSize / 2.15) / 1.1;
-						taro.client.emit('zoom', zoom);
-					} else if (deltaY > 0) {
-						const zoom = (this.scene.gameScene.zoomSize / 2.15) * 1.1;
-						taro.client.emit('zoom', zoom);
-					}
-				}
-
-			}
+            this.changeBrushSize(deltaY);
 		});
 	}
+
+    changeBrushSize(deltaY: number): void {
+        const commandController = this.commandController;
+        if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
+            if (this.devModeScene.devModeTools.altKey.isDown && !this.devModeScene.devModeTools.isForceTo1x1()) {
+                if (deltaY > 0) {
+                    commandController.defaultCommands.decreaseBrushSize();
+                } else if (deltaY < 0) {
+                    commandController.defaultCommands.increaseBrushSize();
+                }
+            } else {
+                if (this.visible && this.pointerover) {
+                    this.zoom(deltaY);
+                } else if (deltaY < 0) {
+                    const zoom = (this.scene.gameScene.zoomSize / 2.15) / 1.1;
+                    taro.client.emit('zoom', zoom);
+                } else if (deltaY > 0) {
+                    const zoom = (this.scene.gameScene.zoomSize / 2.15) * 1.1;
+                    taro.client.emit('zoom', zoom);
+                }
+            }
+        }
+    }
 
 	toggle(): void {
 		if (this.visible) {
