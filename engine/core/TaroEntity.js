@@ -3352,8 +3352,6 @@ var TaroEntity = TaroObject.extend({
 	 * @return {*}
 	 */
 	rotateTo: function (x, y, z) {
-		// if (this._category == 'item')
-		// 	console.log("asdf!", z)
 		if (!isNaN(x) && !isNaN(y) && !isNaN(z) && x !== undefined && y !== undefined && z !== undefined) {
 			this._rotate.x = x;
 			this._rotate.y = y;
@@ -5163,10 +5161,16 @@ var TaroEntity = TaroObject.extend({
 
 		this._translate.x = x;
 		this._translate.y = y;
-		this._rotate.z = rotate;
+
+		// carried item rotations are handled by item.getAnchoredOffset
+		if (!(this._category == 'item' && this._stats.stateId != 'dropped')) {
+			this._rotate.z = rotate;
+		}
+
 
 		// this.rotateTo(0, 0, rotate);
 		// this.translateTo(x, y, 0);
+
 		this._lastTransformAt = taro._currentTime;
 
 		this.teleported = false;

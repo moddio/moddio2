@@ -51,10 +51,12 @@ var EntitiesToRender = /** @class */ (function () {
                         }
                     }
                 }
+                
                 // update transformation using incoming network stream
                 if (taro.network.stream) {
                     entity._processTransform();
                 }
+
                 if (entity._translate && !entity.isHidden()) {
                     var x = entity._translate.x;
                     var y = entity._translate.y;
@@ -69,10 +71,14 @@ var EntitiesToRender = /** @class */ (function () {
                                 if (entity._stats.currentBody && entity._stats.currentBody.jointType == 'weldJoint') {
                                     rotate = ownerUnit._rotate.z;
                                 }
-                                else if (ownerUnit == taro.client.selectedUnit) {
+                                else {
                                     rotate = ownerUnit.angleToTarget; // angleToTarget is updated at 60fps
                                 }
-                                entity._rotate.z = rotate; // update the item's rotation immediately for more accurate aiming (instead of 20fps)
+                                // entity._rotate.z = rotate; // update the item's rotation immediately for more accurate aiming (instead of 20fps)
+                            } else {
+                                // if not my own unit, then rotate the item based on the owner's rotation
+                                rotate = entity._rotate.z
+                                // console.log(rotate, entity._rotate.z, ownerUnit._rotate.z)
                             }
 
                             var unitAnchorOffsetRotate = Math.radians(entity._stats.currentBody?.unitAnchor?.rotation || 0);					                            
@@ -98,6 +104,7 @@ var EntitiesToRender = /** @class */ (function () {
                             entity._rotate.z = rotate; 
                         }
                     }
+
                     if (entity.tween && entity.tween.isTweening) {
                         entity.tween.update();
                         x += entity.tween.offset.x;
