@@ -648,8 +648,14 @@ var PhysicsComponent = TaroEventingClass.extend({
 								} else if (taro.isClient) {
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
-										entity.latestKeyFrame= [taro._currentTime, [x, y, angle]];
-										// console.log(entity.latestKeyFrame)
+										var timeTilNextSnapshot = 1000/taro._physicsFPS + 50; // 50ms is for extra buffer
+										
+										entity.latestKeyFrame = [taro._currentTime, [x, y, angle]];
+										// calculate the speed based on the distance it needs to move until the next snapshot
+										let distanceToTarget = Math.sqrt(Math.pow(x - entity._translate.x, 2) + Math.pow(y - entity._translate.y, 2))
+										entity.speed = distanceToTarget / timeTilNextSnapshot;
+
+										// console.log(entity.latestKeyFrame[1])
 									} else { // update server-streamed entities' body position
 										x = entity.latestKeyFrame[1][0];
 										y = entity.latestKeyFrame[1][1];

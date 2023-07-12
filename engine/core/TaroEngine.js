@@ -108,7 +108,6 @@ var TaroEngine = TaroEntity.extend({
 		this._gameLoopTickRate = 20; // "frameTick", input, and streaming
 		
 		this._renderFrames = 60;
-		this.rubberBandStrength = 5;
 
 		this._lastGameLoopTickAt = 0;
 		this._gameLoopTickRemainder = 0;
@@ -1333,12 +1332,6 @@ var TaroEngine = TaroEntity.extend({
 
 		// Store frames per second
 		self._renderFPS = self._renderFrames;
-
-		// rubberbanding based on fps. 
-		// if 240 fps, the strength should be ~17.5
-		// if 60 fps, the strength should be ~9.74
-		// if 30 fps, the strength should be ~7.47
-		self.rubberBandStrength = Math.max(2, Math.min(self._renderFPS / 7, 32));
 		self._physicsFPS = self._physicsFrames;
 
 		// Store draws per second

@@ -139,9 +139,10 @@ var TweenComponent = TaroEntity.extend({
 							rotate = ownerUnit._rotate.z;
 						}
 					}
+
 					// if item is rotating, and is carried by a unit, then compute its new rotation axis using its itemAnchor and unit anchor.
 					if (this.offset.rotate != 0) {
-						rotate = this._entity._rotate.z;
+						// rotate = this._entity._rotate.z;
 
 						var before = this._entity.getAnchoredOffset(rotate);
 						var after = this._entity.getAnchoredOffset(rotate + interpolatedRotate);

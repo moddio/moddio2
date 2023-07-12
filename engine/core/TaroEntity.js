@@ -1992,7 +1992,15 @@ var TaroEntity = TaroObject.extend({
 
 				var position = this._translate;
 
-				if (
+				var angle = this._rotate.z;
+				
+				if (type == 'attacked') {
+					// get angle between attacked unit and attacking unit
+					var attacker = taro.$(data?.attackerId);
+					if (attacker) {
+						angle = Math.atan2(attacker._translate.y - this._translate.y, attacker._translate.x - this._translate.x) + Math.radians(90);
+					}
+				} else if (
 					this._category === 'item' &&
 					this._stats.currentBody &&
 					(
@@ -2002,6 +2010,7 @@ var TaroEntity = TaroObject.extend({
 				) {
 					var ownerUnit = this.getOwnerUnit();
 					position = (ownerUnit && ownerUnit._translate) || position;
+					angle = ownerUnit.angleToTarget;
 				}
 
 				// if animation is assigned to effect, play it
@@ -2059,15 +2068,6 @@ var TaroEntity = TaroObject.extend({
 								this.isPlayingSound.effect = effect.sound[soundKey];
 							}
 						}
-					}
-				}
-
-				var angle = this._rotate.z;
-				if (type == 'attacked') {
-					// get angle between attacked unit and attacking unit
-					var attacker = taro.$(data?.attackerId);
-					if (attacker) {
-						angle = Math.atan2(attacker._translate.y - this._translate.y, attacker._translate.x - this._translate.x) + Math.radians(90);
 					}
 				}
 
@@ -5130,6 +5130,10 @@ var TaroEntity = TaroObject.extend({
 
 				x += xDiff * this.speed
 				y += yDiff * this.speed
+
+				if (this == taro.client.selectedUnit)
+					console.log(this.speed)
+				
 	        }
 
 			// console.log(this.speed, distanceToTarget, xDiff, yDiff, x, y, latestTransform[0], latestTransform[1]);
@@ -5158,6 +5162,7 @@ var TaroEntity = TaroObject.extend({
 			rotate = this.angleToTarget;
 		}
 
+			
 		this._translate.x = x;
 		this._translate.y = y;
 		this._rotate.z = rotate;

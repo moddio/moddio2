@@ -63,6 +63,7 @@ var EntitiesToRender = /** @class */ (function () {
                     var x = entity._translate.x;
                     var y = entity._translate.y;
                     var rotate = entity._rotate.z;
+
                     if (entity._category == 'item') {
                         var ownerUnit = entity.getOwnerUnit();
                         if (ownerUnit) {
@@ -93,27 +94,30 @@ var EntitiesToRender = /** @class */ (function () {
                                 rotate += unitAnchorOffsetRotate;
                             }
 
-                            entity.anchoredOffset = entity.getAnchoredOffset(rotate);
-                            if (entity.anchoredOffset) {
-                                x = ownerUnit._translate.x + entity.anchoredOffset.x;
-                                y = ownerUnit._translate.y + entity.anchoredOffset.y;
-                                rotate = entity.anchoredOffset.rotate;
-                            }
+                            x = ownerUnit._translate.x;
+                            y = ownerUnit._translate.y;
 
-                            // preparing for item drop position. without this, the item will interpolate from the previous position it was dropped
-                            // entity.latestKeyFrame[1] = [x, y, rotate];
-                            entity._translate.x = x;
-                            entity._translate.y = y;
-                            // entity._rotate.z = rotate; 
+                            if (!entity.tween?.isTweening) {
+                                entity.anchoredOffset = entity.getAnchoredOffset(rotate);
+                                if (entity.anchoredOffset) {
+                                    x += entity.anchoredOffset.x;
+                                    y += entity.anchoredOffset.y;
+                                    rotate = entity.anchoredOffset.rotate;
+                                }
+                            }                            
                         }
                     }
 
                     if (entity.tween && entity.tween.isTweening) {
                         entity.tween.update();
                         x += entity.tween.offset.x;
-                        y += entity.tween.offset.y;
+                        y += entity.tween.offset.y;                        
                         rotate += entity.tween.offset.rotate;
                     }
+
+                    // if (entity._category == 'item' && entity.getOwnerUnit() == taro.client.selectedUnit)
+                    //     console.log(x, y, rotate)
+
                     entity.transformTexture(x, y, rotate);
                 }
             }
