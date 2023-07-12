@@ -1183,7 +1183,6 @@ var Item = TaroEntityPhysics.extend({
 					}
 				}
 
-				// run both server & client.
 				// it's important that this runs on client side, because it prepares this item's position when it's dropped
 				self.translateTo(x, y);
 				self.rotateTo(0, 0, rotate);

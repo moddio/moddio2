@@ -55,6 +55,8 @@ var EntitiesToRender = /** @class */ (function () {
                 // update transformation using incoming network stream
                 if (taro.network.stream) {
                     entity._processTransform();
+                    // if (entity._category == 'item' && entity.getOwnerUnit() != taro.client.selectedUnit)
+                    //     console.log("59", entity._stats.name, entity._rotate.z)
                 }
 
                 if (entity._translate && !entity.isHidden()) {
@@ -65,6 +67,8 @@ var EntitiesToRender = /** @class */ (function () {
                         var ownerUnit = entity.getOwnerUnit();
                         if (ownerUnit) {
                             // if ownerUnit's transformation hasn't been processed yet, then it'll cause item to drag behind. so we're running it now
+                            // if (entity._category == 'item' && ownerUnit != taro.client.selectedUnit)
+                            //     console.log("71", entity._stats.name, entity._rotate.z, ownerUnit._stats.name, taro.client.selectedUnit._stats.name)
                             ownerUnit._processTransform();
                             // immediately rotate items for my own unit
                             if (ownerUnit == taro.client.selectedUnit) {
@@ -75,10 +79,9 @@ var EntitiesToRender = /** @class */ (function () {
                                     rotate = ownerUnit.angleToTarget; // angleToTarget is updated at 60fps
                                 }
                                 // entity._rotate.z = rotate; // update the item's rotation immediately for more accurate aiming (instead of 20fps)
-                            } else {
-                                // if not my own unit, then rotate the item based on the owner's rotation
-                                rotate = entity._rotate.z
-                                // console.log(rotate, entity._rotate.z, ownerUnit._rotate.z)
+                            } else { // if not my own unit, then rotate the item based streamed value
+                                rotate = entity._rotate.z                                
+                                // console.log(entity._rotate.z, ownerUnit.angleToTarget)
                             }
 
                             var unitAnchorOffsetRotate = Math.radians(entity._stats.currentBody?.unitAnchor?.rotation || 0);					                            
@@ -98,10 +101,10 @@ var EntitiesToRender = /** @class */ (function () {
                             }
 
                             // preparing for item drop position. without this, the item will interpolate from the previous position it was dropped
-                            entity.latestKeyFrame[1] = [x, y, rotate];
+                            // entity.latestKeyFrame[1] = [x, y, rotate];
                             entity._translate.x = x;
                             entity._translate.y = y;
-                            entity._rotate.z = rotate; 
+                            // entity._rotate.z = rotate; 
                         }
                     }
 

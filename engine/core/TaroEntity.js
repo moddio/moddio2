@@ -5098,7 +5098,7 @@ var TaroEntity = TaroObject.extend({
 	_processTransform: function () {
 		if (
 			// prevent calling this function multiple times for a same entity
-			// this._lastTransformAt == taro._currentTime ||
+			this._lastTransformAt == taro._currentTime ||
 			// entity has no body
 			this._translate == undefined ||
 			this._stats.currentBody == undefined ||
@@ -5132,7 +5132,6 @@ var TaroEntity = TaroObject.extend({
 				y += yDiff * this.speed
 	        }
 
-
 			// console.log(this.speed, distanceToTarget, xDiff, yDiff, x, y, latestTransform[0], latestTransform[1]);
 
 			rotateStart = rotate;
@@ -5161,12 +5160,12 @@ var TaroEntity = TaroObject.extend({
 
 		this._translate.x = x;
 		this._translate.y = y;
+		this._rotate.z = rotate;
 
 		// carried item rotations are handled by item.getAnchoredOffset
-		if (!(this._category == 'item' && this._stats.stateId != 'dropped')) {
-			this._rotate.z = rotate;
-		}
-
+		// if (!(this._category == 'item' && this._stats.stateId != 'dropped')) {
+		// 	this._rotate.z = rotate;
+		// }
 
 		// this.rotateTo(0, 0, rotate);
 		// this.translateTo(x, y, 0);
