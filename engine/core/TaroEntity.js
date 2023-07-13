@@ -5096,9 +5096,11 @@ var TaroEntity = TaroObject.extend({
      * Update the position of the entities using the interpolation. This results smooth motion of the entities.
      */
 	_processTransform: function () {
+
+		let tickDelta = taro._currentTime - this._lastTransformAt;
 		if (
 			// prevent calling this function multiple times for a same entity
-			this._lastTransformAt == taro._currentTime ||
+			tickDelta == 0 ||
 			// entity has no body
 			this._translate == undefined ||
 			this._stats.currentBody == undefined ||
@@ -5113,6 +5115,7 @@ var TaroEntity = TaroObject.extend({
 
 		let xDiff = null;
 		let yDiff = null;
+		var direction = null;
 		let rotateStart = null;
 		let rotateEnd = null;
 
@@ -5125,14 +5128,14 @@ var TaroEntity = TaroObject.extend({
 		if (latestTransform) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
 			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
-				xDiff = (latestTransform[0] - x);
-				yDiff = (latestTransform[1] - y);
 
-				x += xDiff * this.speed
-				y += yDiff * this.speed
-
-				if (this == taro.client.selectedUnit)
-					console.log(this.speed)
+				xDiff = latestTransform[0] - x;
+				yDiff = latestTransform[1] - y;
+				
+				direction = Math.atan2(yDiff, xDiff);				
+				
+				x += this.speed * Math.cos(direction) * tickDelta;
+				y += this.speed * Math.sin(direction) * tickDelta;
 				
 	        }
 

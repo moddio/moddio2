@@ -487,7 +487,7 @@ var TaroNetIoClient = {
 						// update each entities' final position, so player knows where everything are when returning from a different browser tab
 						// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
 						var entity = taro.$(entityId);
-						var timeTilNextSnapshot = 200; // it should be ~50ms, but we'll give it some buffer
+						var timePerTick = 50;
 
 						if (entity && entityData[3]) {
 							entity.teleportTo(entityData[0], entityData[1], entityData[2], entityData[4]);
@@ -499,11 +499,17 @@ var TaroNetIoClient = {
 							!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 						) {
 							// entity.latestKeyFrame = [newSnapshotTimestamp, entityData];
-							entity.latestKeyFrame = [taro._currentTime + timeTilNextSnapshot, entityData];
-		
+							var previousKeyFrame = entity.latestKeyFrame;							
+							entity.latestKeyFrame = [taro._currentTime + timePerTick, entityData];
+							let distanceTravelled = Math.sqrt(Math.pow(entityData[0] - previousKeyFrame[1][0], 2) + Math.pow(entityData[1] - previousKeyFrame[1][1], 2))
+
 							// calculate the speed based on the distance it needs to move until the next snapshot
-							let distanceToTarget = Math.sqrt(Math.pow(entityData[0] - entity._translate.x, 2) + Math.pow(entityData[1] - entity._translate.y, 2))
-							entity.speed = distanceToTarget / timeTilNextSnapshot;
+							// let distanceToTarget = Math.sqrt(Math.pow(entityData[0] - entity._translate.x, 2) + Math.pow(entityData[1] - entity._translate.y, 2))
+							entity.speed = distanceTravelled / timePerTick;
+
+
+							entity.direction = Math.atan2(entityData[1] - entity._translate.y, entityData[0] - entity._translate.x);
+							// entity.speed = distanceTravelled / timePerTick
 						}
 
 					} else {
