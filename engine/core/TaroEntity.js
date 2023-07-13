@@ -5136,9 +5136,9 @@ var TaroEntity = TaroObject.extend({
 				
 				x += this.speed * Math.cos(direction) * tickDelta;
 				y += this.speed * Math.sin(direction) * tickDelta;
-				
 	        }
 
+			
 			// console.log(this.speed, distanceToTarget, xDiff, yDiff, x, y, latestTransform[0], latestTransform[1]);
 
 			rotateStart = rotate;
