@@ -96,7 +96,6 @@ var DevModeTools = /** @class */ (function (_super) {
                 camera.scrollY -= scrollY_1;
             }
         });
-        _this.outline = scene.gameScene.add.graphics();
         return _this;
     }
     DevModeTools.prototype.updateBrushArea = function () {

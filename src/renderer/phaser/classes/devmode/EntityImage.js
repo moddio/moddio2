@@ -3,6 +3,7 @@ var EntityImage = /** @class */ (function () {
         var _this = this;
         var _a, _b;
         this.devModeTools = devModeTools;
+        var entityEditor = this.entityEditor = devModeTools.entityEditor;
         this.action = action;
         var key;
         if (action.entityType === 'unitTypes') {
@@ -59,8 +60,8 @@ var EntityImage = /** @class */ (function () {
             //console.log('pointerdown', action);
             if (!devModeTools.cursorButton.active)
                 return;
-            if (devModeTools.entityEditor.selectedEntityImage !== _this) {
-                devModeTools.entityEditor.selectEntityImage(_this);
+            if (entityEditor.selectedEntityImage !== _this) {
+                entityEditor.selectEntityImage(_this);
             }
             _this.startDragX = image.x;
             _this.startDragY = image.y;
@@ -75,20 +76,21 @@ var EntityImage = /** @class */ (function () {
                 _this.dragMode = 'scale';
             }
         });
-        var outline = devModeTools.outline;
+        var outline = entityEditor.outline;
         image.on('pointerover', function () {
-            if (!devModeTools.cursorButton.active)
+            //scene.input.setDefaultCursor('url(assets/cursors/resize.cur), pointer');
+            if (!devModeTools.cursorButton.active || entityEditor.activeDragPoint)
                 return;
-            if (devModeTools.entityEditor.selectedEntityImage !== _this)
-                devModeTools.entityEditor.selectedEntityImage = null;
+            if (entityEditor.selectedEntityImage !== _this)
+                entityEditor.selectedEntityImage = null;
             _this.updateOutline();
         });
         image.on('pointerout', function () {
-            if (devModeTools.entityEditor.selectedEntityImage === _this)
+            if (entityEditor.selectedEntityImage === _this)
                 return;
             outline.clear();
         });
-        var editedAction = { actionId: action.actionId };
+        var editedAction = this.editedAction = { actionId: action.actionId };
         scene.input.on('drag', function (pointer, gameObject, dragX, dragY) {
             if (!devModeTools.cursorButton.active || gameObject !== image)
                 return;
@@ -126,14 +128,29 @@ var EntityImage = /** @class */ (function () {
         taro.network.send('editInitEntity', action);
     };
     EntityImage.prototype.updateOutline = function () {
-        var outline = this.devModeTools.outline;
+        var outline = this.entityEditor.outline;
+        var selectionContainer = this.entityEditor.selectionContainer;
+        var dragPoints = this.entityEditor.dragPoints;
         var image = this.image;
         outline.clear();
         if (this.devModeTools.entityEditor.selectedEntityImage === this) {
             outline.lineStyle(6, 0x036ffc, 1);
+            selectionContainer.setVisible(true);
+            selectionContainer.x = image.x;
+            selectionContainer.y = image.y;
+            selectionContainer.angle = image.angle;
+            dragPoints.topLeft.setPosition(-image.displayWidth / 2 - 20, -image.displayHeight / 2 - 20);
+            dragPoints.top.setPosition(0, -image.displayHeight / 2 - 20);
+            dragPoints.topRight.setPosition(image.displayWidth / 2 + 20, -image.displayHeight / 2 - 20);
+            dragPoints.right.setPosition(image.displayWidth / 2 + 20, 0);
+            dragPoints.bottomRight.setPosition(image.displayWidth / 2 + 20, image.displayHeight / 2 + 20);
+            dragPoints.bottom.setPosition(0, image.displayHeight / 2 + 20);
+            dragPoints.bottomLeft.setPosition(-image.displayWidth / 2 - 20, image.displayHeight / 2 + 20);
+            dragPoints.left.setPosition(-image.displayWidth / 2 - 20, 0);
         }
         else {
             outline.lineStyle(2, 0x036ffc, 1);
+            selectionContainer.setVisible(false);
         }
         outline.strokeRect(-image.displayWidth / 2, -image.displayHeight / 2, image.displayWidth, image.displayHeight);
         outline.x = image.x;
@@ -162,6 +179,8 @@ var EntityImage = /** @class */ (function () {
             this.hide();
             this.action.wasDeleted = true;
         }
+        if (this === this.entityEditor.selectedEntityImage)
+            this.updateOutline();
     };
     EntityImage.prototype.hide = function () {
         this.image.alpha = 0;
@@ -171,7 +190,7 @@ var EntityImage = /** @class */ (function () {
         this.hide();
         var editedAction = { actionId: this.action.actionId, wasDeleted: true };
         this.edit(editedAction);
-        this.devModeTools.outline.clear();
+        this.entityEditor.outline.clear();
     };
     return EntityImage;
 }());

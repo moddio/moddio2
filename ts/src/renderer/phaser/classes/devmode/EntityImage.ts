@@ -1,16 +1,21 @@
 class EntityImage {
     devModeTools: DevModeTools;
+    entityEditor: EntityEditor;
     action: ActionData;
+    editedAction: ActionData;
     image: Phaser.GameObjects.Image & {entity: EntityImage};
 
     startDragX: number;
     startDragY: number;
-    scale: any;
+    scale: number;
+    rotation: number;
     dragMode: 'position' | 'angle' | 'scale';
+    
 
     constructor(scene, devModeTools: DevModeTools, entityImages: (Phaser.GameObjects.Image & {entity: EntityImage})[], action: ActionData, type?: string) {
 
         this.devModeTools = devModeTools;
+        const entityEditor = this.entityEditor = devModeTools.entityEditor;
         this.action = action;
 
         let key;
@@ -56,8 +61,8 @@ class EntityImage {
         image.on('pointerdown', () => {
             //console.log('pointerdown', action);
             if (!devModeTools.cursorButton.active) return;
-            if (devModeTools.entityEditor.selectedEntityImage !== this) {
-                devModeTools.entityEditor.selectEntityImage(this);
+            if (entityEditor.selectedEntityImage !== this) {
+                entityEditor.selectEntityImage(this);
             }
 
             this.startDragX = image.x;
@@ -72,20 +77,21 @@ class EntityImage {
             }
         });
 
-        const outline = devModeTools.outline;
+        const outline = entityEditor.outline;
 
         image.on('pointerover', () => {
-            if (!devModeTools.cursorButton.active) return;
-            if (devModeTools.entityEditor.selectedEntityImage !== this) devModeTools.entityEditor.selectedEntityImage = null;
+            //scene.input.setDefaultCursor('url(assets/cursors/resize.cur), pointer');
+            if (!devModeTools.cursorButton.active || entityEditor.activeDragPoint) return;
+            if (entityEditor.selectedEntityImage !== this) entityEditor.selectedEntityImage = null;
             this.updateOutline();
         });
 
         image.on('pointerout', () => {
-            if (devModeTools.entityEditor.selectedEntityImage === this) return;
+            if (entityEditor.selectedEntityImage === this) return;
             outline.clear();
         });
 
-        let editedAction: ActionData = {actionId: action.actionId};
+        let editedAction: ActionData = this.editedAction = {actionId: action.actionId};
 
         scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
             if (!devModeTools.cursorButton.active || gameObject !== image) return;
@@ -123,14 +129,30 @@ class EntityImage {
     }
 
     updateOutline (): void {
-        const outline = this.devModeTools.outline;
+        const outline = this.entityEditor.outline;
+        const selectionContainer = this.entityEditor.selectionContainer;
+        const dragPoints = this.entityEditor.dragPoints;
         const image = this.image;
 
 		outline.clear();
         if (this.devModeTools.entityEditor.selectedEntityImage === this) {
             outline.lineStyle(6, 0x036ffc, 1);
+            selectionContainer.setVisible(true);
+            selectionContainer.x = image.x;
+            selectionContainer.y = image.y;
+            selectionContainer.angle = image.angle;
+
+            dragPoints.topLeft.setPosition(-image.displayWidth / 2 - 20, -image.displayHeight / 2 - 20);
+            dragPoints.top.setPosition(0, -image.displayHeight / 2 - 20);
+            dragPoints.topRight.setPosition(image.displayWidth / 2 + 20, -image.displayHeight / 2 - 20);
+            dragPoints.right.setPosition(image.displayWidth / 2 + 20, 0);
+            dragPoints.bottomRight.setPosition(image.displayWidth / 2 + 20, image.displayHeight / 2 + 20);
+            dragPoints.bottom.setPosition(0, image.displayHeight / 2 + 20);
+            dragPoints.bottomLeft.setPosition(-image.displayWidth / 2 - 20, image.displayHeight / 2 + 20);
+            dragPoints.left.setPosition(-image.displayWidth / 2 - 20, 0); 
         } else {
             outline.lineStyle(2, 0x036ffc, 1);
+            selectionContainer.setVisible(false);
         }
         outline.strokeRect(-image.displayWidth / 2, -image.displayHeight / 2, image.displayWidth, image.displayHeight);
         outline.x = image.x;
@@ -159,6 +181,7 @@ class EntityImage {
             this.hide();
             this.action.wasDeleted = true;
         }
+        if (this === this.entityEditor.selectedEntityImage) this.updateOutline();
     }
 
     hide (): void {
@@ -170,6 +193,6 @@ class EntityImage {
         this.hide();
         let editedAction: ActionData = {actionId: this.action.actionId, wasDeleted: true};
         this.edit(editedAction);
-        this.devModeTools.outline.clear();
+        this.entityEditor.outline.clear();
     }
 }
