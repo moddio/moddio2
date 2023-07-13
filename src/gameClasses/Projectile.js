@@ -35,6 +35,8 @@ var Projectile = TaroEntityPhysics.extend({
 
 		if (taro.isServer) {
 			self.mount(taro.$('baseScene'));
+		} else {
+			self.mount(taro);
 		}
 
 		if (

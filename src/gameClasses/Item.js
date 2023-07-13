@@ -128,6 +128,8 @@ var Item = TaroEntityPhysics.extend({
 			self.show();
 			if (taro.isClient) {
 				self.updateTexture();
+				// mount for update()
+				self.mount(taro);
 			}
 		} else {
 			taro.devLog('hide & destroyBody.');

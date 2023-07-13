@@ -1803,6 +1803,7 @@ var TaroEngine = TaroEntity.extend({
 	updateSceneGraph: function (ctx) {
 
 		var arr = this._children;
+		console.log(arr.length);
 		var arrCount; var us; var ud;
 		var tickDelta = taro._tickDelta;
 

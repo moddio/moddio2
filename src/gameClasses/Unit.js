@@ -129,6 +129,9 @@ var Unit = TaroEntityPhysics.extend({
 			var polygon = new TaroPoly2d();
 			self.triggerPolygon(polygon);
 			self.flip(self._stats.flip);
+			// mount for update()
+			self.mount(taro);
+
 
 		}
 		self.playEffect('create');
