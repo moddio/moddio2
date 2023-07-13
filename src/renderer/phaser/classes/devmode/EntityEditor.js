@@ -32,7 +32,7 @@ var EntityEditor = /** @class */ (function () {
         gameScene.add.existing(selectionContainer);
         Object.values(this.dragPoints).forEach(function (point) {
             if (point.functionality === 'angle') {
-                point.setInteractive({ draggable: true, cursor: 'url(assets/cursors/rotate.cur), pointer' });
+                point.setInteractive({ draggable: true, cursor: 'url(/assets/cursors/rotate.cur), pointer' });
             }
             else {
                 point.setInteractive({ draggable: true /* , cursor: 'url(assets/cursors/resize.cur), pointer'*/ });
