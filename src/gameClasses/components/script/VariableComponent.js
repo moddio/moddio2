@@ -242,6 +242,16 @@ var VariableComponent = TaroEntity.extend({
 					returnValue = !!(player && player._stats.isAdBlockEnabled);
 					break;
 
+				case 'roleExistsForPlayer':
+					var name = self.getValue(text.name, vars);
+					var player = self.getValue(text.player, vars);
+
+					var role = (taro.game.data.roles || []).find(role => role.name === name);
+					var roleId = role && role._id;
+
+					returnValue = roleId && player && (player._stats.roleIds || []).includes(roleId);	
+					break;		
+
 				case 'areEntitiesTouching':
 					var sourceEntity = self.getValue(text.sourceEntity, vars);
 					var targetEntity = self.getValue(text.targetEntity, vars);

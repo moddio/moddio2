@@ -92,7 +92,10 @@ var GameComponent = TaroEntity.extend({
 			isEmailVerified: data.isEmailVerified,
 			banChat: data.banChat,
 			mutedUsers: data.mutedUsers,
-			isUserVerified: data.isUserVerified
+			isUserVerified: data.isUserVerified,
+			username: data.name,
+			profilePicture: data.profilePicture,
+			roleIds: data.roleIds || []
 		};
 
 		var player = new Player(playerData);
@@ -129,8 +132,13 @@ var GameComponent = TaroEntity.extend({
 				isUserAdmin = data.permissions.includes('admin');
 				isUserMod = data.permissions.includes('mod');
 			}
+
+			const roles = taro.game.data.roles || [];
+
 			player._stats.isUserAdmin = isUserAdmin;
 			player._stats.isUserMod = isUserMod;
+
+			// player._stats.isModerationAllowed = isOwner || isUserAdmin || isUserMod || (data.roleIds && roles.find(role => role?.permissions?.moderator && data.roleIds.includes(role._id.toString())));
 
 			// if User/Admin has access to game then show developer logs
 			if (isOwner || isInvitedUser || isUserAdmin) {
