@@ -47,7 +47,7 @@ var Unit = TaroEntityPhysics.extend({
 		}
 
 		self.addComponent(AIComponent);
-
+		
 		this._stats.itemIds = new Array(self._stats.inventorySize).fill(null);
 
 		Unit.prototype.log(`initializing new unit ${this.id()}`);
@@ -1861,7 +1861,6 @@ var Unit = TaroEntityPhysics.extend({
 
 			// translate unit
 			var speed = (this._stats.attributes && this._stats.attributes.speed && this._stats.attributes.speed.value) || 0;
-			var vector = {x: 0, y: 0};
 
 			// update rotation on server
 			var ownerPlayer = self.getOwner();
@@ -1894,7 +1893,7 @@ var Unit = TaroEntityPhysics.extend({
 					)
 				) {
 					if (self.angleToTarget != undefined && !isNaN(self.angleToTarget)) {
-						vector = {
+						this.vector = {
 							x: (speed * Math.sin(self.angleToTarget)),
 							y: -(speed * Math.cos(self.angleToTarget))
 						};
@@ -1909,7 +1908,7 @@ var Unit = TaroEntityPhysics.extend({
 						speed = speed / 1.41421356237;
 					}
 
-					vector = {
+					this.vector = {
 						x: self.direction.x * speed,
 						y: self.direction.y * speed
 					};
@@ -1931,19 +1930,27 @@ var Unit = TaroEntityPhysics.extend({
 				}
 
 				taro.unitBehaviourCount++; // for debugging
+				
+				var timeElapsed = taro.now - taro._lastGameLoopTickAt;
 				// apply movement if it's either human-controlled unit, or ai unit that's currently moving
-				if (self.body && vector && (vector.x != 0 || vector.y != 0)) {
-					// console.log('unit movement 2', vector);
+				if (self.body && self.vector && (self.vector.x != 0 || self.vector.y != 0)) {
+					// console.log('unit movement 2', self.vector);
+
+					self.vector = {
+						x: self.vector.x * timeElapsed/50, 
+						y: self.vector.y * timeElapsed/50
+					}
+
 					if (self._stats.controls) {
-						switch (self._stats.controls.movementMethod) { // velocity-based movement
+						switch (self._stats.controls?.movementMethod) { // velocity-based movement
 							case 'velocity':
-								self.setLinearVelocity(vector.x, vector.y);
+								self.setLinearVelocity(self.vector.x, self.vector.y);
 								break;
 							case 'force':
-								self.applyForce(vector.x, vector.y);
+								self.applyForce(self.vector.x, self.vector.y);
 								break;
 							case 'impulse':
-								self.applyImpulse(vector.x, vector.y);
+								self.applyImpulse(self.vector.x, self.vector.y);
 								break;
 						}
 					}

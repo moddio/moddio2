@@ -15,6 +15,7 @@ var TaroEntity = TaroObject.extend({
 		var rotate = defaultData.rotate || 0;
 
 		this.speed = 0;
+		this.vector = {x: 0, y: 0};
 		this.prevPhysicsFrame = [taro._currentTime, [translateX, translateY, rotate]];
 
 		this._specialProp.push('_texture');
@@ -68,14 +69,14 @@ var TaroEntity = TaroObject.extend({
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.latestKeyFrame = [0, [this._translate.x, this._translate.y, this._rotate.z]];
+		this.nextKeyFrame = [0, [this._translate.x, this._translate.y, this._rotate.z]];
 		this.latestTimeStamp = 0;
-		this.prevKeyFrame = this.latestKeyFrame
+		this.prevKeyFrame = this.nextKeyFrame
 		this._lastTransformAt = null;
 		this.lastTeleportedAt = 0;
 		this.teleported = false;
         this.teleportCamera = false;
-		this.teleportDestination = this.latestKeyFrame[1];
+		this.teleportDestination = this.nextKeyFrame[1];
 
 		if (taro.isClient) {
 			this.anchorOffset = { x: 0, y: 0, rotate: 0 };
@@ -3157,7 +3158,7 @@ var TaroEntity = TaroObject.extend({
 				this.translateColliderTo(x, y);
 			}
 		} else if (taro.isClient) {
-			this.latestKeyFrame[1] = [x, y, rotate];
+			this.nextKeyFrame[1] = [x, y, rotate];
 			if (taro.physics && this.prevPhysicsFrame && this.nextPhysicsFrame) {
 				let prevFrameTime = this.prevPhysicsFrame[0]
 				let nextFrameTime = this.nextPhysicsFrame[0]
@@ -5115,7 +5116,9 @@ var TaroEntity = TaroObject.extend({
 
 		let xDiff = null;
 		let yDiff = null;
-		var direction = null;
+		let direction = null;
+		let distanceToTarget = null;
+
 		let rotateStart = null;
 		let rotateEnd = null;
 
@@ -5123,26 +5126,37 @@ var TaroEntity = TaroObject.extend({
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
 		
-		var latestTransform = this.latestKeyFrame[1];
+		var nextTransform = this.nextKeyFrame[1];
 		
-		if (latestTransform) {
-			// don't apply to item that's held by unit as that's calculated by anchor calculation			
-			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
+		if (nextTransform) {
+			let timeToNextTransform = this.nextKeyFrame[0] - taro._currentTime;
+			if (timeToNextTransform > 0) {
+				// don't apply to item that's held by unit as that's calculated by anchor calculation			
+				if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
 
-				xDiff = latestTransform[0] - x;
-				yDiff = latestTransform[1] - y;
-				
-				direction = Math.atan2(yDiff, xDiff);				
-				
-				x += this.speed * Math.cos(direction) * tickDelta;
-				y += this.speed * Math.sin(direction) * tickDelta;
-	        }
+					xDiff = nextTransform[0] - x;
+					yDiff = nextTransform[1] - y;
+										
+					distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
+					if (this.direction != undefined && distanceToTarget > 0) {
+						// direction = Math.atan2(yDiff, xDiff);				
+						// speed = distanceToTarget / timeToNextTransform // speed that this entity must travel at in order to hit the destination in before the next transform update								
+						x += this.speed * Math.cos(this.direction) * tickDelta;
+						y += this.speed * Math.sin(this.direction) * tickDelta;
+
+						// if (this == taro.client.selectedUnit) {
+						// 	console.log(distanceToTarget, timeToNextTransform)
+						// }
+					}
+				}
+			}
+			
 
 			
-			// console.log(this.speed, distanceToTarget, xDiff, yDiff, x, y, latestTransform[0], latestTransform[1]);
+			// console.log(this.speed, distanceToTarget, xDiff, yDiff, x, y, nextTransform[0], nextTransform[1]);
 
 			rotateStart = rotate;
-	        rotateEnd = latestTransform[2];
+	        rotateEnd = nextTransform[2];
 
 			// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
 			if (Math.abs(rotateEnd - rotateStart) > Math.PI) {

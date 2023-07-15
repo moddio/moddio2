@@ -175,7 +175,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 					//     this.translateToLT(x, y, 0)
 					// else
 
-					this.latestKeyFrame = [0, [x, y, rotate]]
+					this.nextKeyFrame = [0, [x, y, rotate]]
 					this.translateTo(x, y, 0);
 				}
 			}

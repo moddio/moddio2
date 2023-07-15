@@ -557,8 +557,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 			if (self.engine == 'crash') { // crash's engine step happens in dist.js
 				self._world.step(timeElapsedSinceLastStep);
 			} else {
-				self._world.step(timeElapsedSinceLastStep / 1000, 8, 3); // Call the world step; frame-rate, velocity iterations, position iterations
-				let nextFrameTime = taro._currentTime + (1000 / taro._gameLoopTickRate) - 10; // 10ms is to give extra buffer to prepare for the next frame
+				self._world.step(timeElapsedSinceLastStep/1000, 8, 3); // Call the world step; frame-rate, velocity iterations, position iterations
 				var tempBod = self._world.getBodyList();
 
 				// iterate through every physics body
@@ -624,7 +623,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 							}
 							// entity just has teleported
 							if (entity.teleportDestination != undefined && entity.teleported) {
-								entity.latestKeyFrame[1] = entity.teleportDestination;
+								entity.nextKeyFrame[1] = entity.teleportDestination;
 								x = entity.teleportDestination[0];
 								y = entity.teleportDestination[1];
 								angle = entity.teleportDestination[2];
@@ -643,20 +642,21 @@ var PhysicsComponent = TaroEventingClass.extend({
 										y += yDiff/2;
 									}
 
+									var speed = (x - this.lastX) / timeElapsedSinceLastStep;
+									console.log(timeElapsedSinceLastStep, x, speed)
+
 									entity.translateTo(x, y, 0);
 									entity.rotateTo(0, 0, angle);
+
+									this.lastX = x;
 								} else if (taro.isClient) {
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
-										var previousKeyFrame = entity.latestKeyFrame;							
-										entity.latestKeyFrame = [taro._currentTime, [x, y, angle]];
-										distanceTravelled = Math.sqrt(Math.pow(x - previousKeyFrame[1][0], 2) + Math.pow(y - previousKeyFrame[1][1], 2))
-										entity.speed = distanceTravelled / timeElapsedSinceLastStep;
-										
+										entity.nextKeyFrame = [taro._currentTime + (timeElapsedSinceLastStep), [x, y, angle]];
 									} else { // update server-streamed entities' body position
-										x = entity.latestKeyFrame[1][0];
-										y = entity.latestKeyFrame[1][1];
-										angle = entity.latestKeyFrame[1][2];
+										x = entity.nextKeyFrame[1][0];
+										y = entity.nextKeyFrame[1][1];
+										angle = entity.nextKeyFrame[1][2];
 									}
 								}
 							}

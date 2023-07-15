@@ -1571,7 +1571,6 @@ var TaroEngine = TaroEntity.extend({
 
 			timeElapsed = taro.now - taro._lastGameLoopTickAt;
 			if (timeElapsed >= (1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder) {
-				taro._lastGameLoopTickAt = taro.now;
 				taro._gameLoopTickRemainder = Math.min(timeElapsed - ((1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder), (1000 / taro._gameLoopTickRate));
 				taro.gameLoopTickHasExecuted = true;
 				if (taro.physics) {
@@ -1579,6 +1578,8 @@ var TaroEngine = TaroEntity.extend({
 				}
 
 				taro.queueTrigger('frameTick');
+				
+				taro._lastGameLoopTickAt = taro.now;				
 			}
 
 			taro.tickCount = 0;

@@ -19,10 +19,6 @@ var AIComponent = TaroEntity.extend({
 		// for example, in cell-eater, items are consumed via sensors
 		if (unit._stats.ai) {
 
-			if (unit._stats.ai.sensorRadius > 0 && unit.sensor == undefined) {
-				unit.sensor = new Sensor(unit, unit._stats.ai.sensorRadius);
-		   }
-
 			unit._stats.aiEnabled = unit._stats.ai.enabled;
 			if (unit._stats.aiEnabled) {
 				self.enable();
@@ -36,6 +32,11 @@ var AIComponent = TaroEntity.extend({
 		unit._stats.aiEnabled = true;
 		if (taro.isServer) {
 			unit.streamUpdateData([{aiEnabled: true }]);
+
+			if (unit._stats.ai.sensorRadius > 0 && unit.sensor == undefined) {
+				unit.sensor = new Sensor(unit, unit._stats.ai.sensorRadius);
+		   }
+
 		}
 
 		self.pathFindingMethod = unit._stats.ai.pathFindingMethod; // options: simple/a* (coming soon)
@@ -49,9 +50,7 @@ var AIComponent = TaroEntity.extend({
 		self.nextMoveAt = taro._currentTime;
 		self.goIdle();
 
-		// if (unit._stats.ai.sensorRadius > 0 && unit.sensor == undefined) {
-		// 	unit.sensor = new Sensor(unit, unit._stats.ai.sensorRadius);
-		// }
+		
 	},
 
 	disable: function() {
@@ -60,11 +59,13 @@ var AIComponent = TaroEntity.extend({
 
 		if (taro.isServer) {
 			unit.streamUpdateData([{aiEnabled: false }]);
+			if (unit.sensor) {
+				unit.sensor.remove();
+				delete unit.sensor
+			}
 		}
 
-		if (unit.sensor) {
-			// unit.sensor.remove();
-		}
+		
 		unit.ability.stopUsingItem();
 		unit.stopMoving();
 		this.targetUnitId = undefined;
