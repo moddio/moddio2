@@ -643,7 +643,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 									}
 
 									var speed = (x - this.lastX) / timeElapsedSinceLastStep;
-									console.log(timeElapsedSinceLastStep, x, speed)
+									console.log(timeElapsedSinceLastStep, x, speed, entity.vector.x)
 
 									entity.translateTo(x, y, 0);
 									entity.rotateTo(0, 0, angle);
