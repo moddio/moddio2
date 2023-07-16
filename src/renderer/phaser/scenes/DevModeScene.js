@@ -173,6 +173,10 @@ var DevModeScene = /** @class */ (function (_super) {
     DevModeScene.prototype.leaveMapTab = function () {
         if (this.devModeTools)
             this.devModeTools.leaveMapTab();
+        if (this.devModeTools.entityEditor.selectedEntityImage) {
+            this.devModeTools.entityEditor.selectedEntityImage.updateOutline(true);
+            this.devModeTools.entityEditor.selectedEntityImage = null;
+        }
         this.entityImages.forEach(function (image) {
             image.setVisible(false);
         });

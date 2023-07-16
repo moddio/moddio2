@@ -1146,6 +1146,9 @@ var Unit = TaroEntityPhysics.extend({
 		var ownerPlayer = self.getOwner();
 		var playerTypeData = ownerPlayer && taro.game.getAsset('playerTypes', ownerPlayer._stats.playerTypeId);
 
+		// const roles = taro.game.data.roles.filter(role => ownerPlayer._stats.roleIds.includes(role._id.toString()));
+		// var highestRole = roles.reduce((prev, current) => prev ? (current.order < prev.order ? current : prev) : current, null);
+
 		// label should be hidden
 		var hideLabel = (
 			ownerPlayer &&

@@ -322,10 +322,12 @@ class DeveloperMode {
 					if (data.angle && action.angle) {
 						action.angle = data.angle;
 					}
-					if (data.width && data.height && action.width && action.height) {
-						action.width = data.width;
-						action.height = data.height;
-					}
+                    if (data.width && action.width) {
+                        action.width = data.width;
+                    }
+                    if (data.height && action.height) {
+                        action.height = data.height;
+                    }
                     if (data.wasDeleted) {
                         action.wasDeleted = true;
                     }

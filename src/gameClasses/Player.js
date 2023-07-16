@@ -402,16 +402,22 @@ var Player = TaroEntity.extend({
 
 	isDeveloper: function() {
 		var self = this;
-		return self._stats && (
-			(self._stats.userId == taro.game.data.defaultData.owner) ||
-			taro.game.data.defaultData.invitedUsers.find(function (iu) {
-				if (iu.user === self._stats.userId) {
-					return true;
-				}
-			}) ||
-			self._stats.isUserAdmin ||
-			self._stats.isUserMod
-		);
+		if (!self._stats) {
+			return false;
+		}
+
+		if (self._stats.userId == taro.game.data.defaultData.owner) {
+			return true;
+		}
+
+		if (self._stats.isUserAdmin || self._stats.isUserMod) {
+			return true;
+		}
+
+		let roles = taro.game.data.roles || [];
+		let isModerator = self._stats?.roleIds && roles.find(role => role?.permissions?.moderator && self._stats?.roleIds.includes(role._id.toString()));
+
+		return isModerator;
 	},
 
 	remove: function () {
@@ -545,6 +551,9 @@ var Player = TaroEntity.extend({
 						if (attrName === 'coins') {
 							self._stats[attrName] = newValue;
 							taro.playerUi.updatePlayerCoin(newValue);
+						}
+						if (attrName === 'roleIds') {
+							self._stats[attrName] = newValue;
 						}
 						if (attrName === 'playerJoinedAgain') {
 							self.hideMenu();

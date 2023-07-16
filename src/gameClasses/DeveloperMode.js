@@ -318,8 +318,10 @@ var DeveloperMode = /** @class */ (function () {
                     if (data.angle && action.angle) {
                         action.angle = data.angle;
                     }
-                    if (data.width && data.height && action.width && action.height) {
+                    if (data.width && action.width) {
                         action.width = data.width;
+                    }
+                    if (data.height && action.height) {
                         action.height = data.height;
                     }
                     if (data.wasDeleted) {

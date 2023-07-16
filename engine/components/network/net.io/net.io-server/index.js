@@ -771,13 +771,13 @@ NetIo.Server = NetIo.EventingClass.extend({
 			try {
 				const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-				const isGuestUserAllowed = taro.game?.data?.defaultData?.isGuestPlayerAllowed;
+				// const isGuestUserAllowed = taro.game?.data?.defaultData?.isGuestPlayerAllowed;
 
-				if (!isGuestUserAllowed && (!decodedToken.userId || !decodedToken.sessionId)) {
-					socket.close('Guest user not allowed. Please login or signup.');
-					console.log('Guest user not allowed', token);
-					return;
-				}
+				// if (!isGuestUserAllowed && (!decodedToken.userId || !decodedToken.sessionId)) {
+				// 	socket.close('Guest user not allowed. Please login or signup.');
+				// 	console.log('Guest user not allowed', token);
+				// 	return;
+				// }
 
 				// extracting user from token and adding it in _token.
 				socket._token = {

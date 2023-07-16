@@ -87,7 +87,9 @@ var GameComponent = TaroEntity.extend({
 			// isUserVerified: true,
 			isEmailVerified: data.isEmailVerified,
 			isUserVerified: data.isUserVerified,
-			username: data.name
+			username: data.name,
+			profilePicture: data.profilePicture,
+			roleIds: data.roleIds || [],
 		};
 
 		var player = new Player(playerData);
@@ -116,18 +118,22 @@ var GameComponent = TaroEntity.extend({
 			// taro.shopkeeper.updateShopInventory(taro.shopkeeper.inventory, data.clientId) // send latest ui information to the client
 
 			var isOwner = taro.server.owner == data._id && data.controlledBy == 'human';
-			var isInvitedUser = false;
-			if (taro.game.data.defaultData && taro.game.data.defaultData.invitedUsers) {
-				isInvitedUser = taro.game.data.defaultData.invitedUsers.some(e => e.user === data._id && e.role === 'contributor');
-			}
+			
+
 			var isUserAdmin = false;
 			var isUserMod = false;
 			if (data.permissions) {
 				isUserAdmin = data.permissions.includes('admin');
 				isUserMod = data.permissions.includes('mod');
 			}
+
+			const roles = taro.game.data.roles || [];
+
 			player._stats.isUserAdmin = isUserAdmin;
 			player._stats.isUserMod = isUserMod;
+			player._stats.isModerationAllowed = isOwner || isUserAdmin || isUserMod || (data.roleIds && roles.find(role => role?.permissions?.moderator && data.roleIds.includes(role._id.toString())));
+			
+			var isInvitedUser = (data.roleIds && roles.find(role => role?.permissions?.contributor && data.roleIds.includes(role._id.toString())));
 
 			// if User/Admin has access to game then show developer logs
 			if (isOwner || isInvitedUser || isUserAdmin) {

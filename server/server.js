@@ -956,7 +956,7 @@ var Server = TaroClass.extend({
 				const jwt = require("jsonwebtoken");
 
 				const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-				const {type, clientId: decodedClientId, createdAt} = decodedToken;
+				const {type, clientId: decodedClientId, createdAt } = decodedToken;
 
 				if (type === 'creditAdRewardToken' && decodedClientId === clientId) {
 					// allow transaction since token has been verified
