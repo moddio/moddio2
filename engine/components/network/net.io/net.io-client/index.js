@@ -356,13 +356,14 @@ NetIo.Client = NetIo.EventingClass.extend({
 	},
 
 	_onClose: function (event) {
-		this.trackLatency('gs-websocket-connect', 'onclose', { reason: this._disconnectReason });
 
 		var wasClean = event.wasClean;
-		var reason = event.reason;
+		var reason = event.reason || this._disconnectReason;
 		var code = event.code;
+		
+		this.trackLatency('gs-websocket-connect', 'onclose', { reason });
 
-		console.log('close event', event, { state: this._state, reason: this._disconnectReason });
+		console.log('close event', event, { _disconnectReason: this._disconnectReason, state: this._state, reason });
 
 		// if we don't know why we disconnected and the server IS responding(!1)
 		if (!this._disconnectReason && this._state !== 1) {

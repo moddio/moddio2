@@ -33,7 +33,8 @@ var PhaserRegion = /** @class */ (function (_super) {
             }
         });
         gameObject.on('pointerup', function (p) {
-            if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && _this.devModeScene.devModeTools.cursorButton.active && p.leftButtonReleased()) {
+            if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && _this.devModeScene.devModeTools.cursorButton.active
+                && p.leftButtonReleased() && _this.devModeScene.regionEditor.clickedList.length > 0) {
                 _this.scene.input.setTopOnly(false);
                 _this.devModeScene.regionEditor.showClickedList();
             }
