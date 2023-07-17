@@ -474,6 +474,7 @@ var TaroNetIoClient = {
 
 		var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
 		// iterate through each entities
+		// console.log(snapshot)
 		for (var i = 0; i < snapshot.length; i++) {
 			var ciDecoded = snapshot[i][0].charCodeAt(0);
 			var commandName = this._networkCommandsIndex[ciDecoded];
@@ -496,9 +497,6 @@ var TaroNetIoClient = {
 						// Boolean(parseInt(entityData[3], 16)), // teleported boolean
 						// Boolean(parseInt(entityData[4], 16)) // teleportedCamera boolean
 					];
-					
-					
-						
 
 					// update each entities' final position, so player knows where everything are when returning from a different browser tab
 					// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
@@ -508,6 +506,7 @@ var TaroNetIoClient = {
 						// entity && entity.nextKeyFrame[0] < newSnapshotTimestamp && 
 						// if csp movement is enabled, don't use server-streamed position for my unit. 
 						// instead, we'll use position updated by physics engine
+						// serverTimeStamp > entity.lastStreamReceivedAt && // ignore duplicate translation stream coming from server
 						!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 					) {
 						// console.log(timeElapsed)
@@ -521,20 +520,16 @@ var TaroNetIoClient = {
 							var yDiff = newPosition[1] - entity.prevKeyFrame[1][1];
 
 							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							entity.direction = Math.atan2(yDiff, xDiff);
 							entity.speed = distanceToTarget / timeElapsed					
 							
 						} else {
-							entity.direction = undefined;
 							entity.speed = 0;
 						}
 						
-						if (entity == taro.client.selectedUnit) {
-							console.log("entityData", newPosition, "speed", entity.speed, "direction", entity.direction)
-							this._lastSnapshotTimestamp = serverTimeStamp;	
-					
-						}
+						this._lastSnapshotTimestamp = serverTimeStamp;	
 						entity.prevKeyFrame = entity.nextKeyFrame;
+						
+						entity.lastStreamReceivedAt = serverTimeStamp;
 					}
 					break;
 					

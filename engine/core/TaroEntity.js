@@ -17,7 +17,7 @@ var TaroEntity = TaroObject.extend({
 		this.speed = 0;
 		this.vector = {x: 0, y: 0};
 		this.prevPhysicsFrame = [taro._currentTime, [translateX, translateY, rotate]];
-
+		this.lastStreamReceivedAt = 0;
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
 		this._specialProp.push('_aabb');
@@ -4367,10 +4367,10 @@ var TaroEntity = TaroObject.extend({
 						this._hasMoved = true;
 						this._oldTranform = [x, y, angle];
 
-						// var distanceTravelled = x - taro.lastX;
-						// console.log(this.id(), taro._currentTime - taro.lastSnapshotTime, taro._currentTime, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
-						// taro.lastX = x
-						// taro.lastSnapshotTime = taro._currentTime;
+						var distanceTravelled = x - taro.lastX;
+						console.log(this.id(), taro._lastPhysicsUpdateAt, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
+						taro.lastX = x
+						taro.lastSnapshotTime = taro._currentTime;
 
 						let buffArr = [];
 						
@@ -4394,6 +4394,7 @@ var TaroEntity = TaroObject.extend({
 						buffArr = buffArr.map(item => item.toString(16));
 
 						this._streamSectionData = buffArr;
+						this._hasStreamedTransform = true;
 					}
 				}
 				break;
@@ -5127,27 +5128,39 @@ var TaroEntity = TaroObject.extend({
 		let rotate = this._rotate.z;
 		
 		var nextTransform = this.nextKeyFrame[1];
-		
+		var rubberbandStrength = taro.fps() / 8;
+
 		if (nextTransform) {
-			let timeToNextTransform = this.nextKeyFrame[0] - taro._currentTime;
-			if (timeToNextTransform > 0) {
-				// don't apply to item that's held by unit as that's calculated by anchor calculation			
-				if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
+			// don't apply to item that's held by unit as that's calculated by anchor calculation			
+			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
 
-					xDiff = nextTransform[0] - x;
-					yDiff = nextTransform[1] - y;
-										
-					distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-					if (this.direction != undefined && distanceToTarget > 0) {
-						// direction = Math.atan2(yDiff, xDiff);				
-						// speed = distanceToTarget / timeToNextTransform // speed that this entity must travel at in order to hit the destination in before the next transform update								
-						x += this.speed * Math.cos(this.direction) * tickDelta;
-						y += this.speed * Math.sin(this.direction) * tickDelta;
+				xDiff = nextTransform[0] - x;
+				yDiff = nextTransform[1] - y;
+				
+				if (this == taro.client.selectedUnit) {
+					console.log(xDiff, x, rubberbandStrength)
+				}
 
-						// if (this == taro.client.selectedUnit) {
-						// 	console.log(distanceToTarget, timeToNextTransform)
-						// }
-					}
+				// if (this == taro.client.selectedUnit) {
+				// 	console.log(this.speed, direction, nextTransform[0], x, xDiff, this._translate.x)
+				// }
+
+				// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
+				// if (xDiff != 0 || yDiff != 0) {
+				// 	direction = Math.atan2(yDiff, xDiff);				
+				// 	x += this.speed * Math.cos(direction) * tickDelta;
+				// 	y += this.speed * Math.sin(direction) * tickDelta;
+				// } else if (!isNaN(rubberbandStrength)) {
+				// 	x += xDiff/rubberbandStrength;
+				// 	y += yDiff/rubberbandStrength;
+				// }
+
+				
+				xDiff = nextTransform[0] - x;
+				yDiff = nextTransform[1] - y;
+				if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
+					x += xDiff/rubberbandStrength;
+					y += yDiff/rubberbandStrength;
 				}
 			}
 			

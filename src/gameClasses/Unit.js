@@ -1864,7 +1864,7 @@ var Unit = TaroEntityPhysics.extend({
 
 			// translate unit
 			var speed = (this._stats.attributes && this._stats.attributes.speed && this._stats.attributes.speed.value) || 0;
-
+			this.vector = {x: 0, y: 0};
 			// update rotation on server
 			var ownerPlayer = self.getOwner();
 			if (ownerPlayer) {
@@ -1934,29 +1934,11 @@ var Unit = TaroEntityPhysics.extend({
 
 				taro.unitBehaviourCount++; // for debugging
 				
-				var timeElapsed = taro.now - taro._lastGameLoopTickAt;
 				// apply movement if it's either human-controlled unit, or ai unit that's currently moving
 				if (self.body && self.vector && (self.vector.x != 0 || self.vector.y != 0)) {
 					// console.log('unit movement 2', self.vector);
 
-					self.vector = {
-						x: self.vector.x * timeElapsed/50, 
-						y: self.vector.y * timeElapsed/50
-					}
-
-					if (self._stats.controls) {
-						switch (self._stats.controls?.movementMethod) { // velocity-based movement
-							case 'velocity':
-								self.setLinearVelocity(self.vector.x, self.vector.y);
-								break;
-							case 'force':
-								self.applyForce(self.vector.x, self.vector.y);
-								break;
-							case 'impulse':
-								self.applyImpulse(self.vector.x, self.vector.y);
-								break;
-						}
-					}
+					
 				}
 			}
 

@@ -557,7 +557,6 @@ var PhysicsComponent = TaroEventingClass.extend({
 			if (self.engine == 'crash') { // crash's engine step happens in dist.js
 				self._world.step(timeElapsedSinceLastStep);
 			} else {
-				self._world.step(timeElapsedSinceLastStep/1000, 8, 3); // Call the world step; frame-rate, velocity iterations, position iterations
 				var tempBod = self._world.getBodyList();
 
 				// iterate through every physics body
@@ -621,6 +620,22 @@ var PhysicsComponent = TaroEventingClass.extend({
 									entity.isOutOfBounds = false;
 								}
 							}
+							
+							if (entity.vector && entity._stats.controls) {
+								switch (entity._stats.controls?.movementMethod) { // velocity-based movement
+									case 'velocity':
+										entity.setLinearVelocity(entity.vector.x, entity.vector.y);
+										break;
+									case 'force':
+										entity.applyForce(entity.vector.x, entity.vector.y);
+										break;
+									case 'impulse':
+										entity.applyImpulse(entity.vector.x, entity.vector.y);
+										break;
+								}
+							}
+
+
 							// entity just has teleported
 							if (entity.teleportDestination != undefined && entity.teleported) {
 								entity.nextKeyFrame[1] = entity.teleportDestination;
@@ -643,7 +658,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 									}
 
 									var speed = (x - this.lastX) / timeElapsedSinceLastStep;
-									console.log(timeElapsedSinceLastStep, x, speed, entity.vector.x)
+									// console.log(taro._currentTime, timeElapsedSinceLastStep, x, speed)
 
 									entity.translateTo(x, y, 0);
 									entity.rotateTo(0, 0, angle);
@@ -680,6 +695,8 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 					tempBod = tempBod.getNext();
 				}
+
+				self._world.step(timeElapsedSinceLastStep/1000, 8, 3); // Call the world step; frame-rate, velocity iterations, position iterations
 
 				taro._physicsFrames++;
 
