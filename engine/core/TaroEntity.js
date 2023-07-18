@@ -5137,31 +5137,31 @@ var TaroEntity = TaroObject.extend({
 				xDiff = nextTransform[0] - x;
 				yDiff = nextTransform[1] - y;
 				
-				if (this == taro.client.selectedUnit) {
-					console.log(xDiff, x, rubberbandStrength)
-				}
+				// if (this == taro.client.selectedUnit) {
+				// 	console.log(xDiff, x, rubberbandStrength)
+				// }
 
 				// if (this == taro.client.selectedUnit) {
-				// 	console.log(this.speed, direction, nextTransform[0], x, xDiff, this._translate.x)
+				// 	console.log(this.speed, this.direction, nextTransform[0], x, xDiff, tickDelta)
 				// }
 
 				// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-				// if (xDiff != 0 || yDiff != 0) {
-				// 	direction = Math.atan2(yDiff, xDiff);				
-				// 	x += this.speed * Math.cos(direction) * tickDelta;
-				// 	y += this.speed * Math.sin(direction) * tickDelta;
-				// } else if (!isNaN(rubberbandStrength)) {
-				// 	x += xDiff/rubberbandStrength;
-				// 	y += yDiff/rubberbandStrength;
-				// }
-
-				
-				xDiff = nextTransform[0] - x;
-				yDiff = nextTransform[1] - y;
-				if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
+				if (xDiff != 0 || yDiff != 0) {
+					x += this.speed * Math.cos(this.direction) * tickDelta;
+					y += this.speed * Math.sin(this.direction) * tickDelta;
+				} else if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
 					x += xDiff/rubberbandStrength;
 					y += yDiff/rubberbandStrength;
 				}
+
+				
+				// if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
+				// xDiff = nextTransform[0] - x;
+				// yDiff = nextTransform[1] - y;
+				
+				// 	x += xDiff/rubberbandStrength;
+				// 	y += yDiff/rubberbandStrength;
+				// }
 			}
 			
 

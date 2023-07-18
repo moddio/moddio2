@@ -507,6 +507,7 @@ var TaroNetIoClient = {
 						// if csp movement is enabled, don't use server-streamed position for my unit. 
 						// instead, we'll use position updated by physics engine
 						// serverTimeStamp > entity.lastStreamReceivedAt && // ignore duplicate translation stream coming from server
+						entity &&
 						!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 					) {
 						// console.log(timeElapsed)
@@ -520,10 +521,8 @@ var TaroNetIoClient = {
 							var yDiff = newPosition[1] - entity.prevKeyFrame[1][1];
 
 							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							entity.speed = distanceToTarget / timeElapsed					
-							
-						} else {
-							entity.speed = 0;
+							entity.speed = distanceToTarget / timeElapsed;
+							entity.direction = Math.atan2(yDiff, xDiff);
 						}
 						
 						this._lastSnapshotTimestamp = serverTimeStamp;	

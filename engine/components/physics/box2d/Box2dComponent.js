@@ -620,21 +620,6 @@ var PhysicsComponent = TaroEventingClass.extend({
 									entity.isOutOfBounds = false;
 								}
 							}
-							
-							if (entity.vector && entity._stats.controls) {
-								switch (entity._stats.controls?.movementMethod) { // velocity-based movement
-									case 'velocity':
-										entity.setLinearVelocity(entity.vector.x, entity.vector.y);
-										break;
-									case 'force':
-										entity.applyForce(entity.vector.x, entity.vector.y);
-										break;
-									case 'impulse':
-										entity.applyImpulse(entity.vector.x, entity.vector.y);
-										break;
-								}
-							}
-
 
 							// entity just has teleported
 							if (entity.teleportDestination != undefined && entity.teleported) {
@@ -657,7 +642,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 										y += yDiff/2;
 									}
 
-									var speed = (x - this.lastX) / timeElapsedSinceLastStep;
+									// var speed = (x - this.lastX) / timeElapsedSinceLastStep;
 									// console.log(taro._currentTime, timeElapsedSinceLastStep, x, speed)
 
 									entity.translateTo(x, y, 0);
@@ -668,11 +653,22 @@ var PhysicsComponent = TaroEventingClass.extend({
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
 										entity.nextKeyFrame = [taro._currentTime + (timeElapsedSinceLastStep), [x, y, angle]];
+
+										var xDiff = entity.nextKeyFrame[1][0] - x;
+										var yDiff = entity.nextKeyFrame[1][1] - y;
+
+										distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
+										entity.speed = distanceToTarget / timeElapsed;
+										entity.direction = Math.atan2(yDiff, xDiff);
+										console.log(entity.nextKeyFrame[1], xDiff, entity.speed, entity.direction)
+										entity.prevKeyFrame = entity.nextKeyFrame;
 									} else { // update server-streamed entities' body position
 										x = entity.nextKeyFrame[1][0];
 										y = entity.nextKeyFrame[1][1];
 										angle = entity.nextKeyFrame[1][2];
 									}
+									
+									
 								}
 							}
 
