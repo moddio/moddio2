@@ -90,6 +90,8 @@ var TaroChatServer = {
 					userId: sender._stats.userId
 				});
 				return;
+			} else if (/(https?:\/\/[^\s]+)/g.test(message)) {
+				return;
 			}
 
 			taro.game.lastChatMessageSentByPlayer = message;
