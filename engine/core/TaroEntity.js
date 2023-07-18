@@ -5117,9 +5117,7 @@ var TaroEntity = TaroObject.extend({
 
 		let xDiff = null;
 		let yDiff = null;
-		let direction = null;
-		let distanceToTarget = null;
-
+		
 		let rotateStart = null;
 		let rotateEnd = null;
 
@@ -5128,7 +5126,7 @@ var TaroEntity = TaroObject.extend({
 		let rotate = this._rotate.z;
 		
 		var nextTransform = this.nextKeyFrame[1];
-		var rubberbandStrength = taro.fps() / 8;
+		var rubberbandStrength = taro.fps() / 10;
 
 		if (nextTransform) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
@@ -5146,10 +5144,7 @@ var TaroEntity = TaroObject.extend({
 				// }
 
 				// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-				if (xDiff != 0 || yDiff != 0) {
-					x += this.speed * Math.cos(this.direction) * tickDelta;
-					y += this.speed * Math.sin(this.direction) * tickDelta;
-				} else if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
+				if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
 					x += xDiff/rubberbandStrength;
 					y += yDiff/rubberbandStrength;
 				}

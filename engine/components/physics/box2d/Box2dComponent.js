@@ -654,13 +654,13 @@ var PhysicsComponent = TaroEventingClass.extend({
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
 										entity.nextKeyFrame = [taro._currentTime + (timeElapsedSinceLastStep), [x, y, angle]];
 
-										var xDiff = entity.nextKeyFrame[1][0] - x;
-										var yDiff = entity.nextKeyFrame[1][1] - y;
+										// var xDiff = entity.nextKeyFrame[1][0] - x;
+										// var yDiff = entity.nextKeyFrame[1][1] - y;
 
-										distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-										entity.speed = distanceToTarget / timeElapsed;
-										entity.direction = Math.atan2(yDiff, xDiff);
-										console.log(entity.nextKeyFrame[1], xDiff, entity.speed, entity.direction)
+										// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
+										// entity.speed = distanceToTarget / timeElapsed;
+										// entity.direction = Math.atan2(yDiff, xDiff);
+										// console.log(entity.nextKeyFrame[1], xDiff, entity.speed, entity.direction)
 										entity.prevKeyFrame = entity.nextKeyFrame;
 									} else { // update server-streamed entities' body position
 										x = entity.nextKeyFrame[1][0];
