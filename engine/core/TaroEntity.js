@@ -72,7 +72,6 @@ var TaroEntity = TaroObject.extend({
 		this.nextKeyFrame = [0, [this._translate.x, this._translate.y, this._rotate.z]];
 		this.latestTimeStamp = 0;
 		this.prevKeyFrame = this.nextKeyFrame
-		this._lastTransformAt = null;
 		this.lastTeleportedAt = 0;
 		this.teleported = false;
         this.teleportCamera = false;
@@ -4368,7 +4367,7 @@ var TaroEntity = TaroObject.extend({
 						this._oldTranform = [x, y, angle];
 
 						var distanceTravelled = x - taro.lastX;
-						console.log(this.id(), taro._lastPhysicsUpdateAt, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
+						// console.log(this.id(), taro._lastPhysicsUpdateAt, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
 						taro.lastX = x
 						taro.lastSnapshotTime = taro._currentTime;
 
@@ -5071,6 +5070,8 @@ var TaroEntity = TaroObject.extend({
 	 * @return {Number} The interpolated value.
 	 */
 	interpolateValue: function (startValue, endValue, startTime, currentTime, endTime) {
+		// if (this == taro.client.selectedUnit)
+		// 	console.log(startValue, endValue, startTime, currentTime, endTime)
 		var totalValue = endValue - startValue;
 		var dataDelta = endTime - startTime;
 		var offsetDelta = currentTime - startTime;
@@ -5099,10 +5100,9 @@ var TaroEntity = TaroObject.extend({
      */
 	_processTransform: function () {
 
-		let tickDelta = taro._currentTime - this._lastTransformAt;
 		if (
-			// prevent calling this function multiple times for a same entity
-			tickDelta == 0 ||
+			// prevent entity from transforming multiple times
+			this.lastTransformedAt == taro._currentTime ||
 			// entity has no body
 			this._translate == undefined ||
 			this._stats.currentBody == undefined ||
@@ -5125,35 +5125,69 @@ var TaroEntity = TaroObject.extend({
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
 		
+		var nextTime = this.nextKeyFrame[0];
 		var nextTransform = this.nextKeyFrame[1];
-		var rubberbandStrength = taro.fps() / 10;
-
-		if (nextTransform) {
+		var rubberbandStrength = taro.fps() / 15;
+		let tickDelta = taro._currentTime - this.lastTransformedAt;
+		
+		if (nextTransform && !isNaN(this.renderSpeed) && !isNaN(this.renderDirection)) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
 			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
 
-				xDiff = nextTransform[0] - x;
-				yDiff = nextTransform[1] - y;
-				
 				// if (this == taro.client.selectedUnit) {
 				// 	console.log(xDiff, x, rubberbandStrength)
 				// }
 
+				
 				// if (this == taro.client.selectedUnit) {
-				// 	console.log(this.speed, this.direction, nextTransform[0], x, xDiff, tickDelta)
+				// 	console.log(x, nextTransform[0], "renderSpeed & direction", this.renderSpeed, this.renderDirection, tickDelta, "taro._currentTime", taro._currentTime)
+				// 	// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
+				// }
+				
+
+				// x += this.renderSpeed * Math.cos(this.renderDirection) * tickDelta;
+				// y += this.renderSpeed * Math.sin(this.renderDirection) * tickDelta;
+			
+				var timeRemaining = nextTime - this.lastTransformedAt;
+				if (timeRemaining > 0) {
+
+					xDiff = nextTransform[0] - x;
+					yDiff = nextTransform[1] - y;
+				
+					var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
+					var speed = distanceToTarget / timeRemaining;
+					var direction = Math.atan2(yDiff, xDiff);
+					
+					// if (this == taro.client.selectedUnit) {
+					// 	console.log(x, nextTransform[0], "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "taro._currentTime", taro._currentTime)
+					// 	// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
+					// }
+					
+
+					x += speed * Math.cos(direction) * tickDelta;
+					y += speed * Math.sin(direction) * tickDelta;
+				
+				}
+				
+
+				// xDiff = nextTransform[0] - x;
+				// yDiff = nextTransform[1] - y;
+			
+				
+				// if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
+				// 	var rubberbandedX = x + (xDiff/rubberbandStrength);
+				// 	var rubberbandedY = y + (yDiff/rubberbandStrength);
+
+				// 	// x&y using averaged value from lerp & rubberbanding
+				// 	x = (x + rubberbandedX) / 2;
+				// 	y = (y + rubberbandedY) / 2;
 				// }
 
-				// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-				if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
-					x += xDiff/rubberbandStrength;
-					y += yDiff/rubberbandStrength;
-				}
+				
 
 				
 				// if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
-				// xDiff = nextTransform[0] - x;
-				// yDiff = nextTransform[1] - y;
-				
+
 				// 	x += xDiff/rubberbandStrength;
 				// 	y += yDiff/rubberbandStrength;
 				// }
@@ -5200,9 +5234,8 @@ var TaroEntity = TaroObject.extend({
 		// this.rotateTo(0, 0, rotate);
 		// this.translateTo(x, y, 0);
 
-		this._lastTransformAt = taro._currentTime;
-
 		this.teleported = false;
+		this.lastTransformedAt = taro._currentTime;
 	},
 
 	getAttributeBarContainer: function () {

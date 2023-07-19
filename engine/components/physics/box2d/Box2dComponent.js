@@ -566,6 +566,25 @@ var PhysicsComponent = TaroEventingClass.extend({
 						entity = tempBod._entity;
 
 						if (entity) {
+
+							// apply movement if it's either human-controlled unit, or ai unit that's currently moving
+							if (entity.vector && entity._stats.controls && (entity.vector.x != 0 || entity.vector.y != 0)) {
+								// console.log('unit movement 2', entity.angleToTarget, entity.direction, entity.vector);
+							
+								switch (entity._stats.controls?.movementMethod) { // velocity-based movement
+									case 'velocity':
+										entity.setLinearVelocity(entity.vector.x, entity.vector.y);
+										break;
+									case 'force':
+										entity.applyForce(entity.vector.x, entity.vector.y);
+										break;
+									case 'impulse':
+										entity.applyImpulse(entity.vector.x, entity.vector.y);
+										break;
+								}
+							
+							}
+
 							var mxfp = dists[taro.physics.engine].getmxfp(tempBod);
 							var x = mxfp.x * taro.physics._scaleRatio;
 							var y = mxfp.y * taro.physics._scaleRatio;
@@ -652,16 +671,22 @@ var PhysicsComponent = TaroEventingClass.extend({
 								} else if (taro.isClient) {
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
-										entity.nextKeyFrame = [taro._currentTime + (timeElapsedSinceLastStep), [x, y, angle]];
+										entity.nextKeyFrame = [Date.now() + timeElapsedSinceLastStep, [x, y, angle]];
+	
+										var xDiff = entity.nextKeyFrame[1][0] - entity._translate.x;
+										var yDiff = entity.nextKeyFrame[1][1] - entity._translate.y;
 
-										// var xDiff = entity.nextKeyFrame[1][0] - x;
-										// var yDiff = entity.nextKeyFrame[1][1] - y;
+										var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
+										entity.renderSpeed = distanceToTarget / timeElapsedSinceLastStep;
+										entity.renderDirection = Math.atan2(yDiff, xDiff);
 
-										// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-										// entity.speed = distanceToTarget / timeElapsed;
-										// entity.direction = Math.atan2(yDiff, xDiff);
+										if (entity == taro.client.selectedUnit) { 
+											console.log(entity.renderSpeed, xDiff, timeElapsedSinceLastStep)
+										}
+										
 										// console.log(entity.nextKeyFrame[1], xDiff, entity.speed, entity.direction)
-										entity.prevKeyFrame = entity.nextKeyFrame;
+										
+										
 									} else { // update server-streamed entities' body position
 										x = entity.nextKeyFrame[1][0];
 										y = entity.nextKeyFrame[1][1];
