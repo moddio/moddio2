@@ -472,7 +472,7 @@ var TaroNetIoClient = {
 		var snapshot = _.cloneDeep(data)[1];
 		var serverTimeStamp = snapshot[snapshot.length - 1][1];
 
-		var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
+		var timeElapsed = Date.now() - this._lastSnapshotTimestamp;						
 		// iterate through each entities
 		// console.log(snapshot)
 		for (var i = 0; i < snapshot.length; i++) {
@@ -511,24 +511,25 @@ var TaroNetIoClient = {
 						!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 					) {
 						// console.log(timeElapsed)
-						entity.nextKeyFrame = [taro._currentTime + timeElapsed, newPosition];						
+						entity.nextKeyFrame = [Date.now(), newPosition];						
 
-						// var xDiff = newPosition[0] - entity._translate.x;
-						// var yDiff = newPosition[1] - entity._translate.y;					
+						var xDiff = newPosition[0] - entity._translate.x;
+						var yDiff = newPosition[1] - entity._translate.y;
 
-						if (entity.prevKeyFrame) {
-							var xDiff = newPosition[0] - entity.prevKeyFrame[1][0];
-							var yDiff = newPosition[1] - entity.prevKeyFrame[1][1];
-
-							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							entity.speed = distanceToTarget / timeElapsed;
-							entity.direction = Math.atan2(yDiff, xDiff);
+						if (entity == taro.client.selectedUnit) { 
+							console.log(entity._translate.x, newPosition[0], xDiff, timeElapsed)
 						}
+
+						// // var xDiff = newPosition[0] - entity._translate.x;
+						// // var yDiff = newPosition[1] - entity._translate.y;					
+
+						// if (entity.prevKeyFrame) {
+							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
+							entity.renderSpeed = distanceToTarget / timeElapsed;
+							entity.renderDirection = Math.atan2(yDiff, xDiff);
+						// }
 						
-						this._lastSnapshotTimestamp = serverTimeStamp;	
-						entity.prevKeyFrame = entity.nextKeyFrame;
-						
-						entity.lastStreamReceivedAt = serverTimeStamp;
+						this._lastSnapshotTimestamp = Date.now();
 					}
 					break;
 					

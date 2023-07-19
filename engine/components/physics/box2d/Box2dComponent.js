@@ -671,7 +671,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 								} else if (taro.isClient) {
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
-										entity.nextKeyFrame = [Date.now() + timeElapsedSinceLastStep, [x, y, angle]];
+										entity.nextKeyFrame = [Date.now(), [x, y, angle]];
 	
 										var xDiff = entity.nextKeyFrame[1][0] - entity._translate.x;
 										var yDiff = entity.nextKeyFrame[1][1] - entity._translate.y;
@@ -681,7 +681,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 										entity.renderDirection = Math.atan2(yDiff, xDiff);
 
 										if (entity == taro.client.selectedUnit) { 
-											console.log(entity.renderSpeed, xDiff, timeElapsedSinceLastStep)
+											console.log(x, entity.nextKeyFrame[1][0], entity.renderSpeed, xDiff, timeElapsedSinceLastStep)
 										}
 										
 										// console.log(entity.nextKeyFrame[1], xDiff, entity.speed, entity.direction)

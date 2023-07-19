@@ -17,7 +17,6 @@ var TaroEntity = TaroObject.extend({
 		this.speed = 0;
 		this.vector = {x: 0, y: 0};
 		this.prevPhysicsFrame = [taro._currentTime, [translateX, translateY, rotate]];
-		this.lastStreamReceivedAt = 0;
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
 		this._specialProp.push('_aabb');
@@ -5130,7 +5129,7 @@ var TaroEntity = TaroObject.extend({
 		var rubberbandStrength = taro.fps() / 15;
 		let tickDelta = taro._currentTime - this.lastTransformedAt;
 		
-		if (nextTransform && !isNaN(this.renderSpeed) && !isNaN(this.renderDirection)) {
+		if (nextTransform) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
 			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
 
@@ -5139,33 +5138,44 @@ var TaroEntity = TaroObject.extend({
 				// }
 
 				
-				// if (this == taro.client.selectedUnit) {
-				// 	console.log(x, nextTransform[0], "renderSpeed & direction", this.renderSpeed, this.renderDirection, tickDelta, "taro._currentTime", taro._currentTime)
-				// 	// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
-				// }
+				
 				
 
 				// x += this.renderSpeed * Math.cos(this.renderDirection) * tickDelta;
 				// y += this.renderSpeed * Math.sin(this.renderDirection) * tickDelta;
 			
 				var timeRemaining = nextTime - this.lastTransformedAt;
+
 				if (timeRemaining > 0) {
 
+					if (this == taro.client.selectedUnit) {
+						console.log(x, nextTransform[0], timeRemaining)
+						// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
+					}
 					xDiff = nextTransform[0] - x;
 					yDiff = nextTransform[1] - y;
 				
 					var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
 					var speed = distanceToTarget / timeRemaining;
 					var direction = Math.atan2(yDiff, xDiff);
-					
-					// if (this == taro.client.selectedUnit) {
-					// 	console.log(x, nextTransform[0], "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "taro._currentTime", taro._currentTime)
-					// 	// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
-					// }
+					// var speed = this.renderSpeed;
+					// var direction = this.renderDirection;
+						
+					if (!isNaN(speed) & !isNaN(direction)) {
+						
+						// if (this == taro.client.selectedUnit) {
+						// 	console.log(x, nextTransform[0], "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "taro._currentTime", taro._currentTime)
+						// 	// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
+						// }
+						
+
+						x += speed * Math.cos(direction) * tickDelta;
+						y += speed * Math.sin(direction) * tickDelta;
+					}
 					
 
-					x += speed * Math.cos(direction) * tickDelta;
-					y += speed * Math.sin(direction) * tickDelta;
+					// x += this.renderSpeed * Math.cos(direction) * tickDelta;
+					// y += this.renderSpeed * Math.sin(direction) * tickDelta;
 				
 				}
 				
@@ -5191,6 +5201,7 @@ var TaroEntity = TaroObject.extend({
 				// 	x += xDiff/rubberbandStrength;
 				// 	y += yDiff/rubberbandStrength;
 				// }
+
 			}
 			
 
