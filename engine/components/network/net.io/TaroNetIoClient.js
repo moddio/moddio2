@@ -469,10 +469,11 @@ var TaroNetIoClient = {
 			this.emit(isItSnapshot, data[1]);
 		}
 
+		var now = Date.now();
 		var snapshot = _.cloneDeep(data)[1];
 		var serverTimeStamp = snapshot[snapshot.length - 1][1];
 
-		var timeElapsed = Date.now() - this._lastSnapshotTimestamp;						
+		var timeElapsed = now - this._lastSnapshotTimestamp;						
 		// iterate through each entities
 		// console.log(snapshot)
 		for (var i = 0; i < snapshot.length; i++) {
@@ -511,7 +512,7 @@ var TaroNetIoClient = {
 						!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 					) {
 						// console.log(timeElapsed)
-						entity.nextKeyFrame = [Date.now(), newPosition];						
+						entity.nextKeyFrame = [now + timeElapsed, newPosition];						
 
 						// var xDiff = newPosition[0] - entity._translate.x;
 						// var yDiff = newPosition[1] - entity._translate.y;
@@ -529,7 +530,7 @@ var TaroNetIoClient = {
 							// entity.renderDirection = Math.atan2(yDiff, xDiff);
 						// }
 						
-						this._lastSnapshotTimestamp = Date.now();
+						this._lastSnapshotTimestamp = now;
 					}
 					break;
 					
