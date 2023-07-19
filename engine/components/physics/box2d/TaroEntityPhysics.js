@@ -168,6 +168,14 @@ var TaroEntityPhysics = TaroEntity.extend({
 			if (defaultData.translate) {
 				var x = defaultData.translate.x;
 				var y = defaultData.translate.y;
+				
+				if (defaultData.velocity) {
+
+					// extrapolate bullet spawning position based on velocity, so the bullet doesn't spawn and stay in a same position until the next keyframe
+					x -= defaultData.velocity.x;
+					y -= defaultData.velocity.y;
+				}
+		
 
 				// immediately translate entity if position is assigned
 				if (!isNaN(x) && !isNaN(y)) {
@@ -175,7 +183,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 					//     this.translateToLT(x, y, 0)
 					// else
 
-					this.nextKeyFrame = [0, [x, y, rotate]]
+					this.nextKeyFrame = [Date.now(), [x, y, rotate]]
 					this.translateTo(x, y, 0);
 				}
 			}

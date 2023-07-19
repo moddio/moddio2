@@ -14,6 +14,13 @@ var TaroEntity = TaroObject.extend({
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
 		var rotate = defaultData.rotate || 0;
 
+		if (defaultData.velocity) {
+
+			// extrapolate bullet spawning position based on velocity, so the bullet doesn't spawn and stay in a same position until the next keyframe
+			translateY -= defaultData.velocity.y;
+			translateX -= defaultData.velocity.x;
+		}
+
 		this.speed = 0;
 		this.vector = {x: 0, y: 0};
 		this.prevPhysicsFrame = [taro._currentTime, [translateX, translateY, rotate]];
@@ -68,13 +75,14 @@ var TaroEntity = TaroObject.extend({
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.nextKeyFrame = [0, [this._translate.x, this._translate.y, this._rotate.z]];
 		this.latestTimeStamp = 0;
+		this.nextKeyFrame = [taro._currentTime, [this._translate.x, this._translate.y, this._rotate.z]];
 		this.prevKeyFrame = this.nextKeyFrame
 		this.lastTeleportedAt = 0;
 		this.teleported = false;
         this.teleportCamera = false;
-		this.teleportDestination = this.nextKeyFrame[1];
+		this.lastTransformedAt = taro._currentTime;
+		// this.teleportDestination = this.nextKeyFrame[1];
 
 		if (taro.isClient) {
 			this.anchorOffset = { x: 0, y: 0, rotate: 0 };
@@ -5124,37 +5132,33 @@ var TaroEntity = TaroObject.extend({
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
 		
-		var nextTime = this.nextKeyFrame[0];
 		var nextTransform = this.nextKeyFrame[1];
-		var rubberbandStrength = taro.fps() / 15;
+		// var rubberbandStrength = taro.fps() / 15;
 		let tickDelta = taro._currentTime - this.lastTransformedAt;
 		
 		if (nextTransform) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
 			if (!(this._category == 'item' && this.getOwnerUnit() != undefined)) {
 
-				// if (this == taro.client.selectedUnit) {
-				// 	console.log(xDiff, x, rubberbandStrength)
-				// }
-
-				
-				
-				
-
 				// x += this.renderSpeed * Math.cos(this.renderDirection) * tickDelta;
 				// y += this.renderSpeed * Math.sin(this.renderDirection) * tickDelta;
+				var nextTime = this.nextKeyFrame[0];
+				xDiff = nextTransform[0] - x;
+				yDiff = nextTransform[1] - y;
 			
 				var timeRemaining = nextTime - this.lastTransformedAt;
+				
+				if (this._category == "projectile") {
+					console.log(nextTransform[0], x, xDiff, nextTime, this.lastTransformedAt, timeRemaining)
+				}
 
+				
 				if (timeRemaining > 0) {
 
-					if (this == taro.client.selectedUnit) {
-						console.log(x, nextTransform[0], timeRemaining)
-						// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
-					}
-					xDiff = nextTransform[0] - x;
-					yDiff = nextTransform[1] - y;
-				
+					// if (this == taro.client.selectedUnit) {
+					// 	console.log(x, nextTransform[0], timeRemaining)
+					// }
+					
 					var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
 					var speed = distanceToTarget / timeRemaining;
 					var direction = Math.atan2(yDiff, xDiff);

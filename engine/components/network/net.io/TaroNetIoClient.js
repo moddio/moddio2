@@ -513,20 +513,20 @@ var TaroNetIoClient = {
 						// console.log(timeElapsed)
 						entity.nextKeyFrame = [Date.now(), newPosition];						
 
-						var xDiff = newPosition[0] - entity._translate.x;
-						var yDiff = newPosition[1] - entity._translate.y;
+						// var xDiff = newPosition[0] - entity._translate.x;
+						// var yDiff = newPosition[1] - entity._translate.y;
 
-						if (entity == taro.client.selectedUnit) { 
-							console.log(entity._translate.x, newPosition[0], xDiff, timeElapsed)
-						}
+						// if (entity == taro.client.selectedUnit) { 
+						// 	console.log(entity._translate.x, newPosition[0], xDiff, timeElapsed)
+						// }
 
 						// // var xDiff = newPosition[0] - entity._translate.x;
 						// // var yDiff = newPosition[1] - entity._translate.y;					
 
 						// if (entity.prevKeyFrame) {
-							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							entity.renderSpeed = distanceToTarget / timeElapsed;
-							entity.renderDirection = Math.atan2(yDiff, xDiff);
+							// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
+							// entity.renderSpeed = distanceToTarget / timeElapsed;
+							// entity.renderDirection = Math.atan2(yDiff, xDiff);
 						// }
 						
 						this._lastSnapshotTimestamp = Date.now();

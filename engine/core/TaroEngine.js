@@ -1359,9 +1359,9 @@ var TaroEngine = TaroEntity.extend({
 				lastVal = val; 
 			}
 
-			this._currentTime += ((val - lastVal) * this._timeScale);
-
+			// this._currentTime += ((val - lastVal) * this._timeScale);
 			// this._currentTime = (now + this.timeDiscrepancy) * this._timeScale;
+			this._currentTime = Date.now();
 		}
 
 		return this._currentTime;
@@ -1475,12 +1475,12 @@ var TaroEngine = TaroEntity.extend({
 	},
 
 	physicsLoop: function () {
-		var timeElapsed = taro._currentTime - taro._lastPhysicsUpdateAt;
+		var timeElapsed = Date.now() - taro._lastPhysicsUpdateAt;
 		if (taro.physics) {
 			taro.physics.update(timeElapsed);
 		}
 
-		taro._lastPhysicsUpdateAt = taro._currentTime;
+		taro._lastPhysicsUpdateAt = Date.now();
 		if (taro.isServer) {
 			// server timestamp should be based on last physics update
 			taro.network.stream._sendQueue(taro._lastPhysicsUpdateAt);
