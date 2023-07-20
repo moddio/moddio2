@@ -473,7 +473,7 @@ var TaroNetIoClient = {
 		var snapshot = _.cloneDeep(data)[1];
 		var serverTimeStamp = snapshot[snapshot.length - 1][1];
 
-		var timeElapsed = now - this._lastSnapshotTimestamp;						
+		var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
 		// iterate through each entities
 		// console.log(snapshot)
 		for (var i = 0; i < snapshot.length; i++) {
@@ -530,7 +530,7 @@ var TaroNetIoClient = {
 							// entity.renderDirection = Math.atan2(yDiff, xDiff);
 						// }
 						
-						this._lastSnapshotTimestamp = now;
+						this._lastSnapshotTimestamp = serverTimeStamp;
 					}
 					break;
 					
