@@ -36,7 +36,7 @@ const Client = TaroEventingClass.extend({
 	classId: 'Client',
 
 	init: function() {
-
+		var self = this;
 		this.data = [];
 		this.host = window.isStandalone ? 'https://www.modd.io' : '';
 
@@ -56,6 +56,19 @@ const Client = TaroEventingClass.extend({
 				height: 32
 			})
 		);
+
+		if (window.performance.now) {
+			console.log("Using high performance timer");
+			self.getHrTime = function() { return window.performance.now(); };
+		} else {
+			if (window.performance.webkitNow) {
+				console.log("Using webkit high performance timer");
+				self.getHrTime = function() { return window.performance.webkitNow(); };
+			} else {
+				console.log("Using low performance timer");
+				self.getHrTime = function() { return new Date().getTime(); };
+			}
+		}
 
 		this.taroEngineStarted = $.Deferred();
 		this.physicsConfigLoaded = $.Deferred();

@@ -469,13 +469,9 @@ var TaroNetIoClient = {
 			this.emit(isItSnapshot, data[1]);
 		}
 
-		var now = Date.now();
+		var now = taro.client.getHrTime();
 		var snapshot = _.cloneDeep(data)[1];
-		var serverTimeStamp = snapshot[snapshot.length - 1][1];
-
-		var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
-		// iterate through each entities
-		// console.log(snapshot)
+		
 		for (var i = 0; i < snapshot.length; i++) {
 			var ciDecoded = snapshot[i][0].charCodeAt(0);
 			var commandName = this._networkCommandsIndex[ciDecoded];
@@ -485,53 +481,73 @@ var TaroNetIoClient = {
 
 			switch (commandName) {
 				case '_taroStreamData':
-					var entityData = snapshot[i].slice(1).split('&');
-					var entityId = entityData[0];
-					var entity = taro.$(entityId);
-					
-					entityData.splice(0, 1); // removing entityId
 
-					newPosition = [
-						parseInt(entityData[0], 16), // x
-						parseInt(entityData[1], 16), // y
-						parseInt(entityData[2], 16) / 1000, // rotation
-						// Boolean(parseInt(entityData[3], 16)), // teleported boolean
-						// Boolean(parseInt(entityData[4], 16)) // teleportedCamera boolean
-					];
-
-					// update each entities' final position, so player knows where everything are when returning from a different browser tab
-					// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
-					// console.log(commandName, newSnapshotTimestamp, this._lastSnapshotTimestamp, timeElapsed)
-					
-					if (
-						// entity && entity.nextKeyFrame[0] < newSnapshotTimestamp && 
-						// if csp movement is enabled, don't use server-streamed position for my unit. 
-						// instead, we'll use position updated by physics engine
-						// serverTimeStamp > entity.lastStreamReceivedAt && // ignore duplicate translation stream coming from server
-						entity &&
-						!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
-					) {
-						// console.log(timeElapsed)
-						entity.nextKeyFrame = [now + timeElapsed, newPosition];						
-
-						// var xDiff = newPosition[0] - entity._translate.x;
-						// var yDiff = newPosition[1] - entity._translate.y;
-
-						// if (entity == taro.client.selectedUnit) { 
-						// 	console.log(entity._translate.x, newPosition[0], xDiff, timeElapsed)
+					var serverTimeStamp = snapshot[snapshot.length - 1][1];
+					// ignore duplicate server time stream
+					if (serverTimeStamp != this._lastSnapshotTimestamp) {
+						// var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
+						var timeElapsed = now - this._lastSnapshotReceivedAt;
+						this._lastSnapshotReceivedAt = now;
+						// iterate through each entities
+						// if (timeElapsed < 45 || timeElapsed > 60) {
+						// 	console.log(commandName, snapshot)
 						// }
-
-						// // var xDiff = newPosition[0] - entity._translate.x;
-						// // var yDiff = newPosition[1] - entity._translate.y;					
-
-						// if (entity.prevKeyFrame) {
-							// distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							// entity.renderSpeed = distanceToTarget / timeElapsed;
-							// entity.renderDirection = Math.atan2(yDiff, xDiff);
-						// }
-						
 						this._lastSnapshotTimestamp = serverTimeStamp;
+						
+
+						var entityData = snapshot[i].slice(1).split('&');
+						var entityId = entityData[0];
+						var entity = taro.$(entityId);
+						
+						entityData.splice(0, 1); // removing entityId
+
+						newPosition = [
+							parseInt(entityData[0], 16), // x
+							parseInt(entityData[1], 16), // y
+							parseInt(entityData[2], 16) / 1000, // rotation
+							// Boolean(parseInt(entityData[3], 16)), // teleported boolean
+							// Boolean(parseInt(entityData[4], 16)) // teleportedCamera boolean
+						];
+
+						// update each entities' final position, so player knows where everything are when returning from a different browser tab
+						// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
+						// console.log(commandName, newSnapshotTimestamp, this._lastSnapshotTimestamp, timeElapsed)
+						
+						if (
+							// entity && entity.nextKeyFrame[0] < newSnapshotTimestamp && 
+							// if csp movement is enabled, don't use server-streamed position for my unit. 
+							// instead, we'll use position updated by physics engine
+							// serverTimeStamp > entity.lastStreamReceivedAt && // ignore duplicate translation stream coming from server
+							entity && timeElapsed &&
+							!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
+						) {
+							// console.log(timeElapsed)
+							entity.nextKeyFrame = [now + timeElapsed + 50, newPosition];						
+
+							// entity.xDiff = newPosition[0] - entity._translate.x;
+							// entity.yDiff = newPosition[1] - entity._translate.y;
+
+							// if (entity == taro.client.selectedUnit) { 
+							// 	console.log(entity._translate.x, newPosition[0], xDiff, timeElapsed)
+							// }
+
+							var xDiff = newPosition[0] - entity._translate.x;
+							var yDiff = newPosition[1] - entity._translate.y;					
+
+							// if (entity.prevKeyFrame) {
+								distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
+								entity.renderSpeed = distanceToTarget / timeElapsed;
+								// entity.renderDirection = Math.atan2(yDiff, xDiff);
+
+								// console.log(now + timeElapsed, "timeElapsed", timeElapsed, "target x", newPosition[0], "x remaining", xDiff, "renderSpeed", entity.renderSpeed)
+
+							// }
+						}
+
+
 					}
+					
+					
 					break;
 					
 				case 'teleport':

@@ -4376,8 +4376,7 @@ var TaroEntity = TaroObject.extend({
 						var distanceTravelled = x - taro.lastX;
 						// console.log(this.id(), taro._lastPhysicsUpdateAt, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
 						taro.lastX = x
-						taro.lastSnapshotTime = taro._currentTime;
-
+						
 						let buffArr = [];
 						
 						buffArr.push(Number(x));
@@ -5105,7 +5104,7 @@ var TaroEntity = TaroObject.extend({
 	/**
      * Update the position of the entities using the interpolation. This results smooth motion of the entities.
      */
-	_processTransform: function () {
+	_processTransform: function (tickDelta) {
 
 		if (
 			// prevent entity from transforming multiple times
@@ -5121,6 +5120,7 @@ var TaroEntity = TaroObject.extend({
 		) {
 			return;
 		}
+		let now = taro.client.getHrTime();
 
 		let xDiff = null;
 		let yDiff = null;
@@ -5133,8 +5133,7 @@ var TaroEntity = TaroObject.extend({
 		let rotate = this._rotate.z;
 		
 		var nextTransform = this.nextKeyFrame[1];
-		// var rubberbandStrength = taro.fps() / 15;
-		let tickDelta = taro._currentTime - this.lastTransformedAt;
+		var rubberbandStrength = taro.fps() / 15;
 		
 		if (nextTransform) {
 			// don't apply to item that's held by unit as that's calculated by anchor calculation			
@@ -5146,11 +5145,11 @@ var TaroEntity = TaroObject.extend({
 				xDiff = nextTransform[0] - x;
 				yDiff = nextTransform[1] - y;
 			
-				var timeRemaining = nextTime - this.lastTransformedAt;
+				var timeRemaining = nextTime - now;
 				
-				if (this._category == "projectile") {
-					console.log(nextTransform[0], x, xDiff, nextTime, this.lastTransformedAt, timeRemaining)
-				}
+				// if (this._category == "projectile") {
+				// 	console.log(nextTransform[0], x, xDiff, nextTime, this.lastTransformedAt, timeRemaining)
+				// }
 
 				
 				if (timeRemaining > 0) {
@@ -5160,21 +5159,21 @@ var TaroEntity = TaroObject.extend({
 					// }
 					
 					var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-					var speed = distanceToTarget / timeRemaining;
+					var speed = distanceToTarget / timeRemaining; // the speed that this entity should be moving at to get to the destination
 					var direction = Math.atan2(yDiff, xDiff);
 					// var speed = this.renderSpeed;
 					// var direction = this.renderDirection;
 						
 					if (!isNaN(speed) & !isNaN(direction)) {
 						
-						// if (this == taro.client.selectedUnit) {
-						// 	console.log(x, nextTransform[0], "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "taro._currentTime", taro._currentTime)
-						// 	// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
-						// }
-						
-
 						x += speed * Math.cos(direction) * tickDelta;
 						y += speed * Math.sin(direction) * tickDelta;
+
+						if (this == taro.client.selectedUnit) {
+							// console.log(x, nextTransform[0], "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "taro._currentTime", taro._currentTime)
+							// console.log(tickDelta, x, nextTransform[0] - x, "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "now", now);
+							// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
+						}
 					}
 					
 

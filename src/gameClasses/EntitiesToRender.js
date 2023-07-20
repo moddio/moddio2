@@ -7,6 +7,8 @@ var EntitiesToRender = /** @class */ (function () {
         var currentTime = Date.now();
         if (!taro.lastTickTime)
             taro.lastTickTime = currentTime;
+
+        var tickDelta = currentTime - taro.lastTickTime;
         for (var entityId in this.trackEntityById) {
             var entity = taro.$(entityId);
             if (entity) {
@@ -54,7 +56,7 @@ var EntitiesToRender = /** @class */ (function () {
                 
                 // update transformation using incoming network stream
                 if (taro.network.stream) {
-                    entity._processTransform();
+                    entity._processTransform(tickDelta);
                     // if (entity._category == 'item' && entity.getOwnerUnit() != taro.client.selectedUnit)
                     //     console.log("59", entity._stats.name, entity._rotate.z)
                 }
@@ -70,7 +72,7 @@ var EntitiesToRender = /** @class */ (function () {
                             // if ownerUnit's transformation hasn't been processed yet, then it'll cause item to drag behind. so we're running it now
                             // if (entity._category == 'item' && ownerUnit != taro.client.selectedUnit)
                             //     console.log("71", entity._stats.name, entity._rotate.z, ownerUnit._stats.name, taro.client.selectedUnit._stats.name)
-                            ownerUnit._processTransform();
+                            ownerUnit._processTransform(tickDelta);
                             // immediately rotate items for my own unit
                             if (ownerUnit == taro.client.selectedUnit) {
                                 if (entity._stats.currentBody && entity._stats.currentBody.jointType == 'weldJoint') {
