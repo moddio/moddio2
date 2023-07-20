@@ -5120,7 +5120,7 @@ var TaroEntity = TaroObject.extend({
 		) {
 			return;
 		}
-		let now = taro.client.getHrTime();
+		let now = Date.now();
 
 		let xDiff = null;
 		let yDiff = null;
@@ -5144,7 +5144,8 @@ var TaroEntity = TaroObject.extend({
 				var nextTime = this.nextKeyFrame[0];
 				xDiff = nextTransform[0] - x;
 				yDiff = nextTransform[1] - y;
-			
+
+				
 				var timeRemaining = nextTime - now;
 				
 				// if (this._category == "projectile") {
@@ -5152,7 +5153,9 @@ var TaroEntity = TaroObject.extend({
 				// }
 
 				
-				if (timeRemaining > 0) {
+				if (timeRemaining > 10) {
+
+					var tickDelta = 1000 / Math.max(10, taro.fps());
 
 					// if (this == taro.client.selectedUnit) {
 					// 	console.log(x, nextTransform[0], timeRemaining)
@@ -5165,15 +5168,14 @@ var TaroEntity = TaroObject.extend({
 					// var direction = this.renderDirection;
 						
 					if (!isNaN(speed) & !isNaN(direction)) {
-						
+						if (this == taro.client.selectedUnit) {
+							// console.log(x.toFixed(0), nextTransform[0], "nextMove", (speed * Math.cos(direction) * tickDelta / 2).toFixed(0), "speed", speed.toFixed(3), "distance", distanceToTarget.toFixed(3), "direction", direction.toFixed(2), "timeRemaining", timeRemaining.toFixed(0), "tickDelta", tickDelta.toFixed(0), "taro._currentTime", taro._currentTime)
+						}
+
 						x += speed * Math.cos(direction) * tickDelta;
 						y += speed * Math.sin(direction) * tickDelta;
 
-						if (this == taro.client.selectedUnit) {
-							// console.log(x, nextTransform[0], "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "taro._currentTime", taro._currentTime)
-							// console.log(tickDelta, x, nextTransform[0] - x, "speed", speed, "distance", distanceToTarget, "direction", direction, "timeRemaining", timeRemaining, tickDelta, "now", now);
-							// console.log(prevTransform[0], nextTransform[0], prevTime, taro._currentTime, nextTime, "tickDelta", tickDelta, "timeRemaining", nextTime - (prevTime + tickDelta))
-						}
+						
 					}
 					
 

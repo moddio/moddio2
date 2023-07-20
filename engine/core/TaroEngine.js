@@ -100,6 +100,7 @@ var TaroEngine = TaroEntity.extend({
 		this._debugEvents = {}; // Holds debug event booleans for named events
 		this._renderContext = taro.isServer ? '2d' : 'webgl2'; // The rendering context, default is 2d
 		this._renderMode = this._renderModes[this._renderContext]; // Integer representation of the render context
+		this._renderFPS = 60;
 		this._tickTime = 'NA'; // The time the tick took to process
 		this._updateTime = 'NA'; // The time the tick update section took to process
 		

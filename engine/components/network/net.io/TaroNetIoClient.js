@@ -469,7 +469,7 @@ var TaroNetIoClient = {
 			this.emit(isItSnapshot, data[1]);
 		}
 
-		var now = taro.client.getHrTime();
+		var now = Date.now();
 		var snapshot = _.cloneDeep(data)[1];
 		
 		for (var i = 0; i < snapshot.length; i++) {
@@ -522,14 +522,14 @@ var TaroNetIoClient = {
 						!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
 					) {
 						// console.log(timeElapsed)
-						// extra 20ms of buffer removes jittr
-						entity.nextKeyFrame = [now + timeElapsed + 20, newPosition];						
+						// extra 20ms of buffer removes jitter
+						entity.nextKeyFrame = [now + timeElapsed + 10, newPosition];						
 
 						// entity.xDiff = newPosition[0] - entity._translate.x;
 						// entity.yDiff = newPosition[1] - entity._translate.y;
 
 						// if (entity == taro.client.selectedUnit) { 
-						// 	console.log(entity._translate.x, newPosition[0], xDiff, timeElapsed)
+						// 	console.log(newPosition[0], timeElapsed)
 						// }
 
 						var xDiff = newPosition[0] - entity._translate.x;
@@ -537,7 +537,7 @@ var TaroNetIoClient = {
 
 						// if (entity.prevKeyFrame) {
 							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							entity.renderSpeed = distanceToTarget / timeElapsed;
+							// entity.renderSpeed = distanceToTarget / timeElapsed;
 							// entity.renderDirection = Math.atan2(yDiff, xDiff);
 
 							// console.log(now + timeElapsed, "timeElapsed", timeElapsed, "target x", newPosition[0], "x remaining", xDiff, "renderSpeed", entity.renderSpeed)
