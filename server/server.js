@@ -444,7 +444,7 @@ var Server = TaroClass.extend({
 	},
 
 	// run a specific game in this server
-	startGame: function (gameJson) {
+	startGame: function (gameJson, additionalData) {
 		console.log('taro.server.startGame()');
 		var self = this;
 
@@ -511,6 +511,14 @@ var Server = TaroClass.extend({
 				self.gameStartedAt = new Date();
 
 				taro.game.data = game.data;
+
+				if (additionalData && taro.game.data) {
+					taro.game.data = {
+						...taro.game.data,
+						...additionalData
+					}
+				}
+
 				taro.game.cspEnabled = !!taro.game.data.defaultData.clientSidePredictionEnabled;
 
 				global.standaloneGame = game.data;
