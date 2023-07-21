@@ -342,7 +342,9 @@ var Item = TaroEntityPhysics.extend({
 
 								// projectileStreamMode: 0 is clientside predicted
 								// projectileStreamMode: 1 is serverside streamed
-								if (self.projectileData && (taro.isServer || (taro.isClient && self._stats.projectileStreamMode != 1))) {
+								
+								//if (self.projectileData && (taro.isServer || (taro.isClient && self._stats.projectileStreamMode != 1))) {
+									if (self.projectileData && (taro.isServer || (taro.isClient && self._stats.projectileStreamMode != 1))) {
 									defaultData.velocity = {
 										deployMethod: self._stats.deployMethod,
 										x: Math.cos(rotate + Math.radians(-90)) * self._stats.bulletForce,

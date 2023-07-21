@@ -5148,9 +5148,9 @@ var TaroEntity = TaroObject.extend({
 				
 				var timeRemaining = nextTime - now;
 				
-				// if (this._category == "projectile") {
-				// 	console.log(nextTransform[0], x, xDiff, nextTime, this.lastTransformedAt, timeRemaining)
-				// }
+				if (this._category == "projectile") {
+					console.log(nextTransform[0], x, xDiff)
+				}
 
 				
 				if (timeRemaining > 10) {

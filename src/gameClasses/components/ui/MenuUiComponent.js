@@ -140,7 +140,7 @@ var MenuUiComponent = TaroEntity.extend({
 				if (!taro.game.data.isGameDeveloper && !window.isStandalone) {
 					return;
 				}
-				if((['1', '4', '5'].includes(window.gameDetails?.tier)) || window.isStandalone) {
+				if((['1', '4', '5'].includes(window.gameDetails?.tier))) {
 					// console.log("taro developermode: ", taro.developerMode);
 					taro.developerMode.enter();
 
