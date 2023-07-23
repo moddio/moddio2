@@ -5104,7 +5104,9 @@ var TaroEntity = TaroObject.extend({
 	/**
      * Update the position of the entities using the interpolation. This results smooth motion of the entities.
      */
-	_processTransform: function (tickDelta) {
+	_processTransform: function () {
+		
+		var tickDelta = taro._currentTime - this.lastTransformedAt;
 
 		if (
 			// prevent entity from transforming multiple times
@@ -5152,37 +5154,46 @@ var TaroEntity = TaroObject.extend({
 					console.log(nextTransform[0], x, xDiff)
 				}
 
-				
-				if (timeRemaining > 10) {
-
-					var tickDelta = 1000 / Math.max(10, taro.fps());
-
-					// if (this == taro.client.selectedUnit) {
-					// 	console.log(x, nextTransform[0], timeRemaining)
-					// }
-					
-					var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
-					var speed = distanceToTarget / timeRemaining; // the speed that this entity should be moving at to get to the destination
-					var direction = Math.atan2(yDiff, xDiff);
-					// var speed = this.renderSpeed;
-					// var direction = this.renderDirection;
-						
-					if (!isNaN(speed) & !isNaN(direction)) {
-						if (this == taro.client.selectedUnit) {
-							// console.log(x.toFixed(0), nextTransform[0], "nextMove", (speed * Math.cos(direction) * tickDelta / 2).toFixed(0), "speed", speed.toFixed(3), "distance", distanceToTarget.toFixed(3), "direction", direction.toFixed(2), "timeRemaining", timeRemaining.toFixed(0), "tickDelta", tickDelta.toFixed(0), "taro._currentTime", taro._currentTime)
-						}
-
-						x += speed * Math.cos(direction) * tickDelta;
-						y += speed * Math.sin(direction) * tickDelta;
-
-						
-					}
-					
-
-					// x += this.renderSpeed * Math.cos(direction) * tickDelta;
-					// y += this.renderSpeed * Math.sin(direction) * tickDelta;
-				
+				if (rubberbandStrength > 1) {
+					x += xDiff / rubberbandStrength;
+					y += yDiff / rubberbandStrength;
 				}
+				
+				// if (timeRemaining > -taro.renderBuffer) {
+
+				// 	// var tickDelta = 1000 / Math.max(10, taro.fps());
+					
+				// 	// if (this == taro.client.selectedUnit) {
+				// 	// 	console.log(x, nextTransform[0], timeRemaining)
+				// 	// }
+					
+				// 	var distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))
+				// 	// var speed = distanceToTarget / timeRemaining; // the speed that this entity should be moving at to get to the destination
+				// 	var direction = Math.atan2(yDiff, xDiff);
+				// 	// var speed = this.renderSpeed;
+				// 	// var direction = this.renderDirection;
+					
+				// 	// if (this == taro.client.selectedUnit) {
+				// 	// 	console.log(x.toFixed(0), nextTransform[0], "nextMove", (speed * Math.cos(direction) * tickDelta).toFixed(2), "speed", speed.toFixed(3), "distanceToTarget", distanceToTarget.toFixed(3), "direction", direction.toFixed(2), "timeRemaining", timeRemaining.toFixed(0), "tickDelta", tickDelta.toFixed(0), "taro._currentTime", taro._currentTime)
+				// 	// }
+
+					
+				
+
+				// 	// x += this.renderSpeed * Math.cos(direction) * tickDelta;
+				// 	// y += this.renderSpeed * Math.sin(direction) * tickDelta;
+				
+				// } else {
+				// 	// if (!isNaN(rubberbandStrength) && rubberbandStrength > 0) {
+
+				// 	// 	x += xDiff/rubberbandStrength;
+				// 	// 	y += yDiff/rubberbandStrength;
+				// 	// }
+
+					
+				// 	x = nextTransform[0];
+				// 	y = nextTransform[1];
+				// }
 				
 
 				// xDiff = nextTransform[0] - x;

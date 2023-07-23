@@ -485,8 +485,9 @@ var TaroNetIoClient = {
 					var serverTimeStamp = snapshot[snapshot.length - 1][1];
 					// ignore duplicate server time stream
 					if (serverTimeStamp != this._lastSnapshotTimestamp) {
-						// var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
-						var timeElapsed = now - this._lastSnapshotReceivedAt;
+						var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
+						// var timeElapsed = now - this._lastSnapshotReceivedAt;
+						// var timeElapsed = 50;
 						this._lastSnapshotReceivedAt = now;
 						// iterate through each entities
 						// if (timeElapsed < 45 || timeElapsed > 60) {
@@ -523,22 +524,22 @@ var TaroNetIoClient = {
 					) {
 						// console.log(timeElapsed)
 						// extra 20ms of buffer removes jitter
-						entity.nextKeyFrame = [now + timeElapsed + 10, newPosition];						
+						entity.nextKeyFrame = [now + timeElapsed + taro.renderBuffer, newPosition];						
 
 						// entity.xDiff = newPosition[0] - entity._translate.x;
 						// entity.yDiff = newPosition[1] - entity._translate.y;
 
-						// if (entity == taro.client.selectedUnit) { 
-						// 	console.log(newPosition[0], timeElapsed)
-						// }
+						if (entity == taro.client.selectedUnit) { 
+							console.log(serverTimeStamp, timeElapsed, newPosition[0])
+						}
 
 						var xDiff = newPosition[0] - entity._translate.x;
 						var yDiff = newPosition[1] - entity._translate.y;					
 
 						// if (entity.prevKeyFrame) {
 							distanceToTarget = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2))						
-							// entity.renderSpeed = distanceToTarget / timeElapsed;
-							// entity.renderDirection = Math.atan2(yDiff, xDiff);
+							entity.renderSpeed = distanceToTarget / timeElapsed;
+							entity.renderDirection = Math.atan2(yDiff, xDiff);
 
 							// console.log(now + timeElapsed, "timeElapsed", timeElapsed, "target x", newPosition[0], "x remaining", xDiff, "renderSpeed", entity.renderSpeed)
 

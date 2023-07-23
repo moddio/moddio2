@@ -110,6 +110,7 @@ var TaroEngine = TaroEntity.extend({
 		this._physicsLoopTickRate = 20; // "frameTick", input, and streaming
 
 		this._renderFrames = 60;
+		this.renderBuffer = 50;
 
 		this._lastGameLoopTickAt = 0;
 		this._lastPhysicsUpdateAt = Date.now();

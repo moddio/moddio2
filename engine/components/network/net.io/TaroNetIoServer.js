@@ -373,10 +373,10 @@ var TaroNetIoServer = {
 				self.sendQueue = {};
 			}
 
-			// send snapshot
-			if (this.snapshot.length == 0) {
-				return;
-			}
+			// // send snapshot
+			// if (this.snapshot.length == 0) {
+			// 	return;
+			// }
 
 			// append serverTime timestamp to the snapshot
 			self.snapshot.push([String.fromCharCode(this._networkCommandsLookup._taroStreamTime), timestamp]);
