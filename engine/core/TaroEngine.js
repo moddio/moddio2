@@ -110,7 +110,7 @@ var TaroEngine = TaroEntity.extend({
 		this._physicsLoopTickRate = 20; // "frameTick", input, and streaming
 
 		this._renderFrames = 60;
-		this.renderBuffer = 50;
+		this.renderBuffer = 20;
 
 		this._lastGameLoopTickAt = 0;
 		this._lastPhysicsUpdateAt = Date.now();
@@ -1477,6 +1477,17 @@ var TaroEngine = TaroEntity.extend({
 	},
 
 	physicsLoop: function () {
+		// taro.updateCount = {}
+		// taro.tickCount = {}
+
+		if (taroConfig.debug._timing) {
+			updateStart = Date.now();
+			taro.updateSceneGraph();
+			taro._updateTime = Date.now() - updateStart;
+		} else {
+			taro.updateSceneGraph();
+		}
+
 		var timeElapsed = Date.now() - taro._lastPhysicsUpdateAt;
 		if (taro.physics) {
 			taro.physics.update(timeElapsed);
@@ -1488,7 +1499,6 @@ var TaroEngine = TaroEntity.extend({
 			taro.network.stream._sendQueue(taro._lastPhysicsUpdateAt);
 			taro.network.stream.updateEntityAttributes();
 		}
-
 	},
 
 	secondLoop: function() {
@@ -1660,19 +1670,7 @@ var TaroEngine = TaroEntity.extend({
 			taro.totalChildren = 0;
 			taro.totalOrphans = 0;
 
-			// Update the scenegraph - this is where entity _behaviour() is called
-			if (self._enableUpdates) {
-				// taro.updateCount = {}
-				// taro.tickCount = {}
-
-				if (taroConfig.debug._timing) {
-					updateStart = Date.now();
-					self.updateSceneGraph(ctx);
-					taro._updateTime = Date.now() - updateStart;
-				} else {
-					self.updateSceneGraph(ctx);
-				}
-			}
+			
 
 			if (taro.isServer) { // triggersQueued runs on client-side inside EntitiesToRender.ts
 				// triggersQueued is executed in the entities first (entity-script) then it runs for the world
@@ -1709,6 +1707,12 @@ var TaroEngine = TaroEntity.extend({
 				return;
 			}
 
+			// Update the scenegraph - this is where entity _behaviour() is called
+			if (self._enableUpdates) {
+				
+		
+			}
+			
 			// Check for unborn entities that should be born now
 			unbornQueue = taro._spawnQueue;
 			unbornCount = unbornQueue.length;

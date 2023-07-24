@@ -452,6 +452,7 @@ var TaroNetIoClient = {
 	 * @private
 	 */
 	_onMessageFromServer: function (data) {
+		// console.log(data)
 		var ciDecoded = data[0].charCodeAt(0);
 		var isItSnapshot = this._networkCommandsIndex[ciDecoded];		
 		// this should never happen
@@ -486,6 +487,7 @@ var TaroNetIoClient = {
 					// ignore duplicate server time stream
 					if (serverTimeStamp != this._lastSnapshotTimestamp) {
 						var timeElapsed = serverTimeStamp - this._lastSnapshotTimestamp;						
+						// console.log("timeElapsed", timeElapsed)
 						// var timeElapsed = now - this._lastSnapshotReceivedAt;
 						// var timeElapsed = 50;
 						this._lastSnapshotReceivedAt = now;
@@ -530,7 +532,7 @@ var TaroNetIoClient = {
 						// entity.yDiff = newPosition[1] - entity._translate.y;
 
 						if (entity == taro.client.selectedUnit) { 
-							console.log(serverTimeStamp, timeElapsed, newPosition[0])
+							console.log(serverTimeStamp, timeElapsed, newPosition[0], snapshot)
 						}
 
 						var xDiff = newPosition[0] - entity._translate.x;

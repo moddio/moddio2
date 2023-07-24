@@ -662,11 +662,10 @@ var PhysicsComponent = TaroEventingClass.extend({
 										y += yDiff/2;
 									}
 
-									// if (entity._stats.name?.includes('user')) {
-									// 	var speed = (x - this.lastX) / timeElapsedSinceLastStep;
-									// 	console.log(Date.now(), timeElapsedSinceLastStep, x.toFixed(0), speed.toFixed(2))
-									// }
-									
+									if (entity._stats.name?.includes('user')) {
+										var speed = (x - this.lastX) / timeElapsedSinceLastStep;
+										console.log(Date.now(), timeElapsedSinceLastStep, x.toFixed(0), speed.toFixed(2))
+									}
 									
 									entity.translateTo(x, y, 0);
 									entity.rotateTo(0, 0, angle);
@@ -675,7 +674,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 								} else if (taro.isClient) {
 									// my unit's position is dictated by clientside physics
 									if (entity == taro.client.selectedUnit || (entity._category == 'projectile' && !entity._stats.streamMode)) {
-										entity.nextKeyFrame = [now + timeElapsedSinceLastStep + 10, [x, y, angle]];						
+										entity.nextKeyFrame = [now + timeElapsedSinceLastStep + taro.renderBuffer, [x, y, angle]];						
 
 										// entity.nextKeyFrame = [Date.now(), [x, y, angle]];
 	
