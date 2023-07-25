@@ -253,15 +253,12 @@ var ActionComponent = TaroEntity.extend({
 								var newValue = res.response;
 								params['newValue'] = newValue;
 
-								if (taro.game.data.variables.hasOwnProperty(varName)) {
-									taro.game.data.variables[varName].value = newValue;
-								}
+								taro.game.lastPostRequestResponse = newValue;
 							} catch (err) {
 								console.error('sendPostRequest', taro.game.data.defaultData.title, url, err);
-								if (taro.game.data.variables.hasOwnProperty(varName)) {
-									taro.game.data.variables[varName].value = 'error';
-								}
+								taro.game.lastPostRequestResponse = 'error';
 							}
+							taro.script.trigger('postRequestReceived');
 						});
 
 						break;

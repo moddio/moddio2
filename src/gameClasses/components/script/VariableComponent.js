@@ -390,6 +390,11 @@ var VariableComponent = TaroEntity.extend({
 
 					break;
 
+				case 'lastPostRequestResponse':
+					returnValue = taro.game.lastPostRequestResponse;
+
+					break;
+
 				case 'entityExists':
 					returnValue = !!(entity && entity._id && taro.$(entity._id));
 
