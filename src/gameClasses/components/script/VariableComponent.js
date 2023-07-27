@@ -1691,7 +1691,7 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
-				case 'getStringObjectElement':
+				case 'getStringObjectProperty':
 					// if replace value is not intented, use this
 					var string = self.getValue(text.string, vars);
 					var key = self.getValue(text.key, vars);
@@ -1708,7 +1708,7 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
-				case 'addStringObjectElement': 
+				case 'addStringObjectProperty': 
 					// if replace value is not intented, use this
 					var string = self.getValue(text.string, vars);
 					var key = self.getValue(text.key, vars);
@@ -1726,7 +1726,7 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
-				case 'updateStringObjectElement': 
+				case 'updateStringObjectProperty': 
 					// if replace value is intended, use this
 					// if the key able to find a value, replace it, else create new
 					var string = self.getValue(text.string, vars);
@@ -1743,7 +1743,7 @@ var VariableComponent = TaroEntity.extend({
 					}
 					break;
 
-				case 'removeStringObjectElement':
+				case 'removeStringObjectProperty':
 					var string = self.getValue(text.string, vars);
 					var key = self.getValue(text.key, vars);
 					if (string && key != undefined) {
