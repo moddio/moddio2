@@ -1697,11 +1697,11 @@ var VariableComponent = TaroEntity.extend({
 					var key = self.getValue(text.key, vars);
 					if (string && key != undefined) {
 						try {
-							var array = JSON.parse(string);
+							var obj = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
-						returnValue = array[key];
+						returnValue = obj[key];
 						if (typeof returnValue == 'object') {
 							returnValue = JSON.stringify(returnValue);
 						}
@@ -1715,14 +1715,14 @@ var VariableComponent = TaroEntity.extend({
 					var value = self.getValue(text.value, vars);
 					if (string && key != undefined) {
 						try {
-							var array = JSON.parse(string);
+							var obj = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
-						if (array[key] == undefined) {
-							array[key] = value;
+						if (obj[key] == undefined) {
+							obj[key] = value;
 						}
-						returnValue = JSON.stringify(array);
+						returnValue = JSON.stringify(obj);
 					}
 					break;
 
@@ -1734,12 +1734,12 @@ var VariableComponent = TaroEntity.extend({
 					var value = self.getValue(text.value, vars);
 					if (string && key != undefined) {
 						try {
-							var array = JSON.parse(string);
+							var obj = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
-						array[key] = value;
-						returnValue = JSON.stringify(array);
+						obj[key] = value;
+						returnValue = JSON.stringify(obj);
 					}
 					break;
 
@@ -1748,12 +1748,12 @@ var VariableComponent = TaroEntity.extend({
 					var key = self.getValue(text.key, vars);
 					if (string && key != undefined) {
 						try {
-							var array = JSON.parse(string);
+							var obj = JSON.parse(string);
 						} catch (err) {
 							console.error(err);
 						}
-						array[key] = undefined;
-						returnValue = JSON.stringify(array);
+						obj[key] = undefined;
+						returnValue = JSON.stringify(obj);
 					}
 					break;
 
