@@ -378,7 +378,7 @@ var EntityEditor = /** @class */ (function () {
     EntityEditor.prototype.deleteInitEntity = function (actionId) {
         this.devModeScene.entityImages.forEach(function (image) {
             if (image.entity.action.actionId === actionId) {
-                image.entity.update({ actionId: actionId, wasDeleted: true });
+                image.entity.delete();
             }
         });
     };

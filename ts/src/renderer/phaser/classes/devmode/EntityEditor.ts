@@ -395,7 +395,7 @@ class EntityEditor {
     deleteInitEntity(actionId: string): void {
         this.devModeScene.entityImages.forEach((image) => {
             if (image.entity.action.actionId === actionId) {
-                image.entity.update({actionId: actionId, wasDeleted: true});
+                image.entity.delete();
             }
         });
     }
