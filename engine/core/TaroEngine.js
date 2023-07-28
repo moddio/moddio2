@@ -866,7 +866,7 @@ var TaroEngine = TaroEntity.extend({
 
 				if (taro.isServer) {
 					this.emptyTimeLimit = this.getIdleTimeoutMs();
-					requestAnimFrame(taro.engineStep);
+					// requestAnimFrame(taro.engineStep);
 				}
 
 				setInterval(taro.physicsLoop, 1000 / this._physicsLoopTickRate)
@@ -1480,24 +1480,8 @@ var TaroEngine = TaroEntity.extend({
 		// taro.updateCount = {}
 		// taro.tickCount = {}
 
-		if (taroConfig.debug._timing) {
-			updateStart = Date.now();
-			taro.updateSceneGraph();
-			taro._updateTime = Date.now() - updateStart;
-		} else {
-			taro.updateSceneGraph();
-		}
-
-		var timeElapsed = Date.now() - taro._lastPhysicsUpdateAt;
-		if (taro.physics) {
-			taro.physics.update(timeElapsed);
-		}
-
-		taro._lastPhysicsUpdateAt = Date.now();
 		if (taro.isServer) {
-			// server timestamp should be based on last physics update
-			taro.network.stream._sendQueue(taro._lastPhysicsUpdateAt);
-			taro.network.stream.updateEntityAttributes();
+			taro.engineStep(Date.now(), taro.ctx);
 		}
 	},
 
@@ -1653,16 +1637,7 @@ var TaroEngine = TaroEntity.extend({
 			}
 			taro.now = Date.now();
 
-			timeElapsed = taro.now - taro._lastGameLoopTickAt;
-			if (timeElapsed >= (1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder) {
-				taro._gameLoopTickRemainder = Math.min(timeElapsed - ((1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder), (1000 / taro._gameLoopTickRate));
-				taro.gameLoopTickHasExecuted = true;
-		
-
-				taro.queueTrigger('frameTick');
-
-				taro._lastGameLoopTickAt = taro.now;				
-			}
+			taro.queueTrigger('frameTick');
 
 			taro.tickCount = 0;
 			taro.updateTransform = 0;
@@ -1670,7 +1645,14 @@ var TaroEngine = TaroEntity.extend({
 			taro.totalChildren = 0;
 			taro.totalOrphans = 0;
 
-			
+				
+			if (taroConfig.debug._timing) {
+				updateStart = Date.now();
+				taro.updateSceneGraph();
+				taro._updateTime = Date.now() - updateStart;
+			} else {
+				taro.updateSceneGraph();
+			}
 
 			if (taro.isServer) { // triggersQueued runs on client-side inside EntitiesToRender.ts
 				// triggersQueued is executed in the entities first (entity-script) then it runs for the world
@@ -1703,14 +1685,17 @@ var TaroEngine = TaroEntity.extend({
 				return;
 			}
 
-			if (!taro.gameLoopTickHasExecuted) {
-				return;
+			var timeElapsed = Date.now() - taro._lastPhysicsUpdateAt;
+			if (taro.physics) {
+				taro.physics.update(timeElapsed);
+				taro._lastPhysicsUpdateAt = Date.now();
+			
 			}
 
-			// Update the scenegraph - this is where entity _behaviour() is called
-			if (self._enableUpdates) {
-				
-		
+			if (taro.isServer) {
+				// server timestamp should be based on last physics update
+				taro.network.stream._sendQueue(taro._lastPhysicsUpdateAt);
+				taro.network.stream.updateEntityAttributes();
 			}
 			
 			// Check for unborn entities that should be born now
