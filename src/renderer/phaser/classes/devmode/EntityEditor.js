@@ -181,6 +181,9 @@ var EntityEditor = /** @class */ (function () {
             _this.activeEntity = inGameEditor.getActiveEntity && inGameEditor.getActiveEntity();
             _this.updatePreview();
         });
+        taro.client.on('deleteInitEntity', function (actionId) {
+            _this.deleteInitEntity(actionId);
+        });
         gameScene.input.on('pointerdown', function (p) {
             var _a, _b, _c;
             if (!p.leftButtonDown())

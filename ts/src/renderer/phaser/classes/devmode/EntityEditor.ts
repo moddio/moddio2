@@ -202,6 +202,10 @@ class EntityEditor {
 			this.updatePreview();
 		});
 
+        taro.client.on('deleteInitEntity', (actionId: string) => {
+            this.deleteInitEntity(actionId);
+        });
+
 		gameScene.input.on('pointerdown', (p) => {
             if (!p.leftButtonDown()) return;
             const entityData = this.activeEntity;
