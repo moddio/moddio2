@@ -571,6 +571,7 @@ type MapEditTool = {
 
 	clear: {
 		layer: number;
+		layerName?: string;
 	}
 }
 

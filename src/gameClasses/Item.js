@@ -1114,8 +1114,8 @@ var Item = TaroEntityPhysics.extend({
 
 					case 'isBeingUsed':
 						var owner = self.getOwnerUnit();
-						// ignore stream so my item use won't fire two bullets
-						if (taro.isClient && (owner != taro.client.selectedUnit || !this._stats.ignoreServerStream)) {
+						// if the item's CSP is enabled, ignore server-stream so my item use won't fire two bullets
+						if (taro.isClient && (owner != taro.client.selectedUnit || this._stats.projectileStreamMode != 1)) {
 							this._stats.isBeingUsed = newValue;
 						}
 						break;
@@ -1167,15 +1167,11 @@ var Item = TaroEntityPhysics.extend({
 					self._stats.controls.mouseBehaviour &&
 					self._stats.controls.mouseBehaviour.flipSpriteHorizontallyWRTMouse
 				) {
-					if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor) {
-						if (rotate > 0 && rotate < Math.PI) {
-							self.flip(0);
-						} else {
-							self.flip(1);
-						}
+					if (ownerUnit.angleToTarget > 0 && ownerUnit.angleToTarget < Math.PI) {
+						self.flip(0);
 					} else {
-						self.flip(ownerUnit._stats.flip);
-					}
+						self.flip(1);
+					}					
 				}
 			}
 

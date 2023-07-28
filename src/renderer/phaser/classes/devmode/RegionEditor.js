@@ -17,7 +17,9 @@ var RegionEditor = /** @class */ (function () {
                 gameObjects.forEach(function (gameObject) {
                     _this.devModeScene.regionEditor.addClickedList({ name: gameObject.phaserRegion.entity._stats.id, x: gameObject.phaserRegion.stats.x, y: gameObject.phaserRegion.stats.y, width: gameObject.phaserRegion.stats.width, height: gameObject.phaserRegion.stats.height });
                 });
-                _this.devModeScene.regionEditor.showClickedList();
+                if (gameObjects.length > 0) {
+                    _this.devModeScene.regionEditor.showClickedList();
+                }
             }
         }, this);
         var graphics = this.regionDrawGraphics = gameScene.add.graphics();

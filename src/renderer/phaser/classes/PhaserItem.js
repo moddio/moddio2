@@ -35,6 +35,7 @@ var PhaserItem = /** @class */ (function (_super) {
             }
             _this.gameObject.spriteHeight2 = _this.sprite.displayHeight / 2;
         }
+        _this.scene.itemList.push(_this);
         _this.scene.renderedEntities.push(_this.sprite);
         return _this;
     }
@@ -85,6 +86,7 @@ var PhaserItem = /** @class */ (function (_super) {
     PhaserItem.prototype.destroy = function () {
         var _this = this;
         this.scene.renderedEntities = this.scene.renderedEntities.filter(function (item) { return item !== _this.sprite; });
+        this.scene.itemList = this.scene.itemList.filter(function (item) { return item.entity.id() !== _this.entity.id(); });
         this.ownerUnitId = null;
         _super.prototype.destroy.call(this);
     };

@@ -29,7 +29,9 @@ class RegionEditor {
                 gameObjects.forEach(gameObject => {
                     this.devModeScene.regionEditor.addClickedList({name: gameObject.phaserRegion.entity._stats.id, x: gameObject.phaserRegion.stats.x, y: gameObject.phaserRegion.stats.y, width: gameObject.phaserRegion.stats.width, height: gameObject.phaserRegion.stats.height});
                 });
-                this.devModeScene.regionEditor.showClickedList();
+                if (gameObjects.length > 0) {
+                    this.devModeScene.regionEditor.showClickedList();
+                }
             }
 		}, this);
 

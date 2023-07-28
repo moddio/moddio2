@@ -22,6 +22,7 @@ var PhaserProjectile = /** @class */ (function (_super) {
         _this.gameObject = _this.sprite;
         var _a = entity._translate, x = _a.x, y = _a.y;
         _this.gameObject.setPosition(x, y);
+        scene.projectilesList.push(_this);
         Object.assign(_this.evtListeners, {
             'update-texture': entity.on('update-texture', _this.updateTexture, _this),
         });
@@ -53,6 +54,7 @@ var PhaserProjectile = /** @class */ (function (_super) {
     PhaserProjectile.prototype.destroy = function () {
         var _this = this;
         this.scene.renderedEntities = this.scene.renderedEntities.filter(function (item) { return item !== _this.sprite; });
+        this.scene.projectilesList = this.scene.projectilesList.filter(function (item) { return item.entity.id() !== _this.entity.id(); });
         _super.prototype.destroy.call(this);
     };
     return PhaserProjectile;

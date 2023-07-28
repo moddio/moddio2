@@ -19,6 +19,7 @@ var PhaserAnimatedEntity = /** @class */ (function (_super) {
         var _this = _super.call(this, entity) || this;
         _this.scene = scene;
         _this.key = key;
+        _this.attachedParticles = [];
         var bounds = entity._bounds2d;
         _this.sprite = _this.addSprite(key);
         _this.sprite.setDisplaySize(bounds.x, bounds.y);
@@ -56,6 +57,7 @@ var PhaserAnimatedEntity = /** @class */ (function (_super) {
     };
     PhaserAnimatedEntity.prototype.destroy = function () {
         this.sprite = null;
+        this.attachedParticles.forEach(function (particle) { return particle.stop(); });
         _super.prototype.destroy.call(this);
     };
     PhaserAnimatedEntity.prototype.useTexturePack = function (key) {

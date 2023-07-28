@@ -172,6 +172,7 @@ var ScoreboardComponent = TaroEntity.extend({
 				var defaultFontWeight = 500;
 				if (player) {
 					var color = null; // color to indicate human, animal, or my player on scoreboard
+					let playerIsSelf = '';
 
 					var playerType = taro.game.getAsset('playerTypes', player._stats.playerTypeId);
 
@@ -183,6 +184,7 @@ var ScoreboardComponent = TaroEntity.extend({
 					if (player._stats.controlledBy == 'human' && player._stats.clientId == taro.network.id()) {
 						defaultFontWeight = 800;
 						color = '#99FF00';
+						playerIsSelf = 'scoreboard-player-is-myself';
 					}
 
 					var readableName = player._stats.name || '';
@@ -191,7 +193,11 @@ var ScoreboardComponent = TaroEntity.extend({
 					readableName = readableName.replace(/>/g, '&gt;');
 
 					color = color || DEFAULT_COLOR;
-					scoreboard += `<div onContextMenu="window.showUserDropdown({ event, userId: '${player._stats.userId}' })" class='cursor-pointer scoreboard-user-entry' style='color: ${color};font-weight:${defaultFontWeight}'>${readableName} <small><span>${self.convertNumbersToKMB(sortedScores[i].value)}</span></small></div>`;
+					scoreboard += `
+						<div onContextMenu="window.showUserDropdown({ event, userId: '${player._stats.userId}' })" class='cursor-pointer scoreboard-user-entry scoreboard-player-rank-${i} ${playerIsSelf}' style='color: ${color};font-weight:${defaultFontWeight}'>
+							<span class='scoreboard-player-name'>${readableName}</span> <small class='scoreboard-player-score'><span>${self.convertNumbersToKMB(sortedScores[i].value)}</span></small>
+						</div>
+					`;
 				}
 			}
 

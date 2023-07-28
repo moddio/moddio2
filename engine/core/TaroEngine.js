@@ -74,7 +74,7 @@ var TaroEngine = TaroEntity.extend({
 		if (this.isServer) {
 			// this._idCounter = 0
 			this.sanitizer = require('sanitizer').sanitize;
-			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins			
+			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins
 		}
 
 		// Setup components
@@ -1265,9 +1265,11 @@ var TaroEngine = TaroEntity.extend({
 	 * want to disable the trace for.
 	 */
 	traceSetOff: function (object, propName) {
-		Object.defineProperty(object, propName, { set: function (val) {
-			this.___taroTraceCurrentVal[propName] = val;
-		} });
+		Object.defineProperty(object, propName, {
+			set: function (val) {
+				this.___taroTraceCurrentVal[propName] = val;
+			}
+		});
 	},
 
 	/**
@@ -1372,7 +1374,7 @@ var TaroEngine = TaroEntity.extend({
 	 * delta internally in the method.
 	 * @returns {Number}
 	 */
-	 incrementTime: function () {
+	incrementTime: function () {
 		const now = new Date().getTime();
 
 		if (!this._pause) {
@@ -1494,8 +1496,8 @@ var TaroEngine = TaroEntity.extend({
 
 	// queues trigger events to affect ALL entities including the world.
 	// for example, "when attribute becomes zero" trigger fires it will run for all entities (unit/item/projecitle) first, then it'll run for the world
-	queueTrigger: function(triggerName, parameters = {}) {
-		this.triggersQueued.push({name: triggerName, params: parameters});
+	queueTrigger: function (triggerName, parameters = {}) {
+		this.triggersQueued.push({ name: triggerName, params: parameters });
 	},
 
 	/**
@@ -1566,7 +1568,6 @@ var TaroEngine = TaroEntity.extend({
 				// console.log("wtf tick", self._tickStart, self.lastTick, self._tickDelta)
 			}
 			taro.now = Date.now();
-
 			timeElapsed = taro.now - taro._lastGameLoopTickAt;
 			if (timeElapsed >= (1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder) {
 				taro._lastGameLoopTickAt = taro.now;
@@ -1602,7 +1603,6 @@ var TaroEngine = TaroEntity.extend({
 			if (taro.isServer) { // triggersQueued runs on client-side inside EntitiesToRender.ts
 				// triggersQueued is executed in the entities first (entity-script) then it runs for the world
 				while (taro.triggersQueued.length > 0) {
-
 					const trigger = taro.triggersQueued.shift();
 					taro.script.trigger(trigger.name, trigger.params);
 				}
@@ -1633,8 +1633,8 @@ var TaroEngine = TaroEntity.extend({
 						}
 
 						if (typeof window.raidAlert === 'function') {
-							window.raidAlert()
-						}							
+							window.raidAlert();
+						}
 					}
 				} else if (taro.isServer) {
 					if (playerCount <= 0) {
@@ -1680,8 +1680,8 @@ var TaroEngine = TaroEntity.extend({
 
 				let oldestSnapshot = taro.snapshots[0];
 				while (taro.snapshots.length >= 2 && oldestSnapshot != undefined && taro._currentTime > oldestSnapshot[0]) {
-					taro.prevSnapshot = taro.nextSnapshot
-					taro.nextSnapshot = taro.snapshots[taro.snapshots.length-1];
+					taro.prevSnapshot = taro.nextSnapshot;
+					taro.nextSnapshot = taro.snapshots[taro.snapshots.length - 1];
 
 					// rubberband currentTime to the latest time received from server - 40ms
 					oldestSnapshot = taro.snapshots.shift();
@@ -1762,7 +1762,6 @@ var TaroEngine = TaroEntity.extend({
 
 			taro.network.stream._sendQueue(timeStamp);
 			taro.network.stream.updateEntityAttributes();
-
 		}
 
 		taro.gameLoopTickHasExecuted = false;
@@ -1872,7 +1871,6 @@ var TaroEngine = TaroEntity.extend({
 
 			if (arr) {
 				arrCount = arr.length;
-
 				// Loop our viewports and call their tick methods
 				if (taroConfig.debug._timing) {
 					while (arrCount--) {
@@ -2176,12 +2174,12 @@ var TaroEngine = TaroEntity.extend({
 		TaroEngine.prototype.log('Engine destroy complete.');
 	},
 
-	getPlayerCount: function() {
+	getPlayerCount: function () {
 		return taro.$$('player').filter(function (player) {
 			return player._stats.controlledBy == 'human';
 		}).length;
 	},
-	
+
 	devLog: function () {
 		// return;
 		// if (taro.env == 'local') {

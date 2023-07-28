@@ -17,6 +17,14 @@ var taroPhysicsConfig = {
 			['csap', 'planck', './components/physics/box2d/dists/planck/planck.js']
 		],
 
+		box2dwasm: [
+			['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
+			['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],
+			['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
+			['csap', 'dists', './components/physics/box2d/dists.js'],
+			['csap', 'box2dwasm', './components/physics/box2d/dists/box2dwasm/entry.js', 'box2dwasm'],
+		],
+
 		box2dweb: [
 			['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
 			['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],

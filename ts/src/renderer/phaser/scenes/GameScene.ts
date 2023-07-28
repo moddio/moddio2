@@ -6,6 +6,8 @@ class GameScene extends PhaserScene {
 	entityLayers: Phaser.GameObjects.Layer[] = [];
 	renderedEntities: TGameObject[] = [];
 	unitsList: PhaserUnit[] = [];
+	projectilesList: PhaserProjectile[] = [];
+	itemList: PhaserItem[] = [];
 	public tilemapLayers: Phaser.Tilemaps.TilemapLayer[];
 
 	public tilemap: Phaser.Tilemaps.Tilemap;
@@ -79,6 +81,12 @@ class GameScene extends PhaserScene {
 			new PhaserRay(this, data.start, data.end, data.config);
 		});
 
+		
+		taro.client.on('create-particle', (particle: Particle) => {
+			new PhaserParticle(this, particle);
+		});
+
+
 		taro.client.on('floating-text', (data: {
 			text: string,
 			x: number,
@@ -131,6 +139,10 @@ class GameScene extends PhaserScene {
 			this.loadEntity(`item/${data.itemTypes[type].cellSheet.url}`, data.itemTypes[type]);
 		}
 
+		for (let type in data.particleTypes) {
+			this.load.image(`particle/${data.particleTypes[type].url}`, this.patchAssetUrl(data.particleTypes[type].url));
+		}
+
 		data.map.tilesets.forEach((tileset) => {
 			const key = `tiles/${tileset.name}`;
 			this.load.once(`filecomplete-image-${key}`, () => {
@@ -164,18 +176,26 @@ class GameScene extends PhaserScene {
 				const length = layer.data.length;
 				layer.width = data.map.width;
 				layer.height = data.map.height;
-				// console.log('before', layer.name, length, tilesPerLayer);
 				if (length < tilesPerLayer) {
 					for (let i = length + 1; i < tilesPerLayer; i++) {
 						layer.data[i] = 0;
 					}
 				}
-				// console.log('after', layer.name, layer.data.length, tilesPerLayer);
 			}
 		});
 
-		this.load.tilemapTiledJSON('map', this.patchMapData(data.map));
+        //to be sure every map not contain null or -1 tiles
+        data.map.layers.forEach((layer) => {
+            if (layer && layer.data) {
+                layer.data.forEach((tile, index) => {
+                    if (tile === -1 || tile === null) {
+                        layer.data[index] = 0;
+                    }
+                });
+            }
+		});
 
+		this.load.tilemapTiledJSON('map', this.patchMapData(data.map));
 		BitmapFontManager.preload(this);
 	}
 
@@ -539,6 +559,14 @@ class GameScene extends PhaserScene {
 		return this.unitsList.find(
 			(unit) => {
 				return unit.entity._id === unitId;
+			}
+		);
+	}
+
+	findEntity (entityId: string): PhaserUnit | PhaserProjectile | PhaserItem {
+		return [...this.unitsList, ...this.itemList, ...this.projectilesList].find(
+			(entity) => {
+				return entity.entity._id === entityId;
 			}
 		);
 	}

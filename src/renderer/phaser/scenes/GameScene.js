@@ -13,6 +13,15 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -20,6 +29,8 @@ var GameScene = /** @class */ (function (_super) {
         _this.entityLayers = [];
         _this.renderedEntities = [];
         _this.unitsList = [];
+        _this.projectilesList = [];
+        _this.itemList = [];
         return _this;
     }
     GameScene.prototype.init = function () {
@@ -65,6 +76,9 @@ var GameScene = /** @class */ (function (_super) {
         taro.client.on('create-ray', function (data) {
             new PhaserRay(_this, data.start, data.end, data.config);
         });
+        taro.client.on('create-particle', function (particle) {
+            new PhaserParticle(_this, particle);
+        });
         taro.client.on('floating-text', function (data) {
             new PhaserFloatingText(_this, data);
         });
@@ -103,6 +117,9 @@ var GameScene = /** @class */ (function (_super) {
         for (var type in data.itemTypes) {
             this.loadEntity("item/".concat(data.itemTypes[type].cellSheet.url), data.itemTypes[type]);
         }
+        for (var type in data.particleTypes) {
+            this.load.image("particle/".concat(data.particleTypes[type].url), this.patchAssetUrl(data.particleTypes[type].url));
+        }
         data.map.tilesets.forEach(function (tileset) {
             var key = "tiles/".concat(tileset.name);
             _this.load.once("filecomplete-image-".concat(key), function () {
@@ -129,13 +146,21 @@ var GameScene = /** @class */ (function (_super) {
                 var length_1 = layer.data.length;
                 layer.width = data.map.width;
                 layer.height = data.map.height;
-                // console.log('before', layer.name, length, tilesPerLayer);
                 if (length_1 < tilesPerLayer) {
                     for (var i = length_1 + 1; i < tilesPerLayer; i++) {
                         layer.data[i] = 0;
                     }
                 }
-                // console.log('after', layer.name, layer.data.length, tilesPerLayer);
+            }
+        });
+        //to be sure every map not contain null or -1 tiles
+        data.map.layers.forEach(function (layer) {
+            if (layer && layer.data) {
+                layer.data.forEach(function (tile, index) {
+                    if (tile === -1 || tile === null) {
+                        layer.data[index] = 0;
+                    }
+                });
             }
         });
         this.load.tilemapTiledJSON('map', this.patchMapData(data.map));
@@ -367,6 +392,11 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.findUnit = function (unitId) {
         return this.unitsList.find(function (unit) {
             return unit.entity._id === unitId;
+        });
+    };
+    GameScene.prototype.findEntity = function (entityId) {
+        return __spreadArray(__spreadArray(__spreadArray([], this.unitsList, true), this.itemList, true), this.projectilesList, true).find(function (entity) {
+            return entity.entity._id === entityId;
         });
     };
     GameScene.prototype.update = function () {

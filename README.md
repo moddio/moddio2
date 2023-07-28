@@ -29,7 +29,7 @@
 - Shops
 - Unit control (top-down WASD or platformer)
 - Client-side predicted projectile + unit movement (optional)
-- Basic AI
+- Unit AI including A* pathfinding
 - Mobile controls
 - and more!
 

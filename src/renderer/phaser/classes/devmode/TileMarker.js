@@ -6,15 +6,7 @@ var TileMarker = /** @class */ (function () {
         this.palette = palette;
         this.active = true;
         this.commandController = commandController;
-        this.graphics = scene.add.graphics();
-        this.graphics.lineStyle(w, 0x000000, 1);
-        if (taro.game.data.defaultData.dontResize) {
-            this.graphics.strokeRect(0, 0, map.tileWidth, map.tileHeight);
-        }
-        else {
-            this.graphics.strokeRect(0, 0, Constants.TILE_SIZE, Constants.TILE_SIZE);
-        }
-        this.graphics.setVisible(false);
+        this.graphics = new MarkerGraphics(scene, map, w, palette);
         if (!palette) {
             this.preview = scene.add.container();
             this.images = {};
@@ -53,8 +45,7 @@ var TileMarker = /** @class */ (function () {
         var _this = this;
         if (!this.palette) {
             var _a = this.devModeScene.devModeTools.isForceTo1x1() ? { x: 1, y: 1 } : this.devModeScene.tileEditor.brushArea.size, x = _a.x, y = _a.y;
-            this.graphics.scaleX = x;
-            this.graphics.scaleY = y;
+            this.graphics.scaleSides(x, y);
             this.hideImages();
             var previewTarget = this.devModeScene.tileEditor.selectedTileArea;
             var sample = this.devModeScene.tileEditor.brushArea.calcSample(previewTarget, { x: x, y: y });

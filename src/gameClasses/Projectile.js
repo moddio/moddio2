@@ -110,7 +110,7 @@ var Projectile = TaroEntityPhysics.extend({
 		if (taro.isClient) {
 			this.renderingStarted = true;
 			taro.client.emit('create-projectile', this);
-            this.updateLayer();
+			this.updateLayer();
 		}
 	},
 
@@ -141,7 +141,7 @@ var Projectile = TaroEntityPhysics.extend({
 		self.previousState = null;
 
 		var data = taro.game.getAsset('projectileTypes', type);
-		delete data.type // hotfix for dealing with corrupted game json that has unitData.type = "unitType". This is caused by bug in the game editor.
+		delete data.type; // hotfix for dealing with corrupted game json that has unitData.type = "unitType". This is caused by bug in the game editor.
 
 		if (data == undefined) {
 			taro.script.errorLog('changeProjectileType: invalid data');
@@ -201,9 +201,9 @@ var Projectile = TaroEntityPhysics.extend({
 
 	streamUpdateData: function (queuedData) {
 
-		// if (taro.isServer && taro.network.isPaused) 
+		// if (taro.isServer && taro.network.isPaused)
 		// 	return;
-			
+
 		TaroEntity.prototype.streamUpdateData.call(this, data);
 		for (var i = 0; i < queuedData.length; i++) {
 			var data = queuedData[i];
@@ -243,7 +243,7 @@ var Projectile = TaroEntityPhysics.extend({
 	setSourceUnit: function (unit) {
 		if (unit) {
 			this._stats.sourceUnitId = unit.id();
-			this.streamUpdateData([{sourceUnitId: unit.id()}]) // stream update to the clients			
+			this.streamUpdateData([{sourceUnitId: unit.id()}]); // stream update to the clients
 		}
 	},
 
@@ -259,13 +259,13 @@ var Projectile = TaroEntityPhysics.extend({
 		if (taro.physics && taro.physics.engine == 'CRASH') {
 			this.destroyBody();
 		}
-	}, 
+	},
 
 	// update this projectile's stats in the client side
 	streamUpdateData: function (queuedData) {
 		var self = this;
 		TaroEntity.prototype.streamUpdateData.call(this, queuedData);
-		
+
 		for (var i = 0; i < queuedData.length; i++) {
 			var data = queuedData[i];
 			for (attrName in data) {

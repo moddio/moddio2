@@ -1,5 +1,5 @@
 declare class TaroEngine extends TaroClass {
-    newIdHex(): any;
+	newIdHex(): any;
 
 	tiled: any;
 	regionManager: any;
@@ -57,18 +57,18 @@ declare class TaroEngine extends TaroClass {
 
 	constructor(options: object);
 
-	createFrontBuffer (autoSize: boolean, dontScale?: boolean): void
-	engineStep (): void;
+	createFrontBuffer(autoSize: boolean, dontScale?: boolean): void
+	engineStep(): void;
 
 	physics: {
 		staticsFromMap(walls: any): unknown;
 		destroyWalls(): unknown;
 		world(): any;
 		engine: string;
-		_scaleRatio: number
+		_scaleRatio: number;
 	};
 
-	$ (item: number | string | object): any;
+	$(item: number | string | object): any;
 	$$(item: number | string | object): any;
 
 	menuUi: MenuUiComponent;

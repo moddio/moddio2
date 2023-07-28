@@ -23,8 +23,6 @@ class MobileControlsScene extends PhaserScene {
 
 		const scale = this.scale;
 		const controls = this.controls = this.add.container();
-		this.resize();
-		scale.on(Phaser.Scale.Events.RESIZE, this.resize, this);
 
 		const joysticks = this.joysticks;
 
@@ -48,10 +46,12 @@ class MobileControlsScene extends PhaserScene {
 					break;
 
 				default:
+					const relativeX = Math.trunc((x + w / 2) / 960 * window.innerWidth - w / 2);
+					const relativeY = Math.trunc((y + h / 2) / 540 * window.innerHeight - h / 2);
 
 					const text = key.toUpperCase();
 
-					const button = this.add.image(x, y, 'mobile-button-up')
+					const button = this.add.image(relativeX, relativeY, 'mobile-button-up')
 						.setDisplaySize(w, h)
 						.setOrigin(0)
 						.setAlpha(0.6);
@@ -59,14 +59,14 @@ class MobileControlsScene extends PhaserScene {
 
 					if (text === 'BUTTON1') {
 						const icon = this.add.image(
-							x + w/2, y + h/2,
+							relativeX + w/2, relativeY + h/2,
 							'mobile-button-icon'
 						);
 						icon.setScale(0.5);
 						controls.add(icon);
 					} else {
 						const label = this.add.bitmapText(
-							x + w/2, y + h/2,
+							relativeX + w/2, relativeY + h/2,
 							BitmapFontManager.font(this,
 								'Arial', true, false, '#FFFFFF'
 							)
@@ -79,7 +79,6 @@ class MobileControlsScene extends PhaserScene {
 						label.setOrigin(0.5);
 						label.letterSpacing = -0.4;
 						controls.add(label);
-
 						if (this.renderer.type === Phaser.CANVAS) {
 							const rt = this.add.renderTexture(
 								label.x, label.y, label.width, label.height
@@ -243,15 +242,5 @@ class MobileControlsScene extends PhaserScene {
 		if (!this.scale.isFullscreen) {
 			this.scale.startFullscreen();
 		}
-	}
-
-	private resize() {
-		// make the mobileControls container
-		// fit the width and be anchored to the bottom
-		const controls = this.controls;
-		const scale = this.scale;
-
-		controls.setScale(scale.width / 960);
-		controls.y = scale.height - 540 * controls.scale;
 	}
 }

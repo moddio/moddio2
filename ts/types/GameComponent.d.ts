@@ -83,6 +83,7 @@ declare class GameComponent extends TaroEntity {
 		unitTypes: Record<string, EntityData>;
 		projectileTypes: Record<string, EntityData>;
 		itemTypes: Record<string, EntityData>;
+		particleTypes: Record<string, ParticleData>;
 		settings: {
 			addStrokeToNameAndAttributes: boolean;
 			camera: {

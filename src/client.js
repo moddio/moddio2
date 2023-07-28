@@ -5,9 +5,9 @@ let mouseIsDown = false;
 // be very careful with arrow functions.
 // arrow functions on these callbacks break mouse input
 
-$(document).mousedown(function() {
+$(document).mousedown(function () {
 	mouseIsDown = true;
-}).mouseup(function() {
+}).mouseup(function () {
 	mouseIsDown = false;
 });
 
@@ -15,19 +15,19 @@ $(document).mousedown(function() {
 const USE_LOCAL_STORAGE = (() => {
 	try {
 		return !!localStorage.getItem;
-	} catch(e) {
+	} catch (e) {
 		return false;
 	}
 })();
 
-	storage = {
-		// running locally, these are the only ones that appear
-		sound: 'on',
-		'sound-volume': 100,
-		music: 'on',
-		'music-volume': 100,
-		'force-canvas': false,
-	};
+storage = {
+	// running locally, these are the only ones that appear
+	sound: 'on',
+	'sound-volume': 100,
+	music: 'on',
+	'music-volume': 100,
+	'force-canvas': false,
+};
 
 
 const statsPanels = {}; // will we need this?
@@ -35,7 +35,7 @@ const statsPanels = {}; // will we need this?
 const Client = TaroEventingClass.extend({
 	classId: 'Client',
 
-	init: function() {
+	init: function () {
 
 		this.data = [];
 		this.host = window.isStandalone ? 'https://www.modd.io' : '';
@@ -175,7 +175,7 @@ const Client = TaroEventingClass.extend({
 			taro.renderer = new PhaserRenderer();
 			taro.developerMode = new DeveloperMode();
 
-			if(!window.isStandalone){
+			if (!window.isStandalone) {
 				this.servers = this.getServersArray();
 			}
 
@@ -192,9 +192,9 @@ const Client = TaroEventingClass.extend({
 			this.configureEngine();
 
 		})
-		.catch((err) => {
-			console.error(err);
-		});
+			.catch((err) => {
+				console.error(err);
+			});
 
 		// these were under separate conditionals before. idk why.
 		if (mode == 'play') {
@@ -257,23 +257,29 @@ const Client = TaroEventingClass.extend({
 		}
 	},
 
-	loadPhysics: function() {
+	loadPhysics: function () {
 		// this will be empty string in data if no client-side physics
 
 		const clientPhysicsEngine = taro.game.data.defaultData.clientPhysicsEngine;
 		const serverPhysicsEngine = taro.game.data.defaultData.physicsEngine;
 
 		if (clientPhysicsEngine) {
-
-			taro.addComponent(PhysicsComponent)
-				.physics.sleep(true);
-
+			taro.addComponent(PhysicsComponent).physics.sleep(true);
+		}
+		if (clientPhysicsEngine.toUpperCase() === 'BOX2DWASM') {
+			const loadedInterval = setInterval(() => {
+				if (taro.physics.gravity) {
+					clearInterval(loadedInterval);
+					this.physicsConfigLoaded.resolve();
+				}
+			}, 50)
+		} else {
+			this.physicsConfigLoaded.resolve();
 		}
 
-		this.physicsConfigLoaded.resolve();
 	},
 
-	 loadMap: function() {
+	loadMap: function () {
 		//we need the contents of physicsConfig to progress
 		taro.addComponent(MapComponent);
 		taro.addComponent(RegionManager);
@@ -286,7 +292,7 @@ const Client = TaroEventingClass.extend({
 
 	// new language for old 'initEngine' method
 	//
-	configureEngine: function() {
+	configureEngine: function () {
 		// let's make it easier by assigning the game data to a variable
 		const gameData = taro.game.data;
 
@@ -299,15 +305,15 @@ const Client = TaroEventingClass.extend({
 
 		$.when(this.physicsConfigLoaded).done(() => {
 			this.startTaroEngine();
-
 			this.loadMap();
+
 
 			if (taro.physics) {
 				// old comment => 'always enable CSP'
 				this.loadCSP();
 			}
 
-			if(gameData.isDeveloper) {
+			if (gameData.isDeveloper) {
 
 				taro.addComponent(DevConsoleComponent);
 			}
@@ -338,7 +344,7 @@ const Client = TaroEventingClass.extend({
 
 			taro.client.vp1.camera.translateTo(
 				(taro.map.data.width * tileWidth) / 2,
-				(taro.map.data.height * tileHeight) /2,
+				(taro.map.data.height * tileHeight) / 2,
 				0
 			);
 
@@ -392,7 +398,7 @@ const Client = TaroEventingClass.extend({
 
 	},
 
-	startTaroEngine: function() {
+	startTaroEngine: function () {
 
 		taro.start((success) => {
 
@@ -436,7 +442,7 @@ const Client = TaroEventingClass.extend({
 		});
 	},
 
-	getServersArray: function() {
+	getServersArray: function () {
 		const serversList = [];
 		let serverOptions = $('#server-list > option').toArray(); // could this be const? idk jQ
 
@@ -458,7 +464,7 @@ const Client = TaroEventingClass.extend({
 	},
 	// we never call this inside Client with a parameter. I assume its an array?
 	//
-	getBestServer: function(ignoreServerIds) {
+	getBestServer: function (ignoreServerIds) {
 		let firstChoice = null; // old comment => 'server which has max players and is under 80% capacity
 		let secondChoice = null;
 
@@ -488,7 +494,7 @@ const Client = TaroEventingClass.extend({
 		return firstChoice || secondChoice;
 	},
 
-	setZoom: function(zoom) {
+	setZoom: function (zoom) {
 		this.zoom = zoom;
 		if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
 
@@ -497,7 +503,7 @@ const Client = TaroEventingClass.extend({
 		}
 	},
 
-	connectToServer: function() {
+	connectToServer: function () {
 		// if typeof args[1] == 'function', callback(args[0])
 		taro.network.start(taro.client.server, (clientServer) => { // changed param from 'data' to clientServer
 
@@ -632,9 +638,10 @@ const Client = TaroEventingClass.extend({
 
 	//This method should be looked at...
 	//
-	loadCSP: function() {
+	loadCSP: function () {
 
 		taro.game.cspEnabled = !!taro.game.data.defaultData.clientSidePredictionEnabled;
+
 		const gravity = taro.game.data.settings.gravity;
 
 		if (gravity) {
@@ -702,8 +709,8 @@ const Client = TaroEventingClass.extend({
 
 		taro.network.define('editTile', this._onEditTile);
 		taro.network.define('editRegion', this._onEditRegion);
-        taro.network.define('editInitEntity', this._onEditInitEntity);
-        taro.network.define('updateClientInitEntities', this._updateClientInitEntities);
+		taro.network.define('editInitEntity', this._onEditInitEntity);
+		taro.network.define('updateClientInitEntities', this._updateClientInitEntities);
 		taro.network.define('updateUnit', this._onUpdateUnit);
 		taro.network.define('updateItem', this._onUpdateItem);
 		taro.network.define('updateProjectile', this._onUpdateProjectile);
@@ -711,7 +718,7 @@ const Client = TaroEventingClass.extend({
 		taro.network.define('renderSocketLogs', this._onRenderSocketLogs);
 	},
 
-	login: function() {
+	login: function () {
 
 		console.log('attempting to login'); // no console logs in production.
 
@@ -740,7 +747,7 @@ const Client = TaroEventingClass.extend({
 	//
 	//i'm not going to change the join game function
 	//
-	joinGame: function(wasGamePaused = false) {
+	joinGame: function (wasGamePaused = false) {
 
 		// if the AdInPlay player is initialised, means the ad blocker is not enabled
 		let isAdBlockEnabled = window.isAdBlockEnabled || typeof window?.aiptag?.adplayer === 'undefined';
@@ -811,7 +818,7 @@ const Client = TaroEventingClass.extend({
 		}
 	},
 
-	getUrlVars: function() {
+	getUrlVars: function () {
 		// old comment => 'edited for play/:gameId'
 		const tempGameId = window.location.pathname.split('/')[2];
 		const vars = {
@@ -831,7 +838,7 @@ const Client = TaroEventingClass.extend({
 
 	},
 
-	applyInactiveTabEntityStream: function() {
+	applyInactiveTabEntityStream: function () {
 		for (let entityId in this.inactiveTabEntityStream) {
 			const entityData = _.cloneDeep(this.inactiveTabEntityStream[entityId]);
 			this.inactiveTabEntityStream[entityId] = [];
@@ -844,7 +851,7 @@ const Client = TaroEventingClass.extend({
 		}
 	},
 
-	positionCamera: function(x, y) {
+	positionCamera: function (x, y) {
 		if (x != undefined && y != undefined) {
 
 			this.emit('stop-follow');

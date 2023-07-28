@@ -400,7 +400,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 		var mx = event.taroX - taro._bounds2d.x2;
 		var my = event.taroY - taro._bounds2d.y2;
 		var self = this;
-		
+
 		if (taro.developerMode) {
 			let inside = false;
 

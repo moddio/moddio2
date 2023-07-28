@@ -214,6 +214,12 @@ var DevModeTools = /** @class */ (function (_super) {
                 _this.save();
             }
         });
+        var aKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A, false);
+        aKey.on('down', function () {
+            if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
+                _this.addEntities();
+            }
+        });
         var oneKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE, false);
         oneKey.on('down', function () {
             if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map' && !altKey.isDown) {
@@ -342,7 +348,8 @@ var DevModeTools = /** @class */ (function (_super) {
         //this.tileEditor.clearLayer(gameMap.currentLayerIndex, false);
         var data = {
             clear: {
-                layer: gameMap.currentLayerIndex
+                layer: gameMap.currentLayerIndex,
+                layerName: this.layerButtons[gameMap.currentLayerIndex].name
             }
         };
         inGameEditor.showClearLayerConfirmation(data);

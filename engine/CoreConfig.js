@@ -1,3 +1,13 @@
+var includeFolders = [{
+	flags: 'csap',
+	folderPath: './components/physics/box2d/distsWrapper/',
+	filesName: ['planckWrapper', 'box2dwasmWrapper', 'box2dtsWrapper', 'box2dninjaWrapper', 'box2dwebWrapper', 'nativeWrapper', 'box2dWrapper']
+}];
+
+const arrays = includeFolders.map((v) => v.filesName.map(fileName => {
+	return [v.flags, fileName, `${v.folderPath + fileName}.js`];
+})).flat();
+
 var taroCoreConfig = {
 	/* Includes for the main taro loader. Flags are indicated as:
 	 * c = client
@@ -32,7 +42,7 @@ var taroCoreConfig = {
 		['cap', 'NetIo', 'components/network/net.io/net.io-client/index.js'],
 		['cap', 'TaroNetIoClient', 'components/network/net.io/TaroNetIoClient.js'],
 		['sap', 'TaroNetIoServer', 'components/network/net.io/TaroNetIoServer.js'],
-		['csap','TaroNetIoComponent', 'components/network/net.io/TaroNetIoComponent.js'],
+		['csap', 'TaroNetIoComponent', 'components/network/net.io/TaroNetIoComponent.js'],
 		/* Chat System */
 		['cap', 'TaroChatClient', 'components/chat/TaroChatClient.js'],
 		['sap', 'TaroChatServer', 'components/chat/TaroChatServer.js'],
@@ -61,11 +71,13 @@ var taroCoreConfig = {
 		['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
 		['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],
 		['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
+		...arrays,
 		['csap', 'dists', './components/physics/box2d/dists.js'],
 		['csap', 'planck', './components/physics/box2d/dists/planck/planck.js'],
 		['csap', 'box2dweb', './components/physics/box2d/dists/box2dweb/lib_box2d.js', 'box2dweb'],
 		['csap', 'box2dninja', './components/physics/box2d/dists/box2dweb/box2d_ninja.js', 'box2dninja'],
 		['csap', 'box2dts', './components/physics/box2d/dists/flyoverbox2dts/bundle.js'],
+		['casp', 'box2dwasm', './components/physics/box2d/dists/box2dwasm/Box2D.simd.js', 'box2dwasm']
 		// No crash for now
 	]
 };
