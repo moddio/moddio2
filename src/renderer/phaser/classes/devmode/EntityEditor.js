@@ -2,6 +2,7 @@ var EntityEditor = /** @class */ (function () {
     function EntityEditor(gameScene, devModeScene, devModeTools) {
         var _this = this;
         this.gameScene = gameScene;
+        this.devModeScene = devModeScene;
         this.devModeTools = devModeTools;
         var COLOR_HANDLER = this.COLOR_HANDLER = 0x00fffb;
         this.preview = gameScene.add.image(0, 0, null, 0).setDepth(1000);
@@ -374,7 +375,14 @@ var EntityEditor = /** @class */ (function () {
             editedAction.height = selectedEntityImage.image.displayHeight;
         }
     };
-    EntityEditor.prototype.deleteInitEntity = function () {
+    EntityEditor.prototype.deleteInitEntity = function (actionId) {
+        this.devModeScene.entityImages.forEach(function (image) {
+            if (image.entity.action.actionId === actionId) {
+                image.entity.update({ actionId: actionId, wasDeleted: true });
+            }
+        });
+    };
+    EntityEditor.prototype.deleteSelectedEntity = function () {
         if (this.selectedEntityImage) {
             this.selectedEntityImage.delete();
             this.selectEntityImage(null);

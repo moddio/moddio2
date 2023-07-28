@@ -16,7 +16,7 @@ class EntityEditor {
 
 	constructor (
         private gameScene: GameScene,
-		devModeScene: DevModeScene,
+		private devModeScene: DevModeScene,
 		private devModeTools: DevModeTools
 	) {
         const COLOR_HANDLER = this.COLOR_HANDLER = 0x00fffb;
@@ -392,7 +392,15 @@ class EntityEditor {
         }
     }
 
-    deleteInitEntity(): void {
+    deleteInitEntity(actionId: string): void {
+        this.devModeScene.entityImages.forEach((image) => {
+            if (image.entity.action.actionId === actionId) {
+                image.entity.update({actionId: actionId, wasDeleted: true});
+            }
+        });
+    }
+
+    deleteSelectedEntity(): void {
         if (this.selectedEntityImage) {
             this.selectedEntityImage.delete();
             this.selectEntityImage(null);

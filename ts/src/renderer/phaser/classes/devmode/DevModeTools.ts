@@ -331,7 +331,7 @@ class DevModeTools extends Phaser.GameObjects.Container {
 
 		const deleteEntity = (event) => {
 			if (!this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-                this.entityEditor.deleteInitEntity();
+                this.entityEditor.deleteSelectedEntity();
             }
 		}
 

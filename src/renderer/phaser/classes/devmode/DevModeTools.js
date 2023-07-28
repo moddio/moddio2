@@ -277,7 +277,7 @@ var DevModeTools = /** @class */ (function (_super) {
         });
         var deleteEntity = function (event) {
             if (!_this.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-                _this.entityEditor.deleteInitEntity();
+                _this.entityEditor.deleteSelectedEntity();
             }
         };
         var deleteKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DELETE, false);
