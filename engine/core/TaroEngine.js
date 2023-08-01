@@ -110,8 +110,8 @@ var TaroEngine = TaroEntity.extend({
 		this._gameLoopTickRemainder = 0;
 		this.gameLoopTickHasExecuted = true;
 
-		this.accumulator = 0;
-		this.lastMsElapsed = Date.now();
+		this.physicsLoopAccumulator = 0;
+		this.physicsLoopLastMsElapsed = Date.now();
 
 		this._aSecondAgo = 0;
 
@@ -1501,8 +1501,8 @@ var TaroEngine = TaroEntity.extend({
 	// physics tick (fixed time step)
 	physicsStep: function() {
 		// calculate delta time
-		const msElapsed = taro.now - this.lastMsElapsed;
-		this.lastMsElapsed = taro.now;
+		const msElapsed = taro.now - this.physicsLoopLastMsElapsed;
+		this.physicsLoopLastMsElapsed = taro.now;
 		const delta = msElapsed / 1000;
 
 		// calculate timestep
@@ -1511,7 +1511,7 @@ var TaroEngine = TaroEntity.extend({
 		const timeStep = 1.0 / taro.game.data.defaultData.frameRate;
 
 		// step physics
-		while (this.accumulator >= timeStep) {
+		while (this.physicsLoopAccumulator >= timeStep) {
 			taro.physics.update(timeStep * 1000);
 			this.accumulator -= timeStep;
 		}
@@ -1595,7 +1595,9 @@ var TaroEngine = TaroEntity.extend({
 				taro.queueTrigger('frameTick');
 			}
 
-			self.physicsStep();
+			if (taro.physics) {
+				self.physicsStep();
+			}
 
 			taro.tickCount = 0;
 			taro.updateTransform = 0;
