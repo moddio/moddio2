@@ -157,9 +157,7 @@ var ServerNetworkEvents = {
 			return;
 		}
 
-		if (data.isMobile) {
-			data.isMobile = (data.isMobile == '1') ? true : false;
-		}
+		data.isMobile = (data.isMobile && data.isMobile == '1');
 
 		// if user is logged-in
 		if (data && data._id) {
