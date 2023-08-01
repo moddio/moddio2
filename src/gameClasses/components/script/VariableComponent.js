@@ -1482,6 +1482,7 @@ var VariableComponent = TaroEntity.extend({
 					var angle = self.getValue(text.angle, vars);
 
 					if (position && !isNaN(distance) && !isNaN(angle)) {
+						angle -= Math.PI / 2;
 						returnValue = {
 							x: distance * Math.cos(angle) + position.x,
 							y: distance * Math.sin(angle) + position.y
