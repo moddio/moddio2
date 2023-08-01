@@ -280,7 +280,13 @@ var VariableComponent = TaroEntity.extend({
 					var roleId = role && role._id;
 					
 					returnValue = roleId && player && (player._stats.roleIds || []).includes(roleId);	
-					break;				
+					break;
+
+				case 'isPlayerPlayWithMobile':
+					var player = self._script.variable.getValue(text.player, vars);
+					returnValue = player && player._stats.isMobile;
+					
+					break;
 
 				case 'areEntitiesTouching':
 					var sourceEntity = self.getValue(text.sourceEntity, vars);

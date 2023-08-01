@@ -824,6 +824,7 @@ NetIo.Server = NetIo.EventingClass.extend({
 					sessionId: decodedToken.sessionId,
 					distinctId : searchParams.get('distinctId'),
 					posthogDistinctId : searchParams.get('posthogDistinctId'),
+					isMobile: searchParams.get('isMobile'),
 					token,
 					tokenCreatedAt: decodedToken.createdAt
 				};
@@ -941,7 +942,8 @@ NetIo.Server = NetIo.EventingClass.extend({
 				number: (Math.floor(Math.random() * 999) + 100),
 				_id: socket._token.userId,
 				sessionId: socket._token.sessionId,
-				isAdBlockEnabled: false
+				isAdBlockEnabled: false,
+				isMobile: socket._token.isMobile
 			};
 			const clientId = socket.id;
 
@@ -981,7 +983,8 @@ NetIo.Server = NetIo.EventingClass.extend({
 					number: (Math.floor(Math.random() * 999) + 100),
 					_id: socket._token.userId,
 					sessionId: socket._token.sessionId,
-					isAdBlockEnabled: false
+					isAdBlockEnabled: false,
+					isMobile: socket._token.isMobile
 				};
 
 				const clientId = socket.id;

@@ -113,7 +113,7 @@ NetIo.Client = NetIo.EventingClass.extend({
 		var posthogDistinctId = window.posthogDistinctId || (window.posthog && window.posthog.get_distinct_id ? window.posthog.get_distinct_id() : '');	
 		const workerPortQuery = (new URL(window.location.href).searchParams.get('proxy') === 'master') ? '' : `&cfwp=${(parseInt(taro.client.server?.name?.split('.')[1] || 0) + 2000)}`;
 		
-		this.wsUrl = `${url}?token=${gsAuthToken}&sid=${taro.client.server.id}${workerPortQuery}&distinctId=${distinctId}&posthogDistinctId=${posthogDistinctId}`;
+		this.wsUrl = `${url}?token=${gsAuthToken}&sid=${taro.client.server.id}${workerPortQuery}&distinctId=${distinctId}&posthogDistinctId=${posthogDistinctId}&isMobile=${(taro.isMobile ? 1 : 0)}`;
 		this.wsStartTime = Date.now();
 		this.startTimeSinceLoad = performance.now();
 

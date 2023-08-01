@@ -157,6 +157,10 @@ var ServerNetworkEvents = {
 			return;
 		}
 
+		if (data.isMobile) {
+			data.isMobile = (data.isMobile == '1') ? true : false;
+		}
+
 		// if user is logged-in
 		if (data && data._id) {
 			// if player already exists in the game
@@ -180,6 +184,7 @@ var ServerNetworkEvents = {
 			if (player && clientId == player._stats.clientId) {
 				console.log('Player requested to join game ' + clientId + ' (' + player._stats.name + ')');
 				player._stats.isAdBlockEnabled = data.isAdBlockEnabled;
+				player._stats.isMobile = data.isMobile;
 				player.joinGame();
 			}
 			else {
@@ -229,6 +234,7 @@ var ServerNetworkEvents = {
 
 				if (player) {
 					player._stats.isAdBlockEnabled = data.isAdBlockEnabled;
+					player._stats.isMobile = data.isMobile;
 				} else {
 					if (typeof data.number != 'number') {
 						data.number = ' lol';
@@ -241,7 +247,8 @@ var ServerNetworkEvents = {
 						coins: 0,
 						points: 0,
 						clientId: clientId,
-						isAdBlockEnabled: data.isAdBlockEnabled
+						isAdBlockEnabled: data.isAdBlockEnabled,
+						isMobile: data.isMobile
 					});
 				}
 

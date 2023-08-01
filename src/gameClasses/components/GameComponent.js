@@ -76,6 +76,7 @@ var GameComponent = TaroEntity.extend({
 			lastPlayed: data.lastPlayed,
 			userId: data._id,
 			isAdBlockEnabled: data.isAdBlockEnabled,
+			isMobile: data.isMobile,
 			unitIds: [], // all units owned by player,
 			jointsOn: Date.now(), // use for calculating session,
 			totalTime: data.totalTime,
