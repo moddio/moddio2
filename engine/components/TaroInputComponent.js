@@ -272,7 +272,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 		window.addEventListener('mouseup', this._evRef.mouseup, false);
 
 		canvas.addEventListener('mousemove', this._evRef.mousemove, false);
-		canvas.addEventListener('mousewheel', this._evRef.mousewheel, false);
+		canvas.addEventListener('wheel', this._evRef.mousewheel, false);
 
 		// Touch events
 		canvas.addEventListener('touchmove', this._evRef.touchmove, false);
@@ -297,7 +297,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 		canvas.removeEventListener('mousedown', this._evRef.mousedown, false);
 		canvas.removeEventListener('mouseup', this._evRef.mouseup, false);
 		canvas.removeEventListener('mousemove', this._evRef.mousemove, false);
-		canvas.removeEventListener('mousewheel', this._evRef.mousewheel, false);
+		canvas.removeEventListener('wheel', this._evRef.mousewheel, false);
 
 		// Touch events
 		canvas.removeEventListener('touchmove', this._evRef.touchmove, false);
@@ -388,6 +388,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 	 * @private
 	 */
 	_mouseDown: function (event) {
+        console.log('mousedown', event);
 		if (taro.developerMode && taro.developerMode.shouldPreventKeybindings()) {
 			return;
 		}
@@ -550,6 +551,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 	 * @private
 	 */
 	_mouseWheel: function (event) {
+        console.log('mousewheel', event);
 		// Update the mouse position within the viewports
 		this._updateMouseData(event);
 
@@ -595,6 +597,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 	 * @private
 	 */
 	_keyDown: function (event) {
+        console.log('keydown', event);
 		var self = this;
 		this._updateMouseData(event);
 		if(!this.shouldPreventChat()) {
