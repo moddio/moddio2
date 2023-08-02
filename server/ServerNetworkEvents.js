@@ -161,7 +161,7 @@ var ServerNetworkEvents = {
 				console.log('Client already exists. Kicking the existing player ' + player._stats.clientId + ' (' + player._stats.name + ')');
 				player.updatePlayerHighscore();
 				var oldPlayerClientId = player._stats.clientId;
-				taro.network.send('clientDisconnect', { reason: 'Player disconnected', clientId: oldPlayerClientId });
+				taro.network.send('clientDisconnect', { reason: 'User connected to another server.', clientId: oldPlayerClientId });
 
 				if (taro.server.clients[oldPlayerClientId] && taro.server.clients[oldPlayerClientId]._id) {
 					taro.clusterClient.emit('clientDisconnect', taro.server.clients[oldPlayerClientId]._id);

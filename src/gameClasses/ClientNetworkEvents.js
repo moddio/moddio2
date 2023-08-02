@@ -6,6 +6,7 @@ var ClientNetworkEvents = {
 		if (clientId == taro.network.id()) {
 			$('#disconnect-reason').html(data.reason);
 			taro.menuUi.onDisconnectFromServer('clientNetworkEvents #10', data.reason);
+			taro.network._io._disconnectReason = data.reason;
 		}
 	},
 

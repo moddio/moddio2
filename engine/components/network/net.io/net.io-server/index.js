@@ -452,10 +452,10 @@ NetIo.Socket = NetIo.EventingClass.extend({
 			self.emit('message', [self._decode(message)]);
 		});
 
-		this._socket.on('close', function (reasonCode, description) {
+		this._socket.on('close', function (reasonCode, reason) {
 			self.emit('disconnect', {
 				socket: self._socket,
-				reason: description,
+				reason: reason,
 				code: reasonCode
 			});
 		});

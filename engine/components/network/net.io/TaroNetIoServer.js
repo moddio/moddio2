@@ -775,6 +775,15 @@ var TaroNetIoServer = {
 			delete this._requests[id];
 		}
 	},
+	
+	disconnect: function (clientId, reason) {
+		this.send('clientDisconnect', {reason, clientId});
+		
+		const socket = this._socketById[clientId];
+		if (socket) {
+			socket.close(reason);
+		}
+	},
 
 	/**
    * Called when a client disconnects from the server.

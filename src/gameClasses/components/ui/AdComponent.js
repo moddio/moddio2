@@ -104,8 +104,18 @@ var AdComponent = TaroEntity.extend({
 			// 	sendMessageToReactNative(eventData);
 			// } else {
 			// on desktop
-			if (typeof isInIFrame !== 'undefined' && isInIFrame) {
+			if (typeof isInY8IFrame !== 'undefined' && isInY8IFrame) {
 				self.prerollEventHandler('video-ad-skip-in-iframe');
+				return;
+			}
+			
+			// if user is not in the play tab, don't play ad
+			if (typeof window?.inGameEditor?.getCurrentTab === 'function' && window.inGameEditor.getCurrentTab() !== 'play') {
+				return;
+			}
+			
+			// if game tab is not focussed, don't play ad - won't work even if the devtools are focussed.
+			if (document.hasFocus() === false) {
 				return;
 			}
 			
