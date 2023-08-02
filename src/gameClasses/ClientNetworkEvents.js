@@ -568,6 +568,15 @@ var ClientNetworkEvents = {
 		}
 	},
 
+	_onTween: function (data) {
+		if (data.entityId) {
+			var entity = taro.$(data.entityId);
+			if (entity) {
+				taro.$(data.entityId).tween.start(data.tweenId, data.angle);
+			}
+		}
+	},
+
 	_onCamera: function (data) {
 		// camera zoom change
 		if (data.cmd == "zoom") {

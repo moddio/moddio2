@@ -2012,6 +2012,16 @@ var ActionComponent = TaroEntity.extend({
 
 						break;
 
+					case 'playEntityTween':
+						var entity = self._script.variable.getValue(action.entity, vars);
+						var tweenId = self._script.variable.getValue(action.tween, vars);
+						var angle = self._script.variable.getValue(action.angle, vars);
+						if (entity && !isNaN(angle)) {
+							taro.network.send('tween', { tweenId: tweenId, entityId: entity.id(), angle: angle || 0});
+						}
+
+						break;
+
 					case 'applyForceOnEntityXY':
 					case 'applyForceOnEntityXYLT':
 
