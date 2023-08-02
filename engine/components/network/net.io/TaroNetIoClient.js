@@ -464,9 +464,18 @@ var TaroNetIoClient = {
 					var ciDecoded = snapshot[i][0].charCodeAt(0);
 					var commandName = this._networkCommandsIndex[ciDecoded];
 					var entityData = snapshot[i][1];
-					// console.log("sub", commandName, data);
 					switch (commandName) {
 						case '_taroStreamData':
+
+							if (entity == taro.client.selectedUnit) {
+								console.log(newSnapshotTimestamp, now - this.lastSnapshotReceived);
+								if (now - this.lastSnapshotReceived > 200) {
+									console.log("lag!", now - this.lastSnapshotReceived);
+								}
+								this.lastSnapshotReceived = now;
+							}
+
+							
 							var entityData = snapshot[i].slice(1).split('&');
 							var entityId = entityData[0];
 							entityData.splice(0, 1); // removing entityId

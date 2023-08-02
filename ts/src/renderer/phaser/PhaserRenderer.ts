@@ -24,8 +24,7 @@ class PhaserRenderer extends Phaser.Game {
 		}
 
 		super({
-			type: forceCanvas[gameId] || forceCanvas[0] ?
-				Phaser.CANVAS : Phaser.AUTO,
+			type: Phaser.CANVAS,
 			scale: {
 				width: 600,
 				height: 400,

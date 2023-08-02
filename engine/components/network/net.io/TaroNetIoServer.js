@@ -411,6 +411,8 @@ var TaroNetIoServer = {
 
 			// append serverTime timestamp to the snapshot
 			self.snapshot.push([String.fromCharCode(this._networkCommandsLookup._taroStreamTime), timestamp]);
+			console.log(timestamp, timestamp - this.lastTimeStamp)
+			this.lastTimeStamp = timestamp;
 			self._io.send([ciEncoded, self.snapshot]);
 
 			taro.server.lastSnapshot = self.snapshot;
