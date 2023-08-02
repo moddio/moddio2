@@ -572,7 +572,7 @@ var ClientNetworkEvents = {
 		if (data.entityId) {
 			var entity = taro.$(data.entityId);
 			if (entity) {
-				taro.$(data.entityId).tween.start(data.tweenId, data.angle);
+				entity.tween.start(data.tweenId, data.angle);
 			}
 		}
 	},
