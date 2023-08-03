@@ -11,11 +11,13 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 	private fadeTween: Phaser.Tweens.Tween;
 
 	constructor(
-		scene: Phaser.Scene,
+		scene: GameScene,
 		chatText: string,
 		private unit: PhaserUnit
 	) {
 		super(scene);
+
+		this.scene = scene;
 
 		const bubble = this.bubble = scene.add.graphics();
 		this.add(bubble);
@@ -41,7 +43,7 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 		//this.textObject.setScale(0.5);
 
 		// needs to be created with the correct scale of the client
-		this.setScale(1 / this.scene.cameras.main.zoom);
+		this.setScale(1 / this.scene.cameras.main.zoom / taro.client.resolutionCoefficient);
 
 		text.setFontSize(12);
 		//text.setCenterAlign();
@@ -119,7 +121,7 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 	}
 
 	private updateScale (): void {
-		this.setScale(1 / this.scene.cameras.main.zoom);
+		this.setScale(1 / this.scene.cameras.main.zoom / taro.client.resolutionCoefficient);
 	}
 
 	private trimText (chatText: string): string {

@@ -188,7 +188,7 @@ var PhaserUnit = /** @class */ (function (_super) {
             label.setScale(1 / scene.cameras.main.zoom);*/
             var label = this.label = scene.add.text(0, 0, 'cccccc');
             // needs to be created with the correct scale of the client
-            this.label.setScale(1 / scene.cameras.main.zoom);
+            this.label.setScale(1 / scene.cameras.main.zoom / this.scene.resolutionCoefficient);
             label.setOrigin(0.5);
             this.gameObject.add(label);
             /*if (scene.renderer.type === Phaser.CANVAS) {
@@ -268,7 +268,7 @@ var PhaserUnit = /** @class */ (function (_super) {
         if (!this.attributesContainer) {
             this.attributesContainer = this.scene.add.container(0, 0);
             // needs to be created with the correct scale of the client
-            this.attributesContainer.setScale(1 / this.scene.cameras.main.zoom);
+            this.attributesContainer.setScale(1 / this.scene.cameras.main.zoom / this.scene.resolutionCoefficient);
             this.updateAttributesOffset();
             this.gameObject.add(this.attributesContainer);
         }

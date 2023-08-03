@@ -95,6 +95,8 @@ const Client = TaroEventingClass.extend({
 			}
 		];
 
+		this.resolutionCoefficient = 2;
+
 		// can we just comment this out
 		this.tradeOffers = [undefined, undefined, undefined, undefined, undefined];
 

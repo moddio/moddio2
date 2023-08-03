@@ -216,7 +216,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 			const label = this.label = scene.add.text(0, 0, 'cccccc');
 
 			// needs to be created with the correct scale of the client
-			this.label.setScale(1 / scene.cameras.main.zoom);
+			this.label.setScale(1 / scene.cameras.main.zoom / this.scene.resolutionCoefficient);
 
 			label.setOrigin(0.5);
 
@@ -317,7 +317,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 			this.attributesContainer = this.scene.add.container(0, 0);
 
 			// needs to be created with the correct scale of the client
-			this.attributesContainer.setScale(1 / this.scene.cameras.main.zoom);
+			this.attributesContainer.setScale(1 / this.scene.cameras.main.zoom / this.scene.resolutionCoefficient);
 			this.updateAttributesOffset();
 
 			this.gameObject.add(this.attributesContainer);

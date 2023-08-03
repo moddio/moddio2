@@ -1,5 +1,4 @@
 /// <reference types="@types/google.analytics" />
-
 class PhaserRenderer extends Phaser.Game {
 
 	constructor () {
@@ -22,6 +21,7 @@ class PhaserRenderer extends Phaser.Game {
 				}
 			}
 		}
+		document.getElementById('game-div').setAttribute('style', `width:${100/taro.client.resolutionCoefficient}%;height:${100/taro.client.resolutionCoefficient}%;`);
 
 		super({
 			type: forceCanvas[gameId] || forceCanvas[0] ?
@@ -32,7 +32,8 @@ class PhaserRenderer extends Phaser.Game {
 				parent: 'game-div',
 				mode: Phaser.Scale.ScaleModes.RESIZE,
 				autoRound: true,
-				resizeInterval: 100
+				resizeInterval: 100,
+				autoCenter: Phaser.Scale.Center.CENTER_BOTH,
 			},
 			render: {
 				pixelArt: false,

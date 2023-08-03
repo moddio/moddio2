@@ -18,6 +18,7 @@ var PhaserChatBubble = /** @class */ (function (_super) {
     function PhaserChatBubble(scene, chatText, unit) {
         var _this = _super.call(this, scene) || this;
         _this.unit = unit;
+        _this.scene = scene;
         var bubble = _this.bubble = scene.add.graphics();
         _this.add(bubble);
         /*const text = this.bitmapText = scene.add.bitmapText(
@@ -35,7 +36,7 @@ var PhaserChatBubble = /** @class */ (function (_super) {
             text.setResolution(2);
         //this.textObject.setScale(0.5);
         // needs to be created with the correct scale of the client
-        _this.setScale(1 / _this.scene.cameras.main.zoom);
+        _this.setScale(1 / _this.scene.cameras.main.zoom / taro.client.resolutionCoefficient);
         text.setFontSize(12);
         //text.setCenterAlign();
         text.setOrigin(0.5);
@@ -98,7 +99,7 @@ var PhaserChatBubble = /** @class */ (function (_super) {
         });
     };
     PhaserChatBubble.prototype.updateScale = function () {
-        this.setScale(1 / this.scene.cameras.main.zoom);
+        this.setScale(1 / this.scene.cameras.main.zoom / taro.client.resolutionCoefficient);
     };
     PhaserChatBubble.prototype.trimText = function (chatText) {
         if (chatText.length > 43) {

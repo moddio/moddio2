@@ -137,8 +137,8 @@ var EntityImage = /** @class */ (function () {
             selectionContainer.x = image.x;
             selectionContainer.y = image.y;
             selectionContainer.angle = image.angle;
-            var smallDistance = 20 / this.scene.cameras.main.zoom;
-            var largeDistance = 25 / this.scene.cameras.main.zoom;
+            var smallDistance = 20 / this.scene.cameras.main.zoom / taro.client.resolutionCoefficient;
+            var largeDistance = 25 / this.scene.cameras.main.zoom / taro.client.resolutionCoefficient;
             handlers.topLeft.setPosition(-image.displayWidth / 2 - smallDistance, -image.displayHeight / 2 - smallDistance);
             handlers.topLeftRotate.setPosition(-image.displayWidth / 2 - largeDistance, -image.displayHeight / 2 - largeDistance);
             handlers.top.setPosition(0, -image.displayHeight / 2 - smallDistance);

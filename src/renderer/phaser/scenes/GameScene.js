@@ -31,6 +31,7 @@ var GameScene = /** @class */ (function (_super) {
         _this.unitsList = [];
         _this.projectilesList = [];
         _this.itemList = [];
+        _this.resolutionCoefficient = taro.client.resolutionCoefficient;
         return _this;
     }
     GameScene.prototype.init = function () {
@@ -40,20 +41,24 @@ var GameScene = /** @class */ (function (_super) {
         }
         var camera = this.cameras.main;
         camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
-        this.scale.on(Phaser.Scale.Events.RESIZE, function () {
+        this.scale.on(Phaser.Scale.Events.RESIZE, function (gameSize, baseSize, displaySize, prevWidth, prevHeight) {
+            console.log('\n\nRESIZING\n\n');
+            _this.scale.canvas.setAttribute('style', "width:".concat(_this.scale.parent.clientWidth * _this.resolutionCoefficient, ";height:").concat(_this.scale.parent.clientHeight * _this.resolutionCoefficient, ";"));
+            console.log(_this.scale.canvas);
             if (_this.zoomSize) {
                 camera.zoom = _this.calculateZoom();
-                taro.client.emit('scale', { ratio: camera.zoom });
+                taro.client.emit('scale', { ratio: camera.zoom * _this.resolutionCoefficient });
             }
         });
         taro.client.on('zoom', function (height) {
+            console.log('\n\nZOOMING\n\n');
             if (_this.zoomSize === height * 2.15) {
                 return;
             }
             _this.setZoomSize(height);
             var ratio = _this.calculateZoom();
             camera.zoomTo(ratio, 1000, Phaser.Math.Easing.Quadratic.Out, true);
-            taro.client.emit('scale', { ratio: ratio });
+            taro.client.emit('scale', { ratio: ratio * _this.resolutionCoefficient });
         });
         taro.client.on('change-filter', function (data) {
             _this.changeTextureFilter(data.filter);
@@ -214,6 +219,8 @@ var GameScene = /** @class */ (function (_super) {
         this.events.once('render', function () {
             _this.scene.launch('DevMode');
             taro.client.rendererLoaded.resolve();
+            console.log('\n\nONCE RENDER\n\n');
+            _this.scale.canvas.setAttribute('style', "width:".concat(_this.scale.parent.clientWidth * _this.resolutionCoefficient, ";height:").concat(_this.scale.parent.clientHeight * _this.resolutionCoefficient, ";"));
         });
         BitmapFontManager.create(this);
         var map = this.tilemap = this.make.tilemap({ key: 'map' });
@@ -402,9 +409,10 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.update = function () {
         var _this = this;
         var worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
+        console.log(worldPoint.x, worldPoint.y);
         taro.input.emit('pointermove', [{
-                x: worldPoint.x,
-                y: worldPoint.y,
+                x: worldPoint.x - this.cameras.main.width / 2,
+                y: worldPoint.y - this.cameras.main.height / 2,
             }]);
         this.renderedEntities.forEach(function (element) {
             element.setVisible(false);

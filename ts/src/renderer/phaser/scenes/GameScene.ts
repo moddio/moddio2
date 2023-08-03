@@ -15,8 +15,11 @@ class GameScene extends PhaserScene {
 	cameraTarget: Phaser.GameObjects.Container & IRenderProps;
 	filter: Phaser.Textures.FilterMode;
 
+	public resolutionCoefficient = taro.client.resolutionCoefficient;
+
 	constructor() {
 		super({ key: 'Game' });
+
 	}
 
 	init (): void {
@@ -26,16 +29,25 @@ class GameScene extends PhaserScene {
 		}
 
 		const camera = this.cameras.main;
+
 		camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
 
-		this.scale.on(Phaser.Scale.Events.RESIZE, () => {
+		this.scale.on(Phaser.Scale.Events.RESIZE, (gameSize, baseSize, displaySize, prevWidth, prevHeight) => {
+			console.log('\n\nRESIZING\n\n');
+			this.scale.canvas.setAttribute(
+				'style',
+				`width:${this.scale.parent.clientWidth*this.resolutionCoefficient};height:${this.scale.parent.clientHeight*this.resolutionCoefficient};`
+			);
+			console.log(this.scale.canvas);
+
 			if (this.zoomSize) {
 				camera.zoom = this.calculateZoom();
-				taro.client.emit('scale', { ratio: camera.zoom });
+				taro.client.emit('scale', { ratio: camera.zoom * this.resolutionCoefficient });
 			}
 		});
 
 		taro.client.on('zoom', (height: number) => {
+			console.log('\n\nZOOMING\n\n');
 			if (this.zoomSize === height * 2.15) {
 				return;
 			}
@@ -50,7 +62,7 @@ class GameScene extends PhaserScene {
 				true
 			);
 
-			taro.client.emit('scale', { ratio: ratio });
+			taro.client.emit('scale', { ratio: ratio * this.resolutionCoefficient });
 		});
 
 		taro.client.on('change-filter', (data: {filter: renderingFilter}) => {
@@ -81,7 +93,6 @@ class GameScene extends PhaserScene {
 			new PhaserRay(this, data.start, data.end, data.config);
 		});
 
-		
 		taro.client.on('create-particle', (particle: Particle) => {
 			new PhaserParticle(this, particle);
 		});
@@ -256,9 +267,15 @@ class GameScene extends PhaserScene {
 	}
 
 	create (): void {
+
 		this.events.once('render', () => {
 			this.scene.launch('DevMode');
 			taro.client.rendererLoaded.resolve();
+			console.log('\n\nONCE RENDER\n\n');
+			this.scale.canvas.setAttribute(
+				'style',
+				`width:${this.scale.parent.clientWidth*this.resolutionCoefficient};height:${this.scale.parent.clientHeight*this.resolutionCoefficient};`
+			);
 		});
 
 		BitmapFontManager.create(this);
@@ -575,11 +592,13 @@ class GameScene extends PhaserScene {
 
 		const worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
 
+		console.log(worldPoint.x, worldPoint.y);
+
 		taro.input.emit('pointermove', [{
-			x: worldPoint.x,
-			y: worldPoint.y,
+			x: worldPoint.x - this.cameras.main.width / 2,
+			y: worldPoint.y - this.cameras.main.height / 2,
 		}]);
-		
+
 		this.renderedEntities.forEach(element => {
 			element.setVisible(false);
 		});

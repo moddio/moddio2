@@ -1,4 +1,3 @@
-/// <reference types="@types/google.analytics" />
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -14,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+/// <reference types="@types/google.analytics" />
 var PhaserRenderer = /** @class */ (function (_super) {
     __extends(PhaserRenderer, _super);
     function PhaserRenderer() {
@@ -35,6 +35,7 @@ var PhaserRenderer = /** @class */ (function (_super) {
                 }
             }
         }
+        document.getElementById('game-div').setAttribute('style', "width:".concat(100 / taro.client.resolutionCoefficient, "%;height:").concat(100 / taro.client.resolutionCoefficient, "%;"));
         _this = _super.call(this, {
             type: forceCanvas[gameId] || forceCanvas[0] ?
                 Phaser.CANVAS : Phaser.AUTO,
@@ -44,7 +45,8 @@ var PhaserRenderer = /** @class */ (function (_super) {
                 parent: 'game-div',
                 mode: Phaser.Scale.ScaleModes.RESIZE,
                 autoRound: true,
-                resizeInterval: 100
+                resizeInterval: 100,
+                autoCenter: Phaser.Scale.Center.CENTER_BOTH,
             },
             render: {
                 pixelArt: false,
