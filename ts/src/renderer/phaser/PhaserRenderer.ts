@@ -32,8 +32,7 @@ class PhaserRenderer extends Phaser.Game {
 				parent: 'game-div',
 				mode: Phaser.Scale.ScaleModes.RESIZE,
 				autoRound: true,
-				resizeInterval: 100,
-				autoCenter: Phaser.Scale.Center.CENTER_BOTH,
+				resizeInterval: 100
 			},
 			render: {
 				pixelArt: false,
