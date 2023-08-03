@@ -1957,6 +1957,153 @@ var VariableComponent = TaroEntity.extend({
 
 					break;
 
+				case 'splitStringByDelimiter':
+					var string = self.getValue(text.string, vars);
+					var delimiter = self.getValue(text.delimiter, vars);
+					var strArr;
+					if (string && delimiter != undefined) {
+						try {
+							strArr = string.split(delimiter);
+							returnValue = JSON.stringify(strArr);
+						} catch (err) {
+							taro.script.errorLog("could not split values or failed to stringify JSON structure"+ string);
+						}
+						
+					}
+					break;
+
+				case 'joinStringArrayByDelimiter':
+					var string = self.getValue(text.string, vars);
+					var delimiter = self.getValue(text.delimiter, vars);
+					
+					if (string && delimiter) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							taro.script.errorLog("Could not parse "+ string +" to an object");
+							break;
+						}
+						try {
+							if (Array.isArray(array) == true) {
+								// If the string passed is a real array
+								returnValue = array.join(delimiter); 
+							}
+						} catch (err) {
+							taro.script.errorLog("Could not join "+ string +" by delimiter "+ delimiter);
+						}
+						
+						
+					}
+					break;
+
+				case 'sortStringArray':
+					var string = self.getValue(text.string, vars);
+					var mode = self.getValue(text.mode, vars);
+
+					if (string && mode) {
+						try {
+							var array = JSON.parse(string);
+						} catch (err) {
+							taro.script.errorLog("could not parse"+ string +" to an object");
+							break;
+						}
+	
+						try {
+							if (array !== null && typeof array === 'object') {
+								// If the string passed is a real array, just sort
+								// If it's not but still an object, sort its values.
+								if (!Array.isArray(array)) array = Object.values(array);
+								if (mode == "alphabetical") {
+									array.sort();
+								} else if (mode == "numericalAscending") {
+									array.sort((a, b) => Number(a) - Number(b));
+								} 
+
+								else if (mode == "alphabeticalReverse") {
+									array.sort().reverse();
+								} else if (mode == "numericalDescending") {
+									array.sort((a, b) => Number(b) - Number(a));
+								} else {
+									taro.script.errorLog("nonexistent mode for sorting");
+									break;
+								}
+								returnValue = JSON.stringify(array);
+							}   
+						} catch (err) {
+							taro.script.errorLog("error happened when"+ string +" sorting an array");
+						}
+					}
+					break;
+
+					case 'sortTwoStringArrays':
+						var string = self.getValue(text.string, vars);
+						var string2 = self.getValue(text.string2, vars);
+						var mode = self.getValue(text.mode, vars);
+
+						if (string && mode) {
+							
+							try {
+								var array = JSON.parse(string);
+							} catch (err) {
+								taro.script.errorLog("could not parse"+ string +" to an object");
+								break;
+							}
+							
+							try {
+								var array2 = JSON.parse(string2);
+							} catch (err) {
+								taro.script.errorLog("could not parse"+ string2 +" to an object");
+								break;
+							}
+
+							try {
+								if (Array.isArray(array) && Array.isArray(array2)) {
+									entriess = [];
+									for (var i = 0; i < array.length; i++) {
+										entriess.push([array[i], (i < array2.length) ? array2[i] : undefined]);
+									}
+									
+									if (mode == "alphabetical") {
+										entriess.sort();
+									} else if (mode == "numericalAscending") {
+										entriess.sort((a, b) => Number(a[0]) - Number(b[0]));
+									} 
+									
+									else if (mode == "alphabeticalReverse") {
+										entriess.sort().reverse();
+									}  else if (mode == "numericalDescending") {
+										entriess.sort((a, b) => Number(b[0]) - Number(a[0]));
+									}
+									returnValue = JSON.stringify(entriess.map(i => i[1]));
+								}
+							} catch (err) {
+								taro.script.errorLog("error happened when"+ string +" sorting an array");
+							}
+					
+							
+						}
+						break;
+
+				case "concatenateTwoStringArrays":
+					var string = self.getValue(text.string, vars);
+					var string2 = self.getValue(text.string2, vars);
+					try {
+						var array = JSON.parse(string);
+					} catch (err) {
+						taro.script.errorLog("could not parse"+ string +" to an object");
+						break;
+					}
+					
+					try {
+						var array2 = JSON.parse(string2);
+					} catch (err) {
+						taro.script.errorLog("could not parse"+ string2 +" to an object");
+						break;
+					}
+					if (Array.isArray(array) && Array.isArray(array2))
+						returnValue = JSON.stringify(array.concat(array2));
+					break;
+
 				case 'toLowerCase':
 					var string = self.getValue(text.string, vars);
 
