@@ -417,7 +417,7 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.update = function () {
         var _this = this;
         var worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
-        console.log(worldPoint.x, worldPoint.y);
+        console.log('mouse pos:', this.input.activePointer.x, this.input.activePointer.y, 'world pos:', worldPoint.x, worldPoint.y);
         taro.input.emit('pointermove', [{
                 x: worldPoint.x - this.cameras.main.width / 2,
                 y: worldPoint.y - this.cameras.main.height / 2,

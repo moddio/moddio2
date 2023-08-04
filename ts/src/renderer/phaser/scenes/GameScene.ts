@@ -605,7 +605,7 @@ class GameScene extends PhaserScene {
 
 		const worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
 
-		console.log(worldPoint.x, worldPoint.y);
+		console.log('mouse pos:', this.input.activePointer.x, this.input.activePointer.y, 'world pos:', worldPoint.x, worldPoint.y);
 
 		taro.input.emit('pointermove', [{
 			x: worldPoint.x - this.cameras.main.width / 2,
