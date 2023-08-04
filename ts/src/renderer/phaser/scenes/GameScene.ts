@@ -65,6 +65,10 @@ class GameScene extends PhaserScene {
 			taro.client.emit('scale', { ratio: ratio * this.resolutionCoefficient });
 		});
 
+        taro.client.on('scale-canvas', () => {
+			this.scaleCanvas();
+		});
+
 		taro.client.on('change-filter', (data: {filter: renderingFilter}) => {
 			this.changeTextureFilter(data.filter);
 		});
@@ -587,6 +591,15 @@ class GameScene extends PhaserScene {
 			}
 		);
 	}
+
+    scaleCanvas (): void {
+        this.resolutionCoefficient = taro.client.resolutionCoefficient;
+        document.getElementById('game-div').setAttribute('style', `width:${100/this.resolutionCoefficient}%;height:${100/this.resolutionCoefficient}%;`);
+        this.scale.canvas.setAttribute(
+            'style',
+            `width:${this.scale.parent.clientWidth*this.resolutionCoefficient};height:${this.scale.parent.clientHeight*this.resolutionCoefficient};`
+        );
+    }
 
 	update (): void {
 

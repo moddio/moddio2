@@ -60,6 +60,9 @@ var GameScene = /** @class */ (function (_super) {
             camera.zoomTo(ratio, 1000, Phaser.Math.Easing.Quadratic.Out, true);
             taro.client.emit('scale', { ratio: ratio * _this.resolutionCoefficient });
         });
+        taro.client.on('scale-canvas', function () {
+            _this.scaleCanvas();
+        });
         taro.client.on('change-filter', function (data) {
             _this.changeTextureFilter(data.filter);
         });
@@ -405,6 +408,11 @@ var GameScene = /** @class */ (function (_super) {
         return __spreadArray(__spreadArray(__spreadArray([], this.unitsList, true), this.itemList, true), this.projectilesList, true).find(function (entity) {
             return entity.entity._id === entityId;
         });
+    };
+    GameScene.prototype.scaleCanvas = function () {
+        this.resolutionCoefficient = taro.client.resolutionCoefficient;
+        document.getElementById('game-div').setAttribute('style', "width:".concat(100 / this.resolutionCoefficient, "%;height:").concat(100 / this.resolutionCoefficient, "%;"));
+        this.scale.canvas.setAttribute('style', "width:".concat(this.scale.parent.clientWidth * this.resolutionCoefficient, ";height:").concat(this.scale.parent.clientHeight * this.resolutionCoefficient, ";"));
     };
     GameScene.prototype.update = function () {
         var _this = this;

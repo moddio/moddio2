@@ -95,7 +95,7 @@ const Client = TaroEventingClass.extend({
 			}
 		];
 
-		this.resolutionCoefficient = 2;
+		this.resolutionCoefficient = 2; //1 is default, 1.33 1.66 2
 
 		// can we just comment this out
 		this.tradeOffers = [undefined, undefined, undefined, undefined, undefined];
@@ -860,7 +860,12 @@ const Client = TaroEventingClass.extend({
 			this.emit('stop-follow');
 			this.emit('position-camera', [x, y]);
 		}
-	}
+	},
+
+    setResolution: function (quality) {
+        this.resolutionCoefficient = quality;
+        this.emit('scale-canvas');
+    }
 });
 
 if (typeof (module) != 'undefined' && typeof (module.exports) != 'undefined') {
