@@ -219,6 +219,21 @@ var ServerNetworkEvents = {
 
 			var socket = taro.network._socketById[clientId];
 			if (socket) {
+				let isAllowedToJoinGame = false;
+				const roles = taro.game.data.roles || [];
+
+				if (roles.length === 0 || roles.length === 1) {
+					isAllowedToJoinGame = true;
+				} else if (roles && roles.find((role) => role.type === 5 && role.permissions?.playGame)) {
+					isAllowedToJoinGame = true;
+				} 
+
+				if (!isAllowedToJoinGame) {
+					const reason = 'Guest players not allowed to join this game.';
+					taro.network.send('clientDisconnect', { reason, clientId: clientId });
+					socket.close(reason);
+					return;
+				}
 
 				// if this guest hasn't created player yet (hasn't joined the game yet)
 				var player = taro.game.getPlayerByClientId(socket.id);
