@@ -83,7 +83,12 @@ var planckWrapper = {
                 }
             }
         }
-        tempDef.type = body.type;
+        if (entity._category === 'region') {
+            tempDef.type = 'dynamic';
+        }
+        else {
+            tempDef.type = body.type;
+        }
         // set rotation
         tempDef.angle = entity._rotate.z;
         // Set the position

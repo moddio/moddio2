@@ -197,18 +197,24 @@ const box2dwasmWrapper: PhysicsDistProps = { // added by Moe'Thun for fixing mem
 		var finalX; var finalY;
 		var finalWidth; var finalHeight;
 		// Process body definition and create a box2d body for it
-		switch (body.type) {
-			case 'static':
-				tempDef.set_type(box2D.b2_staticBody);
-				break;
+		// because box2d kinematic body won't collide with static body,
+		// so we can't set it as static body
+		if (entity._category === 'region') {
+			tempDef.set_type(box2D.b2_dynamicBody);
+		} else {
+			switch (body.type) {
+				case 'static':
+					tempDef.set_type(box2D.b2_staticBody);
+					break;
 
-			case 'dynamic':
-				tempDef.set_type(box2D.b2_dynamicBody);
-				break;
+				case 'dynamic':
+					tempDef.set_type(box2D.b2_dynamicBody);
+					break;
 
-			case 'kinematic':
-				tempDef.set_type(box2D.b2_kinematicBody);
-				break;
+				case 'kinematic':
+					tempDef.set_type(box2D.b2_kinematicBody);
+					break;
+			}
 		}
 
 		// Add the parameters of the body to the new body instance

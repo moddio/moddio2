@@ -53,9 +53,8 @@ var ScriptComponent = TaroEntity.extend({
 		if (this.scripts && this.scripts[scriptId]) {
 			// var actions = JSON.parse(JSON.stringify(this.scripts[scriptId].actions));
 			var actions = self.getScriptActions(scriptId);
-			
 			// console.log(scriptId, ': ', actions, params);
-			
+
 			if (actions) {
 				var cmd = self.action.run(actions, params);
 				if (cmd == 'return') {
@@ -63,7 +62,7 @@ var ScriptComponent = TaroEntity.extend({
 					return;
 				}
 			}
-		// check if we are trying to run a global script from inside entity scripts
+			// check if we are trying to run a global script from inside entity scripts
 
 		// if we are running from entity script and the script was not found
 		// then check for the script on the global script component
@@ -114,7 +113,7 @@ var ScriptComponent = TaroEntity.extend({
 		}
 
 		let scriptIds = this.triggeredScripts[triggerName];
-		
+
 		for (var i in scriptIds) {
 			let scriptId = scriptIds[i];
 			this.scriptLog(`\ntrigger: ${triggerName}`);
@@ -192,4 +191,6 @@ var ScriptComponent = TaroEntity.extend({
 
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = ScriptComponent; }
+if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+	module.exports = ScriptComponent;
+}

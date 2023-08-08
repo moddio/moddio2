@@ -128,16 +128,23 @@ var box2dwebWrapper = {
         var finalWidth;
         var finalHeight;
         // Process body definition and create a box2d body for it
-        switch (body.type) {
-            case 'static':
-                tempDef.type = self.b2Body.b2_staticBody;
-                break;
-            case 'dynamic':
-                tempDef.type = self.b2Body.b2_dynamicBody;
-                break;
-            case 'kinematic':
-                tempDef.type = self.b2Body.b2_kinematicBody;
-                break;
+        // because box2d kinematic body won't collide with static body,
+        // so we can't set it as static body
+        if (entity._category === 'region') {
+            tempDef.type = self.b2Body.b2_dynamicBody;
+        }
+        else {
+            switch (body.type) {
+                case 'static':
+                    tempDef.type = self.b2Body.b2_staticBody;
+                    break;
+                case 'dynamic':
+                    tempDef.type = self.b2Body.b2_dynamicBody;
+                    break;
+                case 'kinematic':
+                    tempDef.type = self.b2Body.b2_kinematicBody;
+                    break;
+            }
         }
         // Add the parameters of the body to the new body instance
         for (param in body) {
