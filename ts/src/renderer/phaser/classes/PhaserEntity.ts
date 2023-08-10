@@ -74,6 +74,7 @@ class PhaserEntity {
 interface IRenderProps {
 	hidden: boolean;
 	taroDepth: number;
+    taroEntity: TaroEntity;
 	dynamic?: boolean;
 	owner?: PhaserUnit;
 	spriteHeight2?: number;

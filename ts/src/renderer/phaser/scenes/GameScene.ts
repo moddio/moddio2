@@ -591,7 +591,6 @@ class GameScene extends PhaserScene {
     }
 
 	update (): void {
-
 		const worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
 
 		taro.input.emit('pointermove', [{
@@ -599,15 +598,11 @@ class GameScene extends PhaserScene {
 			y: worldPoint.y,
 		}]);
 
-		this.renderedEntities.forEach(element => {
-			element.setVisible(false);
-		});
-
 		if (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab !== 'map')) {
 			this.cameras.main.cull(this.renderedEntities).forEach(element => {
+                element.taroEntity.isCulled = false;
 				if (!element.hidden) {
 					element.setVisible(true);
-
 					if (element.dynamic) {
 						// dynamic is only assigned through an hbz-index-only event
 						this.heightRenderer.adjustDepth(element as TGameObject & Phaser.GameObjects.Components.Size);

@@ -26,6 +26,7 @@ var PhaserAnimatedEntity = /** @class */ (function (_super) {
         _this.sprite.rotation = entity._rotate.z;
         Object.assign(_this.evtListeners, {
             'play-animation': entity.on('play-animation', _this.playAnimation, _this),
+            'cull': entity.on('cull', _this.cull, _this),
             size: entity.on('size', _this.size, _this),
             scale: entity.on('scale', _this.scale, _this),
             flip: entity.on('flip', _this.flip, _this),
@@ -54,6 +55,10 @@ var PhaserAnimatedEntity = /** @class */ (function (_super) {
     };
     PhaserAnimatedEntity.prototype.flip = function (flip) {
         this.sprite.setFlip(flip % 2 === 1, flip > 1);
+    };
+    PhaserAnimatedEntity.prototype.cull = function () {
+        this.gameObject.setVisible(false);
+        this.entity.isCulled = true;
     };
     PhaserAnimatedEntity.prototype.destroy = function () {
         this.sprite = null;

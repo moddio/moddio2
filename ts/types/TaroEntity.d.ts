@@ -1,5 +1,6 @@
 declare class TaroEntity extends TaroObject {
 	isTransforming: any;
+    nextKeyFrame: any;
 	getAnchoredOffset(rotate: number): any;
 
 	_alive: boolean;
@@ -21,6 +22,7 @@ declare class TaroEntity extends TaroObject {
 	_deathCallBack?: () => void;
 	_behaviour?: () => void;
 	anchoredOffset: any;
+    isCulled: boolean;
 
 	_processTransform (): void
 

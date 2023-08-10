@@ -19,6 +19,7 @@ var PhaserItem = /** @class */ (function (_super) {
         var _this = _super.call(this, scene, entity, "item/".concat(entity._stats.cellSheet.url)) || this;
         _this.sprite.visible = false;
         _this.gameObject = _this.sprite;
+        _this.gameObject.taroEntity = entity;
         var _a = entity._translate, x = _a.x, y = _a.y;
         _this.gameObject.setPosition(x, y);
         Object.assign(_this.evtListeners, {

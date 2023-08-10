@@ -1,16 +1,21 @@
 var EntitiesToRender = /** @class */ (function () {
+    //updateCount: number;
     function EntitiesToRender() {
         this.trackEntityById = {};
         taro.client.on('tick', this.frameTick, this);
     }
     EntitiesToRender.prototype.updateAllEntities = function ( /*timeStamp*/) {
         var _a, _b, _c, _d;
+        var currentTime = Date.now();
+        //taro.transformCount = 0;
+        //this.updateCount = 0;
         for (var entityId in this.trackEntityById) {
             // var timeStart = performance.now();
             // var entity = taro.$(entityId);	
             var entity = this.trackEntityById[entityId];
             // taro.profiler.logTimeElapsed('findEntity', timeStart);
             if (entity) {
+                //this.updateCount++;
                 // handle entity behaviour and transformation offsets
                 // var timeStart = performance.now();
                 if (taro.gameLoopTickHasExecuted) {
@@ -53,7 +58,21 @@ var EntitiesToRender = /** @class */ (function () {
                         }
                     }
                 }
-                // taro.profiler.logTimeElapsed('entity._behaviour()', timeStart);
+                // handle entity culling
+                if (entity.isCulled) {
+                    if (entity._category === 'item') {
+                        var ownerUnit = entity.getOwnerUnit();
+                        if (ownerUnit) {
+                            entity.emit('transform', {
+                                x: ownerUnit.nextKeyFrame[1][0],
+                                y: ownerUnit.nextKeyFrame[1][1],
+                                rotation: ownerUnit.nextKeyFrame[1][2],
+                            });
+                        }
+                    }
+                    continue;
+                }
+                entity.emit('cull');
                 // update transformation using incoming network stream
                 if (entity.isTransforming() || ((_a = entity.tween) === null || _a === void 0 ? void 0 : _a.isTweening)) {
                     // var timeStart = performance.now();
@@ -104,6 +123,7 @@ var EntitiesToRender = /** @class */ (function () {
         if (taro.gameLoopTickHasExecuted) {
             taro.gameLoopTickHasExecuted = false;
         }
+        //console.log(taro._currentTime, "processTransform count", taro.transformCount, "updateAllEntities count", this.updateCount);
     };
     EntitiesToRender.prototype.frameTick = function () {
         taro.engineStep(Date.now(), 1000 / 60);

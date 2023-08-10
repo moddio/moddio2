@@ -5178,6 +5178,8 @@ var TaroEntity = TaroObject.extend({
 
 		this.teleported = false;
 		this.lastTransformedAt = taro._currentTime;
+
+		//taro.transformCount++;
 	},
 
 	isTransforming: function(bool) {

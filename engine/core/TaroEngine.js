@@ -107,9 +107,12 @@ var TaroEngine = TaroEntity.extend({
 		this._renderMode = this._renderModes[this._renderContext]; // Integer representation of the render context
 		this._tickTime = 'NA'; // The time the tick took to process
 		this._updateTime = 'NA'; // The time the tick update section took to process
+		
 
 		this._tickDelta = 0; // The time between the last tick and the current one
 		this._lastTimeStamp = new Date().getTime();
+
+		//this.transformCount = 0
 
 		this._fpsRate = 60; // Sets the frames per second to execute engine tick's at
 		this._gameLoopTickRate = 20; // "frameTick", input, and streaming

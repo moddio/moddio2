@@ -496,6 +496,14 @@ var TaroNetIoClient = {
 									if (newSnapshotTimestamp > this.lastSnapshotTimestamp) {
 										entity.nextKeyFrame = [now + taro.client.renderBuffer, newPosition];
 										entity.isTransforming(true);
+
+                                        if (entity.isCulled) {
+                                            entity.emit('transform', {
+                                                x: entity.nextKeyFrame[1][0],
+                                                y: entity.nextKeyFrame[1][1],
+                                                rotation: entity.nextKeyFrame[1][2],
+                                            });
+                                        }
 									}									
 								}
 							}

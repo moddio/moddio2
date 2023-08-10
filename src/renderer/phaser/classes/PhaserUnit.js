@@ -21,6 +21,7 @@ var PhaserUnit = /** @class */ (function (_super) {
         var translate = entity._translate;
         var gameObject = scene.add.container(translate.x, translate.y, [_this.sprite]);
         _this.gameObject = gameObject;
+        _this.gameObject.taroEntity = entity;
         _this.updateGameObjectSize();
         // this is hbz-index logic but could be useful for other container operations
         _this.gameObject.spriteHeight2 = _this.sprite.displayHeight / 2;

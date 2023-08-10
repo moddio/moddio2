@@ -28,6 +28,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 		);
 
 		this.gameObject = gameObject as Phaser.GameObjects.Container & IRenderProps;
+        this.gameObject.taroEntity = entity;
 
 		this.updateGameObjectSize();
 		// this is hbz-index logic but could be useful for other container operations
