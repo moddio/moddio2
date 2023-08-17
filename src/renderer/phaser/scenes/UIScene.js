@@ -13,33 +13,24 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var UIScene = /** @class */ (function (_super) {
-    __extends(UIScene, _super);
-    function UIScene() {
-        return _super.call(this, { key: 'UI', active: true }) || this;
+var UiScene = /** @class */ (function (_super) {
+    __extends(UiScene, _super);
+    function UiScene() {
+        var _this = _super.call(this, { key: 'Ui', active: true }) || this;
+        _this.attributes = [];
+        return _this;
     }
-    UIScene.prototype.init = function () {
+    UiScene.prototype.init = function () {
     };
-    UIScene.prototype.create = function () {
-        //  Our Text object to display the Score
-        var info = this.add.text(100, 100, 'Score: 0');
-        //  Grab a reference to the Game Scene
-        /*const ourGame = this.scene.get('GameScene');
-
-        //  Listen for events from it
-        ourGame.events.on('addScore', function ()
-        {
-
-            this.score += 10;
-
-            info.setText(`Score: ${this.score}`);
-
-        }, this);*/
+    UiScene.prototype.create = function () {
+        //  simple score text for testing
+        //const info = this.add.text(100, 100, 'Score: 0', /*{ font: '48px Arial', fill: '#000000' }*/);
+        new PhaserUiAttributeBar(this);
     };
-    UIScene.prototype.preload = function () {
+    UiScene.prototype.preload = function () {
     };
-    UIScene.prototype.update = function () {
+    UiScene.prototype.update = function () {
     };
-    return UIScene;
+    return UiScene;
 }(PhaserScene));
-//# sourceMappingURL=UIScene.js.map
+//# sourceMappingURL=UiScene.js.map

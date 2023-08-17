@@ -56,7 +56,7 @@ var PhaserRenderer = /** @class */ (function (_super) {
             },
             scene: [
                 GameScene,
-                UIScene,
+                UiScene,
                 DevModeScene,
                 MobileControlsScene
             ],
