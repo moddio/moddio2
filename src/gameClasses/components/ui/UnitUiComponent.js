@@ -39,6 +39,8 @@ var UnitUiComponent = TaroEntity.extend({
 							(attribute.isVisible.indexOf && attribute.isVisible.indexOf('centerBar') > -1)
 						)
 					) {
+                        console.log('attribute present', attribute)
+                        taro.client.emit('attribute', attribute);
 						isAttributeBarPresent = true;
 						var width = (attribute.value / attribute.max) * 100;
 

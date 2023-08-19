@@ -15,23 +15,65 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var PhaserUiAttributeBar = /** @class */ (function (_super) {
     __extends(PhaserUiAttributeBar, _super);
-    function PhaserUiAttributeBar(scene /*private unit: PhaserUnit*/) {
-        //const scene = unit.scene;
+    function PhaserUiAttributeBar(scene, attribute /*private unit: PhaserUnit*/) {
         var _this = _super.call(this, scene) || this;
+        _this.attribute = attribute;
+        console.log('PhaserUiAttributeBar constructor');
         _this.background = new Phaser.GameObjects.Graphics(scene);
         _this.bar = new Phaser.GameObjects.Graphics(scene);
-        var width = 200;
-        var height = 20;
-        _this.x = _this.scene.sys.game.canvas.width * 0.5 + 400;
-        _this.y = _this.scene.sys.game.canvas.height * 0.95;
+        var width /*= this.bgWidth*/ = 240;
+        var height /*= this.bgHeight*/ = 24;
+        _this.x = _this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
+        _this.y = _this.scene.sys.game.canvas.height - height / 2 - 20;
         _this.value = 100;
         _this.p = 76 / 100;
         //  BG
-        _this.background.fillStyle(0x000000);
-        _this.background.fillRect(_this.x - width / 2, _this.y - height / 2, width, height);
-        _this.draw();
-        scene.add.existing(_this.background);
-        scene.add.existing(_this.bar);
+        _this.background.fillStyle(0x495057, 0.74);
+        _this.background.fillRoundedRect(-width / 2, -height / 2, width, height, 3);
+        _this.add(_this.background);
+        // Attribute
+        _this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
+        _this.bar.fillRect(-width / 2 + 3, -height / 2 + 3, width - 6, height - 6);
+        _this.add(_this.bar);
+        // Text
+        var text = _this.text = scene.add.text(0, 0, "".concat(attribute.name, ": ").concat(attribute.value, "/").concat(attribute.max), {
+            fontFamily: 'arial',
+            fontSize: 14,
+            color: '#000000',
+            align: 'center'
+        });
+        text.setResolution(2);
+        text.setOrigin(0.5);
+        _this.add(text);
+        /*const text = this.bitmapText = scene.add.bitmapText(0, 0,
+            BitmapFontManager.font(taro.renderer.scene.getScene('Game'), 'Arial', true, false, '#000000')
+        );
+        text.setCenterAlign();
+        text.setFontSize(14);
+        text.setOrigin(0.5);
+        text.letterSpacing = -0.8;
+        text.visible = false;
+        this.add(text);*/
+        /*const text = scene.add.bitmapText(
+            0, 0,
+            BitmapFontManager.font(scene,
+                'Verdana', false, false, '#000000'
+            ),
+            '100/100',
+            22
+        );
+        text.setOrigin(0.5);
+        text.letterSpacing = 1.3;
+        text.setVisible(true);
+        this.add(text);*/
+        /*if (scene.renderer.type === Phaser.CANVAS) {
+            const rt = this.rtText = scene.add.renderTexture(0, 0);
+            rt.setOrigin(0.5);
+            rt.visible = false;
+            this.add(rt);
+        }*/
+        //this.draw();
+        scene.add.existing(_this);
         return _this;
         /*const bar = this.bar = scene.add.graphics();
         this.add(bar);
@@ -53,19 +95,12 @@ var PhaserUiAttributeBar = /** @class */ (function (_super) {
             this.add(rt);
         }*/
     }
+    PhaserUiAttributeBar.prototype.updateAttribute = function (attribute) {
+        this.attribute = attribute;
+        //this.draw();
+    };
     PhaserUiAttributeBar.prototype.draw = function () {
         this.bar.clear();
-        //  Health
-        this.bar.fillStyle(0xffffff);
-        this.bar.fillRect(this.x + 2, this.y + 2, 76, 12);
-        if (this.value < 30) {
-            this.bar.fillStyle(0xff0000);
-        }
-        else {
-            this.bar.fillStyle(0x00ff00);
-        }
-        var d = Math.floor(this.p * this.value);
-        this.bar.fillRect(this.x + 2, this.y + 2, d, 12);
     };
     return PhaserUiAttributeBar;
 }(Phaser.GameObjects.Container));

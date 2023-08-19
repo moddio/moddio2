@@ -21,11 +21,12 @@ var UiScene = /** @class */ (function (_super) {
         return _this;
     }
     UiScene.prototype.init = function () {
+        var barContainer = new PhaserUiBarsContainer(this);
+        taro.client.on('attribute', function (attribute) {
+            barContainer.updateBar(attribute);
+        });
     };
     UiScene.prototype.create = function () {
-        //  simple score text for testing
-        //const info = this.add.text(100, 100, 'Score: 0', /*{ font: '48px Arial', fill: '#000000' }*/);
-        new PhaserUiAttributeBar(this);
     };
     UiScene.prototype.preload = function () {
     };

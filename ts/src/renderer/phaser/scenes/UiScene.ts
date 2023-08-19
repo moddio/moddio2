@@ -9,14 +9,16 @@ class UiScene extends PhaserScene {
 
 	init (): void {
 
+        const barContainer = new PhaserUiBarsContainer(this);
+        taro.client.on('attribute', (attribute) => {
+            barContainer.updateBar(attribute);
+		});
 		
 	}
 
     create ()
     {
-        //  simple score text for testing
-        //const info = this.add.text(100, 100, 'Score: 0', /*{ font: '48px Arial', fill: '#000000' }*/);
-        new PhaserUiAttributeBar(this);
+
     }
 
 	preload (): void {
