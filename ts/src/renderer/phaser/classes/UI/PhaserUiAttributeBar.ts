@@ -12,7 +12,7 @@ class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
     bitmapText: Phaser.GameObjects.BitmapText;
     rtText: Phaser.GameObjects.RenderTexture;
 
-	constructor(scene: PhaserScene, public attribute: any/*private unit: PhaserUnit*/) {
+	constructor(scene: PhaserScene, private container, public attribute: any/*private unit: PhaserUnit*/) {
 
 		super(scene);
 
@@ -21,8 +21,9 @@ class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
         this.background = new Phaser.GameObjects.Graphics(scene);
         this.bar = new Phaser.GameObjects.Graphics(scene);
 
-        const width /*= this.bgWidth*/ = 240;
-        const height /*= this.bgHeight*/ = 24;
+        const width = this.container.barWidth;
+        const height = this.container.barHeight;
+        const radius = this.container.barRadius;
 
         this.x = this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
         this.y = this.scene.sys.game.canvas.height - height/2 - 20;
@@ -31,7 +32,7 @@ class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
 
         //  BG
         this.background.fillStyle(0x495057, 0.74);
-        this.background.fillRoundedRect(- width/2, - height/2, width, height, 3);
+        this.background.fillRoundedRect(- width/2, - height/2, width, height, radius);
         this.add(this.background);
 
         // Attribute

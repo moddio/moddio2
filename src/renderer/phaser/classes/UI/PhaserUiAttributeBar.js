@@ -15,21 +15,23 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var PhaserUiAttributeBar = /** @class */ (function (_super) {
     __extends(PhaserUiAttributeBar, _super);
-    function PhaserUiAttributeBar(scene, attribute /*private unit: PhaserUnit*/) {
+    function PhaserUiAttributeBar(scene, container, attribute /*private unit: PhaserUnit*/) {
         var _this = _super.call(this, scene) || this;
+        _this.container = container;
         _this.attribute = attribute;
         console.log('PhaserUiAttributeBar constructor');
         _this.background = new Phaser.GameObjects.Graphics(scene);
         _this.bar = new Phaser.GameObjects.Graphics(scene);
-        var width /*= this.bgWidth*/ = 240;
-        var height /*= this.bgHeight*/ = 24;
+        var width = _this.container.barWidth;
+        var height = _this.container.barHeight;
+        var radius = _this.container.barRadius;
         _this.x = _this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
         _this.y = _this.scene.sys.game.canvas.height - height / 2 - 20;
         _this.value = 100;
         _this.p = 76 / 100;
         //  BG
         _this.background.fillStyle(0x495057, 0.74);
-        _this.background.fillRoundedRect(-width / 2, -height / 2, width, height, 3);
+        _this.background.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
         _this.add(_this.background);
         // Attribute
         _this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
