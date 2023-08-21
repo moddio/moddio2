@@ -1360,7 +1360,7 @@ var ShopComponent = TaroEntity.extend({
 						.append($('<div/>', {
 							id: `${item._id}_image`,
 							style: clipping,
-							class: 'is-mobile'
+							class: 'is-mobile shop-item'
 						})))
 					.append('<br/>')
 					.append(button)
