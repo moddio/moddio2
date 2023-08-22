@@ -34,9 +34,11 @@ var PhaserUiBarsContainer = /** @class */ (function (_super) {
         this.add(bar);
     };
     PhaserUiBarsContainer.prototype.updateBar = function (attribute) {
+        var _this = this;
         var bar = this.bars.find(function (bar) { return bar.attribute.type === attribute.type; });
         if (bar) {
             bar.updateAttribute(attribute);
+            this.bars.forEach(function (bar, index) { return bar.y = _this.scene.sys.game.canvas.height - _this.barHeight / 2 - 20 - (_this.bars.length - 1 - index) * _this.barInterval; });
         }
         else {
             this.addBar(attribute);

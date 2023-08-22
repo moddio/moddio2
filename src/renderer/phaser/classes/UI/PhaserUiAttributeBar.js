@@ -15,27 +15,14 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var PhaserUiAttributeBar = /** @class */ (function (_super) {
     __extends(PhaserUiAttributeBar, _super);
-    function PhaserUiAttributeBar(scene, container, attribute /*private unit: PhaserUnit*/) {
+    function PhaserUiAttributeBar(scene, container, attribute) {
         var _this = _super.call(this, scene) || this;
         _this.container = container;
         _this.attribute = attribute;
         console.log('PhaserUiAttributeBar constructor');
         _this.background = new Phaser.GameObjects.Graphics(scene);
         _this.bar = new Phaser.GameObjects.Graphics(scene);
-        var width = _this.container.barWidth;
-        var height = _this.container.barHeight;
-        var radius = _this.container.barRadius;
-        _this.x = _this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
-        _this.y = _this.scene.sys.game.canvas.height - height / 2 - 20;
-        _this.value = 100;
-        _this.p = 76 / 100;
-        //  BG
-        _this.background.fillStyle(0x495057, 0.74);
-        _this.background.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
         _this.add(_this.background);
-        // Attribute
-        _this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
-        _this.bar.fillRect(-width / 2 + 3, -height / 2 + 3, width - 6, height - 6);
         _this.add(_this.bar);
         // Text
         var text = _this.text = scene.add.text(0, 0, "".concat(attribute.name, ": ").concat(attribute.value, "/").concat(attribute.max), {
@@ -47,6 +34,7 @@ var PhaserUiAttributeBar = /** @class */ (function (_super) {
         text.setResolution(2);
         text.setOrigin(0.5);
         _this.add(text);
+        _this.draw();
         /*const text = this.bitmapText = scene.add.bitmapText(0, 0,
             BitmapFontManager.font(taro.renderer.scene.getScene('Game'), 'Arial', true, false, '#000000')
         );
@@ -98,11 +86,61 @@ var PhaserUiAttributeBar = /** @class */ (function (_super) {
         }*/
     }
     PhaserUiAttributeBar.prototype.updateAttribute = function (attribute) {
+        /*let valueOnly = true;
+        Object.entries(attribute).forEach(property => {
+            if (property[0] !== 'value' && property[0] !== 'isVisible' && property[1] !== this.attribute[property[0]]) {
+                console.log('property changed', property)
+                valueOnly = false;
+            }
+        });*/
+        /*Object.values(attribute).forEach((property, index) => {
+            if (property !== this.attribute[index]) {
+                console.log('property changed', property)
+                valueOnly = false;
+            }
+        });*/
         this.attribute = attribute;
-        //this.draw();
+        /*if (valueOnly) {
+            this.updateValue();
+        } else {*/
+        this.draw();
+        //}
+    };
+    PhaserUiAttributeBar.prototype.updateValue = function () {
+        var attribute = this.attribute;
+        this.bar.scaleX = attribute.value / attribute.max;
+        this.bar.x = -(1 - this.bar.scaleX) * this.container.barWidth / 2;
+        this.text.setText("".concat(attribute.name, ": ").concat(attribute.value, "/").concat(attribute.max));
     };
     PhaserUiAttributeBar.prototype.draw = function () {
+        var attribute = this.attribute;
+        var background = this.background;
+        var bar = this.bar;
+        this.background.clear();
         this.bar.clear();
+        var width = this.container.barWidth;
+        var height = this.container.barHeight;
+        var radius = this.container.barRadius;
+        this.x = this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
+        this.y = this.scene.sys.game.canvas.height - height / 2 - 20;
+        //  BG
+        this.background.fillStyle(0x495057, 0.74);
+        this.background.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
+        // Attribute
+        this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
+        this.bar.fillRect(-width / 2 + 3, -height / 2 + 3, width - 6, height - 6);
+        // Text
+        this.text.setText("".concat(attribute.name, ": ").concat(attribute.value, "/").concat(attribute.max));
+        /*const text = this.text = scene.add.text(0, 0, `${attribute.name}: ${attribute.value}/${attribute.max}`, {
+            fontFamily: 'arial',
+            fontSize: 14,
+            color: '#000000',
+            align: 'center'
+        });
+        text.setResolution(2);
+        text.setOrigin(0.5);
+        this.add(text);*/
+        this.updateValue();
     };
     return PhaserUiAttributeBar;
 }(Phaser.GameObjects.Container));

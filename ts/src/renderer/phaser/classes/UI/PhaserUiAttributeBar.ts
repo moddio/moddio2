@@ -1,18 +1,12 @@
 class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
 
-	/*private readonly bar: Phaser.GameObjects.Graphics;
-	private readonly bitmapText: Phaser.GameObjects.BitmapText;
-	private readonly rtText: Phaser.GameObjects.RenderTexture;*/
-    //public attribute: any;
-    private p: number;
-    private value: number;
     private readonly background: Phaser.GameObjects.Graphics;
     private readonly bar: Phaser.GameObjects.Graphics;
     private readonly text: Phaser.GameObjects.Text;
     bitmapText: Phaser.GameObjects.BitmapText;
     rtText: Phaser.GameObjects.RenderTexture;
 
-	constructor(scene: PhaserScene, private container, public attribute: any/*private unit: PhaserUnit*/) {
+	constructor(scene: PhaserScene, private container, public attribute: AttributeData) {
 
 		super(scene);
 
@@ -21,23 +15,7 @@ class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
         this.background = new Phaser.GameObjects.Graphics(scene);
         this.bar = new Phaser.GameObjects.Graphics(scene);
 
-        const width = this.container.barWidth;
-        const height = this.container.barHeight;
-        const radius = this.container.barRadius;
-
-        this.x = this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
-        this.y = this.scene.sys.game.canvas.height - height/2 - 20;
-        this.value = 100;
-        this.p = 76 / 100;
-
-        //  BG
-        this.background.fillStyle(0x495057, 0.74);
-        this.background.fillRoundedRect(- width/2, - height/2, width, height, radius);
         this.add(this.background);
-
-        // Attribute
-        this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
-        this.bar.fillRect(- width/2 + 3, - height/2 + 3, width - 6, height - 6);
         this.add(this.bar);
 
         // Text
@@ -51,6 +29,8 @@ class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
         text.setOrigin(0.5);  
         this.add(text);
 
+        this.draw();
+        
         /*const text = this.bitmapText = scene.add.bitmapText(0, 0,
 			BitmapFontManager.font(taro.renderer.scene.getScene('Game'), 'Arial', true, false, '#000000')
 		);
@@ -106,14 +86,74 @@ class PhaserUiAttributeBar extends Phaser.GameObjects.Container {
 		}*/
 	}
 
-    updateAttribute(attribute) {
+    updateAttribute(attribute: AttributeData) {
+        /*let valueOnly = true;
+        Object.entries(attribute).forEach(property => {
+            if (property[0] !== 'value' && property[0] !== 'isVisible' && property[1] !== this.attribute[property[0]]) {
+                console.log('property changed', property)
+                valueOnly = false;
+            }
+        });*/
+        /*Object.values(attribute).forEach((property, index) => {
+            if (property !== this.attribute[index]) {
+                console.log('property changed', property)
+                valueOnly = false;
+            }
+        });*/
+
         this.attribute = attribute;
-        //this.draw();
+
+        /*if (valueOnly) {
+            this.updateValue();
+        } else {*/
+            this.draw();
+        //}
+    }
+
+    updateValue() {
+        const attribute = this.attribute;
+        this.bar.scaleX = attribute.value/attribute.max;
+        this.bar.x = - (1 - this.bar.scaleX) * this.container.barWidth/2;
+        this.text.setText(`${attribute.name}: ${attribute.value}/${attribute.max}`);
     }
 
     draw ()
     {
+        const attribute = this.attribute;
+        const background = this.background;
+        const bar = this.bar;
+
+        this.background.clear();
         this.bar.clear();
 
+        const width = this.container.barWidth;
+        const height = this.container.barHeight;
+        const radius = this.container.barRadius;
+
+        this.x = this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
+        this.y = this.scene.sys.game.canvas.height - height/2 - 20;
+
+        //  BG
+        this.background.fillStyle(0x495057, 0.74);
+        this.background.fillRoundedRect(- width/2, - height/2, width, height, radius);
+        
+
+        // Attribute
+        this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
+        this.bar.fillRect(- width/2 + 3, - height/2 + 3, width - 6, height - 6);
+        
+
+        // Text
+        this.text.setText(`${attribute.name}: ${attribute.value}/${attribute.max}`);
+        /*const text = this.text = scene.add.text(0, 0, `${attribute.name}: ${attribute.value}/${attribute.max}`, {
+            fontFamily: 'arial',
+            fontSize: 14,
+            color: '#000000',
+            align: 'center'
+        });
+        text.setResolution(2);
+        text.setOrigin(0.5);  
+        this.add(text);*/
+        this.updateValue();
     }
 }

@@ -8,6 +8,7 @@ var UnitUiComponent = TaroEntity.extend({
 	},
 
 	updateAllAttributeBars: function () {
+        console.log('updateAllAttributeBars')
 		var self = this;
 
 		var attributes = self._entity._stats.attributes; // get unit's attribute types
@@ -26,6 +27,7 @@ var UnitUiComponent = TaroEntity.extend({
 			}
 
 			var isAttributeBarPresent = false;
+            taro.client.emit('update-all-attributes', attributes);
 			for (var attributeTypeId in attributes) {
 				// if (attributeContainerComponent) {
 				// 	attributeContainerComponent.updateBar(attributeTypeId, attributes[attributeTypeId])
@@ -40,7 +42,7 @@ var UnitUiComponent = TaroEntity.extend({
 						)
 					) {
                         console.log('attribute present', attribute)
-                        taro.client.emit('attribute', attribute);
+                        //taro.client.emit('attribute', attribute);
 						isAttributeBarPresent = true;
 						var width = (attribute.value / attribute.max) * 100;
 
@@ -82,6 +84,7 @@ var UnitUiComponent = TaroEntity.extend({
 	},
 	// update one attribute bar
 	updateAttributeBar: function (attr) {
+        console.log('updateAttributeBar', attr)
 		var self = this;
 
 		// only update attributes for this unit
@@ -130,6 +133,8 @@ var UnitUiComponent = TaroEntity.extend({
 			$(`.player-max-${attr.type}`).stop().animate({
 				width: `${widthInPercent}%`
 			});
+
+            taro.client.emit('update-attribute-bar', attr);
 		}
 	}
 

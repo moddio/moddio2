@@ -24,6 +24,7 @@ class PhaserUiBarsContainer extends Phaser.GameObjects.Container {
         const bar = this.bars.find(bar => bar.attribute.type === attribute.type);
         if (bar) {
             bar.updateAttribute(attribute);
+            this.bars.forEach((bar, index) => bar.y = this.scene.sys.game.canvas.height - this.barHeight/2 - 20 - (this.bars.length - 1 - index) * this.barInterval)
         } else {
             this.addBar(attribute);
         }
