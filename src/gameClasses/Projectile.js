@@ -121,6 +121,21 @@ var Projectile = TaroEntityPhysics.extend({
 			if (this.attribute) {
 				this.attribute.regenerate();
 			}
+		} else if (taro.isClient) {
+			var processedUpdates = [];
+			var updateQueue = taro.client.entityUpdateQueue[this.id()];			
+			if (updateQueue) {
+				for (var key in updateQueue) {
+					var value = updateQueue[key];
+
+					processedUpdates.push({[key]: value});
+					delete taro.client.entityUpdateQueue[this.id()][key]
+				}
+
+				if (processedUpdates.length > 0) {
+					this.streamUpdateData(processedUpdates);
+				}
+			}
 		}
 
 		if (taro.physics && taro.physics.engine != 'CRASH') {
@@ -242,6 +257,13 @@ var Projectile = TaroEntityPhysics.extend({
 		}
 	},
 
+	setSourceItem: function (item) {
+		if (item) {
+			this._stats.sourceItemId = item.id();
+			this.streamUpdateData([{sourceItemId: item.id()}]); // stream update to the clients
+		}
+	},
+
 	getSourceItem: function () {
 		var self = this;
 
@@ -270,7 +292,12 @@ var Projectile = TaroEntityPhysics.extend({
 					case 'sourceUnitId':
 						this._stats.sourceUnitId = newValue;
 						break;
+
+					case 'sourceItemId':
+						this._stats.sourceItemId = newValue;
+						break;
 				}
+				
 			}
 		}
 	}

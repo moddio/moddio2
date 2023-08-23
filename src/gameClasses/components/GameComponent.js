@@ -294,7 +294,7 @@ var GameComponent = TaroEntity.extend({
 					var div = $(`#variables-div div.col-sm-12[name='${variableName}']`);
 					var newValue = data[variableName];
 					if (div.length) {
-						div.find('.setVariable-value').html(newValue);
+						div.find('.setVariable-value').html(taro.clientSanitizer(newValue));
 					} else {
 						$('#variables-div').append(
 							$('<div/>', {
@@ -309,7 +309,7 @@ var GameComponent = TaroEntity.extend({
 							).append(
 								$('<td/>', {
 									class: 'setVariable-value text-left',
-									html: newValue,
+									html: taro.clientSanitizer(newValue),
 									style: 'padding: 0px 10px 0px 10px'
 								})
 							)

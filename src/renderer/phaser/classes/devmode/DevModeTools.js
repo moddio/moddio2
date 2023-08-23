@@ -82,6 +82,7 @@ var DevModeTools = /** @class */ (function (_super) {
         toolButton.push(new DevToolButton(_this, 'undo', 'undo', 'undo(ctrl-z)', 'undo', 0, (h + s) * 5, h * 2 - s, toolButtonsContainer, _this.commandController.undo.bind(_this.commandController)), new DevToolButton(_this, 'redo', 'redo', 'redo(ctrl-shift-z | ctrl-y', 'redo', h * 2, (h + s) * 5, h * 2 - s, toolButtonsContainer, _this.commandController.redo.bind(_this.commandController)));
         _this.paletteButton = new DevToolButton(_this, 'palette', 'Palette', 'show/hide palette', null, 0, (h + s) * 12, h * 4, toolButtonsContainer, palette.toggle.bind(palette));
         _this.tooltip = new DevTooltip(_this.scene);
+        _this.scene.cameras.getCamera('palette').ignore([_this.tooltip, _this.toolButtonsContainer]);
         _this.palette.hide();
         _this.toolButtonsContainer.setVisible(false);
         _this.regionEditor.hideRegions();

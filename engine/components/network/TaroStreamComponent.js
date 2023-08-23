@@ -74,7 +74,7 @@ var TaroStreamComponent = TaroEventingClass.extend({
 
 			if (entity && Object.keys(queuedStreamData).length > 0) {
 				data[entity.id()] = queuedStreamData;
-				entity._streamDataQueued = [];
+				entity._streamDataQueued = {};
 				sendData = true;
 			}
 		}

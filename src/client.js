@@ -104,7 +104,7 @@ const Client = TaroEventingClass.extend({
 		this.isZooming = false;
 
 		this._trackTranslateSmoothing = 15;
-		this.inactiveTabEntityStream = [];
+		// this.inactiveTabEntityStream = [];
 		this.eventLog = [];
 
 		this.servers = [
@@ -141,7 +141,7 @@ const Client = TaroEventingClass.extend({
 		document.addEventListener('visibilitychange', () => { //this should not be changed to jQ.on()
 			//old comment => 'apply entities' merged stats saved during inactive tab
 			if (!document.hidden) {
-				this.applyInactiveTabEntityStream();
+				// this.applyInactiveTabEntityStream();
 			}
 
 			this.isActiveTab = !document.hidden;
@@ -864,17 +864,25 @@ const Client = TaroEventingClass.extend({
 
 	},
 
-	applyInactiveTabEntityStream: function () {
-		for (let entityId in this.inactiveTabEntityStream) {
-			const entityData = rfdc()(this.inactiveTabEntityStream[entityId]);
-			this.inactiveTabEntityStream[entityId] = [];
+	// applyInactiveTabEntityStream: function () {
+	// 	for (let entityId in this.inactiveTabEntityStream) {
+	// 		const entityData = rfdc()(this.inactiveTabEntityStream[entityId]);
+	// 		this.inactiveTabEntityStream[entityId] = [];
 
-			const entity = taro.$(entityId);
+	// 		const entity = taro.$(entityId);
 
-			if (entity && entityData) {
-				entity.streamUpdateData(entityData);
-			}
+	// 		if (entity && entityData) {
+	// 			entity.streamUpdateData(entityData);
+	// 		}
+	// 	}
+	// },
+	
+	queueStreamUpdateData: function(entityId, key, value) {
+		if (taro.client.entityUpdateQueue[entityId] == undefined) {
+			taro.client.entityUpdateQueue[entityId] = {};
 		}
+
+		taro.client.entityUpdateQueue[entityId][key] = value;
 	},
 
 	positionCamera: function (x, y) {

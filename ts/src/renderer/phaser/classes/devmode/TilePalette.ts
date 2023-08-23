@@ -92,6 +92,7 @@ class TilePalette extends Phaser.GameObjects.Container {
 		this.COLOR_GRAY = 0xbababa;
 
 		const scrollBarContainer = this.scrollBarContainer = new Phaser.GameObjects.Container(scene);
+        camera.ignore(scrollBarContainer);
 		scene.add.existing(scrollBarContainer);
 		scrollBarContainer.x = camera.x;
 		scrollBarContainer.y = camera.y;

@@ -724,6 +724,26 @@ var Player = TaroEntity.extend({
 		TaroEntity.prototype.tick.call(this, ctx);
 	},
 
+	_behaviour: function() {
+		if (taro.isClient) {
+			var processedUpdates = [];
+			var updateQueue = taro.client.entityUpdateQueue[this.id()];
+			
+			if (updateQueue) {
+				for (var key in updateQueue) {
+					var value = updateQueue[key];
+				
+					processedUpdates.push({[key]: value});
+					delete taro.client.entityUpdateQueue[this.id()][key]
+				}
+
+				if (processedUpdates.length > 0) {
+					this.streamUpdateData(processedUpdates);
+				}
+			}
+		}
+	},
+
 	loadPersistentData: function () {
 		var self = this;
 

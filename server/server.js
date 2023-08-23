@@ -47,25 +47,25 @@ global.rollbar = {
 
 // override console.log and error to print additional data
 console.basicLog = console.log;
-console.log = function () {
+// console.log = function () {
 
-	const log = [];
+// 	const log = [];
 
-	log.push(new Date());
-	log.push(cluster.isMaster ? 'master' : 'worker');
+// 	log.push(new Date());
+// 	log.push(cluster.isMaster ? 'master' : 'worker');
 
-	if (taro?.server?.httpsPort) {
-		log.push(taro?.server?.httpsPort);
-	}
+// 	if (taro?.server?.httpsPort) {
+// 		log.push(taro?.server?.httpsPort);
+// 	}
 
-	if (taro?.game?.data?.defaultData?.gameSlug) {
-		log.push(taro?.game?.data?.defaultData?.gameSlug);
-	}
+// 	if (taro?.game?.data?.defaultData?.gameSlug) {
+// 		log.push(taro?.game?.data?.defaultData?.gameSlug);
+// 	}
 
-	log.push(...arguments);
+// 	log.push(...arguments);
 
-	console.basicLog(...log);
-};
+// 	console.basicLog(...log);
+// };
 
 console.basicError = console.error;
 console.error = function () {

@@ -1101,6 +1101,7 @@ NetIo.Server = NetIo.EventingClass.extend({
      */
 	_encode: function (data) {
 		try {
+			// var json = JSON.stringify(data);
 			var json = JSON.stringify(data);
 			// var obj = JSON.parse(json);
 			// var jsonLength = json.length;

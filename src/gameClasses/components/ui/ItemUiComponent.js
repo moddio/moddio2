@@ -47,7 +47,9 @@ var ItemUiComponent = TaroEntity.extend({
 
 	updateItemInfo: function (item) {
 		if (item && item._stats) {
-			$(taro.client.getCachedElementById('item-name')).html(item._stats.name);
+			$(taro.client.getCachedElementById('item-name')).html(
+				taro.clientSanitizer(item._stats.name)
+			);
 
 			var ammoStr = '';
 			if (item._stats.ammo != undefined)
@@ -241,11 +243,6 @@ var ItemUiComponent = TaroEntity.extend({
 			});
 		}
 		return itemDiv;
-
-		return $('<div/>', {
-			style: 'font-size: 16px; width: 250px;',
-			html: ''
-		});
 	},
 
 	getItemHtml: function (itemStats) {
@@ -297,13 +294,13 @@ var ItemUiComponent = TaroEntity.extend({
 				html: this.getItemHtml(item._stats)
 			});
 
-			$(`#slotindex-${inventorySlotIfPresent}`).attr('data-content', popoverContent[0].outerHTML);
+			$(taro.client.getCachedElementById(`slotindex-${inventorySlotIfPresent}`)).attr('data-content', popoverContent[0].outerHTML);
 		}
 	},
 	getItemPopOverContent: function (stats) {
 		var info = '<div>';
 		if (stats.description) {
-			info += `<p class="mb-1"><b>Description: </b><span class="item-description">${stats.description} </span></p>`;
+			info += `<p class="mb-1"><b>Description: </b><span class="item-description">${taro.clientSanitizer(stats.description)} </span></p>`;
 		}
 		if (stats && stats.bonus) {
 			if (stats.bonus.consume && Object.keys(stats.bonus.consume).length > 0) {
@@ -486,7 +483,7 @@ var ItemUiComponent = TaroEntity.extend({
 					buffListHtml.append(
 						$('<li/>', {
 							class: 'list-group-item',
-							html: `${buffTypeName} <span class='badge badge-default' style='margin-left:4px'>${itemValueHtml}</span>`
+							html: `${taro.clientSanitizer(buffTypeName)} <span class='badge badge-default' style='margin-left:4px'>${itemValueHtml}</span>`
 						})
 					);
 					// console.log("itemStats",itemStats)

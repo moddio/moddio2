@@ -1029,18 +1029,22 @@ var Unit = TaroEntityPhysics.extend({
 				var availableSlot = self.inventory.getFirstAvailableSlotForItem(itemData);
 
 				// Check if the item can merge
-				if (itemData.controls?.canMerge) {
+				if (itemData.controls?.canMerge != false) {
+
 					// insert/merge itemData's quantity into matching items in the inventory
 					var totalInventorySize = this.inventory.getTotalInventorySize();
 					for (var i = 0; i < totalInventorySize; i++) {
-						var selectedItemId = self._stats.itemIds[i];
-						if (selectedItemId) {
-							var selectedItem = taro.$(selectedItemId);
+						var currentItemId = self._stats.itemIds[i];
+						if (currentItemId) {
+							var currentItem = taro.$(currentItemId);
 
 							// if a matching item found in the inventory, try merging them
-							if (selectedItem && selectedItem._stats.itemTypeId == itemTypeId) {
-								var matchingItem = selectedItem;
-								taro.game.lastCreatedItemId = matchingItem.id(); // this is necessary in case item isn't a new instance, but an existing item getting quantity updated
+							if (currentItem && currentItem._stats.itemTypeId == itemTypeId) {
+								var matchingItem = currentItem;
+
+								// lastCreatedItem is used to track the last item created by the server. 
+								// This is necessary in case item isn't a new instance, but an existing item getting quantity updated
+								taro.game.lastCreatedItemId = matchingItem.id(); 
 
 								// matching item has infinite quantity. merge item unless new item is also infinite
 								if (matchingItem._stats.quantity == undefined && itemData.quantity != undefined) {
@@ -1973,6 +1977,21 @@ var Unit = TaroEntityPhysics.extend({
 
 			if (this.isPlayingSound) {
 				this.isPlayingSound.volume = taro.sound.getVolume(this._translate, this.isPlayingSound.effect.volume);
+			}
+			
+			var processedUpdates = [];
+			var updateQueue = taro.client.entityUpdateQueue[this.id()];			
+			if (updateQueue) {
+				for (var key in updateQueue) {
+					var value = updateQueue[key];
+
+					processedUpdates.push({[key]: value});
+					delete taro.client.entityUpdateQueue[this.id()][key]
+				}
+
+				if (processedUpdates.length > 0) {
+					this.streamUpdateData(processedUpdates);
+				}
 			}
 		}
 

@@ -981,34 +981,6 @@ var Item = TaroEntityPhysics.extend({
 		//ownerUnit.changeUnitType(ownerUnit._stats.type);
 	},
 
-	remove: function () {
-		// traverse through owner's inventory, and remove itself
-		Item.prototype.log('remove item');
-		// change streammode of spriteOnly items
-		if (this._streamMode === 2) {
-			this.streamMode(1);
-		}
-
-		// if item has owner, then remove item from owner's inventory as well
-		var ownerUnit = taro.$(this._stats.ownerUnitId);
-		if (ownerUnit) {
-			// remove its passive attributes from its ownerUnit unit.
-			if (this._stats.bonus && this._stats.passive) {
-				if (this._stats.slotIndex < ownerUnit._stats.inventorySize || this._stats.bonus.passive.isDisabledInBackpack != true) {
-					ownerUnit.updateStats(this.id(), true);
-				}
-			} else {
-				ownerUnit.updateStats(this.id(), true);
-			}
-
-			if (ownerUnit.inventory) {
-				ownerUnit.inventory.removeItemByItemId(this.id());
-			}
-		}
-
-		TaroEntityPhysics.prototype.remove.call(this);
-	},
-
 	streamUpdateData: function (queuedData) {
 		var self = this;
 
@@ -1090,6 +1062,10 @@ var Item = TaroEntityPhysics.extend({
 						break;
 
 					case 'name':
+						if (taro.isClient) {
+							newValue = taro.clientSanitizer(newValue);
+						}
+
 						this._stats[attrName] = newValue;
 						var owner = self.getOwnerUnit();
 						if (taro.isClient && taro.client.selectedUnit == owner) {
@@ -1122,8 +1098,8 @@ var Item = TaroEntityPhysics.extend({
 						var owner = self.getOwnerUnit();
 						// if the item's CSP is enabled, ignore server-stream so my item use won't fire two bullets
 						if (taro.isClient) {
-							// ignore server-stream if client isn't running physics or if projectileStreamMode is 0
-							if (owner == taro.client.selectedUnit && taro.physics && this._stats.projectileStreamMode == 1) {
+							// ignore server-stream if client isn't running physics or if projectileStreamMode is 0 (client-side projectile)
+							if (owner == taro.client.selectedUnit && taro.physics && this._stats.projectileStreamMode == 0) {
 								break;
 							}
 							this._stats.isBeingUsed = newValue;
@@ -1153,23 +1129,29 @@ var Item = TaroEntityPhysics.extend({
 			self.script.trigger(trigger.name, trigger.params);
 		});
 
-		var ownerUnit = this.getOwnerUnit();
-		var rotate = this._rotate.z;
-
+		var ownerUnit = this.getOwnerUnit();		
 		if (ownerUnit && this._stats.stateId != 'dropped') {
+			
+			// this is necessary for games that has sprite-only item with no joint. (e.g. team elimination)
+			if (taro.isServer) {
+				var rotate = this._rotate.z;
 
-			// angleToTarget is only available in server
-			if (taro.isServer && ownerUnit.angleToTarget) {
-				rotate = ownerUnit.angleToTarget;
+				// angleToTarget is only available in server
+				if (taro.isServer && ownerUnit.angleToTarget) {
+					rotate = ownerUnit.angleToTarget;
+				}
+
+				if (self._stats.currentBody && self._stats.currentBody.jointType == 'weldJoint') {
+					rotate = ownerUnit._rotate.z;
+				}
+
+				self.anchoredOffset = self.getAnchoredOffset(rotate);
+				var x = ownerUnit._translate.x + self.anchoredOffset.x;
+				var y = ownerUnit._translate.y + self.anchoredOffset.y;
+			
+				self.translateTo(x, y);
+				self.rotateTo(0, 0, rotate);
 			}
-
-			if (self._stats.currentBody && self._stats.currentBody.jointType == 'weldJoint') {
-				rotate = ownerUnit._rotate.z;
-			}
-
-			self.anchoredOffset = self.getAnchoredOffset(rotate);
-			var x = ownerUnit._translate.x + self.anchoredOffset.x;
-			var y = ownerUnit._translate.y + self.anchoredOffset.y;
 
 			if (taro.isServer || (taro.isClient && taro.client.selectedUnit == ownerUnit)) {
 				if (
@@ -1185,11 +1167,6 @@ var Item = TaroEntityPhysics.extend({
 				}
 			}
 
-			// this is necessary for games that has sprite-only item with no joint. (e.g. team elimination)
-			if (taro.isServer) {
-				self.translateTo(x, y);
-				self.rotateTo(0, 0, rotate);
-			}
 		}
 
 		if (this._stats.isBeingUsed) {
@@ -1200,6 +1177,35 @@ var Item = TaroEntityPhysics.extend({
 		if (taro.isServer) {
 			if (this.attribute) {
 				this.attribute.regenerate();
+			}
+		} else if (taro.isClient) {
+			var processedUpdates = [];
+			var updateQueue = taro.client.entityUpdateQueue[self.id()];			
+			if (updateQueue) {
+				for (var key in updateQueue) {
+					var value = updateQueue[key];
+
+					if (
+						// Don't run if we're updating item's state/owner unit, but its owner doesn't exist yet
+						// updating item's owner unit, but the owner hasn't been created yet
+						(
+							key == "ownerUnitId" && value != 0 && taro.$(value) == undefined
+						) || 
+						(   // changing item's state to selected/unselected, but owner doesn't exist yet
+							(key == "stateId" && (value == "selected" || value == "unselected")) &&
+							this.getOwnerUnit() == undefined
+						)						
+					) {
+						continue;
+					} else {
+						processedUpdates.push({[key]: value});
+						delete taro.client.entityUpdateQueue[self.id()][key]
+					}
+				}
+
+				if (processedUpdates.length > 0) {
+					this.streamUpdateData(processedUpdates);
+				}
 			}
 		}
 
@@ -1223,6 +1229,35 @@ var Item = TaroEntityPhysics.extend({
 		// Call the TaroEntity (super-class) tick() method
 		TaroEntity.prototype.tick.call(this, ctx);
 	},
+
+	
+	remove: function () {
+		// traverse through owner's inventory, and remove itself
+		// change streammode of spriteOnly items
+		if (this._streamMode === 2) {
+			this.streamMode(1);
+		}
+
+		// if item has owner, then remove item from owner's inventory as well
+		var ownerUnit = taro.$(this._stats.ownerUnitId);
+		if (ownerUnit) {
+			// remove its passive attributes from its ownerUnit unit.
+			if (this._stats.bonus && this._stats.passive) {
+				if (this._stats.slotIndex < ownerUnit._stats.inventorySize || this._stats.bonus.passive.isDisabledInBackpack != true) {
+					ownerUnit.updateStats(this.id(), true);
+				}
+			} else {
+				ownerUnit.updateStats(this.id(), true);
+			}
+
+			if (ownerUnit.inventory) {
+				ownerUnit.inventory.removeItemByItemId(this.id());
+			}
+		}
+
+		TaroEntityPhysics.prototype.remove.call(this);
+	},
+
 	destroy: function () {
 		this.playEffect('destroy');
 		TaroEntityPhysics.prototype.destroy.call(this);

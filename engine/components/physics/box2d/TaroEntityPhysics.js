@@ -94,7 +94,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 				shapeData.y = offsetY;
 			}
 		}
-		
+
 		var filterCategoryBits = 0x0002;
 		if (this._category === 'units') {
 			filterCategoryBits = 0x0002;
@@ -262,17 +262,24 @@ var TaroEntityPhysics = TaroEntity.extend({
 	 */
 	gravitic: function (val) {
 		if (this.body) {
-			if (val !== undefined) {
-				this.body.m_nonGravitic = !val;
-				this.body.m_gravityScale = !val ? 0 : 1;
-				// this.bodyDef.gravitic = val;
+			switch (taro.physics.engine) {
+				case 'BOX2DWASM': {
+					this.body.SetGravityScale(!val ? 0 : 1);
+					return !!val;
+				}
+				default: {
+					if (val !== undefined) {
+						this.body.m_nonGravitic = !val;
+						this.body.m_gravityScale = !val ? 0 : 1;
+						// this.bodyDef.gravitic = val;
 
-				// Wake up the body
-				this.body.setAwake(true);
-				return this;
+						// Wake up the body
+						this.body.setAwake(true);
+						return this;
+					}
+					return !this.body.m_nonGravitic;
+				}
 			}
-
-			return !this.body.m_nonGravitic;
 		}
 	},
 

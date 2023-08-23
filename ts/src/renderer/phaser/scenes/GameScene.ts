@@ -269,7 +269,6 @@ class GameScene extends PhaserScene {
 
 	create (): void {
 		this.events.once('render', () => {
-            //this.scene.launch('UI');
 			this.scene.launch('DevMode');
 			taro.client.rendererLoaded.resolve();
 			document.dispatchEvent(new Event('taro rendered'));
@@ -605,17 +604,14 @@ class GameScene extends PhaserScene {
 			x: worldPoint.x,
 			y: worldPoint.y,
 		}]);
-
-		this.renderedEntities.forEach(element => {
-			element.setVisible(false);
-		});
-
+		
 		if (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab !== 'map')) {
-			this.cameras.main.cull(this.renderedEntities).forEach(element => {
+			var visibleEntities = this.cameras.main.cull(this.renderedEntities);
+			visibleEntities.forEach(element => {
 				if (!element.hidden) {
 					element.setVisible(true);
 
-					if (element.dynamic) {
+					if(element.dynamic) {
 						// dynamic is only assigned through an hbz-index-only event
 						this.heightRenderer.adjustDepth(element as TGameObject & Phaser.GameObjects.Components.Size);
 					}

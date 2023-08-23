@@ -74,6 +74,7 @@ var TilePalette = /** @class */ (function (_super) {
         _this.COLOR_WHITE = 0xffffff;
         _this.COLOR_GRAY = 0xbababa;
         var scrollBarContainer = _this.scrollBarContainer = new Phaser.GameObjects.Container(scene);
+        camera.ignore(scrollBarContainer);
         scene.add.existing(scrollBarContainer);
         scrollBarContainer.x = camera.x;
         scrollBarContainer.y = camera.y;

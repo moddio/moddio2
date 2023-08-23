@@ -218,7 +218,6 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.create = function () {
         var _this = this;
         this.events.once('render', function () {
-            //this.scene.launch('UI');
             _this.scene.launch('DevMode');
             taro.client.rendererLoaded.resolve();
             document.dispatchEvent(new Event('taro rendered'));
@@ -424,11 +423,9 @@ var GameScene = /** @class */ (function (_super) {
                 x: worldPoint.x,
                 y: worldPoint.y,
             }]);
-        this.renderedEntities.forEach(function (element) {
-            element.setVisible(false);
-        });
         if (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab !== 'map')) {
-            this.cameras.main.cull(this.renderedEntities).forEach(function (element) {
+            var visibleEntities = this.cameras.main.cull(this.renderedEntities);
+            visibleEntities.forEach(function (element) {
                 if (!element.hidden) {
                     element.setVisible(true);
                     if (element.dynamic) {

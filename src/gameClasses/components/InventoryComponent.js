@@ -204,7 +204,7 @@ var InventoryComponent = TaroEntity.extend({
 
 		// check if this item can be merged with an existing item in the inventory
 		var totalInventorySize = this.getTotalInventorySize();
-		if (itemData.controls == undefined || (itemData.controls.canMerge || itemData.controls.canMerge == undefined || itemData.controls.canMerge)) { // Check if the item can merge
+		if (itemData.controls?.canMerge != false) { // Check if the item can merge
 			var quantity = itemData.quantity;
 			for (var i = 0; i < totalInventorySize; i++) {
 				var itemId = self._entity._stats.itemIds[i];

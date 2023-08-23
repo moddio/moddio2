@@ -807,7 +807,7 @@ var ShopComponent = TaroEntity.extend({
 		var ownerPlayer = taro.client.myPlayer;
 		var ownerUnit = taro.$(ownerPlayer._stats.selectedUnitId);
 		if (item.description) {
-			html += `<p>${item.description}</P>`;
+			html += `<p>${taro.clientSanitizer(item.description)}</P>`;
 		}
 		if (shopItem && typeof shopItem.requirement === 'object') {
 			var requirements = '';
@@ -829,7 +829,7 @@ var ShopComponent = TaroEntity.extend({
 				var requiredQty = shopItem.requirement.requiredItemTypes[itemKey];
 				var item = taro.game.cloneAsset('itemTypes', itemKey);
 				var requirementsSatisfied = ownerUnit.inventory.hasRequiredQuantity(itemKey, requiredQty) && 'text-success' || 'text-danger';
-				requirements += `<p  class="mb-2 ml-2 no-selection ${requirementsSatisfied}">${requiredQty || ''} ${item.name}</p>`;
+				requirements += `<p  class="mb-2 ml-2 no-selection ${requirementsSatisfied}">${taro.checkAndGetNumber(requiredQty || '')} ${taro.clientSanitizer(item.name)}</p>`;
 			}
 			if (requirements) {
 				html += '<div class=\'mb-2\'>';
@@ -1060,7 +1060,7 @@ var ShopComponent = TaroEntity.extend({
 						}
 
 						var itemName = '<div class=\'mx-2 mt-2 mb-0 no-selection\' style=\'line-height:0.7  !important; overflow-wrap: break-word;\'><small>';
-						itemName += item.name;
+						itemName += taro.clientSanitizer(item.name);
 						itemName += '</small></div>';
 
 						var combine = $('<div/>', {
@@ -1121,12 +1121,13 @@ var ShopComponent = TaroEntity.extend({
 						}
 					}
 
+					const sanitizedUnitName = taro.clientSanitizer(unit.name);
 					var button = $('<button/>', {
 						type: 'button',
 						class: `btn ${(requirementsSatisfied && isUnitAffordable && isPurchasableByCurrentPlayerType) ? 'btn-success btn-purchase-unit' : 'btn-danger'}`,
 						style: '',
 						id: shopUnitsKeys[i],
-						name: unit.name
+						name: sanitizedUnitName
 					});
 
 					var btnLabel = self.shopBtnLabel(shopUnit, playerTypeAttribute);
@@ -1143,7 +1144,7 @@ var ShopComponent = TaroEntity.extend({
 							style: 'width: auto; height: auto; max-width: 64px; max-height: 64px'
 						})
 						)
-							.append(`<div class='row text-center'><div class='col no-selection'>${unit.name}</div></div>`)
+							.append(`<div class='row text-center'><div class='col no-selection'>${sanitizedUnitName}</div></div>`)
 							.append(button)
 						);
 					}

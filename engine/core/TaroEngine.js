@@ -87,6 +87,15 @@ var TaroEngine = TaroEntity.extend({
 		this.addComponent(TaroTimeComponent);
 
 		if (this.isClient) {
+			this.clientSanitizer = (str) => {
+				if (window.sanitizeString) {
+					return window.sanitizeString(str);
+				} else if (taro.env === 'local') {
+					return str;
+				} else {
+					return '';
+				}
+			}
 			// Enable UI element (virtual DOM) support
 			this.addComponent(TaroUiManagerComponent);
 			this.delayedStreamCount = 0;
@@ -1396,6 +1405,14 @@ var TaroEngine = TaroEntity.extend({
 			this._currentTime += ((val - lastVal) * this._timeScale);
 		}
 		return this._currentTime;
+	},
+
+	checkAndGetNumber: function (num, defaultReturnValue = '') {
+		if(!isNaN(parseFloat(num)) && !isNaN(num - 0)) {
+			return num;
+		} else {
+			defaultReturnValue;
+		}
 	},
 
 	/**

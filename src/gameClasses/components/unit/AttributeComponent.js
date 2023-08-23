@@ -299,9 +299,9 @@ var AttributeComponent = TaroEntity.extend({
 								var item = projectile.getSourceItem();
 								unit = item && item.getOwnerUnit();
 
-								if (unit && taro.client.myPlayer._stats.selectedUnitId == unit.id()) {
-									projectile.updateAttributeBar(attribute);
-								}
+								// if (unit && taro.client.myPlayer._stats.selectedUnitId == unit.id()) {
+								// 	projectile.updateAttributeBar(attribute);
+								// }
 								break;
 							}
 						}

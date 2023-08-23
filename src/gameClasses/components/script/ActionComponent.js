@@ -1859,6 +1859,15 @@ var ActionComponent = TaroEntity.extend({
 
 						break;
 
+					case 'setSourceItemOfProjectile':
+						var item = self._script.variable.getValue(action.item, vars);
+						var projectile = self._script.variable.getValue(action.projectile, vars);
+						if (projectile && item) {
+							projectile.setSourceItem(item);
+						}
+
+						break;						
+
 					/* Ads */
 
 					case 'playAdForEveryone':

@@ -11,6 +11,8 @@ var TaroNetIoServer = {
 	start: function (data, callback) {
 		var self = this;
 
+		this.artificialDelay = 0; // simulated lag (ms)
+		
 		this._socketById = {};
 		this._socketByIp = {};
 		this._socketsByRoomId = {};
@@ -396,10 +398,21 @@ var TaroNetIoServer = {
 			// send sendQueue
 			if (self.sendQueue) {
 				for (var clientId in self.sendQueue) {
-					self._io.send(
-						[ciEncoded, self.sendQueue[clientId]],
-						clientId === 'undefined' ? undefined : clientId
-					);
+					// simulate lag for dev environment
+					if (global.isDev) {
+						setTimeout(function (data, id, ci) {
+							self._io.send(
+								[ci, data],
+								id === 'undefined' ? undefined : id
+							);
+						}, self.artificialDelay, self.sendQueue[clientId], clientId, ciEncoded);
+					} else {
+						// production we don't simulate lag
+						self._io.send(
+							[ciEncoded, self.sendQueue[clientId]],
+							clientId === 'undefined' ? undefined : clientId
+						);
+					}
 				}
 				self.sendQueue = {};
 			}
@@ -411,10 +424,17 @@ var TaroNetIoServer = {
 
 			// append serverTime timestamp to the snapshot
 			self.snapshot.push([String.fromCharCode(this._networkCommandsLookup._taroStreamTime), timestamp]);
-			self._io.send([ciEncoded, self.snapshot]);
-
+			if (global.isDev) {
+				// generate artificial lag in dev environment
+				setTimeout(function (data, ci) {
+					self._io.send([ci, data]);
+				}, self.artificialDelay, self.snapshot, ciEncoded);
+			} else {
+				self._io.send([ciEncoded, self.snapshot]);
+			}
 			taro.server.lastSnapshot = self.snapshot;
 			this.snapshot = [];
+
 		} else {
 			this.log('_snapshot error @ flush');
 		}

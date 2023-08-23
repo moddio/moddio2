@@ -89,8 +89,6 @@ var VariableComponent = TaroEntity.extend({
 	getValue: function (text, vars) {
 		var self = this;
 
-		var arr = [];
-
 		var returnValue = undefined;
 
 		// just return raw numbers
@@ -2254,6 +2252,15 @@ var VariableComponent = TaroEntity.extend({
 						returnValue = entity._category || 'wall';
 					}
 
+					break;
+
+				case 'stringIsANumber':
+					var string = self.getValue(text.string, vars);
+					if (string) {
+						returnValue = !isNaN(parseFloat(string)) && !isNaN(string - 0);
+					} else {
+						returnValue = false;
+					}
 					break;
 
 				case 'getTimeString':

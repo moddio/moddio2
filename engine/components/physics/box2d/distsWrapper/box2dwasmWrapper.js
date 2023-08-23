@@ -279,7 +279,7 @@ var box2dwasmWrapper = {
                 switch (param) {
                     case 'gravitic':
                         if (!body.gravitic) {
-                            tempBod.m_nonGravitic = true;
+                            tempBod.SetGravityScale(0);
                         }
                         break;
                     case 'fixedRotation':
@@ -386,7 +386,6 @@ var box2dwasmWrapper = {
         entity.body = tempBod;
         entity.gravitic(!!body.affectedByGravity);
         // rotate body to its previous value
-        // console.log('box2dweb',entity._rotate.z)
         entity.rotateTo(0, 0, entity._rotate.z);
         // Add the body to the world with the passed fixture
         self.destroyB2dObj(tempDef);
