@@ -17,7 +17,9 @@ var InventoryComponent = TaroEntity.extend({
 		var ownerPlayer = entity.getOwner();
 		var mobileClass = taro.isMobile ? 'inventory-slot-mobile ' : 'inventory-slot ';
 		if (ownerPlayer && taro.isClient && entity._stats.clientId === taro.network.id() && ownerPlayer._stats.selectedUnitId == entity.id()) {
-            taro.client.emit('update-attribute-width', this._entity._stats.inventorySize);
+            if (taro.game.data.defaultData.phaserAttributeBars) {
+                taro.client.emit('update-attribute-width', this._entity._stats.inventorySize);
+            }
 			$('#inventory-slots').html('');
 			$('#inventory-slots-key-stroke').html('');
 			for (var i = 0; i < this._entity._stats.inventorySize; i++) {

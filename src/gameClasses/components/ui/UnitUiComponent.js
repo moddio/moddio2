@@ -27,8 +27,10 @@ var UnitUiComponent = TaroEntity.extend({
 			}
 
 			var isAttributeBarPresent = false;
-            taro.client.emit('update-all-attributes', attributes);
-			for (var attributeTypeId in attributes) {
+            if (taro.game.data.defaultData.phaserAttributeBars) {
+                taro.client.emit('update-all-attributes', attributes);
+            } else {
+                for (var attributeTypeId in attributes) {
 				// if (attributeContainerComponent) {
 				// 	attributeContainerComponent.updateBar(attributeTypeId, attributes[attributeTypeId])
 				// }
@@ -76,6 +78,7 @@ var UnitUiComponent = TaroEntity.extend({
 					minWidth: '200px'
 				});
 			}
+            }
 		}
 	},
 	removeAllAttributeBars: function () {
@@ -107,36 +110,38 @@ var UnitUiComponent = TaroEntity.extend({
 				(attr.isVisible.indexOf && attr.isVisible.indexOf('centerBar') > -1)
 			)
 		) {
-			if (attr.value % 1 === 0) {
-				attr.value = parseInt(attr.value);
-			} else {
-				if (attr.decimalPlaces != undefined && attr.decimalPlaces != null) {
-					var decimalPlace = parseInt(attr.decimalPlaces);
-					if (decimalPlace != NaN) {
-						attr.value = parseFloat(attr.value).toFixed(decimalPlace);
-					} else {
-						attr.value = parseFloat(attr.value).toFixed(2);
-					}
-				} else {
-					attr.value = parseFloat(attr.value).toFixed(2);
-				}
-			}
-
-			var value = null;
-			if (attr.dataType === 'time') {
-				value = taro.game.secondsToHms(attr.value);
-			} else {
-				value = attr.value;
-			}
-
-			$(taro.client.getCachedElementById(`player-${attr.type}`)).text(attr.displayValue ? `${name}: ${value}/${parseFloat(attr.max).toFixed(0)}` : name);
-			var widthInPercent = (attr.value / attr.max) * 100;
-
-			$(taro.client.getCachedElementById(`player-max-${attr.type}`)).stop().css({
-				width: `${widthInPercent}%`
-			});
-
-            taro.client.emit('update-attribute-bar', attr);
+            if (taro.game.data.defaultData.phaserAttributeBars) {
+                taro.client.emit('update-attribute-bar', attr);
+            } else {
+                if (attr.value % 1 === 0) {
+                    attr.value = parseInt(attr.value);
+                } else {
+                    if (attr.decimalPlaces != undefined && attr.decimalPlaces != null) {
+                        var decimalPlace = parseInt(attr.decimalPlaces);
+                        if (decimalPlace != NaN) {
+                            attr.value = parseFloat(attr.value).toFixed(decimalPlace);
+                        } else {
+                            attr.value = parseFloat(attr.value).toFixed(2);
+                        }
+                    } else {
+                        attr.value = parseFloat(attr.value).toFixed(2);
+                    }
+                }
+    
+                var value = null;
+                if (attr.dataType === 'time') {
+                    value = taro.game.secondsToHms(attr.value);
+                } else {
+                    value = attr.value;
+                }
+    
+                $(taro.client.getCachedElementById(`player-${attr.type}`)).text(attr.displayValue ? `${name}: ${value}/${parseFloat(attr.max).toFixed(0)}` : name);
+                var widthInPercent = (attr.value / attr.max) * 100;
+    
+                $(taro.client.getCachedElementById(`player-max-${attr.type}`)).stop().css({
+                    width: `${widthInPercent}%`
+                });
+            }  
 		}
 	}
 

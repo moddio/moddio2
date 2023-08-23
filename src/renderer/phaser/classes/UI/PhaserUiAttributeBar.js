@@ -121,14 +121,14 @@ var PhaserUiAttributeBar = /** @class */ (function (_super) {
         var width = this.container.barWidth;
         var height = this.container.barHeight;
         var radius = this.container.barRadius;
-        this.x = this.scene.sys.game.canvas.width * 0.5 + 10 + 300;
+        this.x = this.scene.sys.game.canvas.width * 0.5 + 10;
         this.y = this.scene.sys.game.canvas.height - height / 2 - 20;
         //  BG
-        this.background.fillStyle(0x495057, 0.74);
-        this.background.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
+        background.fillStyle(0x495057, 0.74);
+        background.fillRoundedRect(-width / 2, -height / 2, width, height, radius);
         // Attribute
-        this.bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
-        this.bar.fillRect(-width / 2 + 3, -height / 2 + 3, width - 6, height - 6);
+        bar.fillStyle(Phaser.Display.Color.HexStringToColor(attribute.color).color);
+        bar.fillRect(-width / 2 + 3, -height / 2 + 3, width - 6, height - 6);
         // Text
         this.text.setText("".concat(attribute.name, ": ").concat(attribute.value, "/").concat(attribute.max));
         /*const text = this.text = scene.add.text(0, 0, `${attribute.name}: ${attribute.value}/${attribute.max}`, {
