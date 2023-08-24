@@ -41,9 +41,12 @@ var GameScene = /** @class */ (function (_super) {
         }
         var camera = this.cameras.main;
         camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
-        this.resolutionCoef = 1;
+        console.log("settings res function", getSettingsResolution);
+        this.resolutionCoef = typeof getSettingsResolution !== "undefined" ? getSettingsResolution() : 2;
+        console.log("this.resolutionCoef", this.resolutionCoef);
         this.trackingDelay = ((_d = (_c = (_b = (_a = taro === null || taro === void 0 ? void 0 : taro.game) === null || _a === void 0 ? void 0 : _a.data) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c.camera) === null || _d === void 0 ? void 0 : _d.trackingDelay) || 3;
         this.scale.on(Phaser.Scale.Events.RESIZE, function () {
+            console.log('resize event');
             if (_this.zoomSize) {
                 camera.zoom = _this.calculateZoom();
                 taro.client.emit('scale', { ratio: camera.zoom * _this.resolutionCoef });

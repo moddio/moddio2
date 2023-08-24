@@ -24,3 +24,5 @@ declare const storage: any;
 
 declare const showUserDropdown: any;
 declare const rfdc: any;
+
+declare const getSettingsResolution: any;

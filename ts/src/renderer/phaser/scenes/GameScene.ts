@@ -30,11 +30,16 @@ class GameScene extends PhaserScene {
 		const camera = this.cameras.main;
 		camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
 
-        this.resolutionCoef = 1;
+		console.log("settings res function", getSettingsResolution)
+        this.resolutionCoef = typeof getSettingsResolution !== "undefined" ? getSettingsResolution() : 2;
+
+		console.log("this.resolutionCoef", this.resolutionCoef);
 
 		this.trackingDelay = taro?.game?.data?.settings?.camera?.trackingDelay || 3;
 
 		this.scale.on(Phaser.Scale.Events.RESIZE, () => {
+			console.log('resize event');
+			
 			if (this.zoomSize) {
 				camera.zoom = this.calculateZoom();
 				taro.client.emit('scale', { ratio: camera.zoom * this.resolutionCoef });

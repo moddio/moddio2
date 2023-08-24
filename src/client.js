@@ -894,6 +894,7 @@ const Client = TaroEventingClass.extend({
 	},
 
     setResolution: function (resolution) {
+		console.log("set-resolution", resolution);
         this.emit('set-resolution', resolution);
     },
 	
