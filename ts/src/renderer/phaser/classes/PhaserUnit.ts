@@ -193,7 +193,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 		this.scene.cameraTarget = this.gameObject;
 		if (!taro.developerMode.active || taro.developerMode.activeTab === 'play') {
 			let trackingDelay = taro?.game?.data?.settings?.camera?.trackingDelay || 3;
-			trackingDelay = trackingDelay / 60;
+			trackingDelay = trackingDelay / taro.fps();
 			camera.startFollow(this.gameObject, false, trackingDelay, trackingDelay);
 		}
 	}

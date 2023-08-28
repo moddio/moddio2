@@ -94,15 +94,15 @@ var RegionManager = TaroClass.extend({
 				region.updateDimension();
 			} else {
 				var updatedRegionKey = updatedRegion.key;
-				var copiedRegion = JSON.parse(JSON.stringify(updatedRegion));
+				var copiedRegion = rfdc()(updatedRegion);
 				delete copiedRegion.key;
 				taro.game.data.variables[updatedRegionKey] = copiedRegion;
 				taro.map.createRegions();
 			}
 		}
-		if (taro.isClient) window.updateReactGameState(JSON.parse(JSON.stringify(updatedRegion)));
+		if (taro.isClient) window.updateReactGameState(rfdc()(updatedRegion));
 		if (isRegionDeleted) {
-			var newRegion = JSON.parse(JSON.stringify(updatedRegion));
+			var newRegion = rfdc()(updatedRegion);
 			var regionKey = newRegion.key;
 			delete newRegion.key;
 			taro.game.data.variables[regionKey] = newRegion;

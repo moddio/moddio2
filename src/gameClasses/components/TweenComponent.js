@@ -71,7 +71,7 @@ var TweenComponent = TaroEntity.extend({
 				return;
 			}
 
-			var tween = JSON.parse(JSON.stringify(this.tweens[tweenId]));
+			var tween = rfdc()(this.tweens[tweenId]);
 		}
 
 		// if (tweenId == 'swingCW' || tweenId == 'swingCCW') {

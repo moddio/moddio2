@@ -12,4 +12,6 @@ declare class InGameEditor extends TaroClass {
 	showRegionList(data: RegionData[]): void
 	showRepublishToInitEntitiesWarning(): void
 	toggleEntityPlacementWindow(boolean): void
+    updateAction(data: ActionData): void
+    showScriptForEntity(actionId: string): void
 }

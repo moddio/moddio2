@@ -7,7 +7,7 @@ class DevTooltip extends Phaser.GameObjects.Container {
 	private fadeTween: Phaser.Tweens.Tween;
 
 	constructor (scene: Phaser.Scene) {
-		super(scene)
+		super(scene);
 
 		this.visible = false;
 		this.setScrollFactor(0);
@@ -23,7 +23,7 @@ class DevTooltip extends Phaser.GameObjects.Container {
 		label.setCenterAlign();
 		label.setOrigin(0.5);
 		label.letterSpacing = -0.6;
-		label.y = -10
+		label.y = -10;
 
 		const text = this.bitmapText = scene.add.bitmapText(
 			0, 0,

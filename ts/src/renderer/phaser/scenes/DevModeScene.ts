@@ -133,7 +133,7 @@ class DevModeScene extends PhaserScene {
 
 		this.load.scenePlugin(
 			'rexuiplugin',
-			'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+			'/assets/js/rexuiplugin.min.js',
 			//'src/renderer/phaser/rexuiplugin.min.js',
 			'rexUI',
 			'rexUI'
@@ -169,13 +169,13 @@ class DevModeScene extends PhaserScene {
 	}
 
 	enterMapTab (): void {
+        this.gameScene.setResolution(1, false);
 		if (this.gameEditorWidgets.length === 0) {
 			this.devModeTools.queryWidgets();
 			this.gameEditorWidgets = this.devModeTools.gameEditorWidgets;
 		}
 
 		this.devModeTools.enterMapTab();
-
 		this.gameScene.renderedEntities.forEach(element => {
 			element.setVisible(false);
 		});
@@ -203,7 +203,12 @@ class DevModeScene extends PhaserScene {
 	}
 
 	leaveMapTab (): void {
+        this.gameScene.setResolution(this.gameScene.resolutionCoef, false);
 		if (this.devModeTools) this.devModeTools.leaveMapTab();
+
+        if (this.devModeTools.entityEditor.selectedEntityImage) {
+            this.devModeTools.entityEditor.selectEntityImage(null);
+        }
 
 		this.entityImages.forEach((image) => {
 			image.setVisible(false);

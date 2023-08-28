@@ -51,7 +51,7 @@ var defaultConfig = [
 	{ name: 'TileShape', path: '../src/gameClasses/TileShape' },
 	{ name: 'Constants', path: '../src/renderer/phaser/classes/devmode/Constants' },
 
-	{ name: 'DeveloperMode', path: '../src/gameClasses/DeveloperMode' },
+	{ name: 'DeveloperMode', path: '../src/gameClasses/DeveloperMode' }
 ];
 
 var config = {

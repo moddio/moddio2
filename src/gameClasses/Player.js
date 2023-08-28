@@ -8,7 +8,7 @@ var Player = TaroEntity.extend({
 		var self = this;
 
 
-		var playerData = taro.game.getAsset('playerTypes', data.playerTypeId);
+		var playerData = taro.game.cloneAsset('playerTypes', data.playerTypeId);
 		this._stats = _.merge(playerData, data);
 
 		// dont save variables in _stats as _stats is stringified and synced
@@ -108,13 +108,13 @@ var Player = TaroEntity.extend({
 						{ receivedJoinGame: receivedJoinGame }
 					];
 				}
-
-				// console.log(`Player.joinGame(): sending ACK to client ${self._stats.clientId} ${self._stats.name} (time elapsed: ${Date.now() - client.lastEventAt})`, playerJoinStreamData);
-
+				
 				self.streamUpdateData(playerJoinStreamData);
+			}
+			
+			if (self._stats.userId) {
 				taro.clusterClient && taro.clusterClient.playerJoined(self._stats.userId);
 			}
-
 		} else {
 			console.log(`player joined again (menu closed?) ${self._stats.clientId} (${self._stats.name})`);
 			self.streamUpdateData([{ playerJoinedAgain: true }]);
@@ -184,7 +184,7 @@ var Player = TaroEntity.extend({
 		if (taro.isServer && self._stats.clientId) {
 			if (unit && unit._category == 'unit' && unit.getOwner() == this || unitId === null) {
 				self._stats.selectedUnitId = unitId;
-				taro.network.send('makePlayerSelectUnit', { unitId: unitId }, self._stats.clientId);
+				self.streamUpdateData([{ selectedUnitId: unitId }]);
 			} else {
 				// someone's attempting exploit by trying to assign a unit to a player that's not the unit's owner
 				var client = taro.server.clients[self._stats.clientId];
@@ -211,10 +211,6 @@ var Player = TaroEntity.extend({
 					unit.unitUi.updateAllAttributeBars();
 				}
 
-				if (unit && unit.inventory) {
-					unit.inventory.updateBackpackButton();
-				}
-
 				unit.renderMobileControl();
 				taro.client.selectedUnit = unit;
 				taro.client.eventLog.push([taro._currentTime, `my unit selected ${unitId}`]);
@@ -234,7 +230,6 @@ var Player = TaroEntity.extend({
 					{ unitId: unit.id() },
 					this._stats.clientId
 				);
-
 			} else if (
 				taro.isClient &&
 				this._stats.clientId == taro.network.id()
@@ -306,7 +301,7 @@ var Player = TaroEntity.extend({
 
 		// pass old attributes' values to new attributes (given that attributes have same ID)
 		if (self._stats.attributes != undefined) {
-			var oldAttributes = JSON.parse(JSON.stringify(self._stats.attributes));
+			var oldAttributes = rfdc()(self._stats.attributes);
 			for (attrId in data.attributes) {
 				if (oldAttributes[attrId] != undefined) {
 					data.attributes[attrId].value = oldAttributes[attrId].value;
@@ -402,16 +397,23 @@ var Player = TaroEntity.extend({
 
 	isDeveloper: function() {
 		var self = this;
-		return self._stats && (
-			(self._stats.userId == taro.game.data.defaultData.owner) ||
-			taro.game.data.defaultData.invitedUsers.find(function (iu) {
-				if (iu.user === self._stats.userId) {
-					return true;
-				}
-			}) ||
-			self._stats.isUserAdmin ||
-			self._stats.isUserMod
-		);
+		if (!self._stats) {
+			return false;
+		}
+
+		if (self._stats.userId == taro.game.data.defaultData.owner) {
+			return true;
+		}
+
+		if (self._stats.isUserAdmin || self._stats.isUserMod) {
+			return true;
+		}
+
+		let roles = taro.game.data.roles || [];
+
+		let isModerator = self._stats?.roleIds && roles.find(role => role?.permissions?.moderator && self._stats?.roleIds.includes(role._id.toString()));
+
+		return isModerator;
 	},
 
 	remove: function () {
@@ -464,7 +466,7 @@ var Player = TaroEntity.extend({
 	// update player's stats in the server side first, then update client side as well.
 	streamUpdateData: function (queuedData) {
 		var self = this;
-		var oldStats = JSON.parse(JSON.stringify(self._stats));
+		var oldStats = rfdc()(self._stats);
 		TaroEntity.prototype.streamUpdateData.call(this, queuedData);
 
 		for (var i = 0; i < queuedData.length; i++) {
@@ -474,7 +476,7 @@ var Player = TaroEntity.extend({
 				// if player's type changed, then update all of its base stats (speed, stamina, etc..)
 				if (attrName === 'playerTypeId') {
 					self._stats[attrName] = newValue;
-					var playerTypeData = taro.game.getAsset('playerTypes', newValue);
+					var playerTypeData = taro.game.cloneAsset('playerTypes', newValue);
 					if (playerTypeData) {
 						playerTypeData.playerTypeId = newValue;
 
@@ -511,100 +513,135 @@ var Player = TaroEntity.extend({
 				}
 
 				if (taro.isClient) {
-					if (attrName === 'name') {
-						self._stats[attrName] = newValue;
-						// update here
-						if (typeof refreshUserName == 'function') {
+					switch (attrName) {
+						case 'name':
+							self._stats[attrName] = newValue;
+							// update here
+							if (typeof refreshUserName === 'function') {
 							refreshUserName(newValue);
-						}
-					} else if (attrName === 'purchasables') {
-						// update client purchasables if streamed from server to make sure equip/unequip skin works
-						self._stats[attrName] = newValue;
-					} else if (attrName === 'equiped') {
-						self._stats[attrName] = newValue;
-						var unit = self.getSelectedUnit();
-						if (unit) {
+							}
+							break;
+						
+						case 'purchasables':
+							// update client purchasables if streamed from server to make sure equip/unequip skin works
+							self._stats[attrName] = newValue;
+							break;
+						
+						case 'equiped':
+							self._stats[attrName] = newValue;
+							var unit = self.getSelectedUnit();
+							if (unit) {
 							unit.equipSkin();
-						}
-					} else if (attrName === 'unEquiped') {
-						self._stats[attrName] = newValue;
-						var unit = self.getSelectedUnit();
-						if (unit) {
+							}
+							break;
+						
+						case 'unEquiped':
+							self._stats[attrName] = newValue;
+							var unit = self.getSelectedUnit();
+							if (unit) {
 							unit.unEquipSkin(null, false, newValue);
-						}
+							}
+							break;
+						
+						case 'selectedUnitId':
+							self._stats[attrName] = newValue;			
+							// this unit was queued to be selected by a player
+							if (taro.isClient) {
+								self.selectUnit(newValue);
+							}
+							break;
+						default:
+							// Handle the case when attrName does not match any of the above cases.
+							break;
 					}
+				
 
 					if (self._stats.clientId == taro.network.id()) {
-						if (attrName === 'mapData') {
-							self._stats[attrName] = newValue;
-							taro.developerMode.updateClientMap(data);
-						}
-						if (attrName === 'attributes') {
-							taro.playerUi.updatePlayerAttributesDiv(self._stats.attributes);
-						}
-						if (attrName === 'coins') {
-							self._stats[attrName] = newValue;
-							taro.playerUi.updatePlayerCoin(newValue);
-						}
-						if (attrName === 'playerJoinedAgain') {
-							self.hideMenu();
-						}
-						if (attrName === 'banChat') {
-							self._stats[attrName] = newValue;
-							self.setChatMute(newValue);
-						}
-						if (attrName === 'playerJoined') {
-							self._stats[attrName] = newValue;
-							// console.log('received player.playerJoined');
-							taro.client.eventLog.push([taro._currentTime, 'playerJoined received']);
-							// render name labels of all other units
-							self.redrawUnits(['nameLabel']);
-
-							self._stats.receivedJoinGame = data.receivedJoinGame;
-							taro.client.eventLog.push([taro._currentTime - taro.client.playerJoinedAt, '\'playerJoined\' received from server']);
-							self._stats.processedJoinGame = data.processedJoinGame;
-							var streamingDiff = `${Date.now() - data.streamedOn}ms`;
-
-							window.joinGameSent.end = Date.now();
-							window.joinGameSent.completed = window.joinGameSent.end - window.joinGameSent.start;
-
-							console.log(
-								`JoinGame took ${window.joinGameSent.completed}ms to join player` +
-								`, client to gs: ${self._stats.receivedJoinGame - window.joinGameSent.start}ms` +
-								`, gs loading player data: ${self._stats.totalTime}ms` +
-								`, gs processed request for: ${self._stats.processedJoinGame}ms` +
-								`, gs to client: ${streamingDiff
-								}, client sent on: ${window.joinGameSent.start
-								}, server sent back on: ${data.streamedOn}`
-							);
-
-							if (window.joinGameSent.completed > 7000) {
-								$.post('/api/log', {
-									event: 'rollbar',
-									text: `${Date.now()}:- JoinGame took ${window.joinGameSent.completed}ms to join player` +
-										`, client to gs: ${self._stats.receivedJoinGame - window.joinGameSent.start}ms` +
-										`, gs loading player data: ${self._stats.totalTime}ms` +
-										`, gs processed request for: ${self._stats.processedJoinGame}ms` +
-										`, gs to client: ${streamingDiff
-										}, client sent on: ${window.joinGameSent.start
-										}, server sent back on: ${data.streamedOn}`
-								});
-							}
-							if (self._stats.processedJoinGame > 7000) {
-								$.post('/api/log', {
-									event: 'rollbar',
-									text: `${Date.now()}JoinGame took ${window.joinGameSent.completed}ms to create player` +
-										`, client to gs: ${self._stats.receivedJoinGame - window.joinGameSent.start}ms` +
-										`, gs loading player data: ${self._stats.totalTime}ms` +
-										`, gs processed request for: ${self._stats.processedJoinGame}ms` +
-										`, gs to client: ${streamingDiff
-										}, client sent on: ${window.joinGameSent.start
-										}, server sent back on: ${data.streamedOn}`
-								});
-							}
-
-							self.hideMenu();
-							clearTimeout(window.errorLogTimer);
+						switch (attrName) {
+							case 'mapData':
+							  self._stats[attrName] = newValue;
+							  taro.developerMode.updateClientMap(data);
+							  break;
+						  
+							case 'attributes':
+							  taro.playerUi.updatePlayerAttributeValues(self._stats.attributes);
+							  break;
+						  
+							case 'coins':
+							  self._stats[attrName] = newValue;
+							  taro.playerUi.updatePlayerCoin(newValue);
+							  break;
+						  
+							case 'roleIds':
+							  self._stats[attrName] = newValue;
+							  break;
+						  
+							case 'playerJoinedAgain':
+							  self.hideMenu();
+							  break;
+						  
+							case 'banChat':
+							  self._stats[attrName] = newValue;
+							  self.setChatMute(newValue);
+							  break;
+						  
+							case 'playerJoined':
+								self._stats[attrName] = newValue;
+								// console.log('received player.playerJoined');
+								taro.client.eventLog.push([taro._currentTime, 'playerJoined received']);
+								// render name labels of all other units
+								self.redrawUnits(['nameLabel']);
+	
+								self._stats.receivedJoinGame = data.receivedJoinGame;
+								taro.client.eventLog.push([taro._currentTime - taro.client.playerJoinedAt, '\'playerJoined\' received from server']);
+								self._stats.processedJoinGame = data.processedJoinGame;
+								var streamingDiff = `${Date.now() - data.streamedOn}ms`;
+	
+								window.joinGameSent.end = Date.now();
+								window.joinGameSent.completed = window.joinGameSent.end - window.joinGameSent.start;
+	
+								console.log(
+									`JoinGame took ${window.joinGameSent.completed}ms to join player` +
+									`, client to gs: ${self._stats.receivedJoinGame - window.joinGameSent.start}ms` +
+									`, gs loading player data: ${self._stats.totalTime}ms` +
+									`, gs processed request for: ${self._stats.processedJoinGame}ms` +
+									`, gs to client: ${streamingDiff
+									}, client sent on: ${window.joinGameSent.start
+									}, server sent back on: ${data.streamedOn}`
+								);
+	
+								if (window.joinGameSent.completed > 7000) {
+									$.post('/api/log', {
+										event: 'rollbar',
+										text: `${Date.now()}:- JoinGame took ${window.joinGameSent.completed}ms to join player` +
+											`, client to gs: ${self._stats.receivedJoinGame - window.joinGameSent.start}ms` +
+											`, gs loading player data: ${self._stats.totalTime}ms` +
+											`, gs processed request for: ${self._stats.processedJoinGame}ms` +
+											`, gs to client: ${streamingDiff
+											}, client sent on: ${window.joinGameSent.start
+											}, server sent back on: ${data.streamedOn}`
+									});
+								}
+								if (self._stats.processedJoinGame > 7000) {
+									$.post('/api/log', {
+										event: 'rollbar',
+										text: `${Date.now()}JoinGame took ${window.joinGameSent.completed}ms to create player` +
+											`, client to gs: ${self._stats.receivedJoinGame - window.joinGameSent.start}ms` +
+											`, gs loading player data: ${self._stats.totalTime}ms` +
+											`, gs processed request for: ${self._stats.processedJoinGame}ms` +
+											`, gs to client: ${streamingDiff
+											}, client sent on: ${window.joinGameSent.start
+											}, server sent back on: ${data.streamedOn}`
+									});
+								}
+	
+								self.hideMenu();
+								clearTimeout(window.errorLogTimer);
+							  break;
+						  
+							default:
+							  // Handle the case when attrName does not match any of the above cases.
+							  break;
 						}
 					}
 
@@ -620,13 +657,7 @@ var Player = TaroEntity.extend({
 		if (taro.env == 'local') // don't mute users in dev env
 			return;
 
-		if (value) {
-			$('#message').attr('disabled', true);
-			$('#message').attr('placeholder', 'You are muted');
-		} else {
-			$('#message').attr('disabled', false);
-			$('#message').attr('placeholder', 'message');
-		}
+		window.setTempChatMute && window.setTempChatMute(value);
 	},
 
 	redrawUnits: function (filterFn, properties) {
@@ -692,10 +723,30 @@ var Player = TaroEntity.extend({
 		TaroEntity.prototype.tick.call(this, ctx);
 	},
 
+	_behaviour: function() {
+		if (taro.isClient) {
+			var processedUpdates = [];
+			var updateQueue = taro.client.entityUpdateQueue[this.id()];
+			
+			if (updateQueue) {
+				for (var key in updateQueue) {
+					var value = updateQueue[key];
+				
+					processedUpdates.push({[key]: value});
+					delete taro.client.entityUpdateQueue[this.id()][key]
+				}
+
+				if (processedUpdates.length > 0) {
+					this.streamUpdateData(processedUpdates);
+				}
+			}
+		}
+	},
+
 	loadPersistentData: function () {
 		var self = this;
 
-		var persistData = _.cloneDeep(self.persistedData);
+		var persistData = rfdc()(self.persistedData);
 		if (persistData && persistData.data && persistData.data.player) {
 			TaroEntity.prototype.loadPersistentData.call(this, persistData.data.player);
 		}

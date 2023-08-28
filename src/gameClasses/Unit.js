@@ -22,7 +22,7 @@ var Unit = TaroEntityPhysics.extend({
 		if (!data.hasOwnProperty('equipmentAllowed')) {
 			data.equipmentAllowed = 9;
 		}
-		unitData = taro.game.getAsset('unitTypes', data.type);
+		unitData = taro.game.cloneAsset('unitTypes', data.type);
 
 		self._stats = _.merge(unitData, data);
 
@@ -85,11 +85,12 @@ var Unit = TaroEntityPhysics.extend({
 			// and their respective color because sometimes it may happen that unit is not yet created on client
 			// hence while making its minimap unit we will get null as unit
 			self._stats.minimapUnitVisibleToClients = {};
+
 			self.mount(taro.$('baseScene'));
-			if (taro.network.isPaused) {
-				this.streamMode(0);
-			} else {
+			if (self._stats.streamMode == 1 || self._stats.streamMode == undefined) {
 				this.streamMode(1);
+			} else {
+				this.streamMode(self._stats.streamMode);				
 			}
 
 			taro.server.totalUnitsCreated++;
@@ -174,7 +175,7 @@ var Unit = TaroEntityPhysics.extend({
 
 	redrawAttributeBars: function () {
 		var self = this;
-		var allAttributes = JSON.parse(JSON.stringify(self._stats.attributes || {}));
+		var allAttributes = rfdc()(self._stats.attributes || {})
 		var attributesToRender = [];
 		var ownerPlayer = self.getOwner();
 
@@ -512,25 +513,25 @@ var Unit = TaroEntityPhysics.extend({
 					// disable coin consuming due to some bug wrt coins
 					// add coin consuming code
 					if (taro.game.data.defaultData.tier >= 2) {
-						
+
 						try {
 							const jwt = require("jsonwebtoken");
-							
+
 							const isUsedToken = taro.server.usedCoinJwts[token];
 							if (isUsedToken) {
 								console.log('Token has been used already', token);
 								return;
 							}
-							
+
 							const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 							const {type, userId, purchasableId, createdAt} = decodedToken;
-							
+
 							if (type === 'pinValidationToken' && userId && purchasableId && ownerPlayer._stats.userId === userId && purchasableId === itemTypeId) {
 								// allow coin transaction since token has been verified
-								
+
 								// store token for current client
 								taro.server.usedCoinJwts[token] = createdAt;
-								
+
 								// remove expired tokens
 								const filteredUsedCoinJwts = {};
 								const usedTokenEntries = Object.entries(taro.server.usedCoinJwts).filter(([token, tokenCreatedAt]) => (Date.now() - tokenCreatedAt) < taro.server.COIN_JWT_EXPIRES_IN);
@@ -540,7 +541,7 @@ var Unit = TaroEntityPhysics.extend({
 									}
 								}
 								taro.server.usedCoinJwts = filteredUsedCoinJwts;
-								
+
 							} else {
 								return;
 							}
@@ -548,9 +549,9 @@ var Unit = TaroEntityPhysics.extend({
 							console.log('invalid pinValidationToken', e.message, token);
 							return;
 						}
-						
+
 						taro.server.consumeCoinFromUser(ownerPlayer, shopData.price.coins, itemTypeId);
-														
+
 						ownerPlayer.streamUpdateData([{
 								coins: global.coinHelper.subtract(ownerPlayer._stats.coins, shopData.price.coins)
 						}])
@@ -741,8 +742,8 @@ var Unit = TaroEntityPhysics.extend({
 		var self = this;
 		self.previousState = null;
 
-		var data = taro.game.getAsset('unitTypes', type);
-
+		var data = taro.game.cloneAsset('unitTypes', type);
+		
 		delete data.type; // hotfix for dealing with corrupted game json that has unitData.type = "unitType". This is caused by bug in the game editor.
 
 		if (data == undefined) {
@@ -858,7 +859,7 @@ var Unit = TaroEntityPhysics.extend({
 				for (var i = 0; i < data.defaultItems.length; i++) {
 					var item = data.defaultItems[i];
 
-					var itemData = taro.game.getAsset('itemTypes', item.key);
+					var itemData = taro.game.cloneAsset('itemTypes', item.key);
 					if (itemData) {
 						itemData.itemTypeId = item.key;
 						self.pickUpItem(itemData);
@@ -918,7 +919,7 @@ var Unit = TaroEntityPhysics.extend({
 		// 1. store the unit's current attribute values. let's say we had 500/600 HP (base max 100hp)
 		var currentType = this._category === 'unit' ? 'unitTypes' : 'playerTypes';
 		var currentEntityTypeId = this._category === 'unit' ? 'type' : 'playerTypeId';
-		var baseEntityStats = taro.game.getAsset(currentType, this._stats[currentEntityTypeId]);
+		var baseEntityStats = taro.game.cloneAsset(currentType, this._stats[currentEntityTypeId]);
 		if (!baseEntityStats) {
 			return;
 		}
@@ -959,7 +960,7 @@ var Unit = TaroEntityPhysics.extend({
 		// 1. store the unit's current attribute values. let's say we had 500/600 HP (base max 100hp)
 		var currentType = this._category === 'unit' ? 'unitTypes' : 'playerTypes';
 		var currentEntityTypeId = this._category === 'unit' ? 'type' : 'playerTypeId';
-		var baseEntityStats = taro.game.getAsset(currentType, this._stats[currentEntityTypeId]);
+		var baseEntityStats = taro.game.cloneAsset(currentType, this._stats[currentEntityTypeId]);
 		if (!baseEntityStats) {
 			return;
 		}
@@ -1029,17 +1030,22 @@ var Unit = TaroEntityPhysics.extend({
 				var availableSlot = self.inventory.getFirstAvailableSlotForItem(itemData);
 
 				// Check if the item can merge
-				if (itemData.controls == undefined || (itemData.controls.canMerge || itemData.controls.canMerge == undefined || itemData.controls.canMerge == null)) {
+				if (itemData.controls?.canMerge != false) {
+
 					// insert/merge itemData's quantity into matching items in the inventory
 					var totalInventorySize = this.inventory.getTotalInventorySize();
 					for (var i = 0; i < totalInventorySize; i++) {
-						var matchingItemId = self._stats.itemIds[i];
-						if (matchingItemId) {
-							var matchingItem = taro.$(matchingItemId);
+						var currentItemId = self._stats.itemIds[i];
+						if (currentItemId) {
+							var currentItem = taro.$(currentItemId);
 
 							// if a matching item found in the inventory, try merging them
-							if (matchingItem && matchingItem._stats.itemTypeId == itemTypeId) {
-								taro.game.lastCreatedItemId = matchingItem.id(); // this is necessary in case item isn't a new instance, but an existing item getting quantity updated
+							if (currentItem && currentItem._stats.itemTypeId == itemTypeId) {
+								var matchingItem = currentItem;
+
+								// lastCreatedItem is used to track the last item created by the server. 
+								// This is necessary in case item isn't a new instance, but an existing item getting quantity updated
+								taro.game.lastCreatedItemId = matchingItem.id(); 
 
 								// matching item has infinite quantity. merge item unless new item is also infinite
 								if (matchingItem._stats.quantity == undefined && itemData.quantity != undefined) {
@@ -1067,7 +1073,7 @@ var Unit = TaroEntityPhysics.extend({
 							}
 
 							// if the new item no longer has any quantity left, destroy it (if it's an instance).
-							if (itemData.maxQuantity != 0 && itemData.quantity == 0) {
+							if (itemData.quantity == 0) {
 								if (isItemInstance) {
 									item.remove();
 								}
@@ -1090,8 +1096,8 @@ var Unit = TaroEntityPhysics.extend({
 					// Item
 					item.streamUpdateData([
 						{ ownerUnitId: self.id() },
-						{ quantity: itemData.quantity },
-						{ slotIndex: slotIndex }
+						{ slotIndex: slotIndex }, // slotIndex must come before quantity (next line), otherwise, quantity won't update properly as itemUiComponent won't know which slot to apply quantity to
+						{ quantity: itemData.quantity }						
 					]);
 
 					self.inventory.insertItem(item, availableSlot - 1);
@@ -1144,7 +1150,10 @@ var Unit = TaroEntityPhysics.extend({
 	updateNameLabel: function () {
 		var self = this;
 		var ownerPlayer = self.getOwner();
-		var playerTypeData = ownerPlayer && taro.game.getAsset('playerTypes', ownerPlayer._stats.playerTypeId);
+		var playerTypeData = ownerPlayer && taro.game.cloneAsset('playerTypes', ownerPlayer._stats.playerTypeId);
+
+		// const roles = taro.game.data.roles.filter(role => ownerPlayer._stats.roleIds.includes(role._id.toString()));
+		// var highestRole = roles.reduce((prev, current) => prev ? (current.order < prev.order ? current : prev) : current, null);
 
 		// label should be hidden
 		var hideLabel = (
@@ -1196,7 +1205,7 @@ var Unit = TaroEntityPhysics.extend({
 	updateFadingText: function (text, color) {
 		var self = this;
 		var ownerPlayer = self.getOwner();
-		var playerTypeData = ownerPlayer && taro.game.getAsset('playerTypes', ownerPlayer._stats.playerTypeId);
+		var playerTypeData = ownerPlayer && taro.game.cloneAsset('playerTypes', ownerPlayer._stats.playerTypeId);
 
 		// label should be hidden
 		var hideLabel = (
@@ -1256,7 +1265,7 @@ var Unit = TaroEntityPhysics.extend({
 		var self = this;
 		var item = self.inventory.getItemBySlotNumber(itemIndex + 1);
 		if (item) {
-			
+
 			// check if item's undroppable
 			if (item._stats && item._stats.controls && item._stats.controls.undroppable) {
 				return;
@@ -1274,7 +1283,7 @@ var Unit = TaroEntityPhysics.extend({
 						x: this._translate.x + item.anchoredOffset.x,
 						y: this._translate.y + item.anchoredOffset.y
 					},
-					rotate: item._rotate.z
+					rotate: item.anchoredOffset.rotate,
 				};
 
 				if (taro.physics.engine === 'CRASH') {
@@ -1288,7 +1297,7 @@ var Unit = TaroEntityPhysics.extend({
 				}
 
 				item.setOwnerUnit(undefined);
-				item.setState('dropped', defaultData);				
+				item.setState('dropped', defaultData);
 
 				if (item._stats.hidden) {
 					item.streamUpdateData([{ hidden: false }]);
@@ -1450,7 +1459,7 @@ var Unit = TaroEntityPhysics.extend({
 
 	queueStreamData: function(streamData) {
 		if (taro.isServer) {
-			TaroEntity.prototype.queueStreamData.call(this, streamData);	
+			TaroEntity.prototype.queueStreamData.call(this, streamData);
 		}
 	},
 
@@ -1458,10 +1467,7 @@ var Unit = TaroEntityPhysics.extend({
 	streamUpdateData: function (queuedData) {
 		var self = this;
 		// Unit.prototype.log("unit streamUpdateData", data)
-
-		// if (taro.isServer && taro.network.isPaused) 
-		// 	return;
-
+		
 		TaroEntity.prototype.streamUpdateData.call(this, queuedData);
 
 		for (var i = 0; i < queuedData.length; i++) {
@@ -1489,7 +1495,7 @@ var Unit = TaroEntityPhysics.extend({
 					case 'itemIds':
 						self._stats[attrName] = newValue;
 						// update shop as player points are changed and when shop modal is open
-						if (taro.isClient) {
+						if (taro.isClient && this.inventory) {
 							this.inventory.update();
 
 							if ($('#modd-item-shop-modal').hasClass('show')) {
@@ -1501,14 +1507,20 @@ var Unit = TaroEntityPhysics.extend({
 						}
 						break;
 
-					case 'currentItemIndex':
-						self._stats[attrName] = newValue;
-						// for tracking selected index of other units
-						if (taro.isClient && this !== taro.client.selectedUnit) {
-							// console.log('Unit.streamUpdateData(\'currentItemIndex\') on the client', newValue);
-							this.setCurrentItem(newValue);
-						}
-						break;
+                        case 'currentItemIndex':
+                            self._stats[attrName] = newValue;
+                            // for tracking selected index of other units
+                            if (taro.isClient) {
+                                if (this !== taro.client.selectedUnit) {
+                                    // console.log('Unit.streamUpdateData(\'currentItemIndex\') on the client', newValue);
+                                    this.setCurrentItem(newValue);
+                                } else if (this.inventory) {
+                                    this.inventory.highlightSlot(newValue + 1);
+                                    var item = this.inventory.getItemBySlotNumber(newValue + 1);
+                                    taro.itemUi.updateItemInfo(item);
+                                }
+                            }
+                            break;
 
 					case 'skin':
 					case 'isInvisible':
@@ -1627,7 +1639,7 @@ var Unit = TaroEntityPhysics.extend({
 			if (owner && owner._stats && owner._stats.purchasables && owner._stats.purchasables.length > 0) {
 				owner._stats.purchasables.forEach(function (purchasable) {
 					if (purchasable && purchasable.target && purchasable.target.entityType === 'unit' && purchasable.target.key === (self._stats.type)) {
-						var defaultUnit = taro.game.getAsset('unitTypes', self._stats.type);
+						var defaultUnit = taro.game.cloneAsset('unitTypes', self._stats.type);
 
 						if (self._stats.clientId === taro.network.id() && window.adBlockEnabled && defaultUnit.cellSheet.url !== purchasable.image) {
 							notifyAboutAdblocker(2);
@@ -1658,7 +1670,7 @@ var Unit = TaroEntityPhysics.extend({
 			if (index > -1) {
 				owner._stats.purchasables.splice(index, 1);
 			}
-			var purchasables = _.cloneDeep(owner._stats.purchasables);
+			var purchasables = rfdc()(owner._stats.purchasables);
 			equipPurchasable = _.pick(equipPurchasable, ['_id', 'image', 'owner', 'target', 'type']);
 			purchasables.push(equipPurchasable);
 			owner.streamUpdateData([
@@ -1670,7 +1682,7 @@ var Unit = TaroEntityPhysics.extend({
 
 	unEquipSkin: function (unEquipedId, forceFullyUnequip, cellSheetUrl) {
 		var self = this;
-		var defaultUnit = taro.game.getAsset('unitTypes', self._stats.type);
+		var defaultUnit = taro.game.cloneAsset('unitTypes', self._stats.type);
 		var owner = this.getOwner();
 		if (taro.isServer) {
 			if (owner && owner._stats && owner._stats.purchasables && owner._stats.purchasables.length > 0) {
@@ -1680,7 +1692,7 @@ var Unit = TaroEntityPhysics.extend({
 						return true;
 					}
 				});
-				var purchasables = _.cloneDeep(owner._stats.purchasables);
+				var purchasables = rfdc()(owner._stats.purchasables);
 				if (index > -1) {
 					purchasables.splice(index, 1);
 					owner.streamUpdateData([
@@ -1702,7 +1714,7 @@ var Unit = TaroEntityPhysics.extend({
 	loadPersistentData: function () {
 		var self = this;
 		var owner = self.getOwner();
-		var persistedData = _.cloneDeep(owner.persistedData);
+		var persistedData = rfdc()(owner.persistedData);
 		if (persistedData && persistedData.data && persistedData.data.unit) {
 			TaroEntity.prototype.loadPersistentData.call(this, persistedData.data.unit);
 
@@ -1710,7 +1722,7 @@ var Unit = TaroEntityPhysics.extend({
 			for (var i = 0; i < persistedInventoryItems.length; i++) {
 				var persistedItem = persistedInventoryItems[i];
 				if (persistedItem) {
-					var itemData = taro.game.getAsset('itemTypes', persistedItem.itemTypeId);
+					var itemData = taro.game.cloneAsset('itemTypes', persistedItem.itemTypeId);
 					if (itemData) {
 						itemData.quantity = persistedItem.quantity;
 						itemData.itemTypeId = persistedItem.itemTypeId;
@@ -1730,7 +1742,7 @@ var Unit = TaroEntityPhysics.extend({
 	loadDataFromString: function (data) {
 		var self = this;
 		var owner = self.getOwner();
-		var persistedData = _.cloneDeep(data);
+		var persistedData = rfdc()(data);
 		if (persistedData) {
 			TaroEntity.prototype.loadPersistentData.call(this, persistedData);
 
@@ -1738,7 +1750,7 @@ var Unit = TaroEntityPhysics.extend({
 			for (var i = 0; i < persistedInventoryItems.length; i++) {
 				var persistedItem = persistedInventoryItems[i];
 				if (persistedItem) {
-					var itemData = taro.game.getAsset('itemTypes', persistedItem.itemTypeId);
+					var itemData = taro.game.cloneAsset('itemTypes', persistedItem.itemTypeId);
 					if (itemData) {
 						itemData.quantity = persistedItem.quantity;
 						itemData.itemTypeId = persistedItem.itemTypeId;
@@ -1845,7 +1857,7 @@ var Unit = TaroEntityPhysics.extend({
 	 */
 	_behaviour: function (ctx) {
 		var self = this;
-
+		
 		_.forEach(taro.triggersQueued, function (trigger) {
 			trigger.params['thisEntityId'] = self.id();
 			self.script.trigger(trigger.name, trigger.params);
@@ -1927,7 +1939,8 @@ var Unit = TaroEntityPhysics.extend({
 				taro.unitBehaviourCount++; // for debugging
 				// apply movement if it's either human-controlled unit, or ai unit that's currently moving
 				if (self.body && vector && (vector.x != 0 || vector.y != 0)) {
-					// console.log('unit movement 2', vector);
+
+					// console.log('unit movement 2', vector, self._stats.controls.movementMethod);
 					if (self._stats.controls) {
 						switch (self._stats.controls.movementMethod) { // velocity-based movement
 							case 'velocity':
@@ -1962,6 +1975,21 @@ var Unit = TaroEntityPhysics.extend({
 
 			if (this.isPlayingSound) {
 				this.isPlayingSound.volume = taro.sound.getVolume(this._translate, this.isPlayingSound.effect.volume);
+			}
+			
+			var processedUpdates = [];
+			var updateQueue = taro.client.entityUpdateQueue[this.id()];			
+			if (updateQueue) {
+				for (var key in updateQueue) {
+					var value = updateQueue[key];
+
+					processedUpdates.push({[key]: value});
+					delete taro.client.entityUpdateQueue[this.id()][key]
+				}
+
+				if (processedUpdates.length > 0) {
+					this.streamUpdateData(processedUpdates);
+				}
 			}
 		}
 

@@ -77,7 +77,7 @@ var TaroChatComponent = TaroEventingClass.extend({
 				message = message.substr(0, 80);
 
 			// don't send chat message if user is ban or unverified.
-			if (taro.env != 'local' && player && (player._stats.banChat || (gameData && gameData.allowVerifiedUserToChat && !player._stats.isUserVerified))) {
+			if (taro.env != 'local' && player && player._stats.banChat) {
 				// don't send message
 			} else {
 				taro.network.send('taroChatMsg', { text: message, roomId: '1' });
@@ -85,6 +85,7 @@ var TaroChatComponent = TaroEventingClass.extend({
 			$('#message').blur();
 			$('#message').val('');
 			$('#chat-message-input').hide();
+			player.control.updatePlayerInputStatus();
 		}
 	},
 

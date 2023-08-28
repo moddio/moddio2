@@ -104,8 +104,18 @@ var AdComponent = TaroEntity.extend({
 			// 	sendMessageToReactNative(eventData);
 			// } else {
 				// on desktop
-				if (typeof isInIFrame !== 'undefined' && isInIFrame) {
+				if (typeof isInY8IFrame !== 'undefined' && isInY8IFrame) {
 					self.prerollEventHandler('video-ad-skip-in-iframe');
+					return;
+				}
+				
+				// if user is not in the play tab, don't play ad
+				if (typeof window?.inGameEditor?.getCurrentTab === 'function' && window.inGameEditor.getCurrentTab() !== 'play') {
+					return;
+				}
+				
+				// if game tab is not focussed, don't play ad - won't work even if the devtools are focussed.
+				if (document.hasFocus() === false) {
 					return;
 				}
 				
@@ -135,59 +145,97 @@ var AdComponent = TaroEntity.extend({
 		const distinctId = socket?._token?.distinctId;
 		
 		if (player && socket) {
-			// Ad reward goes to game owner
-			taro.server.creditAdRewardToOwner(data, clientId);
-		
-			if (taro.script) { // do not send trigger for neutral player
-				if (data.status === 'completed') {
-					taro.script.trigger('adPlayCompleted', { playerId: player.id() });
-				} else if (data.status === 'skipped') {
-					taro.script.trigger('adPlaySkipped', { playerId: player.id() });
-				} else if (data.status === 'blocked') {
-					taro.script.trigger('adPlayBlocked', { playerId: player.id() });
-					taro.server.userAdStats[distinctId].adFailAttempts.push(taro.currentTime());
-				} else if (data.status === 'failed') {
-					taro.script.trigger('adPlayFailed', { playerId: player.id() });
-					taro.server.userAdStats[distinctId].adFailAttempts.push(taro.currentTime());
-				}
-			}
-	
-			// remove old failure records that didn't happen in the last one hour
-			let oldestSaveTimestamp = taro.server.userAdStats[distinctId].adFailAttempts[0];
-			while (Date.now() - oldestSaveTimestamp > 60 * 60 * 1000 && taro.server.userAdStats[distinctId].adFailAttempts.length > 0) {
-				oldestSaveTimestamp = taro.server.userAdStats[distinctId].adFailAttempts.shift();
-			}
 			
-			if (socket?._token?.distinctId && taro.server.userAdStats[distinctId]?.adFailAttempts.length > 10) {
-				// disable Ads for this user, no further ads will be served to this user
-				taro.server.userAdStats[distinctId] = {
-					adEnabled: false,
-					adFailAttempts: [],
-				};
-				
-				// send failure threshold limit reached to MP
-				global.mixpanel.track('Ad Watch', {
-					'distinct_id': distinctId,
-					'$ip': socket._remoteAddress,
-					'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
-					'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
-					'gameCreator': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.owner,
-					'status': 'failure-threshold-limit-reached',
-					'type': 'failure-threshold-limit-reached',
-				});
-				
-				// add a server log
-				taro.server.addServerLog('ad play failed', `ad watch failure limit reached for user ${player._stats.name}`);
-			} else if (socket?._token?.distinctId) {
-				global.mixpanel.track('Ad Watch', {
-					'distinct_id': distinctId,
-					'$ip': socket._remoteAddress,
-					'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
-					'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
-					'gameCreator': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.owner,
-					'status': data.status,
-					'type': data.type,
-				});
+			const token = data.token;
+			if (token && data.status && clientId) {
+				try {
+					const isUsedToken = taro.server.usedAdRewardJwts[token];
+					if (isUsedToken) {
+						console.log('creditAdRewardToOwner - Token has been used already', token);
+						return;
+					}
+					
+					const jwt = require("jsonwebtoken");
+					
+					const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+					const {type, clientId: decodedClientId, createdAt} = decodedToken;
+					
+					if (decodedClientId === clientId) {
+						
+						// store token for current client
+						taro.server.usedAdRewardJwts[token] = createdAt;
+						
+						// remove expired tokens
+						const filteredUsedAdRewardJwts = {};
+						const usedTokenEntries = Object.entries(taro.server.usedAdRewardJwts).filter(([token, tokenCreatedAt]) => (Date.now() - tokenCreatedAt) < taro.server.AD_REWARD_JWT_EXPIRES_IN);
+						for (const [key, value] of usedTokenEntries) {
+							if (typeof value === 'number') {
+								filteredUsedAdRewardJwts[key] = value;
+							}
+						}
+						taro.server.usedAdRewardJwts = filteredUsedAdRewardJwts;
+						
+						if (type === 'creditAdRewardToken') {
+							// Ad reward goes to game owner
+							taro.server.creditAdRewardToOwner(data.status, clientId);
+						}
+						
+						if (taro.script) { // do not send trigger for neutral player
+							if (data.status === 'completed') {
+								taro.script.trigger('adPlayCompleted', { playerId: player.id() });
+							} else if (data.status === 'skipped') {
+								taro.script.trigger('adPlaySkipped', { playerId: player.id() });
+							} else if (data.status === 'blocked') {
+								taro.script.trigger('adPlayBlocked', { playerId: player.id() });
+								taro.server.userAdStats[distinctId].adFailAttempts.push(taro.currentTime());
+							} else if (data.status === 'failed') {
+								taro.script.trigger('adPlayFailed', { playerId: player.id() });
+								taro.server.userAdStats[distinctId].adFailAttempts.push(taro.currentTime());
+							}
+						}
+						
+						// remove old failure records that didn't happen in the last one hour
+						let oldestSaveTimestamp = taro.server.userAdStats[distinctId].adFailAttempts[0];
+						while (Date.now() - oldestSaveTimestamp > 60 * 60 * 1000 && taro.server.userAdStats[distinctId].adFailAttempts.length > 0) {
+							oldestSaveTimestamp = taro.server.userAdStats[distinctId].adFailAttempts.shift();
+						}
+						
+						if (socket?._token?.distinctId && taro.server.userAdStats[distinctId]?.adFailAttempts.length > 10) {
+							// disable Ads for this user, no further ads will be served to this user
+							taro.server.userAdStats[distinctId] = {
+								adEnabled: false,
+								adFailAttempts: [],
+							};
+							
+							// send failure threshold limit reached to MP
+							global.mixpanel.track('Ad Watch', {
+								'distinct_id': distinctId,
+								'$ip': socket._remoteAddress,
+								'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
+								'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
+								'gameCreator': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.owner,
+								'status': 'failure-threshold-limit-reached',
+								'type': 'failure-threshold-limit-reached',
+							});
+							
+							// add a server log
+							taro.server.addServerLog('ad play failed', `ad watch failure limit reached for user ${player._stats.name}`);
+						} else if (socket?._token?.distinctId) {
+							global.mixpanel.track('Ad Watch', {
+								'distinct_id': distinctId,
+								'$ip': socket._remoteAddress,
+								'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
+								'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
+								'gameCreator': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.owner,
+								'status': data.status,
+								'type': data.type,
+							});
+						}
+					}
+					
+				} catch (e) {
+					console.log('playCallback - invalid token', e.message, data.token);
+				}
 			}
 		}
 	},

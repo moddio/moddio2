@@ -26,13 +26,17 @@ var DevToolButton = /** @class */ (function () {
             label.setVisible(defaultVisible);
             container.add(label);
             this.label = label;
-            if (scene.renderer.type === Phaser.CANVAS) {
-                var rt = scene.add.renderTexture(label.x, label.y, label.width, label.height);
+            /*if (scene.renderer.type === Phaser.CANVAS) {
+                const rt = scene.add.renderTexture(
+                    label.x, label.y,
+                    label.width, label.height
+                );
                 rt.draw(label, label.width / 2, label.height / 2);
                 rt.setOrigin(0.5);
                 container.add(rt);
+
                 label.visible = false;
-            }
+            }*/
         }
         button.on('pointerdown', function () {
             if (value || value === 0)
@@ -42,6 +46,7 @@ var DevToolButton = /** @class */ (function () {
         });
         button.on('pointerover', function () {
             var _a;
+            scene.gameScene.input.setTopOnly(true);
             scene.pointerInsideButtons = true;
             devModeTools.tooltip.showMessage(tooltipLabel, tooltipText);
             _this.isHover = true;
@@ -52,33 +57,33 @@ var DevToolButton = /** @class */ (function () {
             clearTimeout(_this.timer);
         });
         button.on('pointerout', function () {
-            _this.hideHoverChildren(350);
+            //this.hideHoverChildren(350);
             scene.pointerInsideButtons = false;
             devModeTools.tooltip.fadeOut();
         });
         (_a = this.hoverChildren) === null || _a === void 0 ? void 0 : _a.map(function (btn) {
             btn.button.on('pointerout', function () {
-                _this.hideHoverChildren(350);
+                //this.hideHoverChildren(350);
             });
             btn.button.on('pointerdown', function () {
-                _this.hideHoverChildren(0);
+                //this.hideHoverChildren(0);
             });
         });
     }
-    DevToolButton.prototype.hideHoverChildren = function (delay) {
-        var _this = this;
+    //not using currently
+    /*hideHoverChildren(delay) {
         this.isHover = false;
         clearTimeout(this.timer);
-        this.timer = setTimeout(function () {
-            var _a, _b;
-            if (delay === 0 || !_this.isHover && ((_a = _this.hoverChildren) === null || _a === void 0 ? void 0 : _a.every(function (btn) { return !btn.isHover; }))) {
-                (_b = _this.hoverChildren) === null || _b === void 0 ? void 0 : _b.map(function (btn) {
+        this.timer = setTimeout(() => {
+            if (delay === 0 || !this.isHover && this.hoverChildren?.every((btn) => !btn.isHover)) {
+                this.hoverChildren?.map((btn) => {
                     btn.button.setVisible(false);
                     btn.label.setVisible(false);
                 });
+
             }
         }, delay);
-    };
+    }*/
     DevToolButton.prototype.highlight = function (mode) {
         switch (mode) {
             case 'hidden':

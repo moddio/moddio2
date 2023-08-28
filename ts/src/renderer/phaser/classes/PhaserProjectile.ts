@@ -1,6 +1,6 @@
 class PhaserProjectile extends PhaserAnimatedEntity {
 
-	protected gameObject: Phaser.GameObjects.Sprite & IRenderProps;
+	public gameObject: Phaser.GameObjects.Sprite & IRenderProps;
 
 	constructor (
 		scene: GameScene,
@@ -14,6 +14,8 @@ class PhaserProjectile extends PhaserAnimatedEntity {
 
 		const { x, y } = entity._translate;
 		this.gameObject.setPosition(x, y);
+
+		scene.projectilesList.push(this);
 
 		Object.assign(this.evtListeners, {
 			'update-texture': entity.on('update-texture', this.updateTexture, this),
@@ -45,6 +47,7 @@ class PhaserProjectile extends PhaserAnimatedEntity {
 
 	protected destroy (): void {
 		this.scene.renderedEntities = this.scene.renderedEntities.filter(item => item !== this.sprite);
+		this.scene.projectilesList = this.scene.projectilesList.filter(item => item.entity.id() !== this.entity.id());
 		super.destroy();
 	}
 }

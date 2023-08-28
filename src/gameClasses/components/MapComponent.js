@@ -33,18 +33,7 @@ var MapComponent = TaroEntity.extend({
 					});
 			});
 		}
-
-		let wallLayer = self.data.layers.find(layerObject => {
-			return layerObject.name === 'walls';
-		});
-
-		self.wallMap = _.cloneDeep(wallLayer.data); // cache a copy of wall layer's data
-
-		for (let i = 0; i < self.wallMap.length; i++) { // convert all non zero number to 1 (the index does not matter as long as it is not 0)
-			if (self.wallMap[i] != 0) {
-				self.wallMap[i] = 1;
-			}
-		}
+		self.updateWallMapData();
 	},
 	createRegions: function () {
 		var regions = {};
@@ -62,6 +51,22 @@ var MapComponent = TaroEntity.extend({
 					data.id = regionName;
 					new Region(data);
 				}
+			}
+		}
+	},
+
+	updateWallMapData: function() { // call this after in-game map tile editing
+		var self = this;
+
+		let wallLayer = self.data.layers.find(layerObject => {
+			return layerObject.name === 'walls';
+		});
+
+		self.wallMap = rfdc()(wallLayer.data); // cache a copy of wall layer's data
+
+		for (let i = 0; i < self.wallMap.length; i++) { // convert all non zero number to 1 (the index does not matter as long as it is not 0)
+			if (self.wallMap[i] != 0) {
+				self.wallMap[i] = 1;
 			}
 		}
 	},

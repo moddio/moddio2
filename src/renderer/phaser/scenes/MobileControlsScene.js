@@ -26,8 +26,6 @@ var MobileControlsScene = /** @class */ (function (_super) {
         this.input.addPointer(3);
         var scale = this.scale;
         var controls = this.controls = this.add.container();
-        this.resize();
-        scale.on(Phaser.Scale.Events.RESIZE, this.resize, this);
         var joysticks = this.joysticks;
         taro.mobileControls.on('add-control', function (key, x, y, w, h, settings) {
             switch (key) {
@@ -37,19 +35,21 @@ var MobileControlsScene = /** @class */ (function (_super) {
                     new PhaserJoystick(_this, x, y, settings);
                     break;
                 default:
+                    var relativeX = Math.trunc((x + w / 2) / 960 * window.innerWidth - w / 2);
+                    var relativeY = Math.trunc((y + h / 2) / 540 * window.innerHeight - h / 2);
                     var text = key.toUpperCase();
-                    var button_1 = _this.add.image(x, y, 'mobile-button-up')
+                    var button_1 = _this.add.image(relativeX, relativeY, 'mobile-button-up')
                         .setDisplaySize(w, h)
                         .setOrigin(0)
                         .setAlpha(0.6);
                     controls.add(button_1);
                     if (text === 'BUTTON1') {
-                        var icon = _this.add.image(x + w / 2, y + h / 2, 'mobile-button-icon');
+                        var icon = _this.add.image(relativeX + w / 2, relativeY + h / 2, 'mobile-button-icon');
                         icon.setScale(0.5);
                         controls.add(icon);
                     }
                     else {
-                        var label = _this.add.bitmapText(x + w / 2, y + h / 2, BitmapFontManager.font(_this, 'Arial', true, false, '#FFFFFF'));
+                        var label = _this.add.bitmapText(relativeX + w / 2, relativeY + h / 2, BitmapFontManager.font(_this, 'Arial', true, false, '#FFFFFF'));
                         label.setText(BitmapFontManager.sanitize(label.fontData, text));
                         label.setCenterAlign();
                         label.setFontSize(24);
@@ -189,7 +189,12 @@ var MobileControlsScene = /** @class */ (function (_super) {
         var pointerDown = false;
         for (var i = 1; i < 6; i++) {
             var pointer = gameScene.input['pointer' + i.toString()];
-            if (pointer.primaryDown)
+            if (pointer && pointer.primaryDown)
+                pointerDown = true;
+        }
+        if (!pointerDown) {
+            var pointer = gameScene.input.mousePointer;
+            if (pointer && pointer.primaryDown)
                 pointerDown = true;
         }
         if (!pointerDown) {
@@ -211,14 +216,6 @@ var MobileControlsScene = /** @class */ (function (_super) {
         if (!this.scale.isFullscreen) {
             this.scale.startFullscreen();
         }
-    };
-    MobileControlsScene.prototype.resize = function () {
-        // make the mobileControls container
-        // fit the width and be anchored to the bottom
-        var controls = this.controls;
-        var scale = this.scale;
-        controls.setScale(scale.width / 960);
-        controls.y = scale.height - 540 * controls.scale;
     };
     return MobileControlsScene;
 }(PhaserScene));

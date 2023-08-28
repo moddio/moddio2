@@ -11,6 +11,8 @@ var TaroNetIoServer = {
 	start: function (data, callback) {
 		var self = this;
 
+		this.artificialDelay = 0; // simulated lag (ms)
+		
 		this._socketById = {};
 		this._socketByIp = {};
 		this._socketsByRoomId = {};
@@ -300,7 +302,38 @@ var TaroNetIoServer = {
 
 		return this._acceptConnections;
 	},
-
+	
+	/**
+	 * Sends clientDisconnect command to client and closes the socket connection
+	 * @param {String} clientId
+	 * @param {String} reason
+	 * @param {String} reasonCode
+	 */
+	disconnect: function (clientId, reason, reasonCode) {
+		if (!clientId) {
+			return;
+		}
+		
+		this.send('clientDisconnect', {reason, clientId}, clientId);
+		
+		const socket = this._socketById[clientId];
+		if (socket) {
+			
+			// store socket's disconnect reason, will be used in _onSocketDisconnect
+			const code = null;
+			
+			socket._disconnect = {
+				reasonCode: reasonCode || socket.getReasonCode(reason),
+				reason,
+				code,
+				at: new Date(),
+				source: 'disconnectFn',
+			};
+			
+			socket.close(reason);
+		}
+	},
+	
 	/**
    * Sends a message over the network.
    * @param {String} commandName
@@ -365,10 +398,21 @@ var TaroNetIoServer = {
 			// send sendQueue
 			if (self.sendQueue) {
 				for (var clientId in self.sendQueue) {
-					self._io.send(
-						[ciEncoded, self.sendQueue[clientId]],
-						clientId === 'undefined' ? undefined : clientId
-					);
+					// simulate lag for dev environment
+					if (global.isDev) {
+						setTimeout(function (data, id, ci) {
+							self._io.send(
+								[ci, data],
+								id === 'undefined' ? undefined : id
+							);
+						}, self.artificialDelay, self.sendQueue[clientId], clientId, ciEncoded);
+					} else {
+						// production we don't simulate lag
+						self._io.send(
+							[ciEncoded, self.sendQueue[clientId]],
+							clientId === 'undefined' ? undefined : clientId
+						);
+					}
 				}
 				self.sendQueue = {};
 			}
@@ -380,10 +424,17 @@ var TaroNetIoServer = {
 
 			// append serverTime timestamp to the snapshot
 			self.snapshot.push([String.fromCharCode(this._networkCommandsLookup._taroStreamTime), timestamp]);
-			self._io.send([ciEncoded, self.snapshot]);
-
+			if (global.isDev) {
+				// generate artificial lag in dev environment
+				setTimeout(function (data, ci) {
+					self._io.send([ci, data]);
+				}, self.artificialDelay, self.snapshot, ciEncoded);
+			} else {
+				self._io.send([ciEncoded, self.snapshot]);
+			}
 			taro.server.lastSnapshot = self.snapshot;
 			this.snapshot = [];
+
 		} else {
 			this.log('_snapshot error @ flush');
 		}
@@ -579,7 +630,9 @@ var TaroNetIoServer = {
 
 					self.logCommandCount(socket._remoteAddress, commandName, data);
 
-					self.uploadPerSecond[socket._remoteAddress] += JSON.stringify(data).length;
+					if (!(commandName === 'editTile')) {
+						self.uploadPerSecond[socket._remoteAddress] += JSON.stringify(data).length;
+					}
 
 					if (data.type === 'ping') {
 						socket.send({
@@ -699,7 +752,6 @@ var TaroNetIoServer = {
 				if (this._networkCommands[commandName]) {
 					this._networkCommands[commandName](data[1], clientId);
 				}
-
 				this.emit(commandName, [data[1], clientId]);
 			}
 		}
@@ -754,11 +806,71 @@ var TaroNetIoServer = {
    * @param {Object} socket The client socket object.
    * @private
    */
-	_onClientDisconnect: function (data, socket) {
+	_onSocketDisconnect: function (data, socket) {
+		
 		var self = this;
+		
+		const _disconnect = self._socketById[socket.id]?._disconnect || {};
+		
+		const code = _disconnect.code || data?.code; //https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code
+		let reasonCode = _disconnect.reasonCode || '';
+		let reason = _disconnect.reason || data?.reason.toString();
+		let source = _disconnect.source || '';
+		
+		if (!reason && !reasonCode) {
+			switch (code) {
+				case 1001:
+					reason = reasonCode = 'Going Away';
+					break;
+				case 1002:
+					reason = reasonCode = 'Protocol error';
+					break;
+				case 1003:
+					reason = reasonCode = 'Unsupported Data';
+					break;
+				case 1005:
+					reason = reasonCode = 'No Status Rcvd';
+					break;
+				case 1006:
+					reason = reasonCode = 'Abnormal Closure';
+					break;
+				case 1007:
+					reason = reasonCode = 'Invalid frame payload data';
+					break;
+				case 1008:
+					reason = reasonCode = 'Policy Violation';
+					break;
+				case 1009:
+					reason = reasonCode = 'Message Too Big';
+					break;
+				case 1010:
+					reason = reasonCode = 'Mandatory Ext.';
+					break;
+				case 1011:
+					reason = reasonCode = 'Internal Error';
+					break;
+				case 1012:
+					reason = reasonCode = 'Service Restart';
+					break;
+				case 1013:
+					reason = reasonCode = 'Try Again Later';
+					break;
+				case 1014:
+					reason = reasonCode = 'Bad Gateway';
+					break;
+				case 1015:
+					reason = reasonCode = 'TLS handshake';
+					break;
+				default:
+					reason = reasonCode = code;
+			}
+		}
+		
 		this.log(`Client disconnected with id ${socket.id}`);
+		console.log(`Client disconnected with id ${socket.id}, reason: ${reason}, reasonCode: ${reasonCode}, code: ${code}`);
+		
 		var end = Date.now();
-
+		
 		if (self._socketById[socket.id]?._token?.distinctId) {
 			/** additional part to send some info for marketing purposes */
 			global.mixpanel.track('Game Session Duration', {
@@ -767,6 +879,14 @@ var TaroNetIoServer = {
 				'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
 				'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
 				'playTime': end - self._socketById[socket.id].start,
+				'code': code,
+				'reason': reason,
+				'reasonCode': reasonCode,
+				'server': process.env.IP,
+				'tier': process.env.WORKER_TIER || process.env.TIER,
+				'previousDisconnects': socket._previousDisconnects || [],
+				'reconnectCount': socket._previousDisconnects?.length || 0,
+				'source': source,
 			});
 		}
 
@@ -779,11 +899,23 @@ var TaroNetIoServer = {
 					'gameSlug': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData.gameSlug,
 					'gameId': taro.game && taro.game.data && taro.game.data.defaultData && taro.game.data.defaultData._id,
 					'playTime': end - self._socketById[socket.id].start,
+					'code': code,
+					'reason': reason,
+					'reasonCode': reasonCode,
+					'server': process.env.IP,
+					'tier': process.env.WORKER_TIER || process.env.TIER,
+					'previousDisconnects': socket._previousDisconnects || [],
+					'reconnectCount': socket._previousDisconnects?.length || 0,
+					'source': source,
 				}
 			});
 		}
-
-		this.emit('disconnect', socket.id);
+		
+		// triggers _onClientDisconnect in ServerNetworkEvents.js
+		this.emit('disconnect', {
+			clientId: socket.id,
+			reason: _disconnect.reason,
+		});
 
 		// Remove them from all rooms
 		this.clientLeaveAllRooms(socket.id);

@@ -33,14 +33,17 @@ class PhaserJoystick {
 		const radius = this.radius = scene.cameras.main.displayWidth * 0.05;
 
 		const base = scene.add.graphics();
+        base.fillStyle(0x18181B, 0.9);
+		base.fillCircle(0, 0, radius);
+
 		if (settings.redFireZone) {
-			base.lineStyle(10, 0xff0000);
-			base.fillStyle(0x18181B, 0.9);
-			base.fillCircle(0, 0, radius);
-			base.strokeCircle(0, 0, radius);
+            base.beginPath();
+            base.lineStyle(radius/8, 0xff0000);
+            base.arc(0, 0, radius/1.08, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360), true, 0.02);
+            base.strokePath();
+            base.closePath();
+            base.alpha = 1;
 		} else {
-			base.fillStyle(0x18181B, 0.9);
-			base.fillCircle(0, 0, radius);
 			base.alpha = 0.5;
 		}
 
@@ -63,7 +66,7 @@ class PhaserJoystick {
 			if (virtualJoystick.pointer) {
 				settings.onChange && settings.onChange({
 					angle: -virtualJoystick.angle,
-					power: virtualJoystick.force
+					power: virtualJoystick.force/radius
 				});
 			} else {
 				settings.onEnd && settings.onEnd();

@@ -17,14 +17,22 @@ class RegionEditor {
 		this.devModeScene = devModeScene;
 		this.devModeTools = devModeTools;
 
-		gameScene.input.on('pointerdown', (pointer) => {
+		gameScene.input.on('pointerdown', (pointer, gameObjects) => {
 			if (this.regionTool) {
 				const worldPoint = this.gameScene.cameras.main.getWorldPoint(pointer.x, pointer.y);
 				this.regionDrawStart = {
 					x: worldPoint.x,
 					y: worldPoint.y,
 				};
-			}
+			} else if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && this.devModeScene.devModeTools.cursorButton.active && pointer.leftButtonDown()) {
+                gameObjects = gameObjects.filter(gameObject => gameObject.phaserRegion);
+                gameObjects.forEach(gameObject => {
+                    this.devModeScene.regionEditor.addClickedList({name: gameObject.phaserRegion.entity._stats.id, x: gameObject.phaserRegion.stats.x, y: gameObject.phaserRegion.stats.y, width: gameObject.phaserRegion.stats.width, height: gameObject.phaserRegion.stats.height});
+                });
+                if (gameObjects.length > 0) {
+                    this.devModeScene.regionEditor.showClickedList();
+                }
+            }
 		}, this);
 
 		const graphics = this.regionDrawGraphics = gameScene.add.graphics();

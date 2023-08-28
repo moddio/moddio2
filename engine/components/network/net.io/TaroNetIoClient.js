@@ -25,6 +25,8 @@ var TaroNetIoClient = {
 	 * network has started.
 	 */
 	start: function (server, callback) {
+
+		
 		if (this._state === 3) {
 			// We're already connected
 			if (typeof (callback) === 'function') {
@@ -33,16 +35,11 @@ var TaroNetIoClient = {
 		} else {
 
 			this._discrepancySamples = [];
-			this.medianDiscrepancy = undefined;
 			var self = this;
 
-			var gameId = taro.client.servers[0].gameId;
-
 			self._startCallback = callback;
-
 			var sortedServers = [server];
-			var ignoreServerIds = [server.id];
-
+			
 			// let's not try to connect to multiple servers at the same time, only connect with user's selected server
 			// while (server = taro.client.getBestServer(ignoreServerIds)) {
 			// 	ignoreServerIds.push(server.id);
@@ -454,11 +451,11 @@ var TaroNetIoClient = {
 	_onMessageFromServer: function (data) {
 		var ciDecoded = data[0].charCodeAt(0);
 		var commandName = this._networkCommandsIndex[ciDecoded];
-
+		var now = taro._currentTime
+		
 		if (commandName === '_snapshot') {
-			var snapshot = _.cloneDeep(data)[1];
+			var snapshot = rfdc()(data)[1];
 			var newSnapshotTimestamp = snapshot[snapshot.length - 1][1];
-
 			// see how far apart the newly received snapshot is from currentTime
 			if (snapshot.length) {
 				var obj = {};
@@ -467,79 +464,57 @@ var TaroNetIoClient = {
 					var ciDecoded = snapshot[i][0].charCodeAt(0);
 					var commandName = this._networkCommandsIndex[ciDecoded];
 					var entityData = snapshot[i][1];
+					// console.log("sub", commandName, data);
+					switch (commandName) {
+						case '_taroStreamData':
+							var entityData = snapshot[i].slice(1).split('&');
+							var entityId = entityData[0];
+							entityData.shift();
+							var x = parseInt(entityData[0], 16);
+							var y = parseInt(entityData[1], 16);
+							var rotate = parseInt(entityData[2], 16) / 1000;
+							var isTeleporting = Boolean(parseInt(entityData[3], 16)); // teleported boolean
+							var isTeleportingCamera = Boolean(parseInt(entityData[4], 16)); // teleportedCamera boolean
 
-					if (commandName === '_taroStreamData') {
-						var entityData = snapshot[i].slice(1).split('&');
-						var entityId = entityData[0];
-						entityData.splice(0, 1); // removing entityId
+							var newPosition = [x, y, rotate];
+							
+							// update each entities' final position, so player knows where everything are when returning from a different browser tab
+							// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
+							var entity = taro.$(entityId);							
 
-						entityData = [
-							parseInt(entityData[0], 16), // x
-							parseInt(entityData[1], 16), // y
-							parseInt(entityData[2], 16) / 1000, // rotation
-							Boolean(parseInt(entityData[3], 16)) // teleported boolean
-						];
+							// console.log(entity != undefined, isTeleporting)
+							if (entity) {
+								if (isTeleporting) {
+									// console.log("wtf")
+									entity.teleportTo(x, y, rotate, isTeleportingCamera);
+								} else if (
+									// if csp movement is enabled, don't use server-streamed position for my unit. (it's updated in box2dcomponent.js)
+									!(taro.physics && taro.game.cspEnabled && entity == taro.client.selectedUnit) 
+								) {
+									// console.log(entity._category, newPosition)
+									// extra 20ms of buffer removes jitter
+									if (newSnapshotTimestamp > this.lastSnapshotTimestamp) {
+										entity.nextKeyFrame = [now + taro.client.renderBuffer, newPosition];
+										entity.isTransforming(true);
+									}									
+								}
+							}
+							
+							break;
 
-						obj[entityId] = entityData;
-
-						// update each entities' final position, so player knows where everything are when returning from a different browser tab
-						// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
-						var entity = taro.$(entityId);
-						if (entity && entityData[3]) {
-							entity.teleportTo(entityData[0], entityData[1], entityData[2]);
-						}
-						// if csp movement is enabled, don't use server-streamed position for my unit
-						// instead, we'll use position updated by physics engine
-						else if (taro.game.cspEnabled && entity &&
-							entity.finalKeyFrame[0] < newSnapshotTimestamp &&
-							entity != taro.client.selectedUnit
-						) {
-							entity.finalKeyFrame = [newSnapshotTimestamp, obj[entityId]];
-						}
-
-					} else {
-						this._networkCommands[commandName](entityData);
+						default: 
+							this._networkCommands[commandName](entityData);
+							break;
 					}
 				}
 
-				if (Object.keys(obj).length) {
-
-					var newSnapshot = [newSnapshotTimestamp, obj];
-					taro.snapshots.push(newSnapshot);
-
-					// prevent memory leak that's caused when the client's browser tab isn't focused
-					if (taro.snapshots.length > 2) {
-						taro.snapshots.shift();
-					}
-
-					let now = Date.now();
-
-					// if cspEnabled, we ignore server-streamed timestamp as all entities rubber-banded towards 
-					// their latest server-streamed position regardless of their timestamp
-					if (!taro.game.cspEnabled) {
-                    	// if client's timestamp more than 100ms behind the server's timestamp, immediately update it to be 50ms behind the server's
-						// otherwise, apply rubberbanding
-						this._discrepancySamples.push(newSnapshotTimestamp - now);
-
-						if ((this.medianDiscrepancy == undefined && this._discrepancySamples.length > 2) ||
-							this._discrepancySamples.length > 5
-						) {
-							this.medianDiscrepancy = this.getMedian(this._discrepancySamples);
-							this._discrepancySamples = [];
-
-							if (taro._currentTime > newSnapshotTimestamp - 10 || taro._currentTime < newSnapshotTimestamp - 100) {
-								// currentTime will be 3 frames behind the nextSnapshot's timestamp, so the entities have time to interpolate
-								// 1 frame = 1000/60 = 16ms. 3 frames = 50ms
-								taro.timeDiscrepancy = this.medianDiscrepancy - 50;
-							} else {
-								// rubberband currentTime to be nextSnapshot's timestamp - 50ms
-								taro.timeDiscrepancy += ((this.medianDiscrepancy - 50) - taro.timeDiscrepancy) / 10;
-							}
-						}
-					}
+				if (!isNaN(newSnapshotTimestamp))
+				{ 
+					this.lastSnapshotTimestamp = newSnapshotTimestamp;
 				}
 			}
 		} else {
+			console.log("commandName wasn't _snapshot!", commandName, data);		
 			if (this._networkCommands[commandName]) {
 				if (this.debug()) {
 					console.log(`Received "${commandName}" (index ${ciDecoded}) with data:`, data[1]);

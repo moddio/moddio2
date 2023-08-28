@@ -1,5 +1,5 @@
 class TileMarker {
-	graphics: Phaser.GameObjects.Graphics;
+    graphics: MarkerGraphics;
 	preview: Phaser.GameObjects.Container;
 	images: Record<number, Record<number, Phaser.GameObjects.Image>>;
 	commandController: CommandController;
@@ -16,14 +16,7 @@ class TileMarker {
 	) {
 		this.active = true;
 		this.commandController = commandController;
-		this.graphics = scene.add.graphics();
-		this.graphics.lineStyle(w, 0x000000, 1);
-		if (taro.game.data.defaultData.dontResize) {
-			this.graphics.strokeRect(0, 0, map.tileWidth, map.tileHeight);
-		} else {
-			this.graphics.strokeRect(0, 0, Constants.TILE_SIZE, Constants.TILE_SIZE);
-		}
-		this.graphics.setVisible(false);
+        this.graphics = new MarkerGraphics(scene, map, w, palette);
 
 		if (!palette) {
 			this.preview = scene.add.container();
@@ -65,8 +58,7 @@ class TileMarker {
 	changePreview(): void {
 		if (!this.palette) {
 			const { x, y } = this.devModeScene.devModeTools.isForceTo1x1() ? { x: 1, y: 1 } : this.devModeScene.tileEditor.brushArea.size;
-			this.graphics.scaleX = x;
-			this.graphics.scaleY = y;
+            this.graphics.scaleSides(x, y);
 			this.hideImages();
 			const previewTarget = this.devModeScene.tileEditor.selectedTileArea;
 			const sample = this.devModeScene.tileEditor.brushArea.calcSample(previewTarget, { x, y });

@@ -26,10 +26,14 @@ var ServerNetworkEvents = {
 		taro.server.testerId = clientId;
 	},
 
-	_onClientDisconnect: function (clientId) {
+	_onClientDisconnect: function ({clientId, reason}) {
 		var self = this;
-		taro.network.send('clientDisconnect', { reason: 'Player disconnected', clientId: clientId });
 
+		if (!reason) {
+			// socket already disconnected, why sending clientDisconnect command then?
+			taro.network.send('clientDisconnect', { reason: 'Player disconnected', clientId: clientId }, clientId);
+		}
+		
 		// remove client from streamData
 		for (entityId in taro.network.stream._streamClientCreated) {
 			delete taro.network.stream._streamClientCreated[entityId][clientId];
@@ -47,11 +51,8 @@ var ServerNetworkEvents = {
 
 				if (player._stats.userId) {
 					taro.clusterClient.saveLastPlayedTime(player._stats.userId);
-					// taro.clusterClient.savePlayerData(player._stats.userId);
 				}
 			}
-
-			taro.clusterClient.emit('clientDisconnect', client._id);
 		}
 
 		if (player) {
@@ -141,11 +142,8 @@ var ServerNetworkEvents = {
 		if (isIpRestricted) {
 			console.log('IP is banned for ', clientId);
 			var reason = 'Restricted IP detected.';
-			taro.network.send('clientDisconnect', { reason, clientId: clientId });
-			if (socket) {
-				socket.close(reason);
-				return;
-			}
+			taro.network.disconnect(clientId, reason);
+			return;
 		}
 
 		// var ip = socket._remoteAddress;
@@ -155,8 +153,7 @@ var ServerNetworkEvents = {
 		if (playerWithDuplicateIP && playerWithDuplicateIP.getUnitCount() >= maximumDuplicateIpsAllowed) {
 			var reason = 'Duplicate IP detected. <br/>Please login to play the game <br/><a href="/?login=true" class="btn btn-primary">Login</a>';
 			console.log('Duplicate IP ' + currentClientIp + ' detected for ' + clientId);
-			taro.network.send('clientDisconnect', { reason, clientId: clientId });
-			socket.close(reason);
+			taro.network.disconnect(clientId, reason);
 			return;
 		}
 
@@ -170,11 +167,8 @@ var ServerNetworkEvents = {
 				console.log('Client already exists. Kicking the existing player ' + player._stats.clientId + ' (' + player._stats.name + ')');
 				player.updatePlayerHighscore();
 				var oldPlayerClientId = player._stats.clientId;
-				taro.network.send('clientDisconnect', { reason: 'Player disconnected', clientId: oldPlayerClientId });
-
-				if (taro.server.clients[oldPlayerClientId] && taro.server.clients[oldPlayerClientId]._id) {
-					taro.clusterClient.emit('clientDisconnect', taro.server.clients[oldPlayerClientId]._id);
-				}
+				
+				taro.network.disconnect(oldPlayerClientId, 'User connected to another server.');
 
 				delete taro.server.clients[oldPlayerClientId];
 
@@ -229,6 +223,19 @@ var ServerNetworkEvents = {
 
 			var socket = taro.network._socketById[clientId];
 			if (socket) {
+				let isAllowedToJoinGame = false;
+				const roles = taro.game.data.roles || [];
+
+				if (roles.length === 0 || roles.length === 1) {
+					isAllowedToJoinGame = true;
+				} else if (roles && roles.find((role) => role.type === 5 && role.permissions?.playGame)) {
+					isAllowedToJoinGame = true;
+				} 
+
+				if (!isAllowedToJoinGame) {
+					taro.network.disconnect(clientId, 'Guest players not allowed to join this game.');
+					return;
+				}
 
 				// if this guest hasn't created player yet (hasn't joined the game yet)
 				var player = taro.game.getPlayerByClientId(socket.id);
@@ -502,7 +509,7 @@ var ServerNetworkEvents = {
 		if (player) {
 			var unit = player.getSelectedUnit();		
 			if (unit && unit._stats) {
-				var itemIds = _.cloneDeep(unit._stats.itemIds);
+				var itemIds = rfdc()(unit._stats.itemIds);
 				var fromItem = taro.$(itemIds[data.from]);
 				var toItem = taro.$(itemIds[data.to]);
 

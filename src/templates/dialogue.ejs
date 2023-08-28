@@ -66,10 +66,12 @@
     <start-script>
         var showDialogue = function () {
             $('#modd-dialogue-modal').modal('show');
+            taro.client.myPlayer?.control.updatePlayerInputStatus();
         }
 
         var closeDialogue = function () {
             $('#modd-dialogue-modal').modal('hide');
+            taro.client.myPlayer?.control.updatePlayerInputStatus();
         }
 
         var message = {{{ json dialogue.message }}};

@@ -4,9 +4,10 @@ class PhaserRegion extends PhaserEntity {
 	private label: Phaser.GameObjects.BitmapText;
 	private rtLabel: Phaser.GameObjects.RenderTexture;
 	private readonly graphics: Phaser.GameObjects.Graphics;
-	gameObject: Phaser.GameObjects.Container & IRenderProps;
+	gameObject: Phaser.GameObjects.Container & IRenderProps & {phaserRegion: PhaserRegion};
 	private readonly devModeOnly: boolean;
 	private devModeScene: DevModeScene;
+    stats: { x: number; y: number; width: number; height: number; inside?: string; alpha?: number; };
 
 	constructor (
 		private scene: GameScene,
@@ -14,7 +15,7 @@ class PhaserRegion extends PhaserEntity {
 	) {
 		super(entity);
 
-		const stats = this.entity._stats.default;
+		const stats = this.stats = this.entity._stats.default;
 
 		const gameObject = scene.add.container();
 
@@ -24,20 +25,14 @@ class PhaserRegion extends PhaserEntity {
 		gameObject.setSize(stats.width, stats.height);
 		gameObject.setPosition(stats.x + stats.width/2, stats.y + stats.height/2);
 		gameObject.setInteractive();
-		gameObject.on('pointerdown', (p) => {
-			if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && this.devModeScene.devModeTools.cursorButton.active && p.leftButtonDown()) {
-				this.scene.input.setTopOnly(true);
-				this.devModeScene.regionEditor.addClickedList({name: this.entity._stats.id, x: stats.x, y: stats.y, width: stats.width, height: stats.height});
-			}
-		});
-		gameObject.on('pointerup', (p) => {
-			if (taro.developerMode.active && taro.developerMode.activeTab === 'map' && this.devModeScene.devModeTools.cursorButton.active && p.leftButtonReleased()) {
-				this.scene.input.setTopOnly(false);
-				this.devModeScene.regionEditor.showClickedList();
-			}
-		});
+        gameObject.on('pointerover', (p) => {
+            if (!p.isDown) {
+                this.scene.input.setTopOnly(false);
+            }
+        });
 
-		this.gameObject = gameObject as Phaser.GameObjects.Container & IRenderProps;
+		this.gameObject = gameObject as Phaser.GameObjects.Container & IRenderProps & {phaserRegion: PhaserRegion};
+        this.gameObject.phaserRegion = this;
 		//scene.renderedEntities.push(this.gameObject);
 		scene.entityLayers[EntityLayer.TREES].add(this.gameObject);
 

@@ -22,11 +22,14 @@ class TilePalette extends Phaser.GameObjects.Container {
 	paletteWidth: number;
 	paletteHeight: number;
 	devModeScene: DevModeScene;
+
+    pointerover: boolean;
+
 	constructor(
 		public scene: DevModeScene,
-		tileset: Phaser.Tilemaps.Tileset,
+		private tileset: Phaser.Tilemaps.Tileset,
 		rexUI: any,
-		commandController: CommandController
+		private commandController: CommandController
 	) {
 		super(scene);
 		this.devModeScene = scene;
@@ -41,7 +44,7 @@ class TilePalette extends Phaser.GameObjects.Container {
 		}
 
 		// When loading from an array, make sure to specify the tileWidth and tileHeight
-		const map = this.map = this.scene.make.tilemap({ key: 'palette', data: paletteMap, tileWidth: 16, tileHeight: 16 });
+		const map = this.map = this.scene.make.tilemap({ key: 'palette', data: paletteMap, tileWidth: tileset.tileWidth, tileHeight: tileset.tileHeight});
 		const texturesLayer = this.texturesLayer = map.createLayer(0, tileset, 0, 0).setOrigin(0, 0).setInteractive();
 		this.x = -texturesLayer.width;
 		this.y = 0;
@@ -54,7 +57,7 @@ class TilePalette extends Phaser.GameObjects.Container {
 			this.scene.sys.game.canvas.height - paletteHeight - 40, paletteWidth, paletteHeight)
 			.setBounds(texturesLayer.x - (texturesLayer.width / 2), texturesLayer.y - (texturesLayer.height / 2),
 				texturesLayer.width * 2, texturesLayer.height * 2, true)
-			.setZoom(1).setName('palette');
+			.setZoom(16 / tileset.tileWidth).setName('palette');
 
 		camera.setBackgroundColor(0x000000);
 
@@ -89,6 +92,7 @@ class TilePalette extends Phaser.GameObjects.Container {
 		this.COLOR_GRAY = 0xbababa;
 
 		const scrollBarContainer = this.scrollBarContainer = new Phaser.GameObjects.Container(scene);
+        camera.ignore(scrollBarContainer);
 		scene.add.existing(scrollBarContainer);
 		scrollBarContainer.x = camera.x;
 		scrollBarContainer.y = camera.y;
@@ -120,37 +124,41 @@ class TilePalette extends Phaser.GameObjects.Container {
 			scrollBarBottom.setScale(this.camera.width / scrollBarBottom.width, 1);
 		});
 
-		let pointerover;
 		texturesLayer.on('pointerover', (p) => {
-			pointerover = true;
+            scene.gameScene.input.setTopOnly(true);
+			this.pointerover = true;
 		});
 		texturesLayer.on('pointerout', (p) => {
-			pointerover = false;
+			this.pointerover = false;
 		});
 
 		this.scene.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
-			if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
-				if (this.devModeScene.devModeTools.altKey.isDown && !this.devModeScene.devModeTools.isForceTo1x1()) {
-					if (deltaY > 0) {
-						commandController.defaultCommands.decreaseBrushSize();
-					} else if (deltaY < 0) {
-						commandController.defaultCommands.increaseBrushSize();
-					}
-				} else {
-					if (this.visible && pointerover) {
-						this.zoom(deltaY);
-					} else if (deltaY < 0) {
-						const zoom = (this.scene.gameScene.zoomSize / 2.15) / 1.1;
-						taro.client.emit('zoom', zoom);
-					} else if (deltaY > 0) {
-						const zoom = (this.scene.gameScene.zoomSize / 2.15) * 1.1;
-						taro.client.emit('zoom', zoom);
-					}
-				}
-
-			}
+            this.changeBrushSize(deltaY);
 		});
 	}
+
+    changeBrushSize(deltaY: number): void {
+        const commandController = this.commandController;
+        if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
+            if (this.devModeScene.devModeTools.altKey.isDown && !this.devModeScene.devModeTools.isForceTo1x1()) {
+                if (deltaY > 0) {
+                    commandController.defaultCommands.decreaseBrushSize();
+                } else if (deltaY < 0) {
+                    commandController.defaultCommands.increaseBrushSize();
+                }
+            } else {
+                if (this.visible && this.pointerover) {
+                    this.zoom(deltaY);
+                } else if (deltaY < 0) {
+                    const zoom = (this.scene.gameScene.zoomSize / 2.15) / 1.1;
+                    taro.client.emit('zoom', zoom);
+                } else if (deltaY > 0) {
+                    const zoom = (this.scene.gameScene.zoomSize / 2.15) * 1.1;
+                    taro.client.emit('zoom', zoom);
+                }
+            }
+        }
+    }
 
 	toggle(): void {
 		if (this.visible) {
@@ -178,17 +186,19 @@ class TilePalette extends Phaser.GameObjects.Container {
 	}
 
 	zoom(deltaY: number): void {
+        const maxZoom = 20 * 16 / this.tileset.tileWidth;
+        const minZoom = 0.5 * 16 / this.tileset.tileWidth;
 		let targetZoom;
 		if (deltaY < 0) targetZoom = this.camera.zoom * 1.2;
 		else targetZoom = this.camera.zoom / 1.2;
-		if (targetZoom < 0.5) targetZoom = 0.5;
-		else if (targetZoom > 20) targetZoom = 20;
+		if (targetZoom < minZoom) targetZoom = minZoom;
+		else if (targetZoom > maxZoom) targetZoom = maxZoom;
 		this.camera.setZoom(targetZoom);
 
-		this.scrollBarBottom.getElement('slider.thumb').width = (this.camera.width - 60) / (targetZoom * 2);
+		this.scrollBarBottom.getElement('slider.thumb').width = (this.camera.width - 60) / (targetZoom / 16 * this.tileset.tileWidth * 2);
 		this.scrollBarBottom.layout();
 
-		this.scrollBarRight.getElement('slider.thumb').height = (this.camera.height - 60) / (targetZoom * 2);
+		this.scrollBarRight.getElement('slider.thumb').height = (this.camera.height - 60) / (targetZoom / 16 * this.tileset.tileWidth * 2);
 		this.scrollBarRight.layout();
 	}
 

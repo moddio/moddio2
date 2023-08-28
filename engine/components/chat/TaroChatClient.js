@@ -42,7 +42,7 @@ var TaroChatClient = {
 			}
 		}
 
-		var isChatHidden = $('#chat-box').hasClass('d-none');
+		var isChatHidden = false;
 				
 		// display message if it's either system message, or if chat is visible
 		if (player == undefined || !isChatHidden) {

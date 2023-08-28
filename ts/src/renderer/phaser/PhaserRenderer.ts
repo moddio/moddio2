@@ -27,10 +27,11 @@ class PhaserRenderer extends Phaser.Game {
 			type: forceCanvas[gameId] || forceCanvas[0] ?
 				Phaser.CANVAS : Phaser.AUTO,
 			scale: {
-				width: 600,
-				height: 400,
+				width: window.innerWidth,
+				height: window.innerHeight,
 				parent: 'game-div',
-				mode: Phaser.Scale.ScaleModes.RESIZE,
+				mode: Phaser.Scale.ScaleModes.ENVELOP,
+				autoCenter: Phaser.Scale.Center.CENTER_BOTH,
 				autoRound: true,
 				resizeInterval: 100
 			},
@@ -43,6 +44,7 @@ class PhaserRenderer extends Phaser.Game {
 			},
 			scene: [
 				GameScene,
+                UiScene,
 				DevModeScene,
 				MobileControlsScene
 			],
@@ -60,6 +62,9 @@ class PhaserRenderer extends Phaser.Game {
 					plugin: rexvirtualjoystickplugin,
 					start: true
 				}]
+			},
+			audio: {
+				disableWebAudio: true
 			}
 		});
 

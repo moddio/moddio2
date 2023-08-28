@@ -291,7 +291,7 @@ var MenuUiComponent = TaroEntity.extend({
 						return;
 					}
 
-					if (taro.game && taro.game.isGameStarted) {
+					if (taro.game && taro.game.hasStarted) {
 						var wasGamePaused = this.innerText.includes('Continue');
 						self.playGame(wasGamePaused);
 						self.setResolution();
@@ -780,6 +780,11 @@ var MenuUiComponent = TaroEntity.extend({
 	},
 	onDisconnectFromServer: function (src, message) {
 		console.log('modal shown from', src, message);
+
+		if('Guest players not allowed to join this game.' === message) {
+			window.setShowRegister(true);
+			return;
+		}
 
 		if (taro.isMobile) return;
 

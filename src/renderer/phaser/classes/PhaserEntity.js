@@ -13,6 +13,7 @@ var PhaserEntity = /** @class */ (function () {
             dynamic: entity.on('dynamic', this.setDynamic, this),
             destroy: entity.on('destroy', this.destroy, this)
         });
+        entity.phaserEntity = this;
     }
     PhaserEntity.prototype.transform = function (data) { };
     PhaserEntity.prototype.scale = function (data) { };

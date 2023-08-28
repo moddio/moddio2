@@ -1541,7 +1541,6 @@ var TaroObject = TaroEventingClass.extend({
 
 	update: function (ctx, tickDelta) {
 		// Check that we are alive before processing further
-
 		// if(this._category === 'regionUi') return;
 
 		if (this._alive) {

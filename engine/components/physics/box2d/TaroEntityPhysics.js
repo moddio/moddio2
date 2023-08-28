@@ -73,11 +73,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 		var shapeData = (body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data) ? body.fixtures[0].shape.data : undefined;
 
 		// override body bounds
-		var sizeX = body?.fixtures[0].size?.width;
-		var sizeY = body?.fixtures[0].size?.height;
-		var offsetX =body?.fixtures[0].offset?.x;
-		var offsetY = body?.fixtures[0].offset?.y;
-		if (sizeX || sizeY || offsetX || offsetY) {
+		if (body?.fixtures) {
+			var sizeX = body?.fixtures[0].size?.width;
+			var sizeY = body?.fixtures[0].size?.height;
+			var offsetX = body?.fixtures[0].offset?.x;
+			var offsetY = body?.fixtures[0].offset?.y;
 			if (shapeData === undefined) {
 				shapeData = {};
 			}
@@ -127,11 +127,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 					filterGroupIndex: 0,
 					filterCategoryBits: filterCategoryBits,
 					filterMaskBits: ((collidesWith.walls) ? 0x0001 : 0) |
-                                    ((collidesWith.units) ? 0x0002 : 0) |
-                                    ((collidesWith.items) ? 0x0008 : 0) |
-                                    ((collidesWith.projectiles) ? 0x0010 : 0) |
-                                    ((this._category != 'sensor') ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
-                                    ((this._category == 'unit' || this._category == 'item') ? 0x0040 : 0) // units & items will collide with sensors
+						((collidesWith.units) ? 0x0002 : 0) |
+						((collidesWith.items) ? 0x0008 : 0) |
+						((collidesWith.projectiles) ? 0x0010 : 0) |
+						((this._category != 'sensor') ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
+						((this._category == 'unit' || this._category == 'item') ? 0x0040 : 0) // units & items will collide with sensors
 
 				},
 				shape: {
@@ -141,7 +141,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 				taroId: this.id() // in box2dbody, add reference to this entity
 			}]
 		};
-
 		// console.log("collidesWith", this._category, filterCategoryBits, collidesWith, body)
 
 		this.physicsBody(body, isLossTolerant);
@@ -149,6 +148,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		//     this.previousState = this._stats && this._stats.states && this._stats.states[this._stats.stateId] || {};
 		//     console.log('setting previous sate', this.previousState);
 		// }
+
 		// if initialTranform variable's provided, then transform this entity immediately after body creation
 		if (defaultData) {
 			var rotate = defaultData.rotate;
@@ -165,19 +165,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 				this.rotateTo(0, 0, rotate);
 			}
 
+			// console.log("defaultData", defaultData)
 			if (defaultData.translate) {
 				var x = defaultData.translate.x;
 				var y = defaultData.translate.y;
-
-				// immediately translate entity if position is assigned
-				if (!isNaN(x) && !isNaN(y)) {
-					// if (isLossTolerant)
-					//     this.translateToLT(x, y, 0)
-					// else
-
-					this.finalKeyFrame = [taro.now, [x, y, rotate]]
-					this.translateTo(x, y, 0);
-				}
+				this.teleportTo(x, y, rotate);
 			}
 
 			// immediately apply speed if assigned
@@ -186,7 +178,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 					case 'applyForce':
 						this.applyForce(defaultData.velocity.x, defaultData.velocity.y);
 						break;
-
 					case 'applyImpulse':
 						this.applyImpulse(defaultData.velocity.x, defaultData.velocity.y);
 						break;
@@ -201,13 +192,13 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Gets / sets the box2d body's active flag which determines
-     * if it will be included as part of the physics simulation
-     * or not.
-     * @param {Boolean=} val Set to true to include the body in
-     * the physics simulation or false for it to be ignored.
-     * @return {*}
-     */
+	 * Gets / sets the box2d body's active flag which determines
+	 * if it will be included as part of the physics simulation
+	 * or not.
+	 * @param {Boolean=} val Set to true to include the body in
+	 * the physics simulation or false for it to be ignored.
+	 * @return {*}
+	 */
 	box2dActive: function (val) {
 		if (this.body) {
 			if (val !== undefined) {
@@ -222,13 +213,13 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Gets / sets the physics body definition. When setting the
-     * definition the physics body will also be created automatically
-     * from the supplied definition.
-     * @param def
-     * @return {*}
-     */
-	 physicsBody: function (def, isLossTolerant) {
+	 * Gets / sets the physics body definition. When setting the
+	 * definition the physics body will also be created automatically
+	 * from the supplied definition.
+	 * @param def
+	 * @return {*}
+	 */
+	physicsBody: function (def, isLossTolerant) {
 		if (def) {
 			this.bodyDef = def;
 			// console.trace()
@@ -263,25 +254,32 @@ var TaroEntityPhysics = TaroEntity.extend({
 		taro.physics && taro.physics.queueAction({ type: 'destroyBody', entity: this, body: this.body });
 	},
 	/**
-     * Gets / sets the box2d body's gravitic value. If set to false,
-     * this entity will not be affected by gravity. If set to true it
-     * will be affected by gravity.
-     * @param {Boolean=} val True to allow gravity to affect this entity.
-     * @returns {*}
-     */
+	 * Gets / sets the box2d body's gravitic value. If set to false,
+	 * this entity will not be affected by gravity. If set to true it
+	 * will be affected by gravity.
+	 * @param {Boolean=} val True to allow gravity to affect this entity.
+	 * @returns {*}
+	 */
 	gravitic: function (val) {
 		if (this.body) {
-			if (val !== undefined) {
-				this.body.m_nonGravitic = !val;
-				this.body.m_gravityScale = !val ? 0 : 1;
-				// this.bodyDef.gravitic = val;
+			switch (taro.physics.engine) {
+				case 'BOX2DWASM': {
+					this.body.SetGravityScale(!val ? 0 : 1);
+					return !!val;
+				}
+				default: {
+					if (val !== undefined) {
+						this.body.m_nonGravitic = !val;
+						this.body.m_gravityScale = !val ? 0 : 1;
+						// this.bodyDef.gravitic = val;
 
-				// Wake up the body
-				this.body.setAwake(true);
-				return this;
+						// Wake up the body
+						this.body.setAwake(true);
+						return this;
+					}
+					return !this.body.m_nonGravitic;
+				}
 			}
-
-			return !this.body.m_nonGravitic;
 		}
 	},
 
@@ -414,7 +412,15 @@ var TaroEntityPhysics = TaroEntity.extend({
 				//     x *= 1.2737
 				//     y *= 1.2737
 				// }
-				this.body.setLinearVelocity(new TaroPoint3d(x, y, 0));
+				if (taro.physics.engine === 'BOX2DWASM') {
+					const scale = taro.physics._scaleRatioToBox2dWeb;
+					let v = new taro.physics.b2Vec2(x / scale, y / scale);
+					this.body.setLinearVelocity(v);
+					taro.physics.destroyB2dObj(v);
+				} else {
+					this.body.setLinearVelocity(new TaroPoint3d(x, y, 0));
+				}
+
 			}
 		} catch (e) {
 			console.log(`TaroEntityBox2d.js: setLinearVelocityLT ${e}`);
@@ -443,7 +449,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				var thrustVector = new taro.physics.b2Vec2(x, y);
+				const scale = taro.physics._scaleRatioToBox2dWeb ** 3;
+				var thrustVector = new taro.physics.b2Vec2(x / scale, y / scale);
 				this.body.applyForce(thrustVector, this.body.getWorldCenter());
 			}
 		} catch (e) {
@@ -473,7 +480,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				var thrustVector = new taro.physics.b2Vec2(x, y);
+				const scale = taro.physics._scaleRatioToBox2dWeb ** 3 - 2;
+				var thrustVector = new taro.physics.b2Vec2(x / scale, y / scale);
 				this.body.applyLinearImpulse(thrustVector, this.body.getWorldCenter());
 			}
 		} catch (e) {
@@ -485,7 +493,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 	applyTorqueLT: function (torque) {
 		try {
 			if (!isNaN(torque)) {
-				this.body.applyTorque(torque);
+				const scale = taro.physics._scaleRatioToBox2dWeb;
+				this.body.applyTorque(torque / scale);
 			}
 		} catch (e) {
 			TaroEntityPhysics.prototype.log(`taroEntityBox2d.js: applyTorque ${e}`);
@@ -554,13 +563,13 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Takes over translateTo calls and processes box2d movement as well.
-     * @param x
-     * @param y
-     * @param z
-     * @return {*}
-     * @private
-     */
+	 * Takes over translateTo calls and processes box2d movement as well.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return {*}
+	 * @private
+	 */
 	_translateTo: function (x, y) {
 		if (isNaN(x) || isNaN(y)) {
 			return;
@@ -609,12 +618,12 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Takes over translateBy calls and processes box2d movement as well.
-     * @param x
-     * @param y
-     * @param z
-     * @private
-     */
+	 * Takes over translateBy calls and processes box2d movement as well.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @private
+	 */
 	_translateBy: function (x, y, z) {
 		this._translateTo(this._translate.x + x, this._translate.y + y, this._translate.z + z, 'translateBy');
 	},
@@ -624,13 +633,13 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this.translateToLT(this._translate.x + x, this._translate.y + y, this._translate.z + z);
 	},
 	/**
-     * Takes over translateTo calls and processes box2d movement as well.
-     * @param x
-     * @param y
-     * @param z
-     * @return {*}
-     * @private
-     */
+	 * Takes over translateTo calls and processes box2d movement as well.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return {*}
+	 * @private
+	 */
 	_rotateTo: function (x, y, z) {
 		if (isNaN(x) || isNaN(y) || isNaN(z)) {
 			return;
@@ -717,12 +726,12 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Takes over translateBy calls and processes box2d movement as well.
-     * @param x
-     * @param y
-     * @param z
-     * @private
-     */
+	 * Takes over translateBy calls and processes box2d movement as well.
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @private
+	 */
 	_rotateBy: function (x, y, z) {
 		this._rotateTo(this._rotate.x + x, this._rotate.y + y, this._rotate.z + z);
 		// this.body.setAngle(this._rotate.z + z);
@@ -730,11 +739,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Purely for networkDebugMode handling, ensures that an entity's transform is
-     * not taken over by the physics simulation and is instead handled by the engine.
-     * @param ctx
-     * @private
-     */
+	 * Purely for networkDebugMode handling, ensures that an entity's transform is
+	 * not taken over by the physics simulation and is instead handled by the engine.
+	 * @param ctx
+	 * @private
+	 */
 	_update: function (ctx) {
 		// Call the original method
 		this._updateProto(ctx);
@@ -746,9 +755,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * If true, disabled box2d debug shape drawing for this entity.
-     * @param {Boolean} val
-     */
+	 * If true, disabled box2d debug shape drawing for this entity.
+	 * @param {Boolean} val
+	 */
 	box2dNoDebug: function (val) {
 		if (val !== undefined) {
 			this._box2dNoDebug = val;
@@ -833,9 +842,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	/**
-     * Destroys the physics entity and the box2d body that
-     * is attached to it.
-     */
+	 * Destroys the physics entity and the box2d body that
+	 * is attached to it.
+	 */
 	destroy: function () {
 		this._alive = false;
 		this.destroyBody();

@@ -62,18 +62,22 @@ var TaroEntity = TaroObject.extend({
 		this._hidden = false;
 
 		this._stats = {};
-		this._streamDataQueued = [];
+		this._streamDataQueued = {};
+		this.lastUpdatedData = {};
 		this._isBeingRemoved = false;
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.finalKeyFrame = [taro.now, [this._translate.x, this._translate.y, this._rotate.z]];
+		this.nextKeyFrame = [taro._currentTime + 50, [this._translate.x, this._translate.y, this._rotate.z]];
+		this._isTransforming = true;
+		this.lastTransformedAt = 0;
 		this.latestTimeStamp = 0;
-		this.prevKeyFrame = this.finalKeyFrame
-		this._lastTransformAt = null;
 		this.lastTeleportedAt = 0;
 		this.teleported = false;
-		this.teleportDestination = this.finalKeyFrame[1];
+        this.teleportCamera = false;
+		this.teleportDestination = this.nextKeyFrame[1];
+
+		this.queuedTriggers = [];
 
 		if (taro.isClient) {
 			this.anchorOffset = { x: 0, y: 0, rotate: 0 };
@@ -118,6 +122,27 @@ var TaroEntity = TaroObject.extend({
 
 		return this;
 	},
+	
+	/**
+	 * Sets the entity as hidden and cannot be interacted with.
+	 * @example #Hide a visible entity
+	 *     entity.hide();
+	 * @return {*} The object this method was called from to allow
+	 * method chaining.
+	 */
+	hide: function () {
+		if (taro.isServer) {
+			// self._hidden = true; // never hide it, because it'll stop processing stream queue
+			this.streamUpdateData([{ isHidden: true }]);
+		} else if (taro.isClient) {
+			// this.disableInterpolation(true)
+			this._hidden = true;
+			this.emit('hide');
+
+			this.texture('');
+		}
+		return this;
+	},
 
 	// update item's body & texture based on stateId given
 	setState: function (stateId, defaultData) {
@@ -139,8 +164,8 @@ var TaroEntity = TaroObject.extend({
 			*/
 			self._stats.currentBody = self._stats.bodies[newState.body];
 		}
-		
-		if (taro.isServer) {			
+
+		if (taro.isServer) {
 			self.streamUpdateData([{ stateId: stateId }]);
 		} else if (taro.isClient) {
 			self._stats.stateId = stateId;
@@ -165,28 +190,6 @@ var TaroEntity = TaroObject.extend({
 
 		self.previousState = newState;
 		self.updateBody(defaultData);
-	},
-
-	/**
-	 * Sets the entity as hidden and cannot be interacted with.
-	 * @example #Hide a visible entity
-	 *     entity.hide();
-	 * @return {*} The object this method was called from to allow
-	 * method chaining.
-	 */
-	hide: function () {
-		if (taro.isServer) {
-			// self._hidden = true; // never hide it, because it'll stop processing stream queue
-			this.streamUpdateData([{ isHidden: true }]);
-		} else if (taro.isClient) {
-			// this.disableInterpolation(true)
-
-			this._hidden = true;
-			this.emit('hide');
-
-			this.texture('');
-		}
-		return this;
 	},
 
 	/**
@@ -245,7 +248,7 @@ var TaroEntity = TaroObject.extend({
 			if (!body['z-index']) {
 				body['z-index'] = defaultLayer;
 			}
-	
+
 			if (isNaN(body['z-index'].depth)) {
 				body['z-index'].depth = defaultLayer.depth;
 			}
@@ -1945,6 +1948,10 @@ var TaroEntity = TaroObject.extend({
 				}
 			}
 
+			if (this._translate.x != this._oldTranform[0] || this._translate.y != this._oldTranform[1] || this._rotate.z != this._oldTranform[2]) {
+				this._hasMoved = true;
+			}
+
 			// Process any automatic-mode stream updating required
 			if (this._streamMode === 1 || this._streamMode === 2) {
 				this.streamSync();
@@ -1980,6 +1987,7 @@ var TaroEntity = TaroObject.extend({
 				} else if (type == 'attacked') {
 					this.streamUpdateData([{ effect: {type: type, data: data} }]);
 				}
+				// playEffect projectile creation is only happening on the client;
 
 			} else if (taro.isClient) {
 
@@ -2011,13 +2019,13 @@ var TaroEntity = TaroObject.extend({
 				}
 
 				if (effect.projectileType) {
-					var projectile = taro.game.getAsset('projectileTypes', effect.projectileType);
+					// these are never created on the server
+					var projectile = taro.game.cloneAsset('projectileTypes', effect.projectileType);
 
 					if (projectile) {
 						var position = taro.game.lastProjectileHitPosition ||
 							(this.body && this.body.getPosition()) ||
 							this._translate;
-
 						if (this.body) {
 							position.x *= this._b2dRef._scaleRatio;
 							position.y *= this._b2dRef._scaleRatio;
@@ -2033,6 +2041,8 @@ var TaroEntity = TaroObject.extend({
 						};
 						//fix added for correct phaser projectile texture
 						projectile.type = effect.projectileType;
+						// set property for client-only effect projectiles
+						projectile.streamMode = 0;
 						new Projectile(projectile);
 					}
 				}
@@ -2160,20 +2170,18 @@ var TaroEntity = TaroObject.extend({
 		this._renderEntity(_ctx, dontTransform);
 	},
 
-	flip: function (flip) {
-		if (this._stats.flip !== flip) {
+	flip: function (isFlipping) {
+		if (this._stats.flip !== isFlipping) {
 
 			if (taro.isServer) {
-
-				this.streamUpdateData([{ flip: flip }]);
+				this.streamUpdateData([{ flip: isFlipping }]);
 
 			} else if (taro.isClient) {
-
-				this.emit('flip', [ flip ]);
+				this.emit('flip', [ isFlipping ]);
 			}
 		}
 
-		this._stats.flip = flip;
+		this._stats.flip = isFlipping;
 	},
 
 	/**
@@ -2479,7 +2487,7 @@ var TaroEntity = TaroObject.extend({
 		this._alive = false;
 		/* CEXCLUDE */
 		// Check if the entity is streaming
-		if (taro.isServer && !taro.network.isPaused) {
+		if (taro.isServer) {
 			if (this._streamMode === 1 || this._streamMode === 2) {
 				delete this._streamDataCache;
 				this.streamDestroy();
@@ -3101,7 +3109,7 @@ var TaroEntity = TaroObject.extend({
 	 */
 	translateTo: function (x, y) {
 		// console.log('start translate', x, y)
-		if (x !== undefined && y !== undefined) {
+		if (x !== undefined && y !== undefined && !isNaN(x) && !isNaN(y)) {
 			// console.log('non-crash translate', this._translate)
 			/* if (taro.physics && taro.physics.engine == 'CRASH') {
 				console.log('crash translate');
@@ -3133,8 +3141,10 @@ var TaroEntity = TaroObject.extend({
 		return this;
 	},
 
-	teleportTo: function (x, y, rotate) {
+	teleportTo: function (x, y, rotate, teleportCamera) {
+		// console.log("teleportTo", x, y, rotate, this._stats.type)
 		this.teleported = true;
+        this.teleportCamera = teleportCamera;
 		this.teleportDestination = [x, y, rotate]
 
 		this.translateTo(x, y);
@@ -3149,18 +3159,15 @@ var TaroEntity = TaroObject.extend({
 				this.translateColliderTo(x, y);
 			}
 		} else if (taro.isClient) {
-			this.finalKeyFrame[1] = [x, y, rotate];
+			this.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, rotate]];
+			this.isTransforming(true);
 			if (taro.physics && this.prevPhysicsFrame && this.nextPhysicsFrame) {
-				let prevFrameTime = this.prevPhysicsFrame[0]
-				let nextFrameTime = this.nextPhysicsFrame[0]
-				this.prevPhysicsFrame = [prevFrameTime, [x, y, rotate]];
-				this.nextPhysicsFrame = [nextFrameTime, [x, y, rotate]];
+				this.nextPhysicsFrame = [taro._currentTime, [x, y, rotate]];				
 			}
             //instantly move to camera the new position
-            if (taro.client.myPlayer?.cameraTrackedUnit === this.id()) {
+            if (teleportCamera && taro.client.myPlayer?.cameraTrackedUnit === this.id()) {
                 taro.client.emit('instant-move-camera', [x, y]);
             }
-            
 		}
 
 		this.discrepancyCount = 0;
@@ -3838,7 +3845,7 @@ var TaroEntity = TaroObject.extend({
 		for (var variablesId in self.variables) {
 			var variable = self.variables[variablesId];
 			if (!variablesToBeIgnored.includes(variable.dataType)) {
-				variables[variablesId] = _.cloneDeep(variable);
+				variables[variablesId] = rfdc()(variable);
 			}
 		}
 
@@ -3859,7 +3866,7 @@ var TaroEntity = TaroObject.extend({
 		}
 
 		dataToBeSaved[type] = {
-			attributes: _.cloneDeep(self._stats.attributes),
+			attributes: rfdc()(self._stats.attributes),
 			variables: variables
 		};
 
@@ -3888,13 +3895,13 @@ var TaroEntity = TaroObject.extend({
 						for (var variablesId in item.variables) {
 							var variable = item.variables[variablesId];
 							if (!variablesToBeIgnored.includes(variable.dataType)) {
-								itemVariable[variablesId] = JSON.parse(JSON.stringify(variable));
+								itemVariable[variablesId] = rfdc()(variable);
 							}
 						}
 						var itemStatsToBeSaved = {
 							itemTypeId: item._stats.itemTypeId,
-							attributes: _.cloneDeep(item._stats.attributes),
-							variables: _.cloneDeep(itemVariable),
+							attributes: rfdc()(item._stats.attributes),
+							variables: rfdc()(itemVariable),
 							quantity: item._stats.quantity
 						};
 
@@ -3906,7 +3913,7 @@ var TaroEntity = TaroObject.extend({
 			dataToBeSaved[type].inventoryItems = inventoryItems;
 		}
 
-		return _.cloneDeep(dataToBeSaved[type]);
+		return rfdc()(dataToBeSaved[type]);
 	},
 
 	updateStats: function (itemId, removeAttributes) {
@@ -3917,7 +3924,7 @@ var TaroEntity = TaroObject.extend({
 		var currentType = this._category === 'unit' ? 'unitTypes' : 'playerTypes';
 		var bonusType = this._category === 'unit' ? 'unitAttribute' : 'playerAttribute';
 		var currentEntityTypeId = this._category === 'unit' ? 'type' : 'playerTypeId';
-		var baseEntityStats = taro.game.getAsset(currentType, this._stats[currentEntityTypeId]);
+		var baseEntityStats = taro.game.cloneAsset(currentType, this._stats[currentEntityTypeId]);
 
 		if (!baseEntityStats) {
 			return;
@@ -4027,11 +4034,20 @@ var TaroEntity = TaroObject.extend({
 		}
 	},
 
+	isAttributeChanged: function(attrName, newUpdate) {
+		var hasChanged = false;
+		for (key in newUpdate) {
+			if (newUpdate[key] !== this.lastUpdatedData[attrName][key]) {
+				hasChanged = true;
+			}
+		}		
+	},
+
 	// use to apply max,min value before attributes value
 	// orderData: function (data) {
-	// 	var attributes = data.attributes && _.cloneDeep(data.attributes);
-	// 	var attributesMax = data.attributesMax && _.cloneDeep(data.attributesMax);
-	// 	var attributesMin = data.attributesMin && _.cloneDeep(data.attributesMin);
+	// 	var attributes = data.attributes && rfdc()(data.attributes);
+	// 	var attributesMax = data.attributesMax && rfdc()(data.attributesMax);
+	// 	var attributesMin = data.attributesMin && rfdc()(data.attributesMin);
 	// 	if (attributesMax) {
 	// 		delete data.attributesMax;
 	// 		data.attributesMax = attributesMax;
@@ -4048,7 +4064,7 @@ var TaroEntity = TaroObject.extend({
 	// },
 
 	streamUpdateData: function (queuedData) {
-		var oldStats = {};
+
 		if (queuedData != undefined) {
 			for (var i = 0; i < queuedData.length; i++) {
 				var data = queuedData[i];
@@ -4059,7 +4075,7 @@ var TaroEntity = TaroObject.extend({
 						case 'attributes':
 							// only on client side to prevent circular recursion
 							if (taro.isClient) {
-								var attributesObject = _.cloneDeep(this._stats.attributes);
+								var attributesObject = rfdc()(this._stats.attributes);
 								if (attributesObject) {
 									for (var attributeTypeId in data.attributes) {
 										var attributeData = attributesObject[attributeTypeId];
@@ -4152,11 +4168,13 @@ var TaroEntity = TaroObject.extend({
 						case 'flip':
 							this._stats[attrName] = newValue;
 							// ignore flip command from server for my own unit, because it's already done locally
-							if (taro.isClient && this != taro.client.selectedUnit && !(this._category == 'item' && this.getOwnerUnit() == taro.client.selectedUnit)) {
+							if (this.category == 'item')
+								console.log("flip", newValue)
+							if (taro.isClient && this != taro.client.selectedUnit && !(this._category == 'item' && this.getOwnerUnit() == taro.client.selectedUnit)) {								
 								this.flip(newValue);
 							}
 							break;
-						
+
 						case 'ownerId':
 							this._stats[attrName] = newValue;
 							this.oldOwnerId = this._stats[attrName];
@@ -4178,14 +4196,20 @@ var TaroEntity = TaroObject.extend({
 
 					if (taro.isServer) {
 						// keys that will stream even if its new value is same as the previous value
-						var forceStreamKeys = ['anim', 'coin', 'stateId', 'ownerId', 'name', 'slotIndex', 'newItemId', 'quantity', 'spriteOnly', 'setFadingText', 'playerJoinedAgain', 'use', 'hidden'];
 						if (typeof this.queueStreamData === 'function') {
-							if (data[attrName] != oldStats[attrName] || forceStreamKeys.includes(attrName)) {
-								// console.log("queueStreamData", attrName, data[attrName])
+
+							// var forceStreamKeys = ['anim', 'coin', 'stateId', 'ownerId', 'name', 'slotIndex', 'newItemId', 'quantity', 'spriteOnly', 'setFadingText', 'playerJoinedAgain', 'use', 'hidden'];						
+							var forceStreamKeys = ['anim', 'coin', 'setFadingText', 'playerJoinedAgain', 'use', 'hidden'];
+							var dataIsAttributeRelated = ['attributes', 'attributesMin', 'attributesMax', 'attributesRegenerateRate'].includes(key)							
+							if (newValue !== this.lastUpdatedData[attrName] || dataIsAttributeRelated || forceStreamKeys.includes(attrName)) {
 								var streamData = {};
 								streamData[attrName] = data[attrName];
 								this.queueStreamData(streamData);
-							}
+
+								// for server-side only: cache last updated data, so we dont stream same data again (this optimizes CPU usage by a lot)
+								this.lastUpdatedData[attrName] = rfdc()(newValue); 
+							} 
+							// else console.log(this._category, this._stats.name, attrName, "is the same as previous", this.lastUpdatedData[attrName], "new", newValue)
 						}
 					} else if (taro.isClient) {
 						switch (attrName) {
@@ -4215,7 +4239,7 @@ var TaroEntity = TaroObject.extend({
 
 									}
 
-									const bodyId = this._stats.states[stateId].body;
+									const bodyId = this._stats.states[stateId]?.body;
 									// make sure item always has proper size defined by state
 									if (
 										// accommodate legacy 'unSelected'
@@ -4249,17 +4273,13 @@ var TaroEntity = TaroObject.extend({
 								break;
 							case 'effect':
 								// don't use streamed effect call for my own unit or its items
-								if (newValue.type != 'attacked' && 
+								if (newValue.type != 'attacked' &&
 									(this == taro.client.selectedUnit ||
 									(this._category == 'item' && this.getOwnerUnit() == taro.client.selectedUnit))
 								) {
 									return;
 								}
 								this.playEffect(newValue.type, newValue.data ? newValue.data : {});
-								break;
-							case 'makePlayerSelectUnit':
-								// this unit was queued to be selected by a player
-								taro.client.myPlayer.selectUnit(this.id());
 								break;
 							case 'makePlayerCameraTrackUnit':
 								// this unit was queued to be tracked by a player's camera
@@ -4277,7 +4297,9 @@ var TaroEntity = TaroObject.extend({
 							case 'showNameLabel':
 								this.emit('show-label');
 								break;
-
+							case 'particle':
+								taro.client.emit('create-particle', newValue);
+								break;
 						}
 					}
 				}
@@ -4287,7 +4309,25 @@ var TaroEntity = TaroObject.extend({
 
 	// combine all data that'll be sent to the client, and send them altogether at the tick
 	queueStreamData: function (data) {
-		this._streamDataQueued = this._streamDataQueued.concat(data);
+		// this._streamDataQueued = this._streamDataQueued.concat(data);
+		for (key in data) {
+			value = data[key];
+
+			if (['attributes', 'attributesMin', 'attributesMax', 'attributesRegenerateRate'].includes(key)) {
+				// some data need to merge instead of overwriting they key. otherwise, we'll only be able to send the last attribute added.
+				// for example, if server calls queueStreamData for Speed and HP attributes, HP will overwrite Speed as they share same key ("attributes")			
+				// this._streamDataQueued[key] = {...this._streamDataQueued[key], ...value};
+				if (this._streamDataQueued[key] == undefined) 
+				{
+					this._streamDataQueued[key] = {};
+				}					
+				this._streamDataQueued[key] = Object.assign(this._streamDataQueued[key], value);
+			} else {
+				this._streamDataQueued[key] = value;
+			}
+			
+		}
+		
 		taro.server.bandwidthUsage[this._category] += JSON.stringify(this._streamDataQueued).length;
 	},
 
@@ -4354,11 +4394,8 @@ var TaroEntity = TaroObject.extend({
 					var y = this._translate.y.toFixed(0);
 					var angle = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
 
-					if (x == this._oldTranform[0] && y == this._oldTranform[1] && angle == this._oldTranform[2]) {
-						this._hasMoved = false;
-					} else {
-						this._hasMoved = true;
-						this._oldTranform = [x, y, angle];
+					if (this._hasMoved) {
+						this._oldTranform = [this._translate.x, this._translate.y, this._rotate.z];
 
 						// var distanceTravelled = x - taro.lastX;
 						// console.log(this.id(), taro._currentTime - taro.lastSnapshotTime, taro._currentTime, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
@@ -4366,13 +4403,16 @@ var TaroEntity = TaroObject.extend({
 						// taro.lastSnapshotTime = taro._currentTime;
 
 						let buffArr = [];
-						
+
 						buffArr.push(Number(x));
 						buffArr.push(Number(y));
 						buffArr.push(Number(angle));
+
 						if (this.teleported) {
 							buffArr.push(Number(this.teleported));
+                            buffArr.push(Number(this.teleportCamera));
 							this.teleported = false;
+                            this.teleportCamera = false;
 						}
 
 						// TaroEntity.prototype.log(this._size, this._translate, this._rotate)
@@ -4530,7 +4570,7 @@ var TaroEntity = TaroObject.extend({
 	 *     entity.streamMode(0);
 	 * @example #Set the entity to automatic streaming
 	 *     entity.streamMode(1);
-	 * @example #Set the entity to manual (advanced mode) streaming
+	 * @example #Set the entity to stream only when the entity is created/removed
 	 *     entity.streamMode(2);
 	 * @return {*} "this" when arguments are passed to allow method
 	 * chaining or the current value if no arguments are specified.
@@ -4539,6 +4579,7 @@ var TaroEntity = TaroObject.extend({
 		// console.log("streamMode (" + val + ")", (this._stats) ? this._stats.name : this._category)
 		if (val !== undefined) {
 			this._streamMode = val;
+
 			return this;
 		}
 
@@ -4709,7 +4750,7 @@ var TaroEntity = TaroObject.extend({
 					break;
 
 				case 'projectile':
-					keys = ['type', 'anim', 'stateId', 'flip'];
+					keys = ['type', 'anim', 'stateId', 'flip', 'sourceItemId', 'streamMode'];
 					data = {
 						attributes: {},
 						// variables: {}
@@ -4718,7 +4759,7 @@ var TaroEntity = TaroObject.extend({
 
 				case 'player':
 					// purchasables is required for rendering this player's owned skin to the other players
-					keys = ['name', 'clientId', 'playerTypeId', 'controlledBy', 'playerJoined', 'unitIds', 'selectedUnitId', 'userId', 'banChat', 'purchasables', 'username'];
+					keys = ['name', 'clientId', 'playerTypeId', 'controlledBy', 'playerJoined', 'unitIds', 'selectedUnitId', 'userId', 'banChat', 'purchasables', 'username', 'profilePicture', 'roleIds'];
 					data = {
 						attributes: {},
 						// variables: {}
@@ -4768,8 +4809,8 @@ var TaroEntity = TaroObject.extend({
 			// 		data.variables[key] = {value: this.variables[key].value};
 			// 	}
 			// }
-			
-			return data;			
+
+			return data;
 		}
 	},
 
@@ -4867,6 +4908,8 @@ var TaroEntity = TaroObject.extend({
 		if (data && recipientArr.length && this._streamMode === 1 && this._hasMoved) {
 			taro.server.bandwidthUsage[this._category] += data.length;
 			taro.network.stream.queue(thisId, data, recipientArr);
+
+			this._hasMoved = false;
 		}
 	},
 
@@ -4945,7 +4988,7 @@ var TaroEntity = TaroObject.extend({
 
 		// Send clients the stream destroy command for this entity
 		taro.network.send('_taroStreamDestroy', [taro._currentTime, thisId], clientId);
-		
+
 		if (!taro.network.stream) return true;
 
 		taro.network.stream._streamClientCreated[thisId] = taro.network.stream._streamClientCreated[thisId] || {};
@@ -5087,161 +5130,95 @@ var TaroEntity = TaroObject.extend({
      * Update the position of the entities using the interpolation. This results smooth motion of the entities.
      */
 	_processTransform: function () {
+		var tickDelta = taro._currentTime - this.lastTransformedAt;
+
 		if (
-			// prevent calling this function multiple times for a same entity
-			this._lastTransformAt == taro._currentTime ||
-			// entity has no body
+			tickDelta == 0 || // entity has already transformed for this tick		
 			this._translate == undefined ||
-			this._stats.currentBody == undefined ||			
-			(
-				// ignore server stream of my own unit's sprite-only item
-				this._stats.currentBody && this._stats.currentBody.type == 'spriteOnly' && 
-				(this.getOwnerUnit && this.getOwnerUnit() == taro.client.selectedUnit) 
-			)
+			this._stats.currentBody == undefined // entity has no body
 		) {
 			return;
 		}
-
-		// interpolate projectiles using data provided by physicsComponent. as snapshot data isn't streamed from server.
-		let xStart = null;
-		let yStart = null;
-		let xEnd = null;
-		let yEnd = null;
+		
 		let xDiff = null;
 		let yDiff = null;
+		
 		let rotateStart = null;
 		let rotateEnd = null;
-		
+
 		let x = this._translate.x;
 		let y = this._translate.y;
 		let rotate = this._rotate.z;
-		let prevKeyFrame = null;
-		let nextKeyFrame = null;
+		
+		var nextTransform = this.nextKeyFrame[1];
+		
+		if (nextTransform) {
+			
+			var nextTime = this.nextKeyFrame[0];
+			var timeRemaining = nextTime - taro._currentTime;
+			
+			// if (this == taro.client.selectedUnit) console.log(taro._currentTime, x, tickDelta, timeRemaining)
+			
+			// don't lerp is time remaining is less than 5ms
+			if (timeRemaining > tickDelta) {
 
-		var finalTransform = this.finalKeyFrame[1];
-		// using cspMovement for my unit will cause it to rubberband to the latest known position
-		if (taro.game.cspEnabled && finalTransform /*&& !this._stats.aiEnabled*/) {
-
-			if (this.body &&
-				!(this._category == 'item' && this.getOwnerUnit() != undefined) && // don't apply to item that's held by unit as that's calculated by anchor calculation
-				!(this._category == 'projectile' && this._stats.sourceItemId == undefined && this._streamMode) // don't apply to projectiles that are CSP'ed
-			) {
-				xDiff = (finalTransform[0] - x);
-				yDiff = (finalTransform[1] - y);				
-				x = x + xDiff / 10
-	        	y = y + yDiff / 10
-	        }
-
-	        if (
-	        	// interpolate item rotation
-	        	(this._stats.controls && this._stats.controls.mouseBehaviour.rotateToFaceMouseCursor) 
-			) {
-				rotateStart = rotate;
-	        	rotateEnd = finalTransform[2]
-	        	// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
-				if (Math.abs(rotateEnd - rotateStart) > Math.PI) {
-					if (rotateEnd > rotateStart) rotateStart += Math.PI * 2;
-					else rotateStart -= Math.PI * 2;
-				}
-
-	        	rotate = this.interpolateValue(rotateStart, rotateEnd, taro._currentTime - 16, taro._currentTime, taro._currentTime + 16);
-	        }
-		} else { // use server-streamed keyFrames
-
-			if (taro.nextSnapshot) {
-				var nextTransform = taro.nextSnapshot[1][this.id()];
-				if (nextTransform) {
-					nextKeyFrame = [taro.nextSnapshot[0], nextTransform];
-
-					xEnd = nextTransform[0]
-					yEnd = nextTransform[1]
-					rotateEnd = nextTransform[2]
-				}
-			}
-			// by default, prevTransform is where this unit currently is	
-			if (taro.prevSnapshot) {
-				// Set variables up to store the previous and next data
-				var prevTransform = taro.prevSnapshot[1][this.id()];			
+				xDiff = nextTransform[0] - x;
+				yDiff = nextTransform[1] - y;	
 				
-				if (prevTransform) {
-					prevKeyFrame = [taro.prevSnapshot[0], prevTransform];
-					xStart = prevTransform[0]
-					yStart = prevTransform[1]
-					rotateStart = prevTransform[2]									
-				}			
-			}
-		}
+				var xSpeed = xDiff / timeRemaining;
+				var ySpeed = yDiff / timeRemaining;
 
-		// csp-projectiles are interpolated using physicsComponent-generated keyframes
-		// this is necessary, because physics don't run at 60 fps on clientside
-		if (taro.physics && this._category == 'projectile' && 
-			this._stats.sourceItemId != undefined && !this._streamMode
-		) {
-			prevKeyFrame = this.prevPhysicsFrame;
-			nextKeyFrame = this.nextPhysicsFrame;
-			
-			var prevTransform = (this.prevPhysicsFrame) ? this.prevPhysicsFrame[1] : undefined;
-			var nextTransform = (this.nextPhysicsFrame) ? this.nextPhysicsFrame[1] : undefined;
+				x += xSpeed * tickDelta;
+				y += ySpeed * tickDelta;
 
-			if (prevTransform && nextTransform) {
-				if (!this.renderingStarted) this.startRendering();
-				xStart = prevTransform[0]
-				yStart = prevTransform[1]
-				xEnd = nextTransform[0]
-				yEnd = nextTransform[1]
-
-				if (this._category == 'projectile' && this._stats.sourceItemId != undefined && !this._streamMode) {
-					rotateStart = prevTransform[2]	
-					rotateEnd = nextTransform[2]
-				}
-			}
-		}
-
-		// interpolate using snapshots streamed from the server.
-		if (prevTransform != undefined && nextTransform != undefined &&
-            prevKeyFrame[0] != nextKeyFrame[0] &&
-			prevKeyFrame[0] - 50 < taro._currentTime && taro._currentTime < nextKeyFrame[0] + 50 // allow extrapolation of entity motion up to 50ms (outside of prevKeyFrame & nextKeyFrame range)
-		) {
-			if (!this.teleported) {
-				x = this.interpolateValue(xStart, xEnd, prevKeyFrame[0], taro._currentTime, nextKeyFrame[0]);
-				y = this.interpolateValue(yStart, yEnd, prevKeyFrame[0], taro._currentTime, nextKeyFrame[0]);
 			} else {
-				x = xEnd;
-				y = yEnd;
-				prevTransform[0] = x;
-				prevTransform[1] = y;
-			}
+				x += xDiff/2;
+				y += yDiff/2;
 
+				// if (this != taro.client.selectedUnit && this.isTransforming()) console.log(this._stats.type, taro._currentTime, nextTime, taro._currentTime - nextTime)
+				if (taro._currentTime > nextTime + 100) {
+					this.isTransforming(false);
+				}
+			}	
 
-			
+			rotateStart = rotate;
+			rotateEnd = nextTransform[2];
+
 			// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
 			if (Math.abs(rotateEnd - rotateStart) > Math.PI) {
-				if (rotateEnd > rotateStart) rotateStart += Math.PI * 2;
-				else rotateStart -= Math.PI * 2;
-			}
-
-			rotate = this.interpolateValue(rotateStart, rotateEnd, prevKeyFrame[0], taro._currentTime, nextKeyFrame[0]);
+				if (rotateEnd > rotateStart) {
+					rotateStart += Math.PI * 2;
+				} else {
+					rotateStart -= Math.PI * 2;
+				}
+			}			
 			
+			rotate = this.interpolateValue(rotateStart, rotateEnd, taro._currentTime - 16, taro._currentTime, taro._currentTime + 16);
 		}
-		
 
-		// ignore streamed angle if this unit control is set to face mouse cursor instantly.
+		// for my own unit, ignore streamed angle if this unit control is set to face mouse cursor instantly.
 		if (this == taro.client.selectedUnit &&
-			this.angleToTarget != undefined && !isNaN(this.angleToTarget) && 
-			this._stats.controls && this._stats.controls.mouseBehaviour.rotateToFaceMouseCursor && 
+			this.angleToTarget != undefined && !isNaN(this.angleToTarget) &&
+			this._stats.controls && this._stats.controls.mouseBehaviour.rotateToFaceMouseCursor &&
 			this._stats.currentBody && !this._stats.currentBody.fixedRotation
 		) {
 			rotate = this.angleToTarget;
 		}
-
+		
 		this._translate.x = x;
 		this._translate.y = y;
 		this._rotate.z = rotate;
-		// this.rotateTo(0, 0, rotate);		
-		// this.translateTo(x, y, 0);
-		this._lastTransformAt = taro._currentTime;
 
 		this.teleported = false;
+		this.lastTransformedAt = taro._currentTime;
+	},
+
+	isTransforming: function(bool) {
+		if (bool != undefined) {
+			this._isTransforming = bool;            
+		}
+
+		return this._isTransforming;
 	},
 
 	getAttributeBarContainer: function () {

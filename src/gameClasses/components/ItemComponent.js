@@ -31,7 +31,7 @@ var ItemComponent = TaroEntity.extend({
 		var randomTotal = 0;
 		// pick a random item type
 
-		var itemTypes = JSON.parse(JSON.stringify(taro.game.data.itemTypes));
+		var itemTypes = rfdc()(taro.game.data.itemTypes);
 		for (itemTypeId in itemTypes) {
 			var item = itemTypes[itemTypeId];
 
@@ -42,7 +42,7 @@ var ItemComponent = TaroEntity.extend({
 
 			if (randomTotal >= randomIndex) // determine the item Type
 			{
-				var itemStats = JSON.parse(JSON.stringify(item));
+				var itemStats = rfdc()(item);
 				itemStats.itemTypeId = itemTypeId;
 				break;
 			}
@@ -67,13 +67,13 @@ var ItemComponent = TaroEntity.extend({
 			var buffCount = 0;
 
 			if (itemStats.buffTypes != undefined) {
-				var availableBuffTypes = JSON.parse(JSON.stringify(itemStats.buffTypes));
+				var availableBuffTypes = rfdc()(itemStats.buffTypes);
 
 				// for (var i = 0; i < itemStats.buffTypes.length; i++)
 				while (buffCount < maxBuffCount) {
 					for (var i = 0; i < availableBuffTypes.length; i++) {
 						buffTypeName = availableBuffTypes[i];
-						buffType = taro.game.getAsset('buffTypes', buffTypeName);
+						buffType = taro.game.cloneAsset('buffTypes', buffTypeName);
 						// console.log(buffTypeName, buffType)
 
 						if (buffType.unit == 'percentage') {

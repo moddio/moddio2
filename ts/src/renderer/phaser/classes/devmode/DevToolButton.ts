@@ -47,10 +47,10 @@ class DevToolButton {
 			);
 			label.setOrigin(0.5);
 			label.letterSpacing = 1.3;
-			label.setVisible(defaultVisible);
+            label.setVisible(defaultVisible);
 			container.add(label);
 			this.label = label;
-			if (scene.renderer.type === Phaser.CANVAS) {
+			/*if (scene.renderer.type === Phaser.CANVAS) {
 				const rt = scene.add.renderTexture(
 					label.x, label.y,
 					label.width, label.height
@@ -60,13 +60,14 @@ class DevToolButton {
 				container.add(rt);
 
 				label.visible = false;
-			}
+			}*/
 		}
 		button.on('pointerdown', () => {
 			if (value || value === 0) func(value);
 			else func();
 		});
 		button.on('pointerover', () => {
+            scene.gameScene.input.setTopOnly(true);
 			scene.pointerInsideButtons = true;
 			devModeTools.tooltip.showMessage(tooltipLabel, tooltipText);
 			this.isHover = true;
@@ -77,22 +78,23 @@ class DevToolButton {
 			clearTimeout(this.timer);
 		});
 		button.on('pointerout', () => {
-			this.hideHoverChildren(350);
+			//this.hideHoverChildren(350);
 			scene.pointerInsideButtons = false;
 			devModeTools.tooltip.fadeOut();
 		});
 
 		this.hoverChildren?.map((btn) => {
 			btn.button.on('pointerout', () => {
-				this.hideHoverChildren(350);
+				//this.hideHoverChildren(350);
 			});
 			btn.button.on('pointerdown', () => {
-				this.hideHoverChildren(0);
+				//this.hideHoverChildren(0);
 			});
 		});
 	}
 
-	hideHoverChildren(delay) {
+    //not using currently
+	/*hideHoverChildren(delay) {
 		this.isHover = false;
 		clearTimeout(this.timer);
 		this.timer = setTimeout(() => {
@@ -104,7 +106,7 @@ class DevToolButton {
 
 			}
 		}, delay);
-	}
+	}*/
 
 	highlight(mode: 'no' | 'active' | 'hidden'): void {
 		switch (mode) {

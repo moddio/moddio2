@@ -41,7 +41,9 @@ interface ActionData {
 	angle?: number;
 	width?: number;
 	height?: number;
+    wasCreated?: boolean;
     wasEdited?: boolean;
+    wasDeleted?: boolean;
 }
 
 interface MapData {
@@ -72,7 +74,7 @@ interface MapData {
 
 declare class GameComponent extends TaroEntity {
 	lastCreatedUnitId: string;
-	getAsset(arg0: string, unitTypeId: string): any;
+	cloneAsset(arg0: string, unitTypeId: string): any;
 	getPlayerByClientId(clientId: string): Player;
 
 	data: {
@@ -82,6 +84,7 @@ declare class GameComponent extends TaroEntity {
 		unitTypes: Record<string, EntityData>;
 		projectileTypes: Record<string, EntityData>;
 		itemTypes: Record<string, EntityData>;
+		particleTypes: Record<string, ParticleData>;
 		settings: {
 			addStrokeToNameAndAttributes: boolean;
 			camera: {

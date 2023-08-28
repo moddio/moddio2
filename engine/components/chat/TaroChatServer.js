@@ -78,7 +78,7 @@ var TaroChatServer = {
 		else if (sender && sender._stats) {
 
 			// prevent sending messages from banned/unverified users
-			if (!global.isDev && (sender._stats.banChat || (gameData && gameData.allowVerifiedUserToChat && !sender._stats.isUserVerified))) {
+			if (!global.isDev && sender._stats.banChat) {
 				return;
 			}
 			else if (this.isSpamming(from, message)) { // mute spammers
@@ -89,6 +89,8 @@ var TaroChatServer = {
 					gameId: gameData._id,
 					userId: sender._stats.userId
 				});
+				return;
+			} else if (/(https?:\/\/[^\s]+)/g.test(message)) {
 				return;
 			}
 

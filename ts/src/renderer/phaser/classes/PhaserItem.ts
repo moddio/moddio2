@@ -37,6 +37,7 @@ class PhaserItem extends PhaserAnimatedEntity {
 			this.gameObject.spriteHeight2 = this.sprite.displayHeight / 2;
 		}
 
+		this.scene.itemList.push(this);
 		this.scene.renderedEntities.push(this.sprite);
 	}
 
@@ -95,6 +96,7 @@ class PhaserItem extends PhaserAnimatedEntity {
 
 	protected destroy (): void {
 		this.scene.renderedEntities = this.scene.renderedEntities.filter(item => item !== this.sprite);
+		this.scene.itemList = this.scene.itemList.filter(item => item.entity.id() !== this.entity.id());
 		this.ownerUnitId = null;
 		super.destroy();
 	}

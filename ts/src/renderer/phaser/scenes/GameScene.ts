@@ -6,12 +6,16 @@ class GameScene extends PhaserScene {
 	entityLayers: Phaser.GameObjects.Layer[] = [];
 	renderedEntities: TGameObject[] = [];
 	unitsList: PhaserUnit[] = [];
+	projectilesList: PhaserProjectile[] = [];
+	itemList: PhaserItem[] = [];
 	public tilemapLayers: Phaser.Tilemaps.TilemapLayer[];
 
 	public tilemap: Phaser.Tilemaps.Tilemap;
 	tileset: Phaser.Tilemaps.Tileset;
 	cameraTarget: Phaser.GameObjects.Container & IRenderProps;
 	filter: Phaser.Textures.FilterMode;
+    resolutionCoef: number;
+	trackingDelay: number;
 
 	constructor() {
 		super({ key: 'Game' });
@@ -26,10 +30,14 @@ class GameScene extends PhaserScene {
 		const camera = this.cameras.main;
 		camera.setBackgroundColor(taro.game.data.defaultData.mapBackgroundColor);
 
+        this.resolutionCoef = 1;
+
+		this.trackingDelay = taro?.game?.data?.settings?.camera?.trackingDelay || 3;
+
 		this.scale.on(Phaser.Scale.Events.RESIZE, () => {
 			if (this.zoomSize) {
 				camera.zoom = this.calculateZoom();
-				taro.client.emit('scale', { ratio: camera.zoom });
+				taro.client.emit('scale', { ratio: camera.zoom * this.resolutionCoef });
 			}
 		});
 
@@ -48,7 +56,11 @@ class GameScene extends PhaserScene {
 				true
 			);
 
-			taro.client.emit('scale', { ratio: ratio });
+			taro.client.emit('scale', { ratio: ratio * this.resolutionCoef });
+		});
+
+        taro.client.on('set-resolution', (resolution) => {
+            this.setResolution(resolution, true);
 		});
 
 		taro.client.on('change-filter', (data: {filter: renderingFilter}) => {
@@ -79,6 +91,12 @@ class GameScene extends PhaserScene {
 			new PhaserRay(this, data.start, data.end, data.config);
 		});
 
+
+		taro.client.on('create-particle', (particle: Particle) => {
+			new PhaserParticle(this, particle);
+		});
+
+
 		taro.client.on('floating-text', (data: {
 			text: string,
 			x: number,
@@ -98,11 +116,13 @@ class GameScene extends PhaserScene {
 			camera.setScroll(x, y);
 		});
 
-        taro.client.on('instant-move-camera', (x: number, y: number) => {
-            if (!taro.developerMode.active || taro.developerMode.activeTab === 'play') {
+		taro.client.on('instant-move-camera', (x: number, y: number) => {
+			if (!taro.developerMode.active || taro.developerMode.activeTab === 'play') {
 			    camera.centerOn(x, y);
-            }
+			}
 		});
+
+		
 	}
 
 	preload (): void {
@@ -129,6 +149,10 @@ class GameScene extends PhaserScene {
 
 		for (let type in data.itemTypes) {
 			this.loadEntity(`item/${data.itemTypes[type].cellSheet.url}`, data.itemTypes[type]);
+		}
+
+		for (let type in data.particleTypes) {
+			this.load.image(`particle/${data.particleTypes[type].url}`, this.patchAssetUrl(data.particleTypes[type].url));
 		}
 
 		data.map.tilesets.forEach((tileset) => {
@@ -164,18 +188,26 @@ class GameScene extends PhaserScene {
 				const length = layer.data.length;
 				layer.width = data.map.width;
 				layer.height = data.map.height;
-				// console.log('before', layer.name, length, tilesPerLayer);
 				if (length < tilesPerLayer) {
 					for (let i = length + 1; i < tilesPerLayer; i++) {
 						layer.data[i] = 0;
 					}
 				}
-				// console.log('after', layer.name, layer.data.length, tilesPerLayer);
+			}
+		});
+
+		//to be sure every map not contain null or -1 tiles
+		data.map.layers.forEach((layer) => {
+			if (layer && layer.data) {
+				layer.data.forEach((tile, index) => {
+					if (tile === -1 || tile === null) {
+						layer.data[index] = 0;
+					}
+				});
 			}
 		});
 
 		this.load.tilemapTiledJSON('map', this.patchMapData(data.map));
-
 		BitmapFontManager.preload(this);
 	}
 
@@ -239,6 +271,7 @@ class GameScene extends PhaserScene {
 		this.events.once('render', () => {
 			this.scene.launch('DevMode');
 			taro.client.rendererLoaded.resolve();
+			document.dispatchEvent(new Event('taro rendered'));
 		});
 
 		BitmapFontManager.create(this);
@@ -543,7 +576,27 @@ class GameScene extends PhaserScene {
 		);
 	}
 
+	findEntity (entityId: string): PhaserUnit | PhaserProjectile | PhaserItem {
+		return [...this.unitsList, ...this.itemList, ...this.projectilesList].find(
+			(entity) => {
+				return entity.entity._id === entityId;
+			}
+		);
+	}
+
+    setResolution (resolution: number, setResolutionCoef: boolean): void {
+        if (setResolutionCoef) {
+            this.resolutionCoef = resolution;
+        }
+        if (taro.developerMode.activeTab !== 'map') {
+            this.scale.setGameSize(window.innerWidth/resolution, window.innerHeight/resolution);
+        }
+    }
+
 	update (): void {
+
+		let trackingDelay = this.trackingDelay / taro.fps();
+		this.cameras.main.setLerp(trackingDelay, trackingDelay);
 
 		const worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
 
@@ -551,17 +604,18 @@ class GameScene extends PhaserScene {
 			x: worldPoint.x,
 			y: worldPoint.y,
 		}]);
-		
+
 		this.renderedEntities.forEach(element => {
 			element.setVisible(false);
 		});
-
+		
 		if (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab !== 'map')) {
-			this.cameras.main.cull(this.renderedEntities).forEach(element => {
+			var visibleEntities = this.cameras.main.cull(this.renderedEntities);
+			visibleEntities.forEach(element => {
 				if (!element.hidden) {
-					element.setVisible(true);
+					element.setVisible(true);					
 
-					if (element.dynamic) {
+					if(element.dynamic) {
 						// dynamic is only assigned through an hbz-index-only event
 						this.heightRenderer.adjustDepth(element as TGameObject & Phaser.GameObjects.Components.Size);
 					}

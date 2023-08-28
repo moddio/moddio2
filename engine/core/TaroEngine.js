@@ -19,6 +19,11 @@ var TaroEngine = TaroEntity.extend({
 
 		this._id = 'taro';
 		this.basePath = '';
+		this.fpsStatsElement = null;
+		this.pingElement = null;
+
+		this.uiTextElementsObj = {};
+
 		// Determine the environment we are executing in
 		this.isServer = (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined');
 		this.isClient = !this.isServer;
@@ -41,8 +46,11 @@ var TaroEngine = TaroEntity.extend({
 				Windows: function () {
 					return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
 				},
+				RNapp: function () {
+					return navigator.userAgent.match(/moddioapp/i);
+				},
 				any: function () {
-					return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+					return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows() || isMobile.RNapp());
 				}
 			};
 			return isMobile.any() != null;
@@ -71,7 +79,7 @@ var TaroEngine = TaroEntity.extend({
 		if (this.isServer) {
 			// this._idCounter = 0
 			this.sanitizer = require('sanitizer').sanitize;
-			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins			
+			this.emptyTimeLimit = 10 * 60 * 1000; // in ms - kill t1/t2 if empty for 10 mins
 		}
 
 		// Setup components
@@ -79,6 +87,15 @@ var TaroEngine = TaroEntity.extend({
 		this.addComponent(TaroTimeComponent);
 
 		if (this.isClient) {
+			this.clientSanitizer = (str) => {
+				if (window.sanitizeString) {
+					return window.sanitizeString(str);
+				} else if (taro.env === 'local') {
+					return str;
+				} else {
+					return '';
+				}
+			}
 			// Enable UI element (virtual DOM) support
 			this.addComponent(TaroUiManagerComponent);
 			this.delayedStreamCount = 0;
@@ -150,12 +167,11 @@ var TaroEngine = TaroEntity.extend({
 		this.lastSecond = 0;
 		this.snapshots = [];
 		this.entityCreateSnapshot = {};
-		this.prevSnapshot = undefined;
 		this.tempSnapshot = [0, {}];
 		this.nextSnapshot = [0, {}];
 		this.renderTime = 0;
-		this.timeDiscrepancy = 0; // engine timestamp discrepancy between client-side & sever-side
-
+		this._renderFPS = 60;
+		this._renderFrames = 0;
 		this.remainderFromLastStep = 0;
 
 		this.lagOccurenceCount = 0;
@@ -1139,7 +1155,7 @@ var TaroEngine = TaroEntity.extend({
 	},
 	scaleMap: function (map) {
 		// return map;
-		var gameMap = _.cloneDeep(map);
+		var gameMap = rfdc()(map);
 		// taro.game.data.defaultData.dontResize ||
 		if (taro.game.data.defaultData.dontResize) {
 			taro.scaleMapDetails = {
@@ -1262,9 +1278,11 @@ var TaroEngine = TaroEntity.extend({
 	 * want to disable the trace for.
 	 */
 	traceSetOff: function (object, propName) {
-		Object.defineProperty(object, propName, { set: function (val) {
-			this.___taroTraceCurrentVal[propName] = val;
-		} });
+		Object.defineProperty(object, propName, {
+			set: function (val) {
+				this.___taroTraceCurrentVal[propName] = val;
+			}
+		});
 	},
 
 	/**
@@ -1329,14 +1347,26 @@ var TaroEngine = TaroEntity.extend({
 		var self = taro;
 
 		// Store frames per second
-		self._renderFPS = self._renderFrames;
+		self._renderFPS = Math.min(240, Math.max(5, self._renderFrames));
 		self._physicsFPS = self._physicsFrames;
 
 		// Store draws per second
 		self._dps = self._dpf * self._renderFPS;
 
-		if (taro.isClient)
-			$('#updatefps').html(self._renderFPS);
+
+		if (taro.isClient) {
+			if (!self.fpsStatsElement) {
+				self.fpsStatsElement = document.getElementById('updatefps');
+			}
+
+			if (self.fpsStatsElement) {
+				self.fpsStatsElement.innerHTML = self._renderFPS;
+			}
+			window.updateNextStatsEverySecond && window.updateNextStatsEverySecond({ fps: self._renderFPS });
+
+			// taro.profiler.printResults();
+			
+		}
 
 		// Zero out counters
 		self._renderFrames = 0;
@@ -1363,23 +1393,26 @@ var TaroEngine = TaroEntity.extend({
 	},
 
 	/**
-	 * Increments the engine's internal time by the passed number of milliseconds.
+	 * Increments the engine's interal time by the passed number of milliseconds.
 	 * @param {Number} val The number of milliseconds to increment time by.
 	 * @param {Number=} lastVal The last internal time value, used to calculate
 	 * delta internally in the method.
 	 * @returns {Number}
 	 */
-	 incrementTime: function () {
-		const now = new Date().getTime();
-
+	incrementTime: function (val, lastVal) {
 		if (!this._pause) {
-
-			this._currentTime = (now + this.timeDiscrepancy) * this._timeScale;
-			this.renderTime = this._currentTime;
+			if (!lastVal) { lastVal = val; }
+			this._currentTime += ((val - lastVal) * this._timeScale);
 		}
-
-		this._lastTimeStamp = now;
 		return this._currentTime;
+	},
+
+	checkAndGetNumber: function (num, defaultReturnValue = '') {
+		if(!isNaN(parseFloat(num)) && !isNaN(num - 0)) {
+			return num;
+		} else {
+			defaultReturnValue;
+		}
 	},
 
 	/**
@@ -1491,8 +1524,8 @@ var TaroEngine = TaroEntity.extend({
 
 	// queues trigger events to affect ALL entities including the world.
 	// for example, "when attribute becomes zero" trigger fires it will run for all entities (unit/item/projecitle) first, then it'll run for the world
-	queueTrigger: function(triggerName, parameters = {}) {
-		this.triggersQueued.push({name: triggerName, params: parameters});
+	queueTrigger: function (triggerName, parameters = {}) {
+		this.triggersQueued.push({ name: triggerName, params: parameters });
 	},
 
 	/**
@@ -1518,7 +1551,8 @@ var TaroEngine = TaroEntity.extend({
 		var unbornIndex;
 		var unbornEntity;
 
-		self.incrementTime();
+		self.incrementTime(timeStamp, self._timeScaleLastTimestamp);
+		self._timeScaleLastTimestamp = timeStamp;
 		timeStamp = Math.floor(self._currentTime);
 
 		if (timeStamp - self.lastSecond >= 1000) {
@@ -1563,7 +1597,6 @@ var TaroEngine = TaroEntity.extend({
 				// console.log("wtf tick", self._tickStart, self.lastTick, self._tickDelta)
 			}
 			taro.now = Date.now();
-
 			timeElapsed = taro.now - taro._lastGameLoopTickAt;
 			if (timeElapsed >= (1000 / taro._gameLoopTickRate) - taro._gameLoopTickRemainder) {
 				taro._lastGameLoopTickAt = taro.now;
@@ -1572,8 +1605,6 @@ var TaroEngine = TaroEntity.extend({
 				if (taro.physics) {
 					taro.physics.update(timeElapsed);
 				}
-
-				taro.queueTrigger('frameTick');
 			}
 
 			taro.tickCount = 0;
@@ -1596,20 +1627,11 @@ var TaroEngine = TaroEntity.extend({
 				}
 			}
 
-			if (taro.isServer) { // triggersQueued runs on client-side inside EntitiesToRender.ts
-				// triggersQueued is executed in the entities first (entity-script) then it runs for the world
-				while (taro.triggersQueued.length > 0) {
-
-					const trigger = taro.triggersQueued.shift();
-					taro.script.trigger(trigger.name, trigger.params);
-				}
-			}
 
 			taro.engineLagReported = false;
 			taro.actionProfiler = {};
 			taro.triggerProfiler = {};
-			taro.triggersQueued = []; // only empties on server-side as client-side never reaches here
-
+			
 			// periodical checks running every second
 			if (taro.now - self.lastCheckedAt > 1000) {
 				// kill tier 1 servers that has been empty for over 15 minutes
@@ -1630,8 +1652,8 @@ var TaroEngine = TaroEntity.extend({
 						}
 
 						if (typeof window.raidAlert === 'function') {
-							window.raidAlert()
-						}							
+							window.raidAlert();
+						}
 					}
 				} else if (taro.isServer) {
 					if (playerCount <= 0) {
@@ -1669,24 +1691,24 @@ var TaroEngine = TaroEntity.extend({
 					}
 				}
 			}
+			
+			// triggersQueued is executed in the entities first (entity-script) then it runs for the world
+			while (taro.script && taro.triggersQueued.length > 0) {
+				const trigger = taro.triggersQueued.shift();
+				taro.script.trigger(trigger.name, trigger.params);
+			}
+
+			if (taro.gameLoopTickHasExecuted) {
+				taro.queueTrigger('frameTick');
+			}
 
 			if (taro.isClient) {
 				if (taro.client.myPlayer) {
 					taro.client.myPlayer.control._behaviour();
 				}
-
-				let oldestSnapshot = taro.snapshots[0];
-				while (taro.snapshots.length >= 2 && oldestSnapshot != undefined && taro._currentTime > oldestSnapshot[0]) {
-					taro.prevSnapshot = taro.nextSnapshot
-					taro.nextSnapshot = taro.snapshots[taro.snapshots.length-1];
-
-					// rubberband currentTime to the latest time received from server - 40ms
-					oldestSnapshot = taro.snapshots.shift();
-				}
-
 				return;
 			}
-
+			
 			if (!taro.gameLoopTickHasExecuted) {
 				return;
 			}
@@ -1708,7 +1730,6 @@ var TaroEngine = TaroEntity.extend({
 			if (self._enableRenders) {
 				if (!self._useManualRender) {
 					if (taroConfig.debug._timing) {
-						renderStart = Date.now();
 						self.renderSceneGraph(ctx);
 					} else {
 						self.renderSceneGraph(ctx);
@@ -1716,7 +1737,6 @@ var TaroEngine = TaroEntity.extend({
 				} else {
 					if (self._manualRender) {
 						if (taroConfig.debug._timing) {
-							renderStart = Date.now();
 							self.renderSceneGraph(ctx);
 						} else {
 							self.renderSceneGraph(ctx);
@@ -1726,47 +1746,20 @@ var TaroEngine = TaroEntity.extend({
 				}
 			}
 
-			// console.log(taro.updateCount, taro.tickCount, taro.updateTransform,"inView", taro.inViewCount);
 			// Record the lastTick value so we can
 			// calculate delta on the next tick
 			self.lastTick = self._tickStart;
 			self._dpf = self._drawCount;
 			self._drawCount = 0;
 
-			/// / for debugging
-			// if (taro.$$("unit")[0]) {
-
-			// 	var x = taro.$$("unit")[0]._translate.x
-			// 	// for debugging
-			// 	if (!taro.lastSnapshotTimeStamp) {
-			// 		taro.lastSnapshotTimeStamp = timeStamp
-			// 	}
-
-			// 	if (!taro.lastX) {
-			// 		taro.lastX = x
-			// 	}
-
-			// 	var timeElapsed = timeStamp - taro.lastSnapshotTimeStamp
-			// 	var distanceTravelled = x - taro.lastX;
-			// 	if (x) {
-			// 		console.log("unit speed", (distanceTravelled / timeElapsed * 100).toFixed(0), " (", distanceTravelled, "/", timeElapsed, ")")
-			// 	}
-
-			// 	taro.lastX = x
-			// 	taro.lastSnapshotTimeStamp = timeStamp;
-
-			// }
-
 			taro.network.stream._sendQueue(timeStamp);
 			taro.network.stream.updateEntityAttributes();
-
 		}
 
 		taro.gameLoopTickHasExecuted = false;
 
 		et = new Date().getTime();
 		taro._tickTime = et - taro.now;
-		// console.log(taro._tickTime, taro._tickTime, 1000/self._fpsRate)
 
 		// slow engineTick restart only works on two houses (Braains.io)
 		if (taro.server && taro.server.gameId == '5a7fd59b1014dc000eeec3dd')
@@ -1783,11 +1776,6 @@ var TaroEngine = TaroEntity.extend({
 			} else {
 				self.lagOccurenceCount = 0;
 			}
-
-		// // reset lagOccurenceCount if no lag occured for 3s.
-		// if (et - self.lastLagOccurenceAt > 3000) {
-
-		// }
 
 		if (taro.isClient) {
 			if (statsPanels.ms) {
@@ -1869,7 +1857,6 @@ var TaroEngine = TaroEntity.extend({
 
 			if (arr) {
 				arrCount = arr.length;
-
 				// Loop our viewports and call their tick methods
 				if (taroConfig.debug._timing) {
 					while (arrCount--) {
@@ -1899,9 +1886,9 @@ var TaroEngine = TaroEntity.extend({
 					}
 				}
 			}
-
 			ctx.restore();
 		}
+
 		// Depth-sort the viewports
 	},
 
@@ -2173,12 +2160,12 @@ var TaroEngine = TaroEntity.extend({
 		TaroEngine.prototype.log('Engine destroy complete.');
 	},
 
-	getPlayerCount: function() {
+	getPlayerCount: function () {
 		return taro.$$('player').filter(function (player) {
 			return player._stats.controlledBy == 'human';
 		}).length;
 	},
-	
+
 	devLog: function () {
 		// return;
 		// if (taro.env == 'local') {

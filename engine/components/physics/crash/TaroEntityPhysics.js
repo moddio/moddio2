@@ -319,7 +319,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 
 		if (taro.isServer) {
 			if (this.body) {
-				if (this._hasMoved && this.body.type != 'spriteOnly') {
+				if (this.body.type != 'spriteOnly') {
 					// console.log('translate collider')
 					this.translateColliderTo(x, y);
 				}

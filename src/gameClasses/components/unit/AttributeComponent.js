@@ -75,12 +75,12 @@ var AttributeComponent = TaroEntity.extend({
 			}
 			return itemId;
 		});
-		var unitType = taro.game.getAsset('unitTypes', unit._stats.type);
+		var unitType = taro.game.cloneAsset('unitTypes', unit._stats.type);
 		var defaultUnitAttributes = unitType ? unitType.attributes : undefined;
 
 		var player = unit.getOwner();
 		if (player) {
-			var playerType = taro.game.getAsset('playerTypes', player._stats.playerTypeId);
+			var playerType = taro.game.cloneAsset('playerTypes', player._stats.playerTypeId);
 			var defaultPlayerAttributes = playerType ? playerType.attributes : undefined;
 		}
 
@@ -299,9 +299,9 @@ var AttributeComponent = TaroEntity.extend({
 								var item = projectile.getSourceItem();
 								unit = item && item.getOwnerUnit();
 
-								if (unit && taro.client.myPlayer._stats.selectedUnitId == unit.id()) {
-									projectile.updateAttributeBar(attribute);
-								}
+								// if (unit && taro.client.myPlayer._stats.selectedUnitId == unit.id()) {
+								// 	projectile.updateAttributeBar(attribute);
+								// }
 								break;
 							}
 						}

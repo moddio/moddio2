@@ -39,6 +39,7 @@ declare interface EntityStats {
 	itemTypeId?: string;
 	flip: FlipMode;
 	controls: {
+		mouseBehaviour: any;
 		abilities: Record<string, ControlAbility>
 	}
 	ownerUnitId: string;

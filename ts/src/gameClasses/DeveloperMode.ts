@@ -107,10 +107,11 @@ class DeveloperMode {
 			if (gameMap.layers[serverData.layer].name === 'walls') {
 				//if changes was in 'walls' layer we destroy all old walls and create new staticsFromMap
 				taro.physics.destroyWalls();
-				let map = taro.scaleMap(_.cloneDeep(gameMap));
+				let map = taro.scaleMap(rfdc()(gameMap));
 				taro.tiled.loadJson(map, function (layerArray, layersById) {
 					taro.physics.staticsFromMap(layersById.walls);
 				});
+				taro.map.updateWallMapData(); // for A* pathfinding
 			}
 		}
 	}
@@ -183,23 +184,39 @@ class DeveloperMode {
 	floodTiles(layer: number, oldTile: number, newTile: number, x: number, y: number, limits?: Record<number, Record<number, number>>): void {
 		const map = taro.game.data.map;
 		const width = map.width;
-		if (oldTile === newTile || map.layers[layer].data[y * width + x] !== oldTile || limits?.[x]?.[y]) {
-			return;
-		}
-		//save tile change to taro.game.data.map and taro.map.data
-		map.layers[layer].data[y * width + x] = newTile;
-		taro.map.data.layers[layer].data[y * width + x] = newTile;
-		if (x > 0) {
-			this.floodTiles(layer, oldTile, newTile, x - 1, y, limits);
-		}
-		if (x < (map.width - 1)) {
-			this.floodTiles(layer, oldTile, newTile, x + 1, y, limits);
-		}
-		if (y > 0) {
-			this.floodTiles(layer, oldTile, newTile, x, y - 1, limits);
-		}
-		if (y < (map.height - 1)) {
-			this.floodTiles(layer, oldTile, newTile, x, y + 1, limits);
+		const openQueue: Vector2D[] = [{ x, y }];
+		const closedQueue: Record<number, Record<number, number>> = {};
+		while (openQueue.length !== 0) {
+			const nowPos = openQueue[0];
+			openQueue.shift();
+
+			if (closedQueue[nowPos.x]?.[nowPos.y]) {
+				continue;
+			}
+			if (!closedQueue[nowPos.x]) {
+				closedQueue[nowPos.x] = {};
+			}
+			closedQueue[nowPos.x][nowPos.y] = 1;
+			if (oldTile === newTile
+				|| map.layers[layer].data[nowPos.y * width + nowPos.x] !== oldTile
+				|| limits?.[nowPos.x]?.[nowPos.y]) {
+				continue;
+			}
+			//save tile change to taro.game.data.map and taro.map.data
+			map.layers[layer].data[nowPos.y * width + nowPos.x] = newTile;
+			taro.map.data.layers[layer].data[nowPos.y * width + nowPos.x] = newTile;
+			if (nowPos.x > 0 && !closedQueue[nowPos.x - 1]?.[nowPos.y]) {
+				openQueue.push({ x: nowPos.x - 1, y: nowPos.y });
+			}
+			if (nowPos.x < (map.width - 1) && !closedQueue[nowPos.x + 1]?.[nowPos.y]) {
+				openQueue.push({ x: nowPos.x + 1, y: nowPos.y });
+			}
+			if (nowPos.y > 0 && !closedQueue[nowPos.x]?.[nowPos.y - 1]) {
+				openQueue.push({ x: nowPos.x, y: nowPos.y - 1 });
+			}
+			if (nowPos.y < (map.height - 1) && !closedQueue[nowPos.x]?.[nowPos.y + 1]) {
+				openQueue.push({ x: nowPos.x, y: nowPos.y + 1 });
+			}
 		}
 	}
 
@@ -299,17 +316,22 @@ class DeveloperMode {
 				if (action.actionId === data.actionId) {
 					found = true;
 					if (data.wasEdited) action.wasEdited = true;
-					if (data.position && data.position.x && data.position.y &&
-						action.position && action.position.x && action.position.y) {
+					if (data.position && !isNaN(data.position.x) && !isNaN(data.position.y) &&
+						action.position && !isNaN(action.position.x) && !isNaN(action.position.y)) {
 						action.position = data.position;
 					}
-					if (data.angle && action.angle) {
+					if (!isNaN(data.angle) && !isNaN(action.angle)) {
 						action.angle = data.angle;
 					}
-					if (data.width && data.height && action.width && action.height) {
-						action.width = data.width;
-						action.height = data.height;
-					}
+                    if (!isNaN(data.width) && !isNaN(action.width)) {
+                        action.width = data.width;
+                    }
+                    if (!isNaN(data.height) && !isNaN(action.height)) {
+                        action.height = data.height;
+                    }
+                    if (data.wasDeleted) {
+                        action.wasDeleted = true;
+                    }
 				}
 			});
 			if (!found) {
@@ -325,7 +347,7 @@ class DeveloperMode {
 			if (p.id() === data.playerId) player = p;
 		});
 		const unitTypeId = data.typeId;
-		const unitTypeData = taro.game.getAsset('unitTypes', unitTypeId);
+		const unitTypeData = taro.game.cloneAsset('unitTypes', unitTypeId);
 		const spawnPosition = data.position;
 		const facingAngle = data.angle;
 
@@ -377,7 +399,7 @@ class DeveloperMode {
 
 	createItem(data) {
 		const itemTypeId = data.typeId;
-		const itemData = taro.game.getAsset('itemTypes', itemTypeId);
+		const itemData = taro.game.cloneAsset('itemTypes', itemTypeId);
 		const position = data.position;
 		const facingAngle = data.angle;
 		let quantity = itemData.maxQuantity;
@@ -516,7 +538,7 @@ class DeveloperMode {
 			if (taro.physics) {
 				//if changes was in 'walls' layer we destroy all old walls and create new staticsFromMap
 				taro.physics.destroyWalls();
-				let map = taro.scaleMap(_.cloneDeep(taro.game.data.map));
+				let map = taro.scaleMap(rfdc()(taro.game.data.map));
 				taro.tiled.loadJson(map, function (layerArray, TaroLayersById) {
 					taro.physics.staticsFromMap(TaroLayersById.walls);
 				});
@@ -550,6 +572,7 @@ type MapEditTool = {
 
 	clear: {
 		layer: number;
+		layerName?: string;
 	}
 }
 

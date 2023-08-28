@@ -22,7 +22,7 @@ var UnitUiComponent = TaroEntity.extend({
 			var belongsToSelectedUnit = ownerPlayer && ownerPlayer._stats && ownerPlayer._stats.selectedUnitId === self._entity.id();
 
 			if (belongsToSelectedUnit) {
-				$('#attribute-bars').html('');
+				$(taro.client.getCachedElementById('attribute-bars')).html('');
 			}
 
 			var isAttributeBarPresent = false;
@@ -46,12 +46,14 @@ var UnitUiComponent = TaroEntity.extend({
 							class: 'progress'
 						}).append(
 							$('<div/>', {
-								class: `label progress-label player-${attributeTypeId}`,
+								id: `player-${attributeTypeId}`,
+								class: `label progress-label`,
 								style: 'position: absolute; margin-top: 3px; width: 100%; color: black; font-size: 14px'
 							})
 						).append(
 							$('<div/>', {
-								class: `player-max-${attributeTypeId} progress-bar progress-bar-info`,
+								id: `player-max-${attributeTypeId}`,
+								class: `progress-bar progress-bar-info`,
 								role: 'progressbar',
 								'aria-valuemin': '0',
 								'aria-valuemax': '100',
@@ -59,14 +61,14 @@ var UnitUiComponent = TaroEntity.extend({
 							})
 						);
 
-						$('#attribute-bars').append(bar);
+						$(taro.client.getCachedElementById('attribute-bars')).append(bar);
 					}
 				}
 
 				self._entity.attribute.refresh();
 			}
 			if (isAttributeBarPresent) {
-				$('#attribute-bars').css({
+				$(taro.client.getCachedElementById('attribute-bars')).css({
 					minWidth: '200px'
 				});
 			}
@@ -122,10 +124,10 @@ var UnitUiComponent = TaroEntity.extend({
 				value = attr.value;
 			}
 
-			$(`.player-${attr.type}`).text(attr.displayValue ? `${name}: ${value}/${parseFloat(attr.max).toFixed(0)}` : name);
+			$(taro.client.getCachedElementById(`player-${attr.type}`)).text(attr.displayValue ? `${name}: ${value}/${parseFloat(attr.max).toFixed(0)}` : name);
 			var widthInPercent = (attr.value / attr.max) * 100;
 
-			$(`.player-max-${attr.type}`).stop().animate({
+			$(taro.client.getCachedElementById(`player-max-${attr.type}`)).stop().css({
 				width: `${widthInPercent}%`
 			});
 		}

@@ -115,7 +115,7 @@ var DevModeScene = /** @class */ (function (_super) {
         this.load.image('save', 'https://cache.modd.io/asset/spriteImage/1681916834218_saveIcon.png');
         this.load.image('redo', 'https://cache.modd.io/asset/spriteImage/1686899810953_redo.png');
         this.load.image('undo', 'https://cache.modd.io/asset/spriteImage/1686899853748_undo.png');
-        this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 
+        this.load.scenePlugin('rexuiplugin', '/assets/js/rexuiplugin.min.js', 
         //'src/renderer/phaser/rexuiplugin.min.js',
         'rexUI', 'rexUI');
     };
@@ -143,6 +143,7 @@ var DevModeScene = /** @class */ (function (_super) {
     };
     DevModeScene.prototype.enterMapTab = function () {
         var _this = this;
+        this.gameScene.setResolution(1, false);
         if (this.gameEditorWidgets.length === 0) {
             this.devModeTools.queryWidgets();
             this.gameEditorWidgets = this.devModeTools.gameEditorWidgets;
@@ -171,8 +172,12 @@ var DevModeScene = /** @class */ (function (_super) {
         });
     };
     DevModeScene.prototype.leaveMapTab = function () {
+        this.gameScene.setResolution(this.gameScene.resolutionCoef, false);
         if (this.devModeTools)
             this.devModeTools.leaveMapTab();
+        if (this.devModeTools.entityEditor.selectedEntityImage) {
+            this.devModeTools.entityEditor.selectEntityImage(null);
+        }
         this.entityImages.forEach(function (image) {
             image.setVisible(false);
         });

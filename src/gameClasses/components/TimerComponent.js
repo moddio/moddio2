@@ -113,6 +113,8 @@ var TimerComponent = TaroEntity.extend({
 					taro.chat.sendToRoom('1', message, undefined, undefined);
 				}
 
+				// console.log(taro.script.variable.profiler)
+
 				// if (shouldLog) {
 				// 	console.log(self.now, self.startedAt, age, lifeSpan, age > lifeSpan);
 				// }
