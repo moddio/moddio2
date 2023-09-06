@@ -162,13 +162,7 @@ var Player = TaroEntity.extend({
 		if (index !== -1) {
 			this._stats.unitIds.splice(index, 1);
 			if (this._stats.selectedUnitId === unit.id()) {
-				var unit = taro.$(unit.id());
-				/*if (unit) {
-					unit.ability.stopMovingX();
-					unit.ability.stopMovingY();
-					unit.ability.stopUsingItem();
-				}*/
-				//this.selectUnit(null);
+                this.selectUnit(null);
 			}
 		}
 	},
@@ -218,9 +212,10 @@ var Player = TaroEntity.extend({
 				unit.renderMobileControl();
 				taro.client.selectedUnit = unit;
 				taro.client.eventLog.push([taro._currentTime, `my unit selected ${unitId}`]);
-			} else if (unitId === null) {
+			} else if (self._stats.clientId == taro.network.id() && unitId === null) {
 				self._stats.selectedUnitId = null;
 				taro.client.selectedUnit = null;
+                taro.client.eventLog.push([taro._currentTime, 'my unit selected null']);
 			}
 		}
 	},
