@@ -1,111 +1,3 @@
-/**
- * recursively set object parameters
- * @param oldOjbect
- * @param newObject
- */
-function setOjbect(oldOjbect, newObject) {
-    Object.keys(newObject).map(function (k) {
-        if (!oldOjbect[k]) {
-            oldOjbect[k] = {};
-        }
-        if (typeof newObject[k] === 'object') {
-            setOjbect(oldOjbect[k], newObject[k]);
-        }
-        else {
-            oldOjbect[k] = newObject[k];
-        }
-    });
-}
-/**
- * merge the oldData with newData using template
- * @param oldData
- * @param newData
- * @param template
- */
-function merge(oldData, newData, template) {
-    Object.entries(template).map(function (_a) {
-        var k = _a[0], v = _a[1];
-        if (!v.calc && typeof v === 'object') {
-            if (!oldData[k]) {
-                oldData[k] = {};
-            }
-            merge(oldData[k], newData[k], template[k]);
-            return;
-        }
-        if (!oldData[k] && v.calc !== 'init') {
-            switch (typeof newData[k]) {
-                case 'string': {
-                    oldData[k] = '';
-                    break;
-                }
-                case 'number': {
-                    oldData[k] = 0;
-                    break;
-                }
-                case 'object': {
-                    oldData[k] = Array.isArray(newData[k]) ? [] : {};
-                    break;
-                }
-            }
-        }
-        if (typeof v.calc === 'function') {
-            v.calc(oldData, newData, oldData[k]);
-        }
-        else {
-            switch (v.calc) {
-                case 'init': {
-                    if (oldData[k] === undefined) {
-                        oldData[k] = newData[k];
-                    }
-                    break;
-                }
-                case 'set': {
-                    oldData[k] = newData[k];
-                    break;
-                }
-                case 'smartSet': {
-                    if (typeof newData[k] === 'object') {
-                        setOjbect(oldData[k], newData[k]);
-                    }
-                    else {
-                        oldData[k] = newData[k];
-                    }
-                    break;
-                }
-                case 'sum': {
-                    switch (v.method) {
-                        case 'direct': {
-                            oldData[k] += newData[k];
-                            break;
-                        }
-                        case 'array': {
-                            // console.log('oldData', oldData[k], k)
-                            newData[k].map(function (v) {
-                                if (!oldData[k].includes(v)) {
-                                    oldData[k].push(v);
-                                }
-                            });
-                        }
-                    }
-                    break;
-                }
-                case 'div': {
-                    oldData[k] /= newData[k];
-                    break;
-                }
-                case 'sub': {
-                    oldData[k] -= newData[k];
-                    break;
-                }
-                case 'mul': {
-                    oldData[k] *= newData[k];
-                    break;
-                }
-            }
-        }
-        return oldData;
-    });
-}
 var mergedTemplate = {
     edit: {
         size: { calc: 'set', method: 'direct' },
@@ -119,7 +11,7 @@ var mergedTemplate = {
                 }
                 else {
                     var idx = oldData.layer.findIndex(function (v) { return v === newLayer; });
-                    setOjbect(nowData[idx], newData.selectedTiles[0]);
+                    objectUtils.setObject(nowData[idx], newData.selectedTiles[0]);
                 }
             }, method: 'direct'
         },
@@ -129,34 +21,6 @@ var mergedTemplate = {
         y: { calc: 'init', method: 'direct' },
     }
 };
-function debounce(func, timeout, mergedTemplate) {
-    var timer;
-    var mergedData = [{}];
-    return function () {
-        var args = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-        }
-        clearTimeout(timer);
-        if (mergedTemplate) {
-            args.map(function (v, idx) {
-                merge(mergedData[0], v, mergedTemplate);
-            });
-        }
-        else {
-            if (Array.isArray(args)) {
-                mergedData = args;
-            }
-            else {
-                mergedData[0] = args;
-            }
-        }
-        timer = setTimeout(function () {
-            func.apply(void 0, mergedData);
-            mergedData = [{}];
-        }, timeout);
-    };
-}
 function mergeSetWasEdited(gameMap) {
     gameMap.wasEdited = true;
 }

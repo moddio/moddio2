@@ -65,7 +65,7 @@ var taroCoreConfig = {
 		['csap', 'TaroCamera', 'core/TaroCamera.js'],
 		['csap', 'TaroViewport', 'core/TaroViewport.js'],
 		['csap', 'TaroScene2d', 'core/TaroScene2d.js'],
-		['csap', 'TaroArray', 'core/TaroArray.js'],		
+		['csap', 'TaroArray', 'core/TaroArray.js'],
 		/* Engine Actual */
 		['csap', 'TaroEngine', 'core/TaroEngine.js'],
 		/* Physics Libraries */

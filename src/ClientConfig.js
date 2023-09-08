@@ -48,13 +48,14 @@ var taroClientConfig = {
 		'/gameClasses/components/unit/AIComponent.js',
 		'/gameClasses/components/unit/AbilityComponent.js',
 		'/gameClasses/components/unit/AttributeComponent.js',
-
+		/* Utils */
+		'/utils/objectUtils.js',
+		'/utils/debounce.js',
 		/* Standard game scripts */
 		'/gameClasses/DeveloperMode.js',
 		'/gameClasses/EntitiesToRender.js',
 		'/gameClasses/Raycaster.js',
 		'/gameClasses/HeightRenderComponent.js',
-
 		/* tile calc */
 		'/gameClasses/Combinator.js',
 		'/gameClasses/TileShape.js',
@@ -82,17 +83,17 @@ var taroClientConfig = {
 		'renderer/phaser/scenes/GameScene.js',
 		'renderer/phaser/classes/PhaserJoystick.js',
 		'renderer/phaser/scenes/MobileControlsScene.js',
-        'renderer/phaser/scenes/UiScene.js',
+		'renderer/phaser/scenes/UiScene.js',
 		'renderer/phaser/scenes/DevModeScene.js',
 		'renderer/phaser/classes/devmode/DevModeTools.js',
 		'renderer/phaser/classes/devmode/DevToolButton.js',
 		'renderer/phaser/classes/devmode/DevTooltip.js',
 		'renderer/phaser/classes/devmode/RegionEditor.js',
 		'renderer/phaser/classes/devmode/TileEditor.js',
-        'renderer/phaser/classes/devmode/EntityEditor.js',
+		'renderer/phaser/classes/devmode/EntityEditor.js',
 		'renderer/phaser/classes/devmode/TilePalette.js',
 		'renderer/phaser/classes/devmode/TileMarker.js',
-        'renderer/phaser/classes/devmode/MarkerGraphics.js',
+		'renderer/phaser/classes/devmode/MarkerGraphics.js',
 		'renderer/phaser/classes/devmode/CommandsController.js',
 		'renderer/phaser/classes/devmode/Constants.js',
 		'renderer/phaser/classes/devmode/EntityImage.js',
