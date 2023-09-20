@@ -19,6 +19,10 @@ var PhaserScene = /** @class */ (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     PhaserScene.prototype.patchAssetUrl = function (url) {
+        // proxy all s3 requests via cloudflare
+        if (url.startsWith('https://modd.s3.amazonaws.com')) {
+            url = url.replace('https://modd.s3.amazonaws.com', 'https://old-cache.modd.io');
+        }
         // https://stackoverflow.com/a/37455118
         return "".concat(url, "?v=1");
     };
