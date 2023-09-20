@@ -1,12 +1,6 @@
 <div align="center">
-  <a href="https://modd.io">
-    <img src="./assets/images/logo.png" width="400" alt="Taro Engine logo">
-  </a>
-</div>
-
-<div align="center">
-  <h2>HTML5 Game Engine</h2>
-  <p>Taro is a multiplayer game engine. It can support up to 64 concurrent players hosted on a $5 / month VM while running Box2D physics. Join us on <a href="https://discord.gg/XRe8T7K">Discord</a> or support us on <a href="https://www.patreon.com/moddio">Patreon</a>.
+  <h2><a href="https://modd.io">Moddio Game Engine 2</a></h2>
+  <p>Moddio is a multiplayer-first game engine. It can support up to 64 concurrent players hosted on a $5 / month VM while running Box2D physics. Join us on <a href="https://discord.gg/XRe8T7K">Discord</a>
 </div>
 
 <div align="center">
