@@ -20,7 +20,7 @@ var PhaserScene = /** @class */ (function (_super) {
     }
     PhaserScene.prototype.patchAssetUrl = function (url) {
         // proxy all s3 requests via cloudflare
-        if (url.startsWith('https://modd.s3.amazonaws.com')) {
+        if (url === null || url === void 0 ? void 0 : url.startsWith('https://modd.s3.amazonaws.com')) {
             url = url.replace('https://modd.s3.amazonaws.com', 'https://old-cache.modd.io');
         }
         // https://stackoverflow.com/a/37455118
