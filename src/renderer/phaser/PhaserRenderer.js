@@ -48,6 +48,7 @@ var PhaserRenderer = /** @class */ (function (_super) {
                 resizeInterval: 100,
             },
             render: {
+                roundPixels: true,
                 pixelArt: false,
                 transparent: false
             },
