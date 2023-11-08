@@ -250,10 +250,15 @@ var Server = TaroClass.extend({
 			// if production, then get ip first, and then start
 			if (['production', 'staging', 'standalone-remote'].includes(taro.env)) {
 				console.log('getting IP address');
-				publicIp.v4().then(ip => { // get public ip of server
-					self.ip = ip;
+				if (process.env.IPV4) {
+					self.ip = process.env.IPV4;
 					self.start();
-				});
+				} else {
+					publicIp.v4().then(ip => { // get public ip of server
+						self.ip = ip;
+						self.start();
+					});
+				}
 			} else // use 127.0.0.1 if dev env
 			{
 				self.ip = '127.0.0.1';

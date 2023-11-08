@@ -56,6 +56,8 @@ var GameComponent = TaroEntity.extend({
 
 		self.isGameStarted = true;
 		taro.timer.startGameClock();
+		
+		taro.clusterClient && taro.clusterClient.gameStarted();
 	},
 
 	createPlayer: function (data, persistedData) {
