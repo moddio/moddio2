@@ -169,7 +169,6 @@ var Server = TaroClass.extend({
 		self.tier = process.env.TIER || 2;
 		self.region = process.env.REGION || 'apocalypse';
 		self.isScriptLogOn = process.env.SCRIPTLOG == 'on';
-		self.gameLoaded = false;
 		self.coinUpdate = {};
 
 		self.socketConnectionCount = {
@@ -272,7 +271,7 @@ var Server = TaroClass.extend({
 		var self = this;
 		console.log('ip', self.ip);
 
-		if (self.gameLoaded) {
+		if (taro.game?.hasStarted) {
 			console.log('Warning: Game already loaded in this server!!');
 			return;
 		}
@@ -453,7 +452,7 @@ var Server = TaroClass.extend({
 		console.log('taro.server.startGame()');
 		var self = this;
 
-		if (self.gameLoaded) {
+		if (taro.game?.hasStarted) {
 			console.log('Warning: Game already loaded in this server!!');
 			return;
 		}
@@ -616,9 +615,7 @@ var Server = TaroClass.extend({
 						// }
 
 						taro.game.start();
-
-						self.gameLoaded = true;
-
+						
 						// send dev logs to developer every second
 						var logInterval = setInterval(function () {
 							// send only if developer client is connect

@@ -13,7 +13,7 @@ var GameComponent = TaroEntity.extend({
 		this.highlights = {};
 		this.createdEntities = [];
 		this.gameOverModalIsShowing = false;
-		this.isGameStarted = false;
+		this.hasStarted = false;
 	},
 
 	start: function () {
@@ -54,7 +54,7 @@ var GameComponent = TaroEntity.extend({
 			$('.game-currency').html(attr);
 		}
 
-		self.isGameStarted = true;
+		self.hasStarted = true;
 		taro.timer.startGameClock();
 		
 		taro.clusterClient && taro.clusterClient.gameStarted();

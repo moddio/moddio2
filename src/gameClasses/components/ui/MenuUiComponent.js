@@ -217,7 +217,7 @@ var MenuUiComponent = TaroEntity.extend({
 						return;
 					}
 
-					if (taro.game && taro.game.isGameStarted) {
+					if (taro.game && taro.game.hasStarted) {
 						var wasGamePaused = this.innerText.includes('Continue');
 						self.playGame(wasGamePaused);
 						self.setResolution();
