@@ -517,7 +517,8 @@ const Client = TaroEventingClass.extend({
 				url: $(serverOption).attr('data-url'),
 				gameId: gameId,
 				id: $(serverOption).attr('value'),
-				name: $(serverOption).attr('data-name')
+				name: $(serverOption).attr('data-name'),
+				wsPort: $(serverOption).data('ws-port')
 			};
 
 			serversList.push(server);
