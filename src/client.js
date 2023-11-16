@@ -895,10 +895,6 @@ const Client = TaroEventingClass.extend({
 		}
 	},
 
-	setResolution: function (resolution) {
-		this.emit('set-resolution', resolution);
-	},
-
 	// return dom element. cache it if it doesn't exist.
 	getCachedElementById: function (id) {
 		var element = this.domElements[id];

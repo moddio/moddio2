@@ -196,7 +196,6 @@ var DevModeScene = /** @class */ (function (_super) {
     };
     DevModeScene.prototype.enterMapTab = function () {
         var _this = this;
-        this.gameScene.setResolution(1, false);
         if (this.gameEditorWidgets.length === 0) {
             this.devModeTools.queryWidgets();
             this.gameEditorWidgets = this.devModeTools.gameEditorWidgets;
@@ -225,7 +224,6 @@ var DevModeScene = /** @class */ (function (_super) {
         });
     };
     DevModeScene.prototype.leaveMapTab = function () {
-        this.gameScene.setResolution(this.gameScene.resolutionCoef, false);
         if (this.devModeTools)
             this.devModeTools.leaveMapTab();
         if (this.devModeTools.entityEditor.selectedEntityImage) {

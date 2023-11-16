@@ -63,8 +63,8 @@ class DevModeTools extends Phaser.GameObjects.Container {
 
 		this.scene.scale.on(Phaser.Scale.Events.RESIZE, () => {
 			toolButtonsContainer.height = (h + s) * 13;
-			if (toolButtonsContainer.height > window.innerHeight * 0.5) {
-				toolButtonsContainer.scale = (window.innerHeight * 0.5) / toolButtonsContainer.height;
+			if (toolButtonsContainer.height > this.scene.sys.game.canvas.height * 0.5) {
+				toolButtonsContainer.scale = (this.scene.sys.game.canvas.height * 0.5) / toolButtonsContainer.height;
 			}
 			toolButtonsContainer.x = palette.camera.x + palette.paletteWidth - ((h * 4) * toolButtonsContainer.scale) + 22;
 			toolButtonsContainer.y = palette.camera.y - (toolButtonsContainer.height * toolButtonsContainer.scale);
@@ -75,8 +75,8 @@ class DevModeTools extends Phaser.GameObjects.Container {
 
 		const toolButtonsContainer = this.toolButtonsContainer = new Phaser.GameObjects.Container(scene);
 		toolButtonsContainer.height = (h + s) * 13;
-		if (toolButtonsContainer.height > window.innerHeight * 0.5) {
-			toolButtonsContainer.scale = (window.innerHeight * 0.5) / toolButtonsContainer.height;
+		if (toolButtonsContainer.height > this.scene.sys.game.canvas.height * 0.5) {
+			toolButtonsContainer.scale = (this.scene.sys.game.canvas.height * 0.5) / toolButtonsContainer.height;
 		}
 		toolButtonsContainer.x = palette.camera.x + palette.paletteWidth - ((h * 4) * toolButtonsContainer.scale) + 22;
 		toolButtonsContainer.y = palette.camera.y - (toolButtonsContainer.height * toolButtonsContainer.scale);

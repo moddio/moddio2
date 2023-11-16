@@ -219,13 +219,13 @@ class DevModeScene extends PhaserScene {
 	}
 
 	enterMapTab (): void {
-        this.gameScene.setResolution(1, false);
 		if (this.gameEditorWidgets.length === 0) {
 			this.devModeTools.queryWidgets();
 			this.gameEditorWidgets = this.devModeTools.gameEditorWidgets;
 		}
 
 		this.devModeTools.enterMapTab();
+
 		this.gameScene.renderedEntities.forEach(element => {
 			element.setVisible(false);
 		});
@@ -253,7 +253,6 @@ class DevModeScene extends PhaserScene {
 	}
 
 	leaveMapTab (): void {
-        this.gameScene.setResolution(this.gameScene.resolutionCoef, false);
 		if (this.devModeTools) this.devModeTools.leaveMapTab();
 
         if (this.devModeTools.entityEditor.selectedEntityImage) {
