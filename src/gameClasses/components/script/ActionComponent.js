@@ -1276,7 +1276,6 @@ var ActionComponent = TaroEntity.extend({
 						if (unit) {
 							if (!isNaN(value)) {
 								unit.ai.maxAttackRange = value;
-								unit.ai.maxAttackRange = value;
 							}
 						}
 						break;
@@ -1287,9 +1286,7 @@ var ActionComponent = TaroEntity.extend({
 						if (unit) {
 							if (!isNaN(value)) {
 								unit.ai.letGoDistance = value;
-								unit.ai.letGoDistance = value;
 							} else {
-								unit.ai.letGoDistance = undefined;
 								unit.ai.letGoDistance = undefined;
 							}
 						}
@@ -1301,9 +1298,7 @@ var ActionComponent = TaroEntity.extend({
 						if (unit) {
 							if (!isNaN(value)) {
 								unit.ai.maxTravelDistance = value;
-								unit.ai.maxTravelDistance = value;
 							} else {
-								unit.ai.maxTravelDistance = undefined;
 								unit.ai.maxTravelDistance = undefined;
 							}
 						}
