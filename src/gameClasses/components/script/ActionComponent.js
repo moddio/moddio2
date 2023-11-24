@@ -1275,7 +1275,7 @@ var ActionComponent = TaroEntity.extend({
 						var value = self._script.variable.getValue(action.number, vars);
 						if (unit) {
 							if (!isNaN(value)) {
-								unit._stats.ai.maxAttackRange = value;
+								unit.ai.maxAttackRange = value;
 								unit.ai.maxAttackRange = value;
 							}
 						}
@@ -1286,10 +1286,10 @@ var ActionComponent = TaroEntity.extend({
 						var value = self._script.variable.getValue(action.number, vars);
 						if (unit) {
 							if (!isNaN(value)) {
-								unit._stats.ai.letGoDistance = value;
+								unit.ai.letGoDistance = value;
 								unit.ai.letGoDistance = value;
 							} else {
-								unit._stats.ai.letGoDistance = undefined;
+								unit.ai.letGoDistance = undefined;
 								unit.ai.letGoDistance = undefined;
 							}
 						}
@@ -1300,10 +1300,10 @@ var ActionComponent = TaroEntity.extend({
 						var value = self._script.variable.getValue(action.number, vars);
 						if (unit) {
 							if (!isNaN(value)) {
-								unit._stats.ai.maxTravelDistance = value;
+								unit.ai.maxTravelDistance = value;
 								unit.ai.maxTravelDistance = value;
 							} else {
-								unit._stats.ai.maxTravelDistance = undefined;
+								unit.ai.maxTravelDistance = undefined;
 								unit.ai.maxTravelDistance = undefined;
 							}
 						}

@@ -930,7 +930,7 @@ var Unit = TaroEntityPhysics.extend({
 		}
 
 		if (self.ai && self._stats.ai) {
-			if (self._stats.ai.enabled) {
+			if (self.ai.enabled) {
 				self.ai.enable();
 			} else {
 				self.ai.disable();

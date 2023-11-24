@@ -22,7 +22,15 @@ var AIComponent = TaroEntity.extend({
 
 			if (unit._stats.ai.sensorRadius > 0 && unit.sensor == undefined) {
 				unit.sensor = new Sensor(unit, unit._stats.ai.sensorRadius);
-		   }
+		   	}
+
+			self.pathFindingMethod = unit._stats.ai.pathFindingMethod; // options: simple/a* (coming soon)
+			self.idleBehaviour = unit._stats.ai.idleBehaviour; // options: wander/stay
+			self.sensorResponse = unit._stats.ai.sensorResponse; // options: none/flee/none (default)
+			self.attackResponse = unit._stats.ai.attackResponse; // options: fight/flee/none (default)
+			self.maxTravelDistance = unit._stats.ai.maxTravelDistance; // how far unit's willing to flee/chase target until returning to its spawn position - options: undefined value for infinite distance
+			self.letGoDistance = unit._stats.ai.letGoDistance; // options: undefined value for infinite distance
+			self.maxAttackRange = unit._stats.ai.maxAttackRange;
 
 			unit._stats.aiEnabled = unit._stats.ai.enabled;
 			if (unit._stats.aiEnabled) {
@@ -39,13 +47,6 @@ var AIComponent = TaroEntity.extend({
 			unit.streamUpdateData([{aiEnabled: true }]);
 		}
 
-		self.pathFindingMethod = unit._stats.ai.pathFindingMethod; // options: simple/a* (coming soon)
-		self.idleBehaviour = unit._stats.ai.idleBehaviour; // options: wander/stay
-		self.sensorResponse = unit._stats.ai.sensorResponse; // options: none/flee/none (default)
-		self.attackResponse = unit._stats.ai.attackResponse; // options: fight/flee/none (default)
-		self.maxTravelDistance = unit._stats.ai.maxTravelDistance; // how far unit's willing to flee/chase target until returning to its spawn position - options: undefined value for infinite distance
-		self.letGoDistance = unit._stats.ai.letGoDistance; // options: undefined value for infinite distance
-		self.maxAttackRange = unit._stats.ai.maxAttackRange;
 		self.previousPosition = { x: unit._translate.x, y: unit._translate.y }; // last position recorded before fleeing
 		self.nextMoveAt = taro._currentTime;
 		self.goIdle();
