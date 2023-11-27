@@ -230,6 +230,20 @@ var AttributeComponent = TaroEntity.extend({
 								self._entity.streamUpdateData([attrData], this._entity?.getOwner()?._stats?.clientId);
 							}
 						}
+						if (newValue <= 0 && oldValue > 0) // when attribute becomes zero, trigger attributeBecomesZero event
+						{	
+							// unit's health became 0. announce death
+							if (self._entity._category == 'unit' && attributeTypeId == 'health') {
+								self._entity.ai.announceDeath();
+							}
+						}
+						// check if user breaks his highscore then assign it to new highscore
+						if ((attributeTypeId == taro.game.data.settings.persistentScoreAttributeId) && self._entity._stats.highscore < newValue) {
+							if (!self._entity._stats.newHighscore) {
+								taro.gameText.alertHighscore(self._entity._stats.clientId);
+							}
+							self._entity._stats.newHighscore = newValue;
+						}
 					}
 				}
 				if (newValue != oldValue) {
@@ -237,12 +251,6 @@ var AttributeComponent = TaroEntity.extend({
 					triggeredBy[`${this._entity._category}Id`] = this._entity.id();
 					if (newValue <= 0 && oldValue > 0) // when attribute becomes zero, trigger attributeBecomesZero event
 					{	
-						if (taro.isServer) {
-							// unit's health became 0. announce death
-							if (self._entity._category == 'unit' && attributeTypeId == 'health') {
-								self._entity.ai.announceDeath();
-							}
-						}
 						// necessary as self._entity can be 'player' which doesn't have scriptComponent
 						if (self._entity._category == 'unit' || self._entity._category == 'item' || self._entity._category == 'projectile') {
 							self._entity.script.trigger('entityAttributeBecomesZero', triggeredBy);
@@ -255,15 +263,6 @@ var AttributeComponent = TaroEntity.extend({
 							self._entity.script.trigger('entityAttributeBecomesFull', triggeredBy);
 						}
 						taro.queueTrigger(`${this._entity._category}AttributeBecomesFull`, triggeredBy);
-					}
-					if (taro.isServer) {
-						// check if user breaks his highscore then assign it to new highscore
-						if ((attributeTypeId == taro.game.data.settings.persistentScoreAttributeId) && self._entity._stats.highscore < newValue) {
-							if (!self._entity._stats.newHighscore) {
-								taro.gameText.alertHighscore(self._entity._stats.clientId);
-							}
-							self._entity._stats.newHighscore = newValue;
-						}
 					}
 				}
 				if (taro.isClient) {
