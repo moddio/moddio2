@@ -231,7 +231,7 @@ var AttributeComponent = TaroEntity.extend({
 							}
 						}
 						if (newValue <= 0 && oldValue > 0) // when attribute becomes zero, trigger attributeBecomesZero event
-						{	
+						{
 							// unit's health became 0. announce death
 							if (self._entity._category == 'unit' && attributeTypeId == 'health') {
 								self._entity.ai.announceDeath();
