@@ -233,7 +233,7 @@ var AttributeComponent = TaroEntity.extend({
 					}
 				}
 				if (newValue != oldValue) {
-					var triggeredBy = { attribute: attribute };
+					const triggeredBy = { attribute: attribute };
 					triggeredBy[`${this._entity._category}Id`] = this._entity.id();
 					if (newValue <= 0 && oldValue > 0) // when attribute becomes zero, trigger attributeBecomesZero event
 					{	
