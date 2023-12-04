@@ -32,7 +32,6 @@
 	},
 	"homepage": "https://github.com/moddio/taro#readme",
 	"dependencies": {
-		"@types/emscripten": "^1.39.6",
 		"cookie-parser": "^1.4.6",
 		"currency.js": "^2.0.4",
 		"ejs": "^3.1.8",
@@ -61,6 +60,7 @@
 	"devDependencies": {
 		"@babel/core": "^7.18.9",
 		"@babel/eslint-parser": "^7.18.9",
+		"@types/emscripten": "^1.39.10",
 		"@types/google.analytics": "^0.0.42",
 		"@types/jquery": "^3.5.16",
 		"@types/node": "^18.15.11",
