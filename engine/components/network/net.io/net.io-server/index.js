@@ -572,7 +572,7 @@ NetIo.Server = NetIo.EventingClass.extend({
 		this._http = require('http');
 		this._https = require('https');
 		this._msgpack = require('msgpack-lite');
-		const { compressToUTF16 } = require('lz-string');
+		// const { compressToUTF16 } = require('lz-string');
 		const LZUTF8 = require('lzutf8');
 
 		// this._compress = compressToUTF16;
