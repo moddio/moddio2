@@ -41,7 +41,6 @@
 		"isomorphic-dompurify": "^1.9.0",
 		"jsonwebtoken": "^8.5.1",
 		"lodash": "^4.17.21",
-		"lz-string": "^1.4.4",
 		"lzutf8": "^0.6.3",
 		"mixpanel": "^0.17.0",
 		"msgpack-lite": "^0.1.26",
