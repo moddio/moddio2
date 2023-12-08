@@ -1230,6 +1230,20 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'mathCeiling':
+						var value = self.getValue(text.value, vars);
+
+						if (!isNaN(value)) {
+							returnValue = Math.ceil(value);
+						}
+
+						break;
+
+					case 'isPlayerOnMobile':
+						var player = self.getValue(text.player, vars);
+						returnValue = !!(player && player._stats.isMobile);
+						break;
+
 					case 'log10':
 						var value = self.getValue(text.value, vars);
 
