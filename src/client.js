@@ -782,7 +782,7 @@ const Client = TaroEventingClass.extend({
 		// if the AdInPlay player is initialised, means the ad blocker is not enabled
 		let isAdBlockEnabled = window.isAdBlockEnabled || typeof window?.aiptag?.adplayer === 'undefined';
 		const data = {
-			number: (Math.floor(Math.random() * 999) + 100) // yeah ok cool, why?
+			number: (Math.floor(Math.random() * 999) + 100), // yeah ok cool, why?
 			isMobile: taro.isMobile
 		};
 
