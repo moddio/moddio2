@@ -209,7 +209,7 @@ var ServerNetworkEvents = {
 							points: 0,
 							coins: 0,
 							clientId: client._id,
-							purchasables: {}
+							purchasables: {},
 							isMobile: data.isMobile
 						};
 						// console.log("createPlayer (logged-in user)")
@@ -263,7 +263,7 @@ var ServerNetworkEvents = {
 						coins: 0,
 						points: 0,
 						clientId: clientId,
-						isAdBlockEnabled: data.isAdBlockEnabled
+						isAdBlockEnabled: data.isAdBlockEnabled,
 						isMobile: data.isMobile
 					});
 				}
