@@ -783,6 +783,7 @@ const Client = TaroEventingClass.extend({
 		let isAdBlockEnabled = window.isAdBlockEnabled || typeof window?.aiptag?.adplayer === 'undefined';
 		const data = {
 			number: (Math.floor(Math.random() * 999) + 100) // yeah ok cool, why?
+			isMobile: taro.isMobile
 		};
 
 		taro.client.removeOutsideEntities = undefined;
