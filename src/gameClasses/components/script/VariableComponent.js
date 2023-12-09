@@ -1240,8 +1240,8 @@ var VariableComponent = TaroEntity.extend({
 						break;
 
 					case 'isPlayerOnMobile':
-						returnValue = taro.isMobile;
-
+						var player = self.getValue(text.player, vars);
+						returnValue = !!(player && player._stats.isMobile);
 						break;
 
 					case 'log10':
