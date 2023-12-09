@@ -210,6 +210,7 @@ var ServerNetworkEvents = {
 							coins: 0,
 							clientId: client._id,
 							purchasables: {}
+							isMobile: data.isMobile
 						};
 						// console.log("createPlayer (logged-in user)")
 						var player = taro.game.createPlayer();
