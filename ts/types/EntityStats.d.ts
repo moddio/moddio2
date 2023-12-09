@@ -5,6 +5,7 @@ declare interface EntityStats {
 	selectedUnitId: string | number | object;
 	userId: string;
 	defaultData: any;
+	isMobile: boolean;
 
 	name: string;
 	nameLabelColor?: string;
