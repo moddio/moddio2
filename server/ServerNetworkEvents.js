@@ -263,6 +263,7 @@ var ServerNetworkEvents = {
 						points: 0,
 						clientId: clientId,
 						isAdBlockEnabled: data.isAdBlockEnabled
+						isMobile: data.isMobile
 					});
 				}
 
