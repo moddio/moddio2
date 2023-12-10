@@ -2017,6 +2017,8 @@ var Unit = TaroEntityPhysics.extend({
 								break;
 							case 'force':
 								self.applyForce(vector.x, vector.y);
+								this.lastBehaviourAt = Date.now()
+								
 								break;
 							case 'impulse':
 								self.applyImpulse(vector.x, vector.y);

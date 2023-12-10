@@ -1659,9 +1659,8 @@ var TaroEngine = TaroEntity.extend({
 					if (taro.profiler.isEnabled) {
 						var startTime = performance.now();
 					}
-
 					taro.physics.update(timeElapsed);
-
+					taro.physicsTimeElapsed = timeElapsed;
 					// log how long it took to update physics world step
 					if (taro.profiler.isEnabled) {
 						taro.profiler.logTimeElapsed("physicsStep", startTime);
@@ -1676,7 +1675,7 @@ var TaroEngine = TaroEntity.extend({
 			taro.totalOrphans = 0;
 
 			// Update the scenegraph - this is where entity _behaviour() is called
-			if (self._enableUpdates) {
+			if (self._enableUpdates && taro.gameLoopTickHasExecuted) {
 				// taro.updateCount = {}
 				// taro.tickCount = {}
 
