@@ -1239,6 +1239,12 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'isPlayerOnMobile':
+						var player = self.getValue(text.player, vars);
+						returnValue = !!(player && player._stats.isMobile);
+
+						break;
+
 					case 'getEntireMapRegion':
 						var region = {
 							x: 0,
