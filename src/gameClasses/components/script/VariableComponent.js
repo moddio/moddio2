@@ -1694,6 +1694,16 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'getPlayerUsername':
+						var player = self.getValue(text.player, vars);
+						var username = player._stats.username;
+
+						if (player) {
+							returnValue = username;
+						}
+
+						break;
+
 					case 'getUnitId':
 						var unit = self.getValue(text.unit, vars);
 
