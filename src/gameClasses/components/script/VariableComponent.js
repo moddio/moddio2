@@ -1703,6 +1703,13 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'fpsOfUnit':
+						var unit = self.getValue(text.unit, vars);
+
+						returnValue = unit._fpsRate;
+
+						break;
+
 					case 'getEntityId':
 						var entity = self.getValue(text.entity, vars);
 
