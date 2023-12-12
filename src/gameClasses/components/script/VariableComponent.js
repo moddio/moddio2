@@ -671,7 +671,7 @@ var VariableComponent = TaroEntity.extend({
 						returnValue = unit.isMoving;
 
 						break;
-						
+
 					case 'getUnitBody':
 						var unit = self.getValue(text.unit, vars);
 						if (unit && unit._category == 'unit') {
@@ -1237,6 +1237,23 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'mathCeiling':
+						var value = self.getValue(text.value, vars);
+						if (!isNaN(value)) {
+							returnValue = Math.ceil(value);
+						}
+						break;
+
+					case 'getPlayerUsername':
+    					var player = self.getValue(text.player, vars);
+						var username = player._stats.username;
+
+						if (player) {
+							returnValue = username;
+						}
+
+						break;
+
 					case 'log10':
 						var value = self.getValue(text.value, vars);
 
@@ -1290,6 +1307,36 @@ var VariableComponent = TaroEntity.extend({
 									returnValue = { x: 0, y: 0 };
 								}
 							}
+						}
+
+						break;
+
+					case 'getEntityPositionOnScreen':
+						if (taro.isClient) {
+							entity = self.getValue(text.entity, vars);
+
+							if (entity) {
+								if (entity._category === 'item' && entity._stats && entity._stats.currentBody && entity._stats.currentBody.type === 'spriteOnly') {
+									var ownerUnit = entity.getOwnerUnit();
+									var unitPosition = rfdc()(ownerUnit._translate);
+
+									unitPosition.x = (ownerUnit._translate.x) + (entity._stats.currentBody.unitAnchor.y * Math.cos(ownerUnit._rotate.z + Math.radians(-90))) + (entity._stats.currentBody.unitAnchor.x * Math.cos(ownerUnit._rotate.z));
+									unitPosition.y = (ownerUnit._translate.y) + (entity._stats.currentBody.unitAnchor.y * Math.sin(ownerUnit._rotate.z + Math.radians(-90))) + (entity._stats.currentBody.unitAnchor.x * Math.sin(ownerUnit._rotate.z));
+									returnValue = JSON.parse(JSON.stringify(unitPosition));
+								} else {
+									if (entity.x != undefined && entity.y != undefined) {
+										returnValue = JSON.parse(JSON.stringify(entity));
+									} else if (entity._translate) {
+										returnValue = rfdc()(entity._translate);
+									} else {
+										returnValue = { x: 0, y: 0 };
+									}
+								}
+							}
+
+							const bounds = taro.renderer.getViewportBounds();
+							returnValue.x -= bounds.x;
+							returnValue.y -= bounds.y;
 						}
 
 						break;
@@ -1706,17 +1753,7 @@ var VariableComponent = TaroEntity.extend({
 
 						returnValue = player._stats.highscore;
 
-						break;
-
-					case 'getPlayerUsername':
-						var player = self.getValue(text.player, vars);
-						var username = player._stats.username;
-
-						if (player) {
-							returnValue = username;
-						}
-
-						break;
+						break;	
 
 					case 'getUnitId':
 						var unit = self.getValue(text.unit, vars);
@@ -1865,6 +1902,15 @@ var VariableComponent = TaroEntity.extend({
 						}
 
 						break;
+
+					case 'toUpperCase':
+						var string = self.getValue(text.string, vars);
+
+						if (string && !isNaN(string.length)) {
+							returnValue = string.toUpperCase();
+						}
+
+						break;	
 
 					case 'substringOf':
 						var string = self.getValue(text.string, vars);
