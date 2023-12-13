@@ -528,13 +528,17 @@ var PlayerUiComponent = TaroEntity.extend({
 				case 'setHtml':
 					$(taro.client.getCachedElementById(data.elementId)).html(data.htmlStr);
 					break;
+				case 'setHtml':
+					$(taro.client.getCachedElementById(data.elementId)).remove();
+					break;
 				default:
 					break;
 			}
 		} catch (err) {
 			console.log("playerUi - updateUiElement error: ", err);
 		}
-	}
+	},
+
 });
 
 if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PlayerUiComponent; }
