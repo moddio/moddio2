@@ -3153,9 +3153,9 @@ var ActionComponent = TaroEntity.extend({
 
 						if (elementId && player && player._stats && player._stats.clientId) {
 							taro.network.send('ui', {
-								command: 'removeUiElement',
+								command: 'updateUiElement',
 								elementId: elementId,
-								action: 'setHtml',
+								action: 'remove',
 								htmlStr: htmlStr || ''
 							}, player._stats.clientId);
 						}
