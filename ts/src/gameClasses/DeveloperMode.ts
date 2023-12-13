@@ -662,14 +662,6 @@ class DeveloperMode {
 
 		taro.$$('unit').forEach(unit => {
 			if (unit._stats.type === data.typeId) {
-				//removing clearing all items from unit for now, later we will add a way to reset items
-				/*for (let i = 0; i < unit._stats.itemIds.length; i++) {
-					var itemId = unit._stats.itemIds[i];
-					var item = taro.$(itemId);
-					if (item) {
-						item.remove();
-					}
-				}*/
 				unit.changeUnitType(data.typeId, {}, false);
 				unit.emit('update-texture', 'basic_texture_change');
 			}
@@ -677,6 +669,14 @@ class DeveloperMode {
 		if (taro.isServer) {
 			taro.network.send('updateUnit', data);
 		}
+	}
+
+	resetUnit(data) {
+		taro.$$('unit').forEach(unit => {
+			if (unit._stats.type === data.typeId) {
+				unit.resetUnitType();
+			}
+		});
 	}
 
 	deleteUnit(data) {
@@ -741,6 +741,14 @@ class DeveloperMode {
 		}
 	}
 
+	resetItem(data) {
+		taro.$$('item').forEach(item => {
+			if (item._stats.itemTypeId === data.typeId) {
+				item.resetItemType();
+			}
+		});
+	}
+
 	deleteItem(data) {
 		taro.$$('item').forEach(item => {
 			if (item._stats.type === data.typeId) {
@@ -779,6 +787,14 @@ class DeveloperMode {
 		}
 	}
 
+	resetProjectile(data) {
+		taro.$$('projectile').forEach(projectile => {
+			if (projectile._stats.type === data.typeId) {
+				projectile.resetProjectileType();
+			}
+		});
+	}
+
 	deleteProjectile(data) {
 		taro.$$('projectile').forEach(projectile => {
 			if (projectile._stats.type === data.typeId) {
@@ -786,7 +802,6 @@ class DeveloperMode {
 			}
 		});
 	}
-
 
 	editEntity(data: EditEntityData, clientId: string) {
 		if (taro.isClient) {
@@ -804,6 +819,10 @@ class DeveloperMode {
 							this.updateUnit(data);
 							break;
 
+						case 'reset':
+							this.resetUnit(data);
+							break;
+
 						case 'delete':
 							//this.deleteUnit(data);
 							break;
@@ -816,6 +835,10 @@ class DeveloperMode {
 
 						case 'update':
 							this.updateItem(data);
+							break;
+						
+						case 'reset':
+							this.resetItem(data);
 							break;
 
 						case 'delete':
@@ -830,6 +853,10 @@ class DeveloperMode {
 
 						case 'update':
 							this.updateProjectile(data);
+							break;
+
+						case 'reset':
+							this.resetProjectile(data);
 							break;
 
 						case 'delete':

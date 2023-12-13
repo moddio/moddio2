@@ -33,7 +33,7 @@ var TilePalette = /** @class */ (function (_super) {
         // When loading from an array, make sure to specify the tileWidth and tileHeight
         var map = _this.map = _this.scene.make.tilemap({ key: 'palette', data: paletteMap, tileWidth: tileset.tileWidth, tileHeight: tileset.tileHeight });
         var texturesLayer = _this.texturesLayer = map.createLayer(0, tileset, 0, 0).setOrigin(0, 0).setInteractive();
-        _this.x = -texturesLayer.width;
+        _this.x = -(texturesLayer.width * 5);
         _this.y = 0;
         texturesLayer.setPosition(_this.x, _this.y);
         scene.add.existing(texturesLayer);

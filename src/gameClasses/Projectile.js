@@ -217,6 +217,18 @@ var Projectile = TaroEntityPhysics.extend({
 
 	},
 
+	resetProjectileType: function () {
+		const data = taro.game.cloneAsset('projectileTypes', this._stats.type);
+
+		//reset attributes
+		for (var attrId in this._stats.attributes) {
+			if (this._stats.attributes[attrId]) {
+				var attributeValue = data.attributes[attrId].value; // default attribute value from new unit type
+				this._stats.attributes[attrId].value = Math.max(data.attributes[attrId].min, Math.min(data.attributes[attrId].max, parseFloat(attributeValue)));
+			}
+		}
+	},
+
 	streamUpdateData: function (queuedData, clientId) {
 		
 		TaroEntity.prototype.streamUpdateData.call(this, queuedData, clientId);

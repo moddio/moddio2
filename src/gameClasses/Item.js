@@ -983,6 +983,18 @@ var Item = TaroEntityPhysics.extend({
 		}
 	},
 
+	resetItemType: function () {
+		const data = taro.game.cloneAsset('itemTypes', this._stats.itemTypeId);
+
+		//reset attributes
+		for (var attrId in this._stats.attributes) {
+			if (this._stats.attributes[attrId]) {
+				var attributeValue = data.attributes[attrId].value; // default attribute value from new unit type
+				this._stats.attributes[attrId].value = Math.max(data.attributes[attrId].min, Math.min(data.attributes[attrId].max, parseFloat(attributeValue)));
+			}
+		}
+	},
+
 	streamUpdateData: function (queuedData, clientId) {
 		var self = this;
 
