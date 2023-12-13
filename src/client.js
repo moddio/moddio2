@@ -903,25 +903,6 @@ const Client = TaroEventingClass.extend({
 
 		// console.log("returning newly found element", ref, element)
 		return element;
-	},
-
-	getElementInnerHtmlById: function (id) {
-		var element = this.domElements[id];
-
-		// Check if the cached element exists and is valid
-		if (element && element != '') {
-			// console.log("returning cached element", id, element)
-			return element; // Return the cached element
-		}
-
-		// Element is not cached or is invalid, query the DOM
-		var element = document.getElementById(id);
-		if (element) {
-			this.domElements[id] = element; // Cache the element
-		}
-
-		// console.log("returning newly found element", ref, element)
-		return element.innerHTML;
 	}
 
 });
