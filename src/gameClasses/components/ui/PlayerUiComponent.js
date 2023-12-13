@@ -528,7 +528,7 @@ var PlayerUiComponent = TaroEntity.extend({
 				case 'setHtml':
 					$(taro.client.getCachedElementById(data.elementId)).html(data.htmlStr);
 					break;
-				case 'setHtml':
+				case 'remove':
 					$(taro.client.getCachedElementById(data.elementId)).remove();
 					break;
 				default:
@@ -537,7 +537,7 @@ var PlayerUiComponent = TaroEntity.extend({
 		} catch (err) {
 			console.log("playerUi - updateUiElement error: ", err);
 		}
-	},
+	}
 
 });
 
