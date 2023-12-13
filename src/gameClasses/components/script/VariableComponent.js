@@ -2220,6 +2220,18 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'getUiElementInnerHTMLForPlayer':
+						var elementId = self.getValue(action.elementId, vars);
+						var player = self.getValue(action.player, vars);
+
+						if (elementId && player && player._stats && player._stats.clientId) {
+							returnValue = taro.network.send('ui', {
+								command: 'getUiElementInnerHTML',
+								elementId: elementId,
+							}, player._stats.clientId);
+						}
+						break
+						
 					case 'undefinedValue':
 						returnValue = undefined;
 
