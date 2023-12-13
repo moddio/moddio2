@@ -3156,7 +3156,6 @@ var ActionComponent = TaroEntity.extend({
 								command: 'updateUiElement',
 								elementId: elementId,
 								action: 'remove',
-								htmlStr: htmlStr || ''
 							}, player._stats.clientId);
 						}
 						break;
