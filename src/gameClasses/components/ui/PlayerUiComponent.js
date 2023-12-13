@@ -537,6 +537,14 @@ var PlayerUiComponent = TaroEntity.extend({
 		} catch (err) {
 			console.log("playerUi - updateUiElement error: ", err);
 		}
+	},
+
+	getUiElementInnerHTML: function (data) {
+		try {
+			return $(taro.client.getCachedElementById(data.elementId)).html();
+		} catch (err) {
+			console.log("playerUi - getUiElementInnerHTML error: ", err);
+		}
 	}
 
 });
