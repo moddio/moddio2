@@ -2220,6 +2220,20 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'getSimplifiedTimeString':
+						var seconds = self.getValue(text.seconds, vars);
+						var timestring = new Date(parseFloat(seconds) * 1000).toISOString().substr(11, 8);
+
+						if (timestring.startsWith('00')) {
+							returnValue = timestring.substr(3, 7);
+						} else if (timestring.startsWith('00:00')) {
+							returnValue = seconds
+						} else {
+							returnValue = timestring
+						}
+
+						break;
+
 					case 'undefinedValue':
 						returnValue = undefined;
 
