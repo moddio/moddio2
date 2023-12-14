@@ -123,6 +123,21 @@ var TaroEntity = TaroObject.extend({
 
 		return this;
 	},
+
+	sU: function () {
+
+		if (taro.isServer) {
+			// this._hidden = false; // never hide it, because it'll stop processing stream queue
+			this.streamUpdateData([{ isHidden: false }]);
+		} else if (taro.isClient) {
+			// this.disableInterpolation(false)
+			// add a little bit of delay before showing the item, so we don't see item translating from old location to new location
+			this._hidden = false;
+			this.emit('show');
+		}
+
+		return this;
+	},
 	
 	/**
 	 * Sets the entity as hidden and cannot be interacted with.
@@ -4318,7 +4333,7 @@ var TaroEntity = TaroObject.extend({
 								this.hide();
 								break;
 							case 'showUnit':
-								this.show();
+								this.sU();
 								break;
 							case 'hideNameLabel':
 								this.emit('hide-label');
