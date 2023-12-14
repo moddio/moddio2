@@ -3146,6 +3146,20 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+					case 'removeUiElementForPlayer':
+                        var elementId = self._script.variable.getValue(action.elementId, vars);
+                        var htmlStr = taro.sanitizer(self._script.variable.getValue(action.htmlStr, vars));
+                        var player = self._script.variable.getValue(action.player, vars);
+
+                        if (elementId && player && player._stats && player._stats.clientId) {
+                            taro.network.send('ui', {
+                                command: 'updateUiElement',
+                                elementId: elementId,
+                                action: 'remove',
+                            }, player._stats.clientId);
+                        }
+                        break;
+
 					case 'comment':
 						break;
 					default:
