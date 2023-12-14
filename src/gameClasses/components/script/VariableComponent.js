@@ -1255,8 +1255,32 @@ var VariableComponent = TaroEntity.extend({
 
 					case 'convertNumberToLargeNotation':
 						var value = self.getValue(text.value, vars);
-						
-						if (Math.abs(Number(value)) >= 1.0e+9) {
+
+						if (Math.abs(Number(value)) >= 1.0e+33) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+33).toFixed(2)}Dc`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+30) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+30).toFixed(2)}No`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+27) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+27).toFixed(2)}Oc`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+24) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+24).toFixed(2)}Sp`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+21) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+21).toFixed(2)}Sx`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+18) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+18).toFixed(2)}Qi`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+15) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+15).toFixed(2)}Qa`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+12) {
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+12).toFixed(2)}T`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+9) {
 							// Nine Zeroes for Billions
 							returnValue = `${(Math.abs(Number(value)) / 1.0e+9).toFixed(2)}B`;
 

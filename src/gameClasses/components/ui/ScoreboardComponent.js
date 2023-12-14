@@ -111,19 +111,43 @@ var ScoreboardComponent = TaroEntity.extend({
 	convertNumbersToKMB: function (labelValue) {
 		if (taro.game.data.settings.prettifyingScoreboard) {
 			// Nine Zeroes for Billions
-			return Math.abs(Number(labelValue)) >= 1.0e+9
+			return Math.abs(Number(labelValue)) >= 1.0e+33
 
-				? `${(Math.abs(Number(labelValue)) / 1.0e+9).toFixed(2)}B`
-				// Six Zeroes for Millions
-				: Math.abs(Number(labelValue)) >= 1.0e+6
+				? `${(Math.abs(Number(labelValue)) / 1.0e+33).toFixed(2)}Dc`
+				: Math.abs(Number(labelValue)) >= 1.0e+30
 
-					? `${(Math.abs(Number(labelValue)) / 1.0e+6).toFixed(2)}M`
-					// Three Zeroes for Thousands
-					: Math.abs(Number(labelValue)) >= 1.0e+3
+					? `${(Math.abs(Number(labelValue)) / 1.0e+30).toFixed(2)}No`
+					: Math.abs(Number(labelValue)) >= 1.0e+27
 
-						? `${(Math.abs(Number(labelValue)) / 1.0e+3).toFixed(2)}K`
+						? `${(Math.abs(Number(labelValue)) / 1.0e+27).toFixed(2)}Oc`
+						: Math.abs(Number(labelValue)) >= 1.0e+24
 
-						: Math.abs(Number(labelValue));
+							? `${(Math.abs(Number(labelValue)) / 1.0e+24).toFixed(2)}Sp`
+							: Math.abs(Number(labelValue)) >= 1.0e+21
+
+								? `${(Math.abs(Number(labelValue)) / 1.0e+21).toFixed(2)}Sx`
+								: Math.abs(Number(labelValue)) >= 1.0e+18
+
+									? `${(Math.abs(Number(labelValue)) / 1.0e+18).toFixed(2)}Qi`
+									: Math.abs(Number(labelValue)) >= 1.0e+15
+
+										? `${(Math.abs(Number(labelValue)) / 1.0e+15).toFixed(2)}Qa`
+										: Math.abs(Number(labelValue)) >= 1.0e+12
+
+											? `${(Math.abs(Number(labelValue)) / 1.0e+12).toFixed(2)}T`
+											: Math.abs(Number(labelValue)) >= 1.0e+9
+
+												? `${(Math.abs(Number(labelValue)) / 1.0e+9).toFixed(2)}B`
+												// Six Zeroes for Millions
+												: Math.abs(Number(labelValue)) >= 1.0e+6
+
+													? `${(Math.abs(Number(labelValue)) / 1.0e+6).toFixed(2)}M`
+													// Three Zeroes for Thousands
+													: Math.abs(Number(labelValue)) >= 1.0e+3
+
+														? `${(Math.abs(Number(labelValue)) / 1.0e+3).toFixed(2)}K`
+
+														: Math.abs(Number(labelValue));
 		} else {
 			return labelValue;
 		}
