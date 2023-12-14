@@ -528,6 +528,9 @@ var PlayerUiComponent = TaroEntity.extend({
 				case 'setHtml':
 					$(taro.client.getCachedElementById(data.elementId)).html(data.htmlStr);
 					break;
+				case 'remove':
+                    $(taro.client.getCachedElementById(data.elementId)).remove();
+                    break;
 				default:
 					break;
 			}
