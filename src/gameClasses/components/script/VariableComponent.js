@@ -1253,6 +1253,27 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'convertNumberToLargeNotation':
+						var value = self.getValue(text.value, vars);
+						
+						if (Math.abs(Number(value)) >= 1.0e+9) {
+							// Nine Zeroes for Billions
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+9).toFixed(2)}B`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+6) {
+							// Six Zeroes for Millions
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+6).toFixed(2)}M`;
+
+						} else if (Math.abs(Number(value)) >= 1.0e+3) {
+							// Three Zeroes for Thousands
+							returnValue = `${(Math.abs(Number(value)) / 1.0e+3).toFixed(2)}K`;
+
+						} else {
+							returnValue = value;
+						}
+
+						break;
+
 					case 'getEntireMapRegion':
 						var region = {
 							x: 0,
