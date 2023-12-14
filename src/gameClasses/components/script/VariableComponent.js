@@ -665,6 +665,15 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'entitysFacingAngle':
+						var entity = self.getValue(text.entity, vars);
+						if (entity && entity._category == 'entity') {
+							returnValue = entity._rotate && entity._rotate.z;
+							returnValue = (returnValue != undefined) ? self.roundOff(returnValue, 3) : undefined;
+						}
+
+						break;
+
 					case 'isUnitMoving':
 						var unit = self.getValue(text.unit, vars);
 
