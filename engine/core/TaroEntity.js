@@ -124,7 +124,7 @@ var TaroEntity = TaroObject.extend({
 		return this;
 	},
 
-	sU: function () {
+	showEntity: function () {
 
 		if (taro.isServer) {
 			// this._hidden = false; // never hide it, because it'll stop processing stream queue
@@ -4333,7 +4333,7 @@ var TaroEntity = TaroObject.extend({
 								this.hide();
 								break;
 							case 'showUnit':
-								this.sU();
+								this.showEntity();
 								break;
 							case 'hideNameLabel':
 								this.emit('hide-label');
