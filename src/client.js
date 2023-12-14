@@ -387,7 +387,7 @@ const Client = TaroEventingClass.extend({
 				this._trackTranslateSmoothing = gameData.settings.camera.trackingDelay || 15;
 			}
 
-			this.sV(zoom);
+			this.setCameraZoom(zoom);
 
 			taro.addComponent(TimerComponent)
 				.addComponent(ThemeComponent)
@@ -521,7 +521,7 @@ const Client = TaroEventingClass.extend({
 		return firstChoice || secondChoice;
 	},
 
-	sV: function (zoom) {
+	setCameraZoom: function (zoom) {
 		this.zoom = zoom;
 		if (taro.developerMode.active && taro.developerMode.activeTab !== 'play') {
 
