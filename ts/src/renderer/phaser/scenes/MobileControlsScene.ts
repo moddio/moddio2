@@ -48,8 +48,8 @@ class MobileControlsScene extends PhaserScene {
 					break;
 
 				default:
-					const relativeX = Math.trunc((x + w / 2) / 960 * window.outerWidth * window.devicePixelRatio - w / 2);
-					const relativeY = Math.trunc((y + h / 2) / 540 * window.outerHeight * window.devicePixelRatio);
+					const relativeX = Math.trunc((x + w / 2) / 960 * window.innerWidth - w / 2);
+					const relativeY = Math.trunc((y + h / 2) / 540 * window.innerHeight - h / 2);
 
                     const uiScene = taro.renderer.scene.getScene('Ui') as UiScene;
                     let buttonExist = false;
@@ -136,14 +136,28 @@ class MobileControlsScene extends PhaserScene {
 		let resized = false;
 
 		taro.mobileControls.on('orientationchange', (e: string) => {
-			this.game.scale.setGameSize(window.outerWidth * window.devicePixelRatio, window.outerHeight * window.devicePixelRatio);
-			if (resized) {
-				resized = false;
-			} else {
-				resized = true;
-				window.dispatchEvent(new Event('resize'));
-			}
-		});
+            switch(e) {
+                case 'portrait-primary':
+                    this.game.scale.setGameSize(window.innerWidth, window.innerHeight);
+					if (resized) {
+						resized = false;
+					} else {
+						resized = true;
+                		window.dispatchEvent(new Event('resize'));
+					}
+                    break;
+                case 'landscape-primary':
+                    this.game.scale.setGameSize(window.innerWidth, window.innerHeight);
+					if (resized) {
+						resized = false;
+					} else {
+						resized = true;
+                		window.dispatchEvent(new Event('resize'));
+					}
+                    break;
+                default:  
+            }
+        });
 
 		taro.mobileControls.on('clear-controls', () => {
 

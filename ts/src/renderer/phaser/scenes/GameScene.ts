@@ -623,17 +623,13 @@ class GameScene extends PhaserScene {
 	}
 
 	setResolution (resolution: number, setResolutionCoef: boolean): void {
-		if (setResolutionCoef) {
-			this.resolutionCoef = resolution;
-		}
-
-		const width = !taro.isMobile ? window.innerWidth : window.outerWidth * window.devicePixelRatio;
-		const height = !taro.isMobile ? window.innerHeight : window.outerHeight * window.devicePixelRatio;
-
-		if (taro.developerMode.activeTab !== 'map') {
-			this.scale.setGameSize(width/resolution, height/resolution);
-		}
-	}
+        if (setResolutionCoef) {
+            this.resolutionCoef = resolution;
+        }
+        if (taro.developerMode.activeTab !== 'map') {
+            this.scale.setGameSize(window.innerWidth/resolution, window.innerHeight/resolution);
+        }
+    }
 
 	update (): void {
 
