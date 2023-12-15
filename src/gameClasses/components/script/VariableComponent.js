@@ -1971,8 +1971,9 @@ var VariableComponent = TaroEntity.extend({
 					case 'entitysFacingAngle':
 						var entity = self.getValue(text.entity, vars);
 						if (entity && !(entity._category == 'unit')) {
-							returnValue = entity._rotate && entity._rotate.z;
-							returnValue = (returnValue != undefined) ? self.roundOff(returnValue, 3) : undefined;
+							if (!isNaN(returnValue)) {
+							    returnValue = self.roundOff(returnValue, 3); 
+							}
 						}
 						break;
 
