@@ -1972,6 +1972,7 @@ var VariableComponent = TaroEntity.extend({
 						var entity = self.getValue(text.entity, vars);
 						if (entity && !(entity._category == 'unit')) {
 							if (!isNaN(returnValue)) {
+								returnvalue = entity._rotate && entity._rotate.z;
 							    returnValue = self.roundOff(returnValue, 3); 
 							}
 						}
