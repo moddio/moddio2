@@ -1968,6 +1968,14 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'entitysFacingAngle':
+						var entity = self.getValue(text.entity, vars);
+						if (entity && !(entity._category == 'unit')) {
+							returnValue = entity._rotate && entity._rotate.z;
+							returnValue = (returnValue != undefined) ? self.roundOff(returnValue, 3) : undefined;
+						}
+						break;
+
 					case 'getMin':
 						var num1 = self.getValue(text.num1, vars);
 						var num2 = self.getValue(text.num2, vars);
