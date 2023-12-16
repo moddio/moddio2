@@ -99,7 +99,7 @@ var TaroChatServer = {
 		}
 
 		// do not show command messages that start with '/'. e.g. /ban user
-		if (message != undefined && message[0] == '/') {
+		if (message != undefined && message[0] == '/' || message[0] == '!') {
 			return;
 		}
 
