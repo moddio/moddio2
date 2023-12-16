@@ -15,9 +15,13 @@ var TaroChatComponent = TaroEventingClass.extend({
 
 		/* CEXCLUDE */
 		if (taro.isServer) {
-			if (process.env.ENV != 'standalone') {
-				this.filter = betterFilter;
+			if (process.env.ENV != 'standalone')  {
+			  this.filter = betterFilter;
+			} else {
+			  this.filter = (text) => {
+			  console.log(text.toUpperCase()); // just to test that the string provided is changed
 			}
+		  }
 
 			// this.sanitizer = require('sanitizer');
 			this.validator = require('validator');
