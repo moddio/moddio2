@@ -2018,8 +2018,6 @@ var VariableComponent = TaroEntity.extend({
 							return unit._stats.type == type;
 						});
 
-						console.log(returnValue)
-
 						break;
 
 					case 'allRegions':
