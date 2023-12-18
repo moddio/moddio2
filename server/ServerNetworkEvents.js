@@ -96,6 +96,14 @@ var ServerNetworkEvents = {
 		var client = taro.server.clients[clientId];
 		var socket = taro.network._socketById[clientId];
 
+		var existing_names = taro.$$('player').filter(player => player._stats.controlledBy === 'human').map(player => player._stats.username.substring('user'.length))
+
+		if (existing_names.includes(data.number)) {
+			do {
+				data.number = (Math.floor(Math.random() * 999) + 100);
+			} while (existing_names.includes(data.number));
+		}
+
 		if (!socket) {
 			try {
 				global.rollbar.log('No socket found with this clientId',
