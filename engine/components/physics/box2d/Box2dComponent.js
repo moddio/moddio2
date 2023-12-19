@@ -873,7 +873,6 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 				break;
 
-			case undefined:
 			case 'wall':
 				taro.script.trigger(`${entityA._category}TouchesWall`, triggeredBy);
 				entityA.script.trigger('entityTouchesWall');
@@ -901,6 +900,18 @@ var PhysicsComponent = TaroEventingClass.extend({
 		}
 
 		switch (entityB._category) {
+			case 'unit':
+				triggeredBy.unitId = entityB.id();
+				entityA.script.trigger('entityStopsTouchingUnit', triggeredBy);
+				break;
+			case 'item':
+				triggeredBy.itemId = entityB.id();
+				entityA.script.trigger('entityStopsTouchingItem', triggeredBy);
+				break;
+			case 'projectile':
+				triggeredBy.projectileId = entityB.id();
+				entityA.script.trigger('entityStopsTouchingProjectile', triggeredBy);
+				break;
 			case 'region':
 				var region = taro.script.variable.getValue({
 					function: 'getVariable',
@@ -919,8 +930,10 @@ var PhysicsComponent = TaroEventingClass.extend({
 				}
 				break;
 
-			case undefined:
-		};
+			case 'wall':
+				entityA.script.trigger('entityStopsTouchingWall');
+				break;
+		}
 	},
 
 	// Listen for when contact's begin
