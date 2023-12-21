@@ -209,6 +209,8 @@ var ActionComponent = TaroEntity.extend({
 					case 'sendPostRequest':
 						var obj = taro.variable.getValue(action.string, vars);
 						var url = taro.variable.getValue(action.url, vars);
+						var proxyUrl = process.env.PROXY_URL || '';
+						var requestUrl = `${proxyUrl}${url}`;
 						var varName = taro.variable.getValue(action.varName, vars);
 
 						try {
@@ -229,7 +231,7 @@ var ActionComponent = TaroEntity.extend({
 						}
 
 						taro.server.request.post({
-						    url: url,
+						    url: requestUrl,
 						    form: obj
 						}, function optionalCallback (err, httpResponse, body) {
 							if (err) {
