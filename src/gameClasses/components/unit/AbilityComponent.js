@@ -322,14 +322,18 @@ var AbilityComponent = TaroEntity.extend({
 		const player = this._entity.getOwner();
 		const ability = this._entity._stats.controls.unitAbilities[abilityId];
 
-		this._entity._stats.controls.unitAbilities[abilityId].name = newName;
+		if (taro.isClient && this._entity._stats.clientId === taro.network.id()) {
+			taro.client.emit('set-ability-name', abilityId, newName);
+		}
 	},
 
 	setAbilityImage: function (abilityId, imgUrl) {
 		const player = this._entity.getOwner();
 		const ability = this._entity._stats.controls.unitAbilities[abilityId];
 
-		this._entity._stats.controls.unitAbilities[abilityId] = imgUrl;
+		if (taro.isClient && this._entity._stats.clientId === taro.network.id()) {
+			taro.client.emit('set-ability-image', abilityId, imgUrl);
+		}
 	},
 
 	_behaviour: function (ctx) {

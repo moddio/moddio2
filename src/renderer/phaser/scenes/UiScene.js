@@ -71,6 +71,18 @@ var UiScene = /** @class */ (function (_super) {
             var _a;
             (_a = abilityBar.buttons[abilityId]) === null || _a === void 0 ? void 0 : _a.casting(false);
         });
+        taro.client.on('set-ability-name', function (abilityId, name) {
+            var button = abilityBar.buttons[abilityId];
+            if (button) {
+                button.name(name);
+            }
+        });
+        taro.client.on('set-ability-image', function (abilityId, img) {
+            var button = abilityBar.buttons[abilityId];
+            if (button) {
+                button.iconUrl(img);
+            }
+        });
         taro.client.on('start-ability-cooldown', function (abilityId) {
             var _a;
             (_a = abilityBar.buttons[abilityId]) === null || _a === void 0 ? void 0 : _a.cooldown(true);

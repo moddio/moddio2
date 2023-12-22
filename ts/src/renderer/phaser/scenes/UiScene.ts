@@ -59,6 +59,14 @@ class UiScene extends PhaserScene {
 			abilityBar.buttons[abilityId]?.casting(false);
 		});
 
+		taro.client.on('set-ability-name', (abilityId: string, name) => {
+			abilityBar.buttons[abilityId]?.name(name);
+		});
+
+		taro.client.on('set-ability-image', (abilityId: string, img) => {
+			abilityBar.buttons[abilityId]?.iconUrl(img);
+		});
+
 		taro.client.on('start-ability-cooldown', (abilityId: string) => {
 			abilityBar.buttons[abilityId]?.cooldown(true);
 		});
