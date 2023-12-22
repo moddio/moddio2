@@ -1633,7 +1633,7 @@ var ActionComponent = TaroEntity.extend({
 						var ability = self._script.variable.getValue(action.ability);
 						var url = self._script.variable.getValue(action.string);
 
-						unit.ability.setAbilityName(ability, url);
+						unit.ability.setAbilityImage(ability, url);
 
 						break;
 
