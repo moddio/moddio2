@@ -11,7 +11,7 @@ var TaroNetIoServer = {
 	start: function (data, callback) {
 		var self = this;
 
-		this.artificialDelay = 500; // simulated lag (ms)
+		this.artificialDelay = 0; // simulated lag (ms)
 		
 		this._socketById = {};
 		this._socketByIp = {};

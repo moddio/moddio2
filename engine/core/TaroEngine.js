@@ -1665,20 +1665,38 @@ var TaroEngine = TaroEntity.extend({
 					taro._lastphysicsTickAt = taro.now;
 					taro._physicsTickRemainder = Math.min(timeElapsed - ((1000 / taro._physicsTickRate) - taro._physicsTickRemainder), (1000 / taro._physicsTickRate));
 
+					// log how long it took to update physics world step
 					if (taro.profiler.isEnabled) {
 						var startTime = performance.now();
 					}
+					
 					taro.physics.update(timeElapsed);
 					taro.physicsTimeElapsed = timeElapsed;
+					
 					// log how long it took to update physics world step
 					if (taro.profiler.isEnabled) {
 						taro.profiler.logTimeElapsed("physicsStep", startTime);
 					}
-				}
-				
-				if (taro.isServer) {
-					taro.network.stream._sendQueue(timeStamp);
-					taro.network.stream._sendQueuedStreamData();
+
+
+					if (taro.isServer) {
+						if (taro.profiler.isEnabled) {
+							var startTime = performance.now();
+						}
+			
+						taro.network.stream._sendQueue(timeStamp);
+						taro.network.stream._sendQueuedStreamData();
+
+						// log how long it took to update physics world step
+						if (taro.profiler.isEnabled) {
+							taro.profiler.logTimeElapsed("networkStep", startTime);
+						
+							taro.profiler.logTick(50);
+						}
+					}
+
+	
+					
 				}
 			}
 
@@ -1791,27 +1809,11 @@ var TaroEngine = TaroEntity.extend({
 				}
 			}
 
-
-
-
 			// Record the lastTick value so we can
 			// calculate delta on the next tick
 			self.lastTick = self._tickStart;
 			self._dpf = self._drawCount;
 			self._drawCount = 0;
-
-			// log how long it took to update physics world step
-			if (taro.profiler.isEnabled) {
-				var startTime = performance.now();
-			}
-
-			
-			// log how long it took to update physics world step
-			if (taro.profiler.isEnabled) {
-				taro.profiler.logTimeElapsed("networkStep", startTime);
-			
-				taro.profiler.logTick(50);
-			}
 		}
 
 		

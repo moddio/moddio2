@@ -509,6 +509,8 @@ var TaroNetIoClient = {
 										entity.prevKeyFrame = entity.nextKeyFrame;
 										entity.nextKeyFrame = [now + taro.client.renderBuffer, newPosition];
 										entity.isTransforming(true);
+
+										
 									}
 								} 
 								

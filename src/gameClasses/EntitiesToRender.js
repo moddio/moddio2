@@ -105,8 +105,8 @@ var EntitiesToRender = /** @class */ (function () {
     EntitiesToRender.prototype.frameTick = function () {
         var _a;
         (_a = taro.script) === null || _a === void 0 ? void 0 : _a.trigger("renderTick");
-        taro.engineStep(Date.now(), 1000 / 60);
         taro.input.processInputOnEveryFps();
+        taro.engineStep(Date.now(), 1000 / 60);
         taro._renderFrames++;
         this.updateAllEntities();
     };

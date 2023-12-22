@@ -2662,6 +2662,18 @@ var ActionComponent = TaroEntity.extend({
 
 						break;
 
+					case 'resetEntity':
+						var entity = self._script.variable.getValue(action.entity, vars);
+						if (entity && ['unit', 'item', 'projectile'].includes(entity._category)) {
+							if (entity._category === 'unit') entity.resetUnitType();
+							else if (entity._category === 'item') entity.resetItemType();
+							else if (entity._category === 'projectile') entity.resetProjectileType();
+						} else {
+							throw new Error('invalid unit');
+						}
+
+						break;
+
 					case 'setEntityVariable':
 						var entity = self._script.variable.getValue(action.entity, vars);
 						var variable = self._script.variable.getValue(action.variable, vars);
