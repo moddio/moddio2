@@ -322,7 +322,7 @@ var AbilityComponent = TaroEntity.extend({
 		const player = this._entity.getOwner();
 		const ability = this._entity._stats.controls.unitAbilities[abilityId];
 
-		this._entity._stats.controls.unitAbilities[abilityId] = newName;
+		this._entity._stats.controls.unitAbilities[abilityId].name = newName;
 	},
 
 	_behaviour: function (ctx) {
