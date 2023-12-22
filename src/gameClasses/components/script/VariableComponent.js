@@ -2190,17 +2190,10 @@ var VariableComponent = TaroEntity.extend({
 						var unit = taro.$(id);
 						if (region) {
 							// region represent some instance of TaroRegion
-							if (region._stats) {
-								returnValue = taro.physics.getBodiesInRegion(region._stats.default)
+							returnValue = taro.physics.getBodiesInRegion(region)
 									.filter(({ _category }) => {
 										return self._entity.script.action.entityCategories.includes(_category) || !_category;
 									});
-							} else {
-								returnValue = taro.physics.getBodiesInRegion(region)
-									.filter(({ _category }) => {
-										return self._entity.script.action.entityCategories.includes(_category) || !_category;
-									});
-							}
 						} else {
 							taro.script.errorLog('region is not a valid region');
 							returnValue = [];
