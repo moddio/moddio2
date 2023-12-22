@@ -578,11 +578,7 @@ var ClientNetworkEvents = {
 
 				if (sound) {
 					var unit = taro.client.myPlayer && taro.client.myPlayer.getSelectedUnit();
-					if (volume) {
-						taro.sound.playSound(sound, (unit && unit._translate) || null, data.sound, volume);
-					} else {
-						taro.sound.playSound(sound, (unit && unit._translate) || null, data.sound, 100);
-					}
+					taro.sound.playSound(sound, (unit && unit._translate) || null, data.sound, volume ?? 100);
 				}
 				break;
 			case "stopSoundForPlayer":
