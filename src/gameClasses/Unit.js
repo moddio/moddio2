@@ -585,7 +585,7 @@ var Unit = TaroEntityPhysics.extend({
 				}
 
 				itemData.itemTypeId = itemTypeId;
-				taro.game.lastPurchasedItemId = itemTypeId
+				taro.game.lastPurchasedItemId = itemTypeId;
 				taro.network.send('ui', { command: 'shopResponse', type: 'purchase' }, self._stats.clientId);
 				// item purchased and pickup
 				self.pickUpItem(itemData, shopData.replaceItemInTargetSlot);
