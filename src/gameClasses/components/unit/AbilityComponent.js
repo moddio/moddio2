@@ -325,6 +325,13 @@ var AbilityComponent = TaroEntity.extend({
 		this._entity._stats.controls.unitAbilities[abilityId].name = newName;
 	},
 
+	setAbilityImage: function (abilityId, imgUrl) {
+		const player = this._entity.getOwner();
+		const ability = this._entity._stats.controls.unitAbilities[abilityId];
+
+		this._entity._stats.controls.unitAbilities[abilityId] = imgUrl;
+	},
+
 	_behaviour: function (ctx) {
 
 		if (Object.keys(this.abilityDurations).length > 0) {

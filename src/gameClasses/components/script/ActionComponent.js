@@ -1628,6 +1628,15 @@ var ActionComponent = TaroEntity.extend({
 
 						break;
 
+					case 'setAbilityImage':
+						var unit = self._script.variable.getValue(action.entity);
+						var ability = self._script.variable.getValue(action.ability);
+						var url = self._script.variable.getValue(action.string);
+
+						unit.ability.setAbilityName(ability, url);
+
+						break;
+
 					case 'stopCastingAbility':
 						var unit = self._script.variable.getValue(action.entity);
 						var ability = self._script.variable.getValue(action.ability);
