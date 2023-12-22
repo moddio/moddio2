@@ -786,6 +786,16 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'getLastPurchasedItem':
+						var id = taro.game.lastPurchasedItemId;
+						item = taro.$(id);
+	
+						if (item) {
+							return item;
+						}
+	
+						break;
+
 					case 'getLastTouchingUnit':
 						var id = taro.game.lastTouchingUnitId;
 						unit = taro.$(id);
