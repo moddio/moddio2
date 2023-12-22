@@ -445,6 +445,7 @@ var ActionComponent = TaroEntity.extend({
 						}
 
 						break;
+
 					case 'setPlayerName':
 
 						var name = self._script.variable.getValue(action.name, vars);
@@ -1615,6 +1616,15 @@ var ActionComponent = TaroEntity.extend({
 						var ability = self._script.variable.getValue(action.ability);
 
 						unit.ability.startCasting('ability');
+
+						break;
+
+					case 'setAbilityName':
+						var unit = self._script.variable.getValue(action.entity);
+						var ability = self._script.variable.getValue(action.ability);
+						var name = self._script.variable.getValue(action.string);
+
+						unit.ability.setAbilityName(ability, name);
 
 						break;
 

@@ -317,6 +317,14 @@ var AbilityComponent = TaroEntity.extend({
 			taro.client.emit('stop-casting', abilityId);
 		}
 	},
+
+	setAbilityName: function (abilityId, newName) {
+		const player = this._entity.getOwner();
+		const ability = this._entity._stats.controls.unitAbilities[abilityId];
+
+		this._entity._stats.controls.unitAbilities[abilityId] = newName;
+	},
+
 	_behaviour: function (ctx) {
 
 		if (Object.keys(this.abilityDurations).length > 0) {
