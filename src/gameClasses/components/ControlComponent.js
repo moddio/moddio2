@@ -158,7 +158,29 @@ var ControlComponent = TaroEntity.extend({
 								unit.ability.moveRight();
 								break;
 						}
-					}
+					} else if (unit._stats.controls.movementControlScheme == 'azerty') {
+						switch (key) {
+							case 'z':
+							case 'up':
+								unit.ability.moveUp();
+								// taro.inputReceived = Date.now();
+								break;
+
+							case 'q':
+							case 'left':
+								unit.ability.moveLeft();
+								break;
+
+							case 's':
+							case 'down':
+								unit.ability.moveDown();
+								break;
+
+							case 'd':
+							case 'right':
+								unit.ability.moveRight();
+								break;
+						}
 				}
 
 				if (!unitAbility && unit._stats.controls && unit._stats.controls.abilities) {
