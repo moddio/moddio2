@@ -3146,6 +3146,28 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+					case 'openChatForPlayer':
+						var player = self._script.variable.getValue(action.player, vars);
+
+						if (player && player._stats && player._stats.clientId) {
+							taro.network.send('ui', {
+								command: 'updateChat',
+								action: 'open'
+							}, player._stats.clientId);
+						}
+						break;
+
+					case 'closeChatForPlayer':
+						var player = self._script.variable.getValue(action.player, vars);
+
+						if (player && player._stats && player._stats.clientId) {
+							taro.network.send('ui', {
+								command: 'updateChat',
+								action: 'open'
+							}, player._stats.clientId);
+						}
+						break;
+
 					case 'closeBackpackForPlayer':
 						var player = self._script.variable.getValue(action.player, vars);
 

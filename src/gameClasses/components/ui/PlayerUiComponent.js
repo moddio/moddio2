@@ -309,6 +309,24 @@ var PlayerUiComponent = TaroEntity.extend({
 			keyboard: config.isDismissible
 		});
 	},
+	
+	updateChat: function (config) {
+		try {
+			switch (data.action) {
+				case 'open':
+					$(taro.client.getCachedElementById('chat')).show();
+					break;
+				case 'close':
+					$(taro.client.getCachedElementById('chat')).hide();
+					break;
+				default:
+					break;
+			}
+		} catch (err) {
+			console.log("playerUi - updateChat error: ", err);
+		}
+	},
+
 	showSocialShareModal: function (config) {
 		var self = this;
 

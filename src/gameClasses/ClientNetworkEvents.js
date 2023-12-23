@@ -257,6 +257,9 @@ var ClientNetworkEvents = {
 			case "showWebsiteModal":
 				taro.playerUi.showWebsiteModal(data);
 				break;
+			case "updateChat":
+				taro.playerUi.updateChat(data);
+				break;
 			case "showSocialShareModal":
 				taro.playerUi.showSocialShareModal(data);
 				break;
