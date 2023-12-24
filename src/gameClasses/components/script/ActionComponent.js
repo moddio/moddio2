@@ -413,6 +413,42 @@ var ActionComponent = TaroEntity.extend({
 
 						break;
 
+					case 'increasePlayerAttributeByNumber':
+						var attrId = self._script.variable.getValue(action.attribute, vars);
+						var player = self._script.variable.getValue(action.entity, vars);
+						var attrValue = Number(player._stats.attributes[attrId].value);
+						if (player && player._category == 'player' && player._stats.attributes) {
+							var attribute = player._stats.attributes[attrId];
+							if (attribute != undefined) {
+								var decimalPlace = parseInt(attribute.decimalPlaces) || 0;
+								var value = parseFloat(self._script.variable.getValue(action.value, vars)).toFixed(decimalPlace);
+								value = Number(value);
+								value += attrValue // increase the attribute's current value
+								value = String(value);
+								player.attribute.update(attrId, value); // update attribute, and check for attribute becoming 0
+							}
+						}
+
+						break;
+
+					case 'decreasePlayerAttributeByNumber':
+						var attrId = self._script.variable.getValue(action.attribute, vars);
+						var player = self._script.variable.getValue(action.entity, vars);
+						var attrValue = Number(player._stats.attributes[attrId].value);
+						if (player && player._category == 'player' && player._stats.attributes) {
+							var attribute = player._stats.attributes[attrId];
+							if (attribute != undefined) {
+								var decimalPlace = parseInt(attribute.decimalPlaces) || 0;
+								value = Number(value);
+								var value = parseFloat(self._script.variable.getValue(action.value, vars)).toFixed(decimalPlace);
+								value = String(value);
+								value -= attrValue // decrease the attribute's current value
+								player.attribute.update(attrId, value); // update attribute, and check for attribute becoming 0
+							}
+						}
+
+						break;
+
 					case 'setPlayerAttributeMax':
 						var attrId = self._script.variable.getValue(action.attributeType, vars);
 						var player = self._script.variable.getValue(action.player, vars);
@@ -2500,6 +2536,7 @@ var ActionComponent = TaroEntity.extend({
 							entity.lifeSpan(lifespan);
 						}
 						break;
+
 					case 'setEntityAttribute':
 
 						var attrId = self._script.variable.getValue(action.attribute, vars);
@@ -2520,6 +2557,58 @@ var ActionComponent = TaroEntity.extend({
 							entity.attribute.update(attrId, value); // update attribute, and check for attribute becoming 0
 						}
 						break;
+
+					case 'increaseEntityAttributeByNumber':
+
+						var attrId = self._script.variable.getValue(action.attribute, vars);
+						var value = self._script.variable.getValue(action.value, vars);
+						var entity = self._script.variable.getValue(action.entity, vars);
+						var attrValue = Number(entity._stats.attributes && entity._stats.attributes[attributeTypeId].value);
+						if (entity && self.entityCategories.indexOf(entity._category) > -1 && entity._stats.attributes && entity._stats.attributes[attrId] != undefined && value != undefined) {
+
+							// not sure we need this code
+							var isAttributeVisible = false;
+							var attribute = entity._stats.attributes[attrId];
+
+							if (entity._category === 'player') {
+								isAttributeVisible = !!attribute.isVisible;
+							} else {
+								isAttributeVisible = attribute.isVisible instanceof Array && attribute.isVisible.length > 0;
+							}
+							value = Number(value);
+							value += attrValue
+							value = String(value);
+
+							entity.attribute.update(attrId, value); // update attribute, and check for attribute becoming 0
+						}
+						break;
+						
+					case 'decreaseEntityAttributeByNumber':
+
+						var attrId = self._script.variable.getValue(action.attribute, vars);
+						var value = self._script.variable.getValue(action.value, vars);
+						var entity = self._script.variable.getValue(action.entity, vars);
+						var attrValue = Number(entity._stats.attributes && entity._stats.attributes[attributeTypeId].value);
+						if (entity && self.entityCategories.indexOf(entity._category) > -1 && entity._stats.attributes && entity._stats.attributes[attrId] != undefined && value != undefined) {
+
+							// not sure we need this code
+							var isAttributeVisible = false;
+							var attribute = entity._stats.attributes[attrId];
+
+							if (entity._category === 'player') {
+								isAttributeVisible = !!attribute.isVisible;
+							} else {
+								isAttributeVisible = attribute.isVisible instanceof Array && attribute.isVisible.length > 0;
+							}
+
+							value = Number(value);
+							value -= attrValue
+							value = String(value);
+
+							entity.attribute.update(attrId, value); // update attribute, and check for attribute becoming 0
+						}
+						break;
+
 
 					case 'setEntityAttributeMin':
 
