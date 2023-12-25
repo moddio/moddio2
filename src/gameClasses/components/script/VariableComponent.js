@@ -2046,6 +2046,16 @@ var VariableComponent = TaroEntity.extend({
 
 						break;
 
+					case 'allPlayersOfPlayerType':
+						var type = self.getValue(text.type, vars);
+
+						returnValue = taro.$$('player')
+							.filter(function (player) {
+								return player._stats.playerTypeId == type;
+							});
+
+						break;
+
 					case 'humanPlayers':
 						returnValue = taro.$$('player')
 							.filter(function (player) {
