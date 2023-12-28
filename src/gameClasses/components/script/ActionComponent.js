@@ -244,6 +244,8 @@ var ActionComponent = TaroEntity.extend({
 					case 'sendPostRequest':
 						var obj = self._script.variable.getValue(action.string, vars);
 						var url = self._script.variable.getValue(action.url, vars);
+						var proxyUrl = process.env.PROXY_URL || '';
+						var requestUrl = `${proxyUrl}${url}`;
 						var varName = self._script.variable.getValue(action.varName, vars);
 
 						// console.log("sendPostRequest obj", obj)
@@ -266,7 +268,7 @@ var ActionComponent = TaroEntity.extend({
 						}
 
 						taro.server.request.post({
-							url: url,
+							url: requestUrl,
 							form: obj
 						}, function optionalCallback(err, httpResponse, body) {
 							if (err) {
@@ -298,6 +300,8 @@ var ActionComponent = TaroEntity.extend({
 						var data = self._script.variable.getValue(action.data, vars) || {};
 						var url = self._script.variable.getValue(action.url, vars);
 						var varName = self._script.variable.getValue(action.varName, vars);
+						var proxyUrl = process.env.PROXY_URL || '';
+						var requestUrl = `${proxyUrl}${url}`;
 
 						// ensure we aren't sending more than 30 POST requests within 10 seconds
 						taro.server.postReqTimestamps.push(taro.currentTime());
@@ -310,7 +314,7 @@ var ActionComponent = TaroEntity.extend({
 							throw new Error('Game server is sending too many POST requests. You cannot send more than 30 req per every 10s.');
 						}
 
-						data.url = url;
+						data.url = requestUrl;
 
 						// console.log("requestPost data", data);
 
