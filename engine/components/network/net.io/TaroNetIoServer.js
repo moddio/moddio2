@@ -576,16 +576,6 @@ var TaroNetIoServer = {
 						taro.clusterClient.logMessage(socket._remoteAddress, commandName, data);
 					}
 
-					if (data.type === 'ping') {
-						socket.send({
-							type: 'pong',
-							clientSentAt: data.sentAt,
-							serverSentAt: Date.now(),
-							timeTookToReceive: Date.now() - data.sentAt
-						});
-						return;
-					}
-
 					self._onClientMessage.apply(self, [data, socket.id]);
 				});
 
