@@ -17,12 +17,7 @@ var TaroNetIoServer = {
 		this._socketByIp = {};
 		this._socketsByRoomId = {};
 		this.clientIds = [];
-		this.uploadPerSecond = [];
-		this.clientCommandCount = {};
-		this.totalCommandCount = {
-			connection: 0
-		};
-
+		
 		this.snapshot = [];
 		this.sendQueue = {};
 		if (typeof data !== 'undefined') {
@@ -55,54 +50,6 @@ var TaroNetIoServer = {
 
 		// Start network sync
 		// this.timeSyncStart();
-
-		var upsDetector = setInterval(function () {
-			for (ip in self.uploadPerSecond) {
-				let ups = self.uploadPerSecond[ip];
-				var socket = self._socketByIp[ip];
-
-				if (socket && ups > 75000) {
-					var player = taro.game.getPlayerByIp(ip);
-
-					let clientSyncs = self.clientCommandCount[socket._remoteAddress]._taroNetTimeSync;
-					let kicked = false;
-					if (clientSyncs && clientSyncs <= 5) {
-						kicked = true;
-						socket.close('User kicked for spamming network commands.');
-					}
-
-					let playerName = 'guest user';
-					var player = taro.game.getPlayerByClientId(socket.id);
-					if (player) {
-						playerName = player._stats.name;
-					}
-
-					var logData = {
-						query: 'kickUser',
-						masterServer: global.myIp,
-						gameTitle: taro.game.data.defaultData.title,
-						playerName: playerName,
-						ip: ip,
-						uploadPerSecond: ups,
-						clientCommandCount: self.clientCommandCount[socket._remoteAddress],
-						kicked: kicked
-					};
-
-					let actuallyKicked = kicked ? '' : 'not ';
-
-					global.rollbar.log(`user ${actuallyKicked}kicked for sending over 75 kB/s`, logData);
-
-					console.log(actuallyKicked, 'kicking user', playerName, '(ip: ', ip, 'for spamming network commands (sending ', ups, ' bytes over 5 seconds)', logData);
-				}
-
-				// console.log(self.uploadPerSecond[ip]);
-				self.uploadPerSecond[ip] = 0;
-
-				if (socket) {
-					self.clientCommandCount[socket._remoteAddress] = {};
-				}
-			}
-		}, 5000);
 
 		return this._entity;
 	},
@@ -535,14 +482,11 @@ var TaroNetIoServer = {
    */
 	_onClientConnect: function (socket) {
 		var self = this;
-
-		if (self.uploadPerSecond[socket._remoteAddress] == undefined) {
-			self.uploadPerSecond[socket._remoteAddress] = 0;
+		
+		if (taro.clusterClient) {
+			taro.clusterClient.logMessage(socket._remoteAddress, 'connection');
 		}
-
-		self.uploadPerSecond[socket._remoteAddress] += 1500; // add 1500 bytes as connection cost
-		self.logCommandCount(socket._remoteAddress, 'connection');
-
+		
 		var remoteAddress = socket._remoteAddress;
 		console.log('client is attempting to connect', remoteAddress);
 		var reason = '';
@@ -627,11 +571,9 @@ var TaroNetIoServer = {
 							commandName = taro.network._networkCommandsIndex[code.charCodeAt(0)];
 						}
 					}
-
-					self.logCommandCount(socket._remoteAddress, commandName, data);
-
-					if (!(commandName === 'editTile' || commandName === 'editGlobalScripts')) {
-						self.uploadPerSecond[socket._remoteAddress] += JSON.stringify(data).length;
+					
+					if (taro.clusterClient) {
+						taro.clusterClient.logMessage(socket._remoteAddress, commandName, data);
 					}
 
 					if (data.type === 'ping') {
@@ -681,40 +623,7 @@ var TaroNetIoServer = {
 			socket.close(clientRejectReason);
 		}
 	},
-
-	logCommandCount: function (ip, commandName, data) {
-		let self = this;
-
-		if (self.clientCommandCount[ip] == undefined) {
-			self.clientCommandCount[ip] = {};
-		}
-
-		if (commandName == 'playerKeyDown') {
-			if (self.clientCommandCount[ip][commandName] == undefined) {
-				self.clientCommandCount[ip][commandName] = {};
-			}
-
-			if (self.clientCommandCount[ip][commandName][data[1].device + '-' + data[1].key] == undefined) {
-				self.clientCommandCount[ip][commandName][data[1].device + '-' + data[1].key] = 0;
-			}
-
-			self.clientCommandCount[ip][commandName][data[1].device + '-' + data[1].key]++;
-
-		} else {
-			if (self.clientCommandCount[ip][commandName] == undefined) {
-				self.clientCommandCount[ip][commandName] = 0;
-			}
-
-			self.clientCommandCount[ip][commandName]++;
-		}
-
-		if (self.totalCommandCount[commandName] == undefined) {
-			self.totalCommandCount[commandName] = 0;
-		}
-
-		self.totalCommandCount[commandName]++;
-	},
-
+	
 	/**
    * Called when the server receives a network message from a client.
    * @param {Object} data The data sent by the client.
@@ -921,8 +830,6 @@ var TaroNetIoServer = {
 		this.clientLeaveAllRooms(socket.id);
 
 		delete taro.server.clients[socket.id];
-		delete this.uploadPerSecond[socket._remoteAddress];
-		delete this.clientCommandCount[socket._remoteAddress];
 		delete this._socketById[socket.id];
 		delete this._socketByIp[socket._remoteAddress];
 
