@@ -2054,8 +2054,6 @@ var VariableComponent = TaroEntity.extend({
 								return player._stats.playerTypeId === playerType;
 							});
 
-						console.log(returnValue.length);
-
 						break;
 
 					case 'humanPlayers':
