@@ -875,7 +875,7 @@ const Client = TaroEventingClass.extend({
 	},
 
 	positionCamera: function (x, y) {
-		if (taro.developerMode.activeTab === "play") {
+		if (taro.developerMode.activeTab === "play" || taro.developerMode.activeTab == undefined) {
 			if (x != undefined && y != undefined) {
 
 				this.emit('stop-follow');
