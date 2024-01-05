@@ -810,7 +810,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 	},
 
 	_triggerContactEvent: function (entityA, entityB) {
-		var triggeredBy = {}
+		var triggeredBy = {};
 
 		if (!['unit', 'projectile', 'item'].includes(entityA._category)) {
 			return;
@@ -832,17 +832,17 @@ var PhysicsComponent = TaroEventingClass.extend({
 		switch (entityB._category) {
 			case 'unit':
 				taro.game.lastTouchedUnitId = entityB.id();
-				taro.script.trigger(entityA._category + 'TouchesUnit', triggeredBy); // handle unitA touching unitB
+				taro.script.trigger(`${entityA._category}TouchesUnit`, triggeredBy); // handle unitA touching unitB
 				triggeredBy.unitId = entityB.id();
-				entityA.script.trigger("entityTouchesUnit", triggeredBy);
+				entityA.script.trigger('entityTouchesUnit', triggeredBy);
 				break;
 
 			case 'item':
 				triggeredBy.itemId = triggeredBy.itemId || entityB.id();
-				taro.script.trigger(entityA._category + 'TouchesItem', triggeredBy);
+				taro.script.trigger(`${entityA._category}TouchesItem`, triggeredBy);
 				triggeredBy.itemId = entityB.id();
 				taro.game.lastTouchedItemId = entityB.id();
-				entityA.script.trigger("entityTouchesItem", triggeredBy);
+				entityA.script.trigger('entityTouchesItem', triggeredBy);
 				break;
 			case 'projectile':
 				triggeredBy.projectileId = triggeredBy.projectileId || entityB.id();
@@ -854,9 +854,9 @@ var PhysicsComponent = TaroEventingClass.extend({
 					entityA.inflictDamage(entityB._stats.damageData);
 				}
 
-				taro.script.trigger(entityA._category + 'TouchesProjectile', triggeredBy);
+				taro.script.trigger(`${entityA._category}TouchesProjectile`, triggeredBy);
 				triggeredBy.projectileId = entityB.id();
-				entityA.script.trigger("entityTouchesProjectile", triggeredBy);
+				entityA.script.trigger('entityTouchesProjectile', triggeredBy);
 				break;
 
 			case 'region':
@@ -865,15 +865,15 @@ var PhysicsComponent = TaroEventingClass.extend({
 					variableName: entityB._stats.id
 				});
 				triggeredBy.region = region;
-				entityA.script.trigger("entityEntersRegion", triggeredBy);
-				taro.script.trigger(entityA._category + 'EntersRegion', triggeredBy);
+				entityA.script.trigger('entityEntersRegion', triggeredBy);
+				taro.script.trigger(`${entityA._category}EntersRegion`, triggeredBy);
 				break;
 
 			case 'sensor':
 				triggeredBy.sensorId = entityB.id();
 				var sensoringUnit = entityB.getOwnerUnit();
 				if (sensoringUnit && sensoringUnit.script) {
-					sensoringUnit.script.trigger(entityA._category + 'EntersSensor', triggeredBy);
+					sensoringUnit.script.trigger(`${entityA._category}EntersSensor`, triggeredBy);
 
 					if (entityA._category == 'unit' && sensoringUnit.ai) {
 						sensoringUnit.ai.registerSensorDetection(entityA);
@@ -882,10 +882,9 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 				break;
 
-			case undefined:
 			case 'wall':
-				taro.script.trigger(entityA._category + 'TouchesWall', triggeredBy);
-				entityA.script.trigger("entityTouchesWall");
+				taro.script.trigger(`${entityA._category}TouchesWall`, triggeredBy);
+				entityA.script.trigger('entityTouchesWall');
 				break;
 		}
 	},
@@ -895,7 +894,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 		if (!['unit', 'projectile', 'item'].includes(entityA._category)) {
 			return;
-		};
+		}
 
 		switch (entityA._category) {
 			case 'unit':
@@ -907,29 +906,43 @@ var PhysicsComponent = TaroEventingClass.extend({
 			case 'projectile':
 				triggeredBy.projectileId = entityA.id();
 				break;
-		};
+		}
 
 		switch (entityB._category) {
+			case 'unit':
+				triggeredBy.unitId = entityB.id();
+				entityA.script.trigger('entityStopsTouchingUnit', triggeredBy);
+				break;
+			case 'item':
+				triggeredBy.itemId = entityB.id();
+				entityA.script.trigger('entityStopsTouchingItem', triggeredBy);
+				break;
+			case 'projectile':
+				triggeredBy.projectileId = entityB.id();
+				entityA.script.trigger('entityStopsTouchingProjectile', triggeredBy);
+				break;
 			case 'region':
 				var region = taro.script.variable.getValue({
 					function: 'getVariable',
 					variableName: entityB._stats.id
 				});
 				triggeredBy.region = region;
-				entityA.script.trigger("entityLeavesRegion", triggeredBy);
-				taro.script.trigger(entityA._category + 'LeavesRegion', triggeredBy);
+				entityA.script.trigger('entityLeavesRegion', triggeredBy);
+				taro.script.trigger(`${entityA._category}LeavesRegion`, triggeredBy);
 				break;
 
 			case 'sensor':
 				triggeredBy.sensorId = entityB.id();
 				var sensoringUnit = entityB.getOwnerUnit();
 				if (sensoringUnit && sensoringUnit.script) {
-					sensoringUnit.script.trigger(entityA._category + 'LeavesSensor', triggeredBy);
-				};
+					sensoringUnit.script.trigger(`${entityA._category}LeavesSensor`, triggeredBy);
+				}
 				break;
 
-			case undefined:
-		};
+			case 'wall':
+				entityA.script.trigger('entityStopsTouchingWall');
+				break;
+		}
 	},
 
 	// Listen for when contact's begin
