@@ -141,7 +141,7 @@ var SoundComponent = TaroEntity.extend({
 		}
 	},
 
-	playSound: function (sound, position, key, shouldRepeat = false) {
+	playSound: function (sound, position, key, shouldRepeat = false, soundVolume) {
 		var self = this;
 		if (taro.isClient) {
 			var soundSetting = self.getItem('sound');
@@ -151,10 +151,16 @@ var SoundComponent = TaroEntity.extend({
 				var volume = position === null ? sound.volume / 100 : 0;
 				if (position) {
 					volume = this.getVolume(position, sound.volume);
+					if (soundVolume) {
+						volume = volume * (soundVolume / 100);
+					}
 				} else {
 					var settingsVolume = parseFloat(self.getItem('sound-volume'));
 					settingsVolume = isNaN(settingsVolume) ? 1 : settingsVolume / 100;
 					volume = settingsVolume * volume;
+					if (soundVolume) {
+						volume = volume * (soundVolume / 100);
+					}
 				}
 
 				if (sound && sound.file) {

@@ -2207,10 +2207,12 @@ var ActionComponent = TaroEntity.extend({
 					case 'playSoundForPlayer':
 						var sound = taro.game.data.sound[action.sound];
 						var player = self._script.variable.getValue(action.player, vars);
+						var volume = self._script.variable.getValue(action.player, vars);
 						if (sound && player && player._stats.clientId) {
 							taro.network.send('sound', {
 								cmd: 'playSoundForPlayer',
-								sound: action.sound
+								sound: action.sound,
+								volume: volume
 							}, player._stats.clientId);
 						}
 						break;

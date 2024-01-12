@@ -615,9 +615,11 @@ var ClientNetworkEvents = {
 				break;
 			case "playSoundForPlayer":
 				var sound = taro.game.data.sound[data.sound];
+				var volume = taro.game.data.sound[data.volume];
+
 				if (sound) {
 					var unit = taro.client.myPlayer && taro.client.myPlayer.getSelectedUnit();
-					taro.sound.playSound(sound, (unit && unit._translate) || null, data.sound);
+					taro.sound.playSound(sound, (unit && unit._translate) || null, data.sound, volume ?? 100);
 				}
 				break;
 			case "stopSoundForPlayer":
