@@ -72,8 +72,7 @@ var ClientNetworkEvents = {
 	_onOpenShop: function (data) {
 		if (data.type) {
 			var shopName = taro.game.data.shops[data.type] ? taro.game.data.shops[data.type].name : "Item shop";
-			var shopDescription = taro.game.data.shops[data.type] ? taro.clientSanitizer(taro.game.data.shops[data.type].description) : "";
-			var shopDescription = taro.chat.filter(shopDescription);
+			var shopDescription = taro.chat.filter(taro.game.data.shops[data.type] ? taro.clientSanitizer(taro.game.data.shops[data.type].description) : "");
 			$("#modd-item-shop-header").text(shopName);
 
 			if (shopDescription?.length) {
