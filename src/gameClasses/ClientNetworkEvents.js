@@ -7,6 +7,8 @@ var ClientNetworkEvents = {
 			taro.menuUi.onDisconnectFromServer("clientNetworkEvents #10", data.reason);
 			taro.network._io._disconnectReason = data.reason;
 		}
+
+		console.log("somebody else disconnected")
 	},
 
 	_onStreamUpdateData: function (data) {
@@ -83,6 +85,10 @@ var ClientNetworkEvents = {
 			}
 
 			taro.shop.openItemShop(data.type);
+
+			// remove all previous class and add shopClass
+			$("#modd-item-shop-modal").removeClass().addClass(`modal ${shopClass}`);
+
 			$("#modd-item-shop-modal").modal("show");
 			if (taro.client.myPlayer?.control) {
 				taro.client.myPlayer.control.updatePlayerInputStatus();
@@ -262,23 +268,66 @@ var ClientNetworkEvents = {
 			case "shopResponse":
 				taro.shop.purchaseWarning(data.type);
 				break;
+
+			case 'shopPurchase':
+				taro.shop.openEntityPurchaseModal(data);
+				break;
 		}
 	},
 
+	// when client receives a ping response back from the server
 	_onPing: function(data) {
-		const latency = Date.now() - data.sentAt;
-
+		const now = taro._currentTime;
+		const latency = now - data.sentAt;
+		const self = this;
+		// console.log("onPing", taro._currentTime, data.sentAt, latency);
 		// start reconciliation based on discrepancy between 
 		// where my unit when ping was sent and where unit is when ping is received
-		if (taro.client.selectedUnit && taro.client.myUnitPositionWhenPingSent && taro.client.myUnitStreamedPosition) {
-			// console.log(latency, taro.client.myUnitPositionWhenPingSent.x, taro.client.myUnitStreamedPosition.x, taro.client.myUnitPositionWhenPingSent.x - taro.client.myUnitStreamedPosition.x);
-			taro.client.reconcileDiff = {
-				x: taro.client.myUnitStreamedPosition.x - taro.client.myUnitPositionWhenPingSent.x,
-				y: taro.client.myUnitStreamedPosition.y - taro.client.myUnitPositionWhenPingSent.y
+		if (taro.client.selectedUnit?.posHistory &&
+			taro.client.myUnitStreamedPosition && !taro.client.selectedUnit.isTeleporting
+		) {
+			let history = taro.client.selectedUnit.posHistory;
+			while (history.length > 0) {
+				var keyFrame = history.shift();
+				if (keyFrame[0] > data.sentAt) {
+					taro.client.myUnitPositionWhenPingSent = {
+						x: keyFrame[1][0],
+						y: keyFrame[1][1]
+					};				
+					
+					taro.client.selectedUnit.reconRemaining = {
+						x: taro.client.myUnitStreamedPosition.x - taro.client.myUnitPositionWhenPingSent.x,
+						y: taro.client.myUnitStreamedPosition.y - taro.client.myUnitPositionWhenPingSent.y
+					}
+
+					// console.log(latency, taro.client.myUnitPositionWhenPingSent.y, taro.client.myUnitStreamedPosition.y, taro.client.selectedUnit.reconRemaining.y);
+
+					taro.client.selectedUnit.posHistory = []
+					
+					if (taro.env === 'local' || taro.debugCSP) {
+						
+						taro.client.selectedUnit.emit('transform-debug', {
+							debug: 'red-square',
+							x: taro.client.myUnitPositionWhenPingSent?.x,
+							y: taro.client.myUnitPositionWhenPingSent?.y,
+							rotation: 0,
+						});
+									
+						// console.log("reconRemaining", taro.client.selectedUnit.reconRemaining);
+						taro.client.selectedUnit.emit('transform-debug', {
+							debug: 'blue-square',
+							x: taro.client.myUnitStreamedPosition.x,
+							y: taro.client.myUnitStreamedPosition.y,
+							rotation: 0,
+						});
+					}
+
+					break;
+				}
 			}
 		}
 
-		taro.client.isWaitingForPong = false;
+		taro.client.sendNextPingAt = taro.now;
 
 		if (!taro.pingElement) {
 			taro.pingElement = document.getElementById('updateping');
@@ -517,6 +566,10 @@ var ClientNetworkEvents = {
 
 	_onUpdateProjectile: function (data) {
 		taro.developerMode.updateProjectile(data);
+	},
+
+	_onUpdateShop: function (data) {
+		taro.developerMode.updateShop(data);
 	},
 
 	_onErrorLogs: function (logs) {
