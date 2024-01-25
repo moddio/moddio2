@@ -254,7 +254,7 @@ var ItemUiComponent = TaroEntity.extend({
 		// var buffs = self.getBuffList(itemStats);
 
 		var itemTitle = $('<h4/>', {
-			html: itemStats.name
+			html: taro.clientSanitizer(itemStats.name)
 		});
 
 		var itemDiv = $('<div/>', {
