@@ -2283,6 +2283,13 @@ var ParameterComponent = TaroEntity.extend({
 					case 'emptyObject':
 						returnValue = {};
 
+						break;
+
+					case 'applyCommaFormatToNumber':
+						var number = self.getValue(text.number, vars);
+						
+						returnValue = number.toLocaleString();
+
 					break;
 
 					default:
