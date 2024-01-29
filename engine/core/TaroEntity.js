@@ -2023,11 +2023,7 @@ var TaroEntity = TaroObject.extend({
 						var position = taro.game.lastProjectileHitPosition ||
 							// (this.body && taro.physics.engine === 'BOX2DWASM' ? taro.physics.recordLeak(this.body.getPosition()) : this.body.getPosition()) || // this was causing client to crash
 							this._translate;
-						if (this.body) {
-							position.x *= this._b2dRef._scaleRatio;
-							position.y *= this._b2dRef._scaleRatio;
-						}
-
+						
 						projectile.defaultData = {
 							//type: effect.projectileType,
 							translate: {
