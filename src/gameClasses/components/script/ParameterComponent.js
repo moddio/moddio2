@@ -1003,6 +1003,19 @@ var ParameterComponent = TaroEntity.extend({
 
 					// 	break;
 
+					case 'distanceAtAnglePosition':
+						var position = self.getValue(text.position, vars);
+						var distance = self.getValue(text.distance, vars);
+						var angle = self.getValue(text.angle, vars);
+
+						if (position) {
+							position.x = position.x + distance * Math.cos((angle + 90) * (Math.PI / 180));
+							position.y = position.y + distance * Math.sin((angle + 90) * (Math.PI / 180));
+
+							returnValue = position;
+						}
+
+						break;
 
 					case 'squareRoot':
 						var numberValue = self.getValue(text.number, vars);
