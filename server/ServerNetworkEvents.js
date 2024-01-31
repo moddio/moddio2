@@ -61,6 +61,14 @@ var ServerNetworkEvents = {
 	},
 
 	_onJoinGame: function (data, clientId) {
+		var existing_names = taro.$$('player').filter(player => player._stats.controlledBy === 'human').map(player => player._stats.username.substring('user'.length))
+
+		if (existing_names.includes(data.number)) {
+			do {
+				data.number = (Math.floor(Math.random() * 999) + 100);
+			} while (existing_names.includes(data.number));
+		}
+					
 		if (taro.clusterClient) { // this is used for hosted version of moddio
 			let clientData = taro.clusterClient.authenticateClient(data, clientId) // will return data if user is authenticated. otherwise, will return undefined
 
