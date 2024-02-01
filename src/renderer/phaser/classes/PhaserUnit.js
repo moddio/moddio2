@@ -17,6 +17,9 @@ var PhaserUnit = /** @class */ (function (_super) {
     __extends(PhaserUnit, _super);
     function PhaserUnit(scene, entity) {
         var _this = _super.call(this, scene, entity, "unit/".concat(entity._stats.cellSheet.url)) || this;
+        /*debugGameObject: Phaser.GameObjects.Rectangle & IRenderProps;
+        debugGameObjectBlue: Phaser.GameObjects.Rectangle & IRenderProps;
+        debugGameObjectRed: Phaser.GameObjects.Rectangle & IRenderProps;*/
         _this.attributes = [];
         var translate = entity._translate;
         var gameObject = scene.add.container(translate.x, translate.y, [_this.sprite]);
@@ -34,7 +37,7 @@ var PhaserUnit = /** @class */ (function (_super) {
             'render-attributes': entity.on('render-attributes', _this.renderAttributes, _this),
             'update-attribute': entity.on('update-attribute', _this.updateAttribute, _this),
             'render-chat-bubble': entity.on('render-chat-bubble', _this.renderChat, _this),
-            'transform-debug': entity.on('transform-debug', _this.transformDebug, _this),
+            //'transform-debug': entity.on('transform-debug', this.transformDebug, this),
         });
         _this.scene.unitsList.push(_this);
         _this.scene.renderedEntities.push(_this.gameObject);
@@ -388,35 +391,38 @@ var PhaserUnit = /** @class */ (function (_super) {
             }
         });
     };
-    PhaserUnit.prototype.transformDebug = function (data) {
+    /*protected transformDebug (data: {
+        debug: string;
+        x: number;
+        y: number;
+        rotation: number
+    }): void {
         if (data.debug === 'green-square') {
             if (!this.debugGameObject) {
-                var bounds = this.entity._bounds2d;
-                this.debugGameObject = this.scene.add.rectangle(0, 0, bounds.x, bounds.y);
+                const bounds = this.entity._bounds2d;
+                this.debugGameObject = this.scene.add.rectangle(0, 0, bounds.x, bounds.y) as Phaser.GameObjects.Rectangle & IRenderProps;
                 this.debugGameObject.setStrokeStyle(2, 0x008000);
             }
             this.debugGameObject.setPosition(data.x, data.y);
             this.debugGameObject.rotation = data.rotation;
-        }
-        else if (data.debug === 'blue-square') {
+        } else if (data.debug === 'blue-square') {
             if (!this.debugGameObjectBlue) {
-                var bounds = this.entity._bounds2d;
-                this.debugGameObjectBlue = this.scene.add.rectangle(0, 0, bounds.x, bounds.y);
+                const bounds = this.entity._bounds2d;
+                this.debugGameObjectBlue = this.scene.add.rectangle(0, 0, bounds.x, bounds.y) as Phaser.GameObjects.Rectangle & IRenderProps;
                 this.debugGameObjectBlue.setStrokeStyle(2, 0x0000FF);
             }
             this.debugGameObjectBlue.setPosition(data.x, data.y);
             this.debugGameObjectBlue.rotation = data.rotation;
-        }
-        else if (data.debug === 'red-square') {
+        } else if (data.debug === 'red-square') {
             if (!this.debugGameObjectRed) {
-                var bounds = this.entity._bounds2d;
-                this.debugGameObjectRed = this.scene.add.rectangle(0, 0, bounds.x, bounds.y);
+                const bounds = this.entity._bounds2d;
+                this.debugGameObjectRed = this.scene.add.rectangle(0, 0, bounds.x, bounds.y) as Phaser.GameObjects.Rectangle & IRenderProps;
                 this.debugGameObjectRed.setStrokeStyle(2, 0xFF0000);
             }
             this.debugGameObjectRed.setPosition(data.x, data.y);
             this.debugGameObjectRed.rotation = data.rotation;
         }
-    };
+    }*/
     PhaserUnit.prototype.destroy = function () {
         var _this = this;
         this.scene.renderedEntities = this.scene.renderedEntities.filter(function (item) { return item !== _this.gameObject; });

@@ -487,19 +487,19 @@ var TaroNetIoClient = {
 
 							// console.log(entity != undefined, isTeleporting)
 							if (entity) {
+								if (/*taro.env === 'local' || taro.debugCSP ||*/ (taro.developerMode.active && taro.developerMode.activeTab === 'entities')) {
+									// emit position for entity debug image
+									entity.emit('transform-debug', {
+										debug: 'green-square',
+										x: x,
+										y: y,
+										rotation: rotate,
+									});
+								}
 								if (isTeleporting) {
 									// console.log("wtf")
 									entity.teleportTo(x, y, rotate, isTeleportingCamera);
 								} else if (entity == taro.client.selectedUnit && taro.physics && entity._stats.controls?.clientPredictedMovement) {
-									if (taro.env === 'local' || taro.debugCSP) {
-										// emit position for entity debug image
-										entity.emit('transform-debug', {
-											debug: 'green-square',
-											x: x,
-											y: y,
-											rotation: rotate,
-										});
-									}
 									
 									taro.client.myUnitStreamedPosition = {
 										x: x,

@@ -26,6 +26,7 @@ var PhaserAnimatedEntity = /** @class */ (function (_super) {
         _this.sprite.rotation = entity._rotate.z;
         Object.assign(_this.evtListeners, {
             'play-animation': entity.on('play-animation', _this.playAnimation, _this),
+            'transform-debug': entity.on('transform-debug', _this.transformDebug, _this),
             size: entity.on('size', _this.size, _this),
             scale: entity.on('scale', _this.scale, _this),
             flip: entity.on('flip', _this.flip, _this),
@@ -44,6 +45,35 @@ var PhaserAnimatedEntity = /** @class */ (function (_super) {
         this.gameObject.setPosition(data.x, data.y);
         this.sprite.rotation = data.rotation;
         this.flip(this.entity._stats.flip);
+    };
+    PhaserAnimatedEntity.prototype.transformDebug = function (data) {
+        if (data.debug === 'green-square') {
+            if (!this.debugGameObject) {
+                var bounds = this.entity._bounds2d;
+                this.debugGameObject = this.scene.add.rectangle(0, 0, bounds.x, bounds.y);
+                this.debugGameObject.setStrokeStyle(2, 0x008000);
+            }
+            this.debugGameObject.setPosition(data.x, data.y);
+            this.debugGameObject.rotation = data.rotation;
+        }
+        else if (data.debug === 'blue-square') {
+            if (!this.debugGameObjectBlue) {
+                var bounds = this.entity._bounds2d;
+                this.debugGameObjectBlue = this.scene.add.rectangle(0, 0, bounds.x, bounds.y);
+                this.debugGameObjectBlue.setStrokeStyle(2, 0x0000FF);
+            }
+            this.debugGameObjectBlue.setPosition(data.x, data.y);
+            this.debugGameObjectBlue.rotation = data.rotation;
+        }
+        else if (data.debug === 'red-square') {
+            if (!this.debugGameObjectRed) {
+                var bounds = this.entity._bounds2d;
+                this.debugGameObjectRed = this.scene.add.rectangle(0, 0, bounds.x, bounds.y);
+                this.debugGameObjectRed.setStrokeStyle(2, 0xFF0000);
+            }
+            this.debugGameObjectRed.setPosition(data.x, data.y);
+            this.debugGameObjectRed.rotation = data.rotation;
+        }
     };
     PhaserAnimatedEntity.prototype.size = function (data) {
         this.sprite.setSize(data.width, data.height);

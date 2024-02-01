@@ -1,6 +1,9 @@
 class PhaserAnimatedEntity extends PhaserEntity {
 
 	protected sprite: Phaser.GameObjects.Sprite & IRenderProps;
+	debugGameObject: Phaser.GameObjects.Rectangle & IRenderProps;
+	debugGameObjectBlue: Phaser.GameObjects.Rectangle & IRenderProps;
+	debugGameObjectRed: Phaser.GameObjects.Rectangle & IRenderProps;
 	public attachedParticles: PhaserParticle[] = [];
 
 	protected constructor (
@@ -17,6 +20,7 @@ class PhaserAnimatedEntity extends PhaserEntity {
 
 		Object.assign(this.evtListeners, {
 			'play-animation': entity.on('play-animation', this.playAnimation, this),
+			'transform-debug': entity.on('transform-debug', this.transformDebug, this),
 			size: entity.on('size', this.size, this),
 			scale: entity.on('scale', this.scale, this),
 			flip: entity.on('flip', this.flip, this),
@@ -40,6 +44,39 @@ class PhaserAnimatedEntity extends PhaserEntity {
 		this.gameObject.setPosition(data.x, data.y);
 		this.sprite.rotation = data.rotation;
 		this.flip(this.entity._stats.flip);
+	}
+
+	protected transformDebug (data: {
+		debug: string;
+		x: number;
+		y: number;
+		rotation: number
+	}): void {
+		if (data.debug === 'green-square') {
+			if (!this.debugGameObject) {
+				const bounds = this.entity._bounds2d;
+				this.debugGameObject = this.scene.add.rectangle(0, 0, bounds.x, bounds.y) as Phaser.GameObjects.Rectangle & IRenderProps;
+				this.debugGameObject.setStrokeStyle(2, 0x008000);
+			}
+			this.debugGameObject.setPosition(data.x, data.y);
+			this.debugGameObject.rotation = data.rotation;
+		} else if (data.debug === 'blue-square') {
+			if (!this.debugGameObjectBlue) {
+				const bounds = this.entity._bounds2d;
+				this.debugGameObjectBlue = this.scene.add.rectangle(0, 0, bounds.x, bounds.y) as Phaser.GameObjects.Rectangle & IRenderProps;
+				this.debugGameObjectBlue.setStrokeStyle(2, 0x0000FF);
+			}
+			this.debugGameObjectBlue.setPosition(data.x, data.y);
+			this.debugGameObjectBlue.rotation = data.rotation;
+		} else if (data.debug === 'red-square') {
+			if (!this.debugGameObjectRed) {
+				const bounds = this.entity._bounds2d;
+				this.debugGameObjectRed = this.scene.add.rectangle(0, 0, bounds.x, bounds.y) as Phaser.GameObjects.Rectangle & IRenderProps;
+				this.debugGameObjectRed.setStrokeStyle(2, 0xFF0000);
+			}
+			this.debugGameObjectRed.setPosition(data.x, data.y);
+			this.debugGameObjectRed.rotation = data.rotation;
+		}
 	}
 
 	protected size (

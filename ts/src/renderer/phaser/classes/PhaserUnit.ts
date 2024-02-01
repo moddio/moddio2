@@ -7,9 +7,9 @@ class PhaserUnit extends PhaserAnimatedEntity {
 	label: Phaser.GameObjects.Text;
 
 	gameObject: Phaser.GameObjects.Container & IRenderProps;
-	debugGameObject: Phaser.GameObjects.Rectangle & IRenderProps;
+	/*debugGameObject: Phaser.GameObjects.Rectangle & IRenderProps;
 	debugGameObjectBlue: Phaser.GameObjects.Rectangle & IRenderProps;
-	debugGameObjectRed: Phaser.GameObjects.Rectangle & IRenderProps;
+	debugGameObjectRed: Phaser.GameObjects.Rectangle & IRenderProps;*/
 	attributes: PhaserAttributeBar[] = [];
 	attributesContainer: Phaser.GameObjects.Container;
 
@@ -45,7 +45,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 			'render-attributes': entity.on('render-attributes', this.renderAttributes, this),
 			'update-attribute': entity.on('update-attribute', this.updateAttribute, this),
 			'render-chat-bubble': entity.on('render-chat-bubble', this.renderChat, this),
-			'transform-debug': entity.on('transform-debug', this.transformDebug, this),
+			//'transform-debug': entity.on('transform-debug', this.transformDebug, this),
 		});
 
 		this.scene.unitsList.push(this);
@@ -465,7 +465,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 		});
 	}
 
-	protected transformDebug (data: {
+	/*protected transformDebug (data: {
 		debug: string;
 		x: number;
 		y: number;
@@ -496,7 +496,7 @@ class PhaserUnit extends PhaserAnimatedEntity {
 			this.debugGameObjectRed.setPosition(data.x, data.y);
 			this.debugGameObjectRed.rotation = data.rotation;
 		}
-	}
+	}*/
 
 	protected destroy(): void {
 
