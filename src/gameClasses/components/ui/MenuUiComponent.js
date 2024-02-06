@@ -12,6 +12,299 @@ var MenuUiComponent = TaroEntity.extend({
 		var playButtonClick = document.querySelector('#play-game-button');
 
 		var customUiListeners = function () {
+
+			if (taro.isClient) {
+				//console.log('initializing UI elements...');
+				self.shopType = '';
+				self.shopKey = '';
+				self.shopPage = 1;
+
+				$('#reconnect-button').on('click', function () {
+					location.reload();
+				});
+
+				$('#kick-player').on('click', function () {
+					$('#kick-players-outofgame-modal').modal('show');
+				});
+
+				// $(".inventory-item-button").on("click", function () {
+				// 	if (taro.client.selectedUnit) {
+				// 		var index = $(this).attr('name');
+				// 		taro.client.selectedUnit._stats.currentItemIndex = index;
+				// 		taro.client.selectedUnit.changeItem(index);
+				// 	}
+				// });
+
+				$('#resolution-high').on('click', function () {
+					self.setItem('resolution', 'high');
+					self.setResolution();
+				});
+
+				$('#resolution-low').on('click', function () {
+					// setting 640x480 resolution as low resolution
+					var canvas = $('#game-div canvas');
+					if (canvas.attr('width') != 640 && canvas.attr('height') != 480) {
+						self.setItem('resolution', 'low');
+						self.setResolution();
+						if (typeof incrLowResolution === 'function') {
+							incrLowResolution();
+						}
+					}
+				});
+
+				$('#forceCanvas-on').on('click', function () {
+					self.setForceCanvas(true);
+					self.toggleButton('forceCanvas', 'on');
+					$('#forceCanvas-refresh-prompt').css('display', 'block');
+				});
+
+				$('#forceCanvas-off').on('click', function () {
+					self.setForceCanvas(false);
+					self.toggleButton('forceCanvas', 'off');
+					$('#forceCanvas-refresh-prompt').css('display', 'block');
+				});
+
+				self.toggleButton('forceCanvas', self.getForceCanvas() ? 'on' : 'off');
+
+				// register error log modal btn;
+				$('#dev-error-button').on('click', function () {
+					$('#error-log-modal').modal('show');
+				});
+
+				$('#bandwidth-usage').on('click', function () {
+					$('#dev-status-modal').modal('show');
+				});
+
+				$('#leaderboard-link').on('click', function (e) {
+					e.preventDefault();
+					$('#leaderboard-modal').modal('show');
+				});
+
+				$('#refresh-server-list-button').on('click', function () {
+					taro.client.refreshServerList();
+				});
+
+				$('#max-players').on('change', function () {
+					taro.client.refreshServerList();
+				});
+
+				$('#map-list').on('change', function () {
+					taro.client.refreshServerList();
+				});
+
+				$('#kick-player-body').on('click', '.kick-player-btn', function () {
+					var clientId = $(this).attr('data-clientid');
+					if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && clientId) {
+						taro.network.send('kick', clientId);
+					}
+				});
+
+				$('#kick-player-body').on('click', '.ban-player-btn', function () {
+					var userId = $(this).attr('data-userId');
+					var gameId = $(this).attr('data-gameId');
+					var clientId = $(this).attr('data-clientid');
+					if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && userId) {
+						taro.network.send('ban-user', { kickuserId: clientId, userId: userId });
+					}
+				});
+
+				$('#kick-player-body').on('click', '.ban-ip-btn', function () {
+					var gameId = $(this).attr('data-gameId');
+					var clientId = $(this).attr('data-clientid');
+					if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && gameId) {
+						taro.network.send('ban-ip', {
+							gameId: gameId,
+							kickuserId: clientId
+						});
+					}
+				});
+
+				$('#kick-player-body').on('click', '.ban-chat-btn', function () {
+					var gameId = $(this).attr('data-gameId');
+					var clientId = $(this).attr('data-clientid');
+					if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && gameId) {
+						taro.network.send('ban-chat', {
+							gameId: gameId,
+							kickuserId: clientId
+						});
+					}
+				});
+
+				$('#toggle-dev-panels').on('click', function () {
+					if (!taro.game.data.isGameDeveloper && !window.isStandalone) {
+						return;
+					}
+					if ((['1', '4', '5'].includes(window.gameDetails?.tier)) || window.isStandalone) {
+						// console.log("taro developermode: ", taro.developerMode);
+						taro.developerMode.enter();
+
+						loadEditor();
+						$('#game-editor').show();
+						$('#kick-player').hide();
+
+						// commenting this code because we are handling changes in editor now.
+						/* if (restoreWindows) {
+							$('.winbox').show();
+							restoreWindows = false;
+						}
+						if (restoreDevMode) {
+							taro.developerMode.enter();
+							if ($('#open-inventory-button').is(':visible')) {
+								$('#backpack').hide();
+							}
+							$('#my-score-div').hide();
+							restoreDevMode = false;
+						}
+						if (restoreDevConsole) {
+							$('#dev-console').show();
+							restoreDevConsole = false;
+						}
+						const isEditorVisible = $('#game-editor').is(':visible');
+						if (!isEditorVisible) {
+							if ($('.winbox:first').is(':visible')) {
+								$('.winbox').hide();
+								restoreWindows = true;
+							}
+	
+							if (taro.developerMode.active) {
+								taro.developerMode.leave();
+	
+								if ($('#open-inventory-button').is(':visible')) {
+									$('#backpack').show();
+								}
+	
+								$('#my-score-div').show();
+	
+								restoreDevMode = true;
+							}
+	
+							if ($('#dev-console').is(':visible')) {
+								$('#dev-console').hide();
+								restoreDevConsole = true;
+							}
+						}
+						$('#toggle-dev-panels').text(isEditorVisible ? 'Exit Dev Mode' : 'Enter Dev Mode'); */
+
+					} else {
+						$('#dev-console').toggle();
+					}
+				});
+
+				$('.open-menu-button').on('click', function () {
+					self.toggleMenu();
+					$('.open-menu-button').hide();
+				});
+
+				$('#change-server').on('click', function () {
+					window.location.replace(`/play/${gameSlug}?serverId=${taro.client.changedServer}&joinGame=true`);
+				});
+
+				$('#add-player-instance').on('click', function () {
+					var url = `${window.location.host}/play/${gameSlug}?add-instance=true`;
+					Swal({
+						html: `<div class='swal2-title'>Want to add player instance?</div><div class='swal2-text' style='user-select: text;'>Copy the link given below and open it in incognito mode.<br/><input type='text' class='form-control mt-2' value='${url}' /></div>`,
+						button: 'close'
+					});
+				});
+
+				// once modal is hidden, then it's no longer shown when the game starts
+				$('#help-modal').on('hidden.bs.modal', function (e) {
+					self.setItem('tutorial', 'off');
+				});
+
+				$('#server-list').on('change', function () {
+					var gameSlug = $(this).attr('game-slug');
+					taro.client.gameSlug = gameSlug;
+					const serverListOptions = document.querySelector('#server-list > option');
+					if (serverListOptions.length !== taro.client.servers.length) {
+						// server options have been added/removed dynamically
+						// refresh the server list
+						taro.client.servers = taro.client.getServersArray();
+					}
+					if (taro.client.servers) {
+						for (var i = 0; i < taro.client.servers.length; i++) {
+							var serverObj = taro.client.servers[i];
+
+							if (serverObj.id === this.value) {
+								taro.client.server = serverObj;
+							}
+						}
+					}
+				});
+
+				if (typeof isLoggedIn !== 'undefined' && isLoggedIn) {
+					$('#logged-in-as-a-guest').hide();
+					// $("#menu-buttons").hide();
+				} else {
+					$('#logged-in-as-a-guest').show();
+				}
+
+				$('#menu-form').keyup(function (e) {
+					if (e.keyCode == 13) {
+						taro.client.login();
+					}
+				});
+
+				$('#login-button').on('click', function () {
+					taro.client.login();
+				});
+
+				$('#close-game-suggestion').on('click', function () {
+					$('#more-games').removeClass('slideup-menu-animation').addClass('slidedown-menu-animation');
+				});
+
+				$('#play-as-guest-button').on('click', function () {
+					// console.log("Play !");
+					// taro.client.joinGame()
+					self.playGame();
+				});
+				$('#server-list').on('blur', function () {
+					$('#server-list').attr('size', 1);
+				});
+				$('#server-list').on('click', function () {
+					$('#server-list').attr('size', 1);
+				});
+
+				// this should only be a temporary solution
+				// we need to find a better way to implement the callbacks
+				// all related to clicking the Play Game button
+				//
+				// added connectPlayer event dispatch from index.ejs for local env
+				//
+				playButtonClick.addEventListener('connectPlayer', function () {
+					if (this.innerText.includes('Connection Failed')) {
+						var serverLength = $('#server-list') && $('#server-list')[0] && $('#server-list')[0].children.length;
+						$('#server-list').attr('size', serverLength);
+						$('#server-list').focus();
+					} else {
+						// did user tried to change server
+						var isServerChanged = window.connectedServer && taro.client.server.id !== window.connectedServer.id;
+
+						if (isServerChanged) {
+							window.location = `${window.location.pathname}?serverId=${taro.client.server.id}&joinGame=true`;
+							return;
+						}
+
+						if (taro.game && taro.game.hasStarted) {
+							var wasGamePaused = this.innerText.includes('Continue');
+							self.playGame(wasGamePaused);
+							self.setResolution();
+						} else {
+							$('#play-game-button').attr('disabled', true);
+							self.startLoading();
+							taro.client.connectToServer();
+						}
+					}
+					$('#play-game-button-wrapper').addClass('d-none-important');
+				});
+
+				$('#help-button').on('click', function () {
+					$('#help-modal').modal('show');
+				});
+
+
+			}
+
 			$('#open-inventory-button').on('click', function () {
 				if ($('#backpack').is(':visible')) {
 					$('#backpack').hide();
@@ -21,305 +314,15 @@ var MenuUiComponent = TaroEntity.extend({
 			});
 		}
 
-		if (taro.isClient) {
-			//console.log('initializing UI elements...');
-			self.shopType = '';
-			self.shopKey = '';
-			self.shopPage = 1;
-
-			$('#reconnect-button').on('click', function () {
-				location.reload();
-			});
-
-			$('#kick-player').on('click', function () {
-				$('#kick-players-outofgame-modal').modal('show');
-			});
-
-			// $(".inventory-item-button").on("click", function () {
-			// 	if (taro.client.selectedUnit) {
-			// 		var index = $(this).attr('name');
-			// 		taro.client.selectedUnit._stats.currentItemIndex = index;
-			// 		taro.client.selectedUnit.changeItem(index);
-			// 	}
-			// });
-
-			$('#resolution-high').on('click', function () {
-				self.setItem('resolution', 'high');
-				self.setResolution();
-			});
-
-			$('#resolution-low').on('click', function () {
-				// setting 640x480 resolution as low resolution
-				var canvas = $('#game-div canvas');
-				if (canvas.attr('width') != 640 && canvas.attr('height') != 480) {
-					self.setItem('resolution', 'low');
-					self.setResolution();
-					if (typeof incrLowResolution === 'function') {
-						incrLowResolution();
-					}
+		if (document.getElementById('open-inventory-button')) {
+			customUiListeners();
+		} else {
+			let checkForCustomUi = setInterval(() => {
+				if (document.getElementById('open-inventory-button')) {
+					clearInterval(checkForCustomUi);
+					customUiListeners();
 				}
-			});
-
-			$('#forceCanvas-on').on('click', function () {
-				self.setForceCanvas(true);
-				self.toggleButton('forceCanvas', 'on');
-				$('#forceCanvas-refresh-prompt').css('display', 'block');
-			});
-
-			$('#forceCanvas-off').on('click', function () {
-				self.setForceCanvas(false);
-				self.toggleButton('forceCanvas', 'off');
-				$('#forceCanvas-refresh-prompt').css('display', 'block');
-			});
-
-			self.toggleButton('forceCanvas', self.getForceCanvas() ? 'on' : 'off');
-
-			// register error log modal btn;
-			$('#dev-error-button').on('click', function () {
-				$('#error-log-modal').modal('show');
-			});
-
-			$('#bandwidth-usage').on('click', function () {
-				$('#dev-status-modal').modal('show');
-			});
-
-			$('#leaderboard-link').on('click', function (e) {
-				e.preventDefault();
-				$('#leaderboard-modal').modal('show');
-			});
-
-			$('#refresh-server-list-button').on('click', function () {
-				taro.client.refreshServerList();
-			});
-
-			$('#max-players').on('change', function () {
-				taro.client.refreshServerList();
-			});
-
-			$('#map-list').on('change', function () {
-				taro.client.refreshServerList();
-			});
-
-			$('#kick-player-body').on('click', '.kick-player-btn', function () {
-				var clientId = $(this).attr('data-clientid');
-				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && clientId) {
-					taro.network.send('kick', clientId);
-				}
-			});
-
-			$('#kick-player-body').on('click', '.ban-player-btn', function () {
-				var userId = $(this).attr('data-userId');
-				var gameId = $(this).attr('data-gameId');
-				var clientId = $(this).attr('data-clientid');
-				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && userId) {
-					taro.network.send('ban-user', { kickuserId: clientId, userId: userId });
-				}
-			});
-
-			$('#kick-player-body').on('click', '.ban-ip-btn', function () {
-				var gameId = $(this).attr('data-gameId');
-				var clientId = $(this).attr('data-clientid');
-				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && gameId) {
-					taro.network.send('ban-ip', {
-						gameId: gameId,
-						kickuserId: clientId
-					});
-				}
-			});
-
-			$('#kick-player-body').on('click', '.ban-chat-btn', function () {
-				var gameId = $(this).attr('data-gameId');
-				var clientId = $(this).attr('data-clientid');
-				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && gameId) {
-					taro.network.send('ban-chat', {
-						gameId: gameId,
-						kickuserId: clientId
-					});
-				}
-			});
-
-			$('#toggle-dev-panels').on('click', function () {
-				if (!taro.game.data.isGameDeveloper && !window.isStandalone) {
-					return;
-				}
-				if ((['1', '4', '5'].includes(window.gameDetails?.tier)) || window.isStandalone) {
-					// console.log("taro developermode: ", taro.developerMode);
-					taro.developerMode.enter();
-
-					loadEditor();
-					$('#game-editor').show();
-					$('#kick-player').hide();
-
-					// commenting this code because we are handling changes in editor now.
-					/* if (restoreWindows) {
-						$('.winbox').show();
-						restoreWindows = false;
-					}
-					if (restoreDevMode) {
-						taro.developerMode.enter();
-						if ($('#open-inventory-button').is(':visible')) {
-							$('#backpack').hide();
-						}
-						$('#my-score-div').hide();
-						restoreDevMode = false;
-					}
-					if (restoreDevConsole) {
-						$('#dev-console').show();
-						restoreDevConsole = false;
-					}
-					const isEditorVisible = $('#game-editor').is(':visible');
-					if (!isEditorVisible) {
-						if ($('.winbox:first').is(':visible')) {
-							$('.winbox').hide();
-							restoreWindows = true;
-						}
-
-						if (taro.developerMode.active) {
-							taro.developerMode.leave();
-
-							if ($('#open-inventory-button').is(':visible')) {
-								$('#backpack').show();
-							}
-
-							$('#my-score-div').show();
-
-							restoreDevMode = true;
-						}
-
-						if ($('#dev-console').is(':visible')) {
-							$('#dev-console').hide();
-							restoreDevConsole = true;
-						}
-					}
-					$('#toggle-dev-panels').text(isEditorVisible ? 'Exit Dev Mode' : 'Enter Dev Mode'); */
-
-				} else {
-					$('#dev-console').toggle();
-				}
-			});
-
-			$('.open-menu-button').on('click', function () {
-				self.toggleMenu();
-				$('.open-menu-button').hide();
-			});
-
-			$('#change-server').on('click', function () {
-				window.location.replace(`/play/${gameSlug}?serverId=${taro.client.changedServer}&joinGame=true`);
-			});
-
-			$('#add-player-instance').on('click', function () {
-				var url = `${window.location.host}/play/${gameSlug}?add-instance=true`;
-				Swal({
-					html: `<div class='swal2-title'>Want to add player instance?</div><div class='swal2-text' style='user-select: text;'>Copy the link given below and open it in incognito mode.<br/><input type='text' class='form-control mt-2' value='${url}' /></div>`,
-					button: 'close'
-				});
-			});
-
-			// once modal is hidden, then it's no longer shown when the game starts
-			$('#help-modal').on('hidden.bs.modal', function (e) {
-				self.setItem('tutorial', 'off');
-			});
-
-			$('#server-list').on('change', function () {
-				var gameSlug = $(this).attr('game-slug');
-				taro.client.gameSlug = gameSlug;
-				const serverListOptions = document.querySelector('#server-list > option');
-				if (serverListOptions.length !== taro.client.servers.length) {
-					// server options have been added/removed dynamically
-					// refresh the server list
-					taro.client.servers = taro.client.getServersArray();
-				}
-				if (taro.client.servers) {
-					for (var i = 0; i < taro.client.servers.length; i++) {
-						var serverObj = taro.client.servers[i];
-
-						if (serverObj.id === this.value) {
-							taro.client.server = serverObj;
-						}
-					}
-				}
-			});
-
-			if (typeof isLoggedIn !== 'undefined' && isLoggedIn) {
-				$('#logged-in-as-a-guest').hide();
-				// $("#menu-buttons").hide();
-			} else {
-				$('#logged-in-as-a-guest').show();
-			}
-
-			$('#menu-form').keyup(function (e) {
-				if (e.keyCode == 13) {
-					taro.client.login();
-				}
-			});
-
-			$('#login-button').on('click', function () {
-				taro.client.login();
-			});
-
-			$('#close-game-suggestion').on('click', function () {
-				$('#more-games').removeClass('slideup-menu-animation').addClass('slidedown-menu-animation');
-			});
-
-			$('#play-as-guest-button').on('click', function () {
-				// console.log("Play !");
-				// taro.client.joinGame()
-				self.playGame();
-			});
-			$('#server-list').on('blur', function () {
-				$('#server-list').attr('size', 1);
-			});
-			$('#server-list').on('click', function () {
-				$('#server-list').attr('size', 1);
-			});
-
-			// this should only be a temporary solution
-			// we need to find a better way to implement the callbacks
-			// all related to clicking the Play Game button
-			//
-			// added connectPlayer event dispatch from index.ejs for local env
-			//
-			playButtonClick.addEventListener('connectPlayer', function () {
-				if (this.innerText.includes('Connection Failed')) {
-					var serverLength = $('#server-list') && $('#server-list')[0] && $('#server-list')[0].children.length;
-					$('#server-list').attr('size', serverLength);
-					$('#server-list').focus();
-				} else {
-					// did user tried to change server
-					var isServerChanged = window.connectedServer && taro.client.server.id !== window.connectedServer.id;
-
-					if (isServerChanged) {
-						window.location = `${window.location.pathname}?serverId=${taro.client.server.id}&joinGame=true`;
-						return;
-					}
-
-					if (taro.game && taro.game.hasStarted) {
-						var wasGamePaused = this.innerText.includes('Continue');
-						self.playGame(wasGamePaused);
-						self.setResolution();
-					} else {
-						$('#play-game-button').attr('disabled', true);
-						self.startLoading();
-						taro.client.connectToServer();
-					}
-				}
-				$('#play-game-button-wrapper').addClass('d-none-important');
-			});
-
-			$('#help-button').on('click', function () {
-				$('#help-modal').modal('show');
-			});
-
-			if (document.getElementById('open-inventory-button')) {
-				customUiListeners();
-			}else{
-				let checkForCustomUi = setInterval(() => {
-					if (document.getElementById('open-inventory-button')) {
-						clearInterval(checkForCustomUi);
-						customUiListeners();
-					}
-				}, 1000);
-			}
+			}, 1000);
 		}
 	},
 
