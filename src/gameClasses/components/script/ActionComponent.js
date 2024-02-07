@@ -3314,6 +3314,28 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+					case 'consoleLog':
+						var text = self._script.param.getValue(action.text, vars);
+						var type = self._script.param.getValue(action.type, vars);
+						
+						switch(type) {
+						  case "log":
+						    console.log(text);
+						    break;
+						  case "info":
+						    console.info(text);
+						    break;
+						  case "debug":
+						    console.debug(text);
+						    break;
+						  case "warn":
+						    console.warn(text);
+						    break;
+						  default:
+						    console.log(text);
+						}
+						break;
+						
 					case 'comment':
 						break;
 					default:
