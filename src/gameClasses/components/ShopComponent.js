@@ -1375,9 +1375,6 @@ var ShopComponent = TaroEntity.extend({
 
 			if (item.status == 'not_purchased') {
 
-				if (window.isInMobileApp()) {
-					continue;
-				}
 
 				if (item.soldForSocialShare) {
 					var button = self.buttonForSocialShare(item);
