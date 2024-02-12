@@ -1358,6 +1358,18 @@ var ShopComponent = TaroEntity.extend({
 			class: 'row text-center shop-grid-container'
 		});
 
+		if(items.length >= 0){
+			// if no skins, show a message
+			let errMsg = $('<div>', {
+				class: '',
+				style: 'display: flex; justify-content: center; margin-top: 25px;',
+				html: '<strong>No skins found</strong>',
+				name:'error-message-skins'
+			})
+			$('#modd-shop-modal .shop-items').html(errMsg)
+			return;
+	}
+
 		for (let i = 0; i < items.length; i++) {
 			var item = items[i];
 
@@ -1564,6 +1576,7 @@ var ShopComponent = TaroEntity.extend({
 
 		if (totalPages == 0) {
 			$('#mod-shop-pagination').html('');
+			self.renderSkinsButtons([]);
 			return;
 		}
 
