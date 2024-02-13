@@ -145,6 +145,12 @@ var ShopComponent = TaroEntity.extend({
 
 				// purchase purchasable
 				$(document).on('click', '.btn-purchase-purchasable', function () {
+
+					if(!isLoggedIn){
+						window.openLoginOptionFrameModal();
+						return;
+					}
+
 					if ($(this).hasClass('disabled')) return;
 					var itemDom = $(this);
 					var name = itemDom[0].dataset.purchasable;
@@ -1372,6 +1378,11 @@ var ShopComponent = TaroEntity.extend({
 
 		for (let i = 0; i < items.length; i++) {
 			var item = items[i];
+
+			// check if user logged in
+			if (!isLoggedIn) {
+				item.status = 'not_purchased';
+			}
 
 			if (item.status == 'not_purchased') {
 
