@@ -329,7 +329,7 @@ var ShopComponent = TaroEntity.extend({
 						purchasableItems.forEach(function (purchasable, index) {
 							let html = `<div id="${purchasable._id}-locked" class="border rounded bg-light p-2 mx-2 ${index < 2 ? 'mb-3' : ''} col-5 d-flex flex-column justify-content-between">` +
 								'  <div class="my-2 text-center">' +
-								`	<img id="${purchasable._id}_image" src=" ${purchasable.image} " style="height: 45px; width: 45px;" />` +
+								`	<img name="${purchasable._id}_image" alt="${purchasable.name}" src=" ${purchasable.image} " style="height: 45px; width: 45px;" />` +
 								'	 </div>' +
 								'	 <div class="d-flex justify-content-center action-button-container">';
 							if (purchasable.soldForSocialShare) {
