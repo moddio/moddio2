@@ -743,6 +743,7 @@ var Item = TaroEntityPhysics.extend({
 			return;
 
 		self._stats.isBeingUsed = true;
+		self._stats.useQueued = true; // ensures that use() is executed at least once
 		var owner = this.getOwnerUnit();
 		if (taro.isServer) {
 			this.quantityAtStartusing = this._stats.quantity;
