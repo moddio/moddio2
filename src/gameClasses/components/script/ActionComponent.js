@@ -3027,6 +3027,7 @@ var ActionComponent = TaroEntity.extend({
 							unit.ai.moveToTargetPosition(position.x, position.y);
 						}
 						break;
+
 					case 'aiAttackUnit':
 						var unit = self._script.param.getValue(action.unit, vars);
 						var targetUnit = self._script.param.getValue(action.targetUnit, vars);
@@ -3043,8 +3044,8 @@ var ActionComponent = TaroEntity.extend({
 						break;
 
 					case 'aiChangePathfindingMethod':
-						var unit = self._script.variable.getValue(action.unit, vars);
-						var pathFindingMethod = self._script.variable.getValue(action.pathFindingMethod, vars);
+						var unit = self._script.param.getValue(action.unit, vars);
+						var pathFindingMethod = self._script.param.getValue(action.pathFindingMethod, vars);
 						if (unit && unit.ai) {
 							unit.ai.setPathFindingMethod(pathFindingMethod);
 						}
