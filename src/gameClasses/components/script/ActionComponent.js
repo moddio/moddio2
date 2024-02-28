@@ -1238,7 +1238,7 @@ var ActionComponent = TaroEntity.extend({
 							var object = self._script.param.getValue(action.object, vars) || {};
 							for (var key in object) {
 								let previousAcionBlockIdx = self._script.currentActionLineNumber;
-								var brk = self.run(action.actions, Object.assign(vars, { selectedElement: object[key], selectedElementsKey: key}), actionPath, self._script.currentActionLineNumber);
+								var brk = self.run(action.actions, Object.assign(vars, { selectedElement: object[key], selectedElementsKey: key }), actionPath, self._script.currentActionLineNumber);
 								self._script.currentActionLineNumber = previousAcionBlockIdx + self.getNestedActionsLength(action.actions, 0, self);
 
 								if (brk == 'break' || vars.break) {
@@ -3042,6 +3042,12 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+					case 'aiChangePathfindingMethod':
+						var unit = self._script.variable.getValue(action.unit, vars);
+						var pathFindingMethod = self._script.variable.getValue(action.pathFindingMethod, vars);
+						if (unit && unit.ai) {
+							unit.ai.setPathFindingMethod(pathFindingMethod);
+						}
 
 					case 'makePlayerTradeWithPlayer':
 						var playerA = self._script.param.getValue(action.playerA, vars);
