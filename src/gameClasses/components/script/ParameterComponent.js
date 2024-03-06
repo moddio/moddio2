@@ -1079,6 +1079,22 @@ var ParameterComponent = TaroEntity.extend({
 
 						break;
 
+					case 'xPosToTile':
+						var tileWidth = 64 || taro.game.data.map.tilewidth;
+						var xPos = self.getValue(text.xPos, vars);
+
+						returnValue = Math.floor(xPos / tileWidth);
+
+						break;
+
+					case 'yPosToTile':
+						var tileHeight = 64 || taro.game.data.map.tileheight;
+						var yPos = self.getValue(text.yPos, vars);
+
+						returnValue = Math.floor(yPos / tileHeight);
+
+						break;
+
 					case 'getMapJson':
 						returnValue = JSON.stringify(taro.map.data);
 
