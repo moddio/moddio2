@@ -135,7 +135,8 @@ class GameScene extends PhaserScene {
 			text: string,
 			x: number,
 			y: number,
-			color: string
+			color: string,
+			time: time
 		}) => {
 			new PhaserFloatingText(this, data);
 		});
