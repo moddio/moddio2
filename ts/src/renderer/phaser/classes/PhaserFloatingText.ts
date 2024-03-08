@@ -10,7 +10,8 @@ class PhaserFloatingText extends Phaser.GameObjects.BitmapText {
 			text: string,
 			x: number,
 			y: number,
-			color: string
+			color: string,
+			time: number
 		},
 	) {
 		super(scene,
@@ -45,7 +46,7 @@ class PhaserFloatingText extends Phaser.GameObjects.BitmapText {
 		scene.tweens.add({
 			targets: this.rt || this,
 			alpha: 0.5,
-			duration: 2500,
+			duration: data.time,
 			y: this.y - 40,
 			onComplete: () => {
 				this.rt && this.rt.destroy();
