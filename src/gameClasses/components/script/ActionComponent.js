@@ -1651,19 +1651,25 @@ var ActionComponent = TaroEntity.extend({
 						var position = self._script.param.getValue(action.position, vars);
 						var text = self._script.param.getValue(action.text, vars);
 						var color = self._script.param.getValue(action.color, vars);
+						var time = self._script.param.getValue(action.time, vars);
 
 						if (text == undefined) {
 							text = 'undefined';
 						}
 
+						if (time == undefined) {
+							time = 3000;
+						}
+
 						if (taro.isServer) {
-							taro.network.send('createFloatingText', { position: position, text: text, color: color });
+							taro.network.send('createFloatingText', { position: position, text: text, color: color, time: time });
 						} else if (taro.isClient) {
 							taro.client.emit('floating-text', {
 								text: text,
 								x: position.x,
 								y: position.y,
-								color: color || 'white'
+								color: color || 'white',
+								time: time
 							});
 						}
 						break;
