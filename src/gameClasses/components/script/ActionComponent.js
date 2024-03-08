@@ -1658,7 +1658,7 @@ var ActionComponent = TaroEntity.extend({
 						}
 
 						if (time == undefined) {
-							time = 3000;
+							time = 2500;
 						}
 
 						if (taro.isServer) {
