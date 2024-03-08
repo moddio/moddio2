@@ -195,7 +195,58 @@ class DeveloperMode {
 	serverVariableData: Record<string, VariableData>;
 
 	constructor() {
-		if (taro.isClient) this.active = false;
+		if (taro.isClient) {
+			this.active = false;
+			this.initializeEventListeners();
+		}
+	}
+
+	initializeEventListeners() {
+		taro.client.on('applyScriptChanges', (data: ScriptData) => {
+			taro.network.send<any>('editGlobalScripts', data);
+		});
+
+		taro.client.on('editGlobalScripts', (data: ScriptData) => {
+			Object.entries(data).forEach(([scriptId, script]) => {
+				if (!script.deleted) {
+					taro.developerMode.serverScriptData[scriptId] = script;
+				} else {
+					delete taro.developerMode.serverScriptData[scriptId];
+				}
+			});
+
+			taro.script.load(data, true);
+			taro.script.scriptCache = {};
+		});
+
+		taro.client.on('applyVariableChanges', (data: Record<string, VariableData>) => {
+			taro.network.send<any>('editVariable', data);
+		});
+
+		taro.client.on('editVariable', (data: Record<string, VariableData>) => {
+			Object.entries(data).forEach(([key, variable]) => {
+				//editing existing variable
+				if (taro.game.data.variables[key]) {
+					//deleting variable
+					if (variable.delete) {
+						delete taro.game.data.variables[key];
+					//renaming variable
+					} else if (variable.newKey) {
+						taro.game.data.variables[variable.newKey] = taro.game.data.variables[key];
+						delete taro.game.data.variables[key];
+					//editing variable
+					} else {
+						taro.game.data.variables[key].value = variable.value;
+					}
+				//creating new variable
+				} else {
+					taro.game.data.variables[key] = {
+						dataType: variable.dataType,
+						value: variable.value
+					};
+				}
+			});
+		});
 	}
 
 	addInitEntities(): void {
