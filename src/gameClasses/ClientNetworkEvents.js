@@ -160,6 +160,7 @@ var ClientNetworkEvents = {
 			x: data.position.x,
 			y: data.position.y,
 			color: data.color || "white",
+			time: data.time,
 		}));
 		if (runAction[0] !== null) {
 			// console.error(runAction[0]);
