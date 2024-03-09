@@ -2707,6 +2707,21 @@ var ParameterComponent = TaroEntity.extend({
 					return regionA.intersects(regionB);
 				}
 			},
+
+			'regionContainsPosition': function (text, vars) {
+				var region = self.getValue(text.region, vars);
+				var position = self.getValue(text.position, vars);
+				if (!region || !position) {
+					return false;
+				}
+				if (region._category == 'region') {
+					region = region.getBounds();
+				}
+				if (region) {
+					region = new TaroRect(region.x, region.y, region.width, region.height);
+					return region.xyInside(position.x, position.y);
+				}
+			},
 			/* variable */
 
 			'getVariable': function (text, vars) {
