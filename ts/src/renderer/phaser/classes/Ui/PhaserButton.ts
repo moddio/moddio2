@@ -76,7 +76,8 @@ class PhaserButton extends Phaser.GameObjects.Container {
         if (taro.isMobile) {
             //hide key on mobile
             if (this.image) {
-                this.label.visible = false;
+                if(this.label && this.label.visible)
+                    this.label.visible = false;
             }
             button.setFillStyle(backgroundColor, 0.7);
             const mobileControlScene = taro.renderer.scene.getScene('MobileControls') as MobileControlsScene;
