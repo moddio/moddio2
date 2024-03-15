@@ -1157,13 +1157,13 @@ var ShopComponent = TaroEntity.extend({
 						value: `<img src='${item.inventoryImage || item.cellSheet.url}' class='${isItemAffordable && isItemCoinsAffordable && requirementsSatisfied ? " " : " lowered-visibility "}' style='width: 75px; height: 75px; background-color : #4B5563; padding : 8px; margin-top : 6px;  border-radius : 4px; object-fit:contain; '>`
 						});
 
-						if (shopItem.price.coins) {
-							var itemImageElement = $('<img/>', {
-								src: `${assetsProvider}/assets/images/coin_white.svg`,
-								style: 'width: 20px; height: 20px; position: absolute; top: 6px; right: 6px;',
-							});
-							itemImage.append(itemImageElement);
-						}
+						// if (shopItem.price.coins) {
+						// 	var itemImageElement = $('<img/>', {
+						// 		src: `${assetsProvider}/assets/images/coin_white.svg`,
+						// 		style: 'width: 20px; height: 20px; position: absolute; top: 6px; right: 6px;',
+						// 	});
+						// 	itemImage.append(itemImageElement);
+						// }
 
 						var itemName = `<div class=\'p-2 no-selection\' style=\'line-height:1 !important; font-size: 12px; font-weight : 600; overflow-wrap: break-word;\'>`;
 						if (itemQuantity > 1) {
