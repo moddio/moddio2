@@ -5,11 +5,16 @@ class AStarPathfindingComponent extends TaroEntity {
 		super();
 		this._entity = unit._entity;
 
+		this.resetAStar();
+	}
+
+	resetAStar() {
 		// A* algorithm variables
 		this.path = []; // AI unit will keep going to highest index until there is no more node to go
 		// everytime when path generate failure, path should set to empty array (this.path = aStarResult.path automatically done for it)
-		this.previousTargetPosition = undefined;
+		this.previousTargetPosition = { x: undefined, y: undefined };
 	}
+
 	/*
 	* @param x
 	* @param y

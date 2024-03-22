@@ -300,6 +300,15 @@ var AIComponent = TaroEntity.extend({
 		this.targetPosition = { x: x, y: y };
 	},
 
+	setPathFindingMethod: function (pathFindingMethod) {
+		// currently we have two pathfinding method, use this to avoid invalid method
+		// if the given method is not valid, change it to simple (default)
+		this.pathFindingMethod = (pathFindingMethod == "a*") ? "a*" : "simple";
+		if (this.pathFindingMethod == "a*") { // reset
+			this.aStar.resetAStar();
+		}
+	},
+
 	update: function () {
 
 		var self = this;
