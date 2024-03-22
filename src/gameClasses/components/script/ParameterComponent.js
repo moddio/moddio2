@@ -1337,6 +1337,29 @@ var ParameterComponent = TaroEntity.extend({
 
 						break;
 
+					case 'convertNumberToLargeNotation':
+					    const prefixes = [
+					        'Cn', 'Vi', 'Nd', 'Od', 'Spd', 'Sxd', 'Qid', 'Qad', 'Tr', 'Do', 'Un', 'De', 'No', 'Oc', 'Sp', 'Sx', 'Qi', 'Qa', 'T', 'B', 'M', 'K'
+					    ];
+					
+					    let absValue = Math.abs(Number(value));
+					    let returnValue = value;
+					    
+					    if (absValue >= 1000) {
+					        for (let i = 0; i < prefixes.length; i++) {
+					            let factor = Math.pow(10, (3 * (prefixes.length - i)));
+					
+					            if (absValue >= factor) {
+					                returnValue = `${(absValue / factor).toFixed(2)}${prefixes[i]}`;
+					                break;
+					            }
+					        }
+					    }
+					    
+					    return returnValue;
+
+						break;
+
 					case 'getServerAge':
 						const timestampStr = taro.server.started_at;
 						const timestamp = new Date(timestampStr);
