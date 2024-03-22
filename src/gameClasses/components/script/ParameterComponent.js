@@ -1338,6 +1338,8 @@ var ParameterComponent = TaroEntity.extend({
 						break;
 
 					case 'convertNumberToLargeNotation':
+						var value = self.getValue(text.value, vars);
+						
 					    const prefixes = [
 					        'Cn', 'Vi', 'Nd', 'Od', 'Spd', 'Sxd', 'Qid', 'Qad', 'Tr', 'Do', 'Un', 'De', 'No', 'Oc', 'Sp', 'Sx', 'Qi', 'Qa', 'T', 'B', 'M', 'K'
 					    ];
