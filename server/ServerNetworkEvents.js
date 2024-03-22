@@ -90,7 +90,7 @@ var ServerNetworkEvents = {
 	},
 
 	_onPing: function(data, clientId) {
-		taro.network.send('ping', data, clientId)
+		taro.network.send('ping', data, clientId, true)
 	},
 
 	_onBuySkin: function (skinHandle, clientId) {

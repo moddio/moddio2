@@ -184,9 +184,6 @@ var Server = TaroClass.extend({
 		// for debugging reasons
 		global.isServer = taro.isServer;
 
-		if (typeof HttpComponent != 'undefined') {
-			taro.addComponent(HttpComponent);
-		}
 		if (cluster.isPrimary) {
 			if (process.env.ENV === 'standalone') {
 				if (process.env.LOAD_CC === 'true') {
@@ -201,9 +198,13 @@ var Server = TaroClass.extend({
 				taro.addComponent(MasterServerComponent);
 				taro.addComponent(MasterComponent);
 			}
+			
 			// Include ProxyComponent to master cluster
 			if (typeof ProxyComponent !== 'undefined') {
 				taro.addComponent(ProxyComponent);
+			}
+			if (typeof HttpComponent != 'undefined') {
+				taro.addComponent(HttpComponent);
 			}
 		} else {
 			if (typeof WorkerComponent != 'undefined') {

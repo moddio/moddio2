@@ -288,8 +288,9 @@ var TaroNetIoServer = {
    * @param {String} commandName
    * @param {Object} data
    * @param {*=} clientId If specified, sets the recipient socket id or a array of socket ids to send to.
+   * @param {Boolean} skipQueue
    */
-	send: function (commandName, data, clientId) {
+	send: function (commandName, data, clientId, skipQueue = false) {
 		var self = this;
 		var commandIndex = this._networkCommandsLookup[commandName];
 		var ciEncoded;
@@ -304,7 +305,15 @@ var TaroNetIoServer = {
 
 			if (!clientId)
 				clientId = 'undefined';
-			self.sendQueue[clientId].push([ciEncoded, data]);
+				
+			if (skipQueue) {
+				self._io.send(
+					[ciEncoded, data],
+					clientId === 'undefined' ? undefined : clientId
+				);
+			} else {
+				self.sendQueue[clientId].push([ciEncoded, data]);
+			}
 		} else {
 			this.log(
 				`Cannot send network packet with command "${commandName

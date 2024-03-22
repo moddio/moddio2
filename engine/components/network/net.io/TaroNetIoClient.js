@@ -553,6 +553,10 @@ var TaroNetIoClient = {
 				}
 			}
 			
+		} else if (commandName === 'ping') {
+			if (this._networkCommands[commandName]) {
+				this._networkCommands[commandName](data[1]);
+			}
 		} else {
 			// so yeah, we should never reach to this point, but if we do, let's debug then
 			console.log("commandName wasn't _snapshot!", commandName, data);

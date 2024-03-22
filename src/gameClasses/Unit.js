@@ -2039,7 +2039,8 @@ var Unit = TaroEntityPhysics.extend({
 
 					// send ping for CSP reconciliation purpose
 					if (taro.now > taro.client.sendNextPingAt) {
-						taro.network.send('ping', { sentAt: taro._currentTime });
+						// using performance.now instead of taro._currentTime as _currentTime updates every frame and ping may respond within a frame
+						taro.network.send('ping', { sentAt: performance.now() });
 
 						// allow up to a 1.5 second before sending another ping. generally we'll not wait 1.5s before sending another ping
 						// because we'll be sending ping immediately after receiving pong from server. this is just a safety measure
