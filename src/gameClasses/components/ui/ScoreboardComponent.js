@@ -115,20 +115,25 @@ var ScoreboardComponent = TaroEntity.extend({
 
 	convertNumbersToKMB: function (labelValue) {
 		if (taro.game.data.settings.prettifyingScoreboard) {
-			// Nine Zeroes for Billions
-			return Math.abs(Number(labelValue)) >= 1.0e+9
+		    const prefixes = [
+		        'Cn', 'Vi', 'Nd', 'Od', 'Spd', 'Sxd', 'Qid', 'Qad', 'Tr', 'Do', 'Un', 'De', 'No', 'Oc', 'Sp', 'Sx', 'Qi', 'Qa', 'T', 'B', 'M', 'K'
+		    ];
+		
+		    let absValue = Math.abs(Number(labelValue));
+		    let returnValue = labelValue;
+		    
+		    if (absValue >= 1000) {
+		        for (let i = 0; i < prefixes.length; i++) {
+		            let factor = Math.pow(10, (3 * (prefixes.length - i)));
+		
+		            if (absValue >= factor) {
+		                returnValue = `${(absValue / factor).toFixed(2)}${prefixes[i]}`;
+		                break;
+		            }
+		        }
+		    }
 
-				? `${(Math.abs(Number(labelValue)) / 1.0e+9).toFixed(2)}B`
-				// Six Zeroes for Millions
-				: Math.abs(Number(labelValue)) >= 1.0e+6
-
-					? `${(Math.abs(Number(labelValue)) / 1.0e+6).toFixed(2)}M`
-					// Three Zeroes for Thousands
-					: Math.abs(Number(labelValue)) >= 1.0e+3
-
-						? `${(Math.abs(Number(labelValue)) / 1.0e+3).toFixed(2)}K`
-
-						: Math.abs(Number(labelValue));
+			return returnValue;
 		} else {
 			return labelValue;
 		}
