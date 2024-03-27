@@ -219,7 +219,7 @@ var InventoryComponent = TaroEntity.extend({
 						}
 
 						// matching item isn't full, and new item can fit in.
-						if (item._stats.maxQuantity - item._stats.quantity > quantity) {
+						if (item._stats.maxQuantity - item._stats.quantity >= quantity) {
 							return i + 1;
 						} else {
 							if (item._stats.quantity != undefined) {
