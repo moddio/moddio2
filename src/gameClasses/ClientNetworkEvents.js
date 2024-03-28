@@ -855,6 +855,15 @@ var ClientNetworkEvents = {
 		}
 	},
 
+	_onTween: function (data) {
+		if (data.entityId) {
+			var entity = taro.$(data.entityId);
+			if (entity) {
+				entity.tween.start(data.tweenId, data.angle);
+			}
+		}
+	},
+
 	_onCamera: function (data) {
 		const runAction = functionalTryCatch(() => {
 			// camera zoom change

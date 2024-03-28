@@ -634,6 +634,7 @@ var Server = TaroClass.extend({
 		taro.network.define('profile', self._onSomeBullshit);
 		taro.network.define('sound', self._onSomeBullshit);
 		taro.network.define('particle', self._onSomeBullshit);
+		taro.network.define('tween', self._onSomeBullshit);
 		taro.network.define('camera', self._onSomeBullshit);
 		taro.network.define('videoChat', self._onSomeBullshit);
 
