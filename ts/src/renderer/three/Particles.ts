@@ -85,7 +85,7 @@ namespace Renderer {
 					points.frustumCulled = false;
 					points.matrixAutoUpdate = false;
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
-					points.updateMatrixWorld = function () {};
+					points.updateMatrixWorld = function () { };
 
 					this.add(points);
 				}
@@ -242,7 +242,6 @@ namespace Renderer {
 						colorAttribute[j * 4 + 1] = particle.color[1];
 						colorAttribute[j * 4 + 2] = particle.color[2];
 						colorAttribute[j * 4 + 3] = particle.color[3];
-
 						blendAttribute[j] = particle.blend;
 
 						textureAttribute[j] = particle.texIdx;
@@ -459,7 +458,8 @@ namespace Renderer {
     else if (vTexture == 15.0) gl_FragColor = texture2D(textures[15], vUv) * vColor;
 
     gl_FragColor.rgb *= gl_FragColor.a;
-    gl_FragColor.a *= vBlend;
+	if (gl_FragColor.a < 0.5) discard;
+	gl_FragColor.a *= vBlend;
 
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
