@@ -6,6 +6,7 @@ type PhysicsDists = {
 	BOX2DTS: PhysicsDistProps;
 	NATIVE: PhysicsDistProps;
 	BOX2D: PhysicsDistProps;
+	Voxel: PhysicsDistProps;
 };
 
 type PhysicsDistsEnum = keyof PhysicsDists;
@@ -45,6 +46,8 @@ const dists: PhysicsDists & { defaultEngine: PhysicsDistsEnum } = {
 	NATIVE: nativeWrapper,
 
 	BOX2D: box2dWrapper,
+
+	Voxel: voxelWrapper,
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

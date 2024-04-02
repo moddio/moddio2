@@ -1,7 +1,7 @@
 var includeFolders = [{
 	flags: 'csap',
 	folderPath: './components/physics/box2d/distsWrapper/',
-	filesName: ['planckWrapper', 'box2dwasmWrapper', 'box2dtsWrapper', 'box2dninjaWrapper', 'box2dwebWrapper', 'nativeWrapper', 'box2dWrapper']
+	filesName: ['planckWrapper', 'box2dwasmWrapper', 'box2dtsWrapper', 'box2dninjaWrapper', 'box2dwebWrapper', 'nativeWrapper', 'box2dWrapper', 'voxelWrapper']
 }];
 
 const arrays = includeFolders.map((v) => v.filesName.map(fileName => {
