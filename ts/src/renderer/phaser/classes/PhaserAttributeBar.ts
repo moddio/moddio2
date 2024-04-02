@@ -1,9 +1,7 @@
 class PhaserAttributeBar extends Phaser.GameObjects.Container {
-
 	private static pool: Phaser.GameObjects.Group;
 
 	static get(unit: PhaserUnit): PhaserAttributeBar {
-
 		if (!this.pool) {
 			this.pool = unit.scene.make.group({});
 		}
@@ -24,8 +22,7 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 		return bar;
 	}
 
-	static release (bar: PhaserAttributeBar): void {
-
+	static release(bar: PhaserAttributeBar): void {
 		bar.resetFadeOut();
 
 		bar.setVisible(false);
@@ -47,17 +44,18 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 	private fadeTween: Phaser.Tweens.Tween;
 
 	private constructor(private unit: PhaserUnit) {
-
 		const scene = unit.scene;
 
 		super(scene);
 
-		const bar = this.bar = scene.add.graphics();
+		const bar = (this.bar = scene.add.graphics());
 		this.add(bar);
 
-		const text = this.bitmapText = scene.add.bitmapText(0, 0,
+		const text = (this.bitmapText = scene.add.bitmapText(
+			0,
+			0,
 			BitmapFontManager.font(scene, 'Arial', true, false, '#000000')
-		);
+		));
 		text.setCenterAlign();
 		text.setFontSize(14);
 		text.setOrigin(0.5);
@@ -66,7 +64,7 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 		this.add(text);
 
 		if (scene.renderer.type === Phaser.CANVAS) {
-			const rt = this.rtText = scene.add.renderTexture(0, 0);
+			const rt = (this.rtText = scene.add.renderTexture(0, 0));
 			rt.setOrigin(0.5);
 			rt.visible = false;
 			this.add(rt);
@@ -79,15 +77,8 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 		unit.updateGameObjectSize();
 	}
 
-	render (data: AttributeData): void {
-		const {
-			color,
-			max,
-			displayValue,
-			index,
-			showWhen,
-			decimalPlaces
-		} = data;
+	render(data: AttributeData): void {
+		const { color, max, displayValue, index, showWhen, decimalPlaces } = data;
 
 		const value = Number(data.value);
 
@@ -101,9 +92,7 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 
 		bar.clear();
 
-		bar.fillStyle(Phaser.Display.Color
-			.HexStringToColor(color)
-			.color);
+		bar.fillStyle(Phaser.Display.Color.HexStringToColor(color).color);
 
 		// add max as a patch to renderer freezing when max is 0
 		if (value !== 0 && max !== 0) {
@@ -112,20 +101,14 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 				-h / 2,
 				// we should not clamp here because it will mask whether or not there is a fault elsewhere in the attribute logic
 				// because of this, changed from Math.max(w * Math.min(value, max)/ max...)
-				Math.max(w * value / max, borderRadius * 1.5),
+				Math.max((w * value) / max, borderRadius * 1.5),
 				h,
 				borderRadius
 			);
 		}
 
 		bar.lineStyle(2, 0x000000, 1);
-		bar.strokeRoundedRect(
-			-w / 2,
-			-h / 2,
-			w,
-			h,
-			borderRadius
-		);
+		bar.strokeRoundedRect(-w / 2, -h / 2, w, h, borderRadius);
 
 		const text = this.bitmapText;
 		const rt = this.rtText;
@@ -136,7 +119,7 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 			if (rt) {
 				rt.resize(text.width, text.height);
 				rt.clear();
-				rt.draw(text, text.width/2, text.height/2);
+				rt.draw(text, text.width / 2, text.height / 2);
 				rt.visible = true;
 			}
 		} else {
@@ -145,24 +128,19 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 			rt && (rt.visible = false);
 		}
 
-		this.y = (index - 1) * h*1.1;
+		this.y = (index - 1) * h * 1.1;
 
 		this.resetFadeOut();
 
-		if ((showWhen instanceof Array &&
-			showWhen.indexOf('valueChanges') > -1) ||
-			showWhen === 'valueChanges') {
-
+		if ((showWhen instanceof Array && showWhen.indexOf('valueChanges') > -1) || showWhen === 'valueChanges') {
 			this.fadeOut();
 		}
 	}
 
 	private fadeOut(): void {
-
 		const scene = this.scene;
 
 		this.fadeTimerEvent = scene.time.delayedCall(1000, () => {
-
 			this.fadeTimerEvent = null;
 
 			this.fadeTween = scene.tweens.add({
@@ -170,12 +148,10 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 				alpha: 0,
 				duration: 500,
 				onComplete: () => {
-
 					this.fadeTween = null;
 
 					const unit = this.unit;
 					if (unit) {
-
 						const attributes = unit.attributes;
 						const index = attributes.indexOf(this);
 
@@ -184,12 +160,12 @@ class PhaserAttributeBar extends Phaser.GameObjects.Container {
 							PhaserAttributeBar.release(this);
 						}
 					}
-				}
+				},
 			});
 		});
 	}
 
-	private resetFadeOut (): void {
+	private resetFadeOut(): void {
 		// reset fade timer and tween
 		if (this.fadeTimerEvent) {
 			this.scene.time.removeEvent(this.fadeTimerEvent);

@@ -2,33 +2,33 @@ var shutdownMessages = [
 	{
 		checkpoint: 1,
 		message: '2 hours',
-		timeMS: 120 * 60000
+		timeMS: 120 * 60000,
 	},
 	{
 		checkpoint: 2,
 		message: '1 hour',
-		timeMS: 60 * 60000
+		timeMS: 60 * 60000,
 	},
 	{
 		checkpoint: 3,
 		message: '30 minutes',
-		timeMS: 30 * 60000
+		timeMS: 30 * 60000,
 	},
 	{
 		checkpoint: 4,
 		message: '15 minutes',
-		timeMS: 15 * 60000
+		timeMS: 15 * 60000,
 	},
 	{
 		checkpoint: 5,
 		message: '5 minutes',
-		timeMS: 5 * 60000
+		timeMS: 5 * 60000,
 	},
 	{
 		checkpoint: 6,
 		message: '1 minute',
-		timeMS: 1 * 60000
-	}
+		timeMS: 1 * 60000,
+	},
 ];
 
 var TimerComponent = TaroEntity.extend({
@@ -88,8 +88,7 @@ var TimerComponent = TaroEntity.extend({
 				var age = self.now - self.startedAt;
 
 				var messageToBroadcast = shutdownMessages.find(function (messageDetails) {
-					return age > lifeSpan - messageDetails.timeMS &&
-						self.shutdownMessageCheckpoint < messageDetails.checkpoint;
+					return age > lifeSpan - messageDetails.timeMS && self.shutdownMessageCheckpoint < messageDetails.checkpoint;
 				});
 
 				if (messageToBroadcast) {
@@ -98,10 +97,11 @@ var TimerComponent = TaroEntity.extend({
 
 					taro.chat.sendToRoom('1', message, undefined, undefined);
 				}
-
 			}
 		}, 1000);
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TimerComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TimerComponent;
+}

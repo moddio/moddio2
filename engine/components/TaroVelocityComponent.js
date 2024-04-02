@@ -19,8 +19,7 @@ var TaroVelocityComponent = TaroClass.extend({
 	 * @private
 	 */
 	_behaviour: function (ctx) {
-		if (this.velocity != undefined)
-			this.velocity.tick(ctx);
+		if (this.velocity != undefined) this.velocity.tick(ctx);
 	},
 
 	byAngleAndPower: function (radians, power, relative) {
@@ -95,7 +94,7 @@ var TaroVelocityComponent = TaroClass.extend({
 	},
 
 	vector3: function (vector, relative) {
-		if (typeof (vector.scale) !== 'number') {
+		if (typeof vector.scale !== 'number') {
 			vector.scale = 1; // Default to 1
 		}
 
@@ -131,7 +130,7 @@ var TaroVelocityComponent = TaroClass.extend({
 
 	linearForce: function (degrees, power) {
 		power /= 1000;
-		var radians = (degrees * Math.PI / 180);
+		var radians = (degrees * Math.PI) / 180;
 		var x = Math.cos(radians) * power;
 		var y = Math.sin(radians) * power;
 		var z = x * y;
@@ -146,7 +145,7 @@ var TaroVelocityComponent = TaroClass.extend({
 	},
 
 	linearForceVector3: function (vector, power, relative) {
-		var force = this._linearForce = this._linearForce || new TaroPoint3d(0, 0, 0);
+		var force = (this._linearForce = this._linearForce || new TaroPoint3d(0, 0, 0));
 		var x = vector.x / 1000;
 		var y = vector.y / 1000;
 		var z = vector.z / 1000;
@@ -168,9 +167,9 @@ var TaroVelocityComponent = TaroClass.extend({
 		if (this._linearForce) {
 			var vel = this._velocity;
 
-			vel.x += (this._linearForce.x * delta);
-			vel.y += (this._linearForce.y * delta);
-			vel.z += (this._linearForce.z * delta);
+			vel.x += this._linearForce.x * delta;
+			vel.y += this._linearForce.y * delta;
+			vel.z += this._linearForce.z * delta;
 		}
 	},
 
@@ -186,7 +185,9 @@ var TaroVelocityComponent = TaroClass.extend({
 	tick: function (ctx) {
 		var delta = taro._tickDelta;
 		var vel = this._velocity;
-		var x; var y; var z;
+		var x;
+		var y;
+		var z;
 
 		if (delta) {
 			this._applyLinearForce(delta);
@@ -200,7 +201,9 @@ var TaroVelocityComponent = TaroClass.extend({
 				this._entity.translateBy(x, y, z);
 			}
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroVelocityComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroVelocityComponent;
+}

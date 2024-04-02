@@ -38,11 +38,21 @@ var TaroStreamComponent = TaroEventingClass.extend({
 
 		if (taro.isClient) {
 			// Define the network stream command
-			this._entity.define('_taroStreamCreate', function () { self._onStreamCreate.apply(self, arguments); });
-			this._entity.define('_taroStreamDestroy', function () { self._onStreamDestroy.apply(self, arguments); });
-			this._entity.define('_taroStreamData', function () { self._onStreamData.apply(self, arguments); });
-			this._entity.define('_taroStreamTime', function () { self._onStreamTime.apply(self, arguments); });
-			this._entity.define('_taroStreamCreateSnapshot', function () { self._onStreamCreateSnapshot.apply(self, arguments); });
+			this._entity.define('_taroStreamCreate', function () {
+				self._onStreamCreate.apply(self, arguments);
+			});
+			this._entity.define('_taroStreamDestroy', function () {
+				self._onStreamDestroy.apply(self, arguments);
+			});
+			this._entity.define('_taroStreamData', function () {
+				self._onStreamData.apply(self, arguments);
+			});
+			this._entity.define('_taroStreamTime', function () {
+				self._onStreamTime.apply(self, arguments);
+			});
+			this._entity.define('_taroStreamCreateSnapshot', function () {
+				self._onStreamCreateSnapshot.apply(self, arguments);
+			});
 		}
 	},
 
@@ -119,7 +129,7 @@ var TaroStreamComponent = TaroEventingClass.extend({
 		// if that data gets overwritten by some other data that client will see a smooth transition from
 		// entity's current location to final location
 		// if (this._entity._streamMode == 1 || this._entity._streamMode == undefined) {
-			this._entity.add('_taroStreamData', data);
+		this._entity.add('_taroStreamData', data);
 		// }
 		// if (!this._queuedData[id] || this._queuedData[id][0].length <= 20) {
 		// }
@@ -179,7 +189,7 @@ var TaroStreamComponent = TaroEventingClass.extend({
 			var ntransdata = [
 				parseInt(transformData[0], 16),
 				parseInt(transformData[1], 16),
-				parseInt(transformData[2], 16) / 1000
+				parseInt(transformData[2], 16) / 1000,
 			]; // x, y, rotation
 		}
 
@@ -193,9 +203,9 @@ var TaroStreamComponent = TaroEventingClass.extend({
 					createData.defaultData = {
 						translate: {
 							x: ntransdata[0],
-							y: ntransdata[1]
+							y: ntransdata[1],
 						},
-						rotate: ntransdata[2]
+						rotate: ntransdata[2],
 					};
 
 					entity = new classConstructor(createData, entityId);
@@ -220,11 +230,17 @@ var TaroStreamComponent = TaroEventingClass.extend({
 					taro.network.stop();
 					taro.stop();
 
-					TaroStreamComponent.prototype.log(`Network stream cannot create entity with class ${classId} because the class has not been defined! The engine will now stop.`, 'error');
+					TaroStreamComponent.prototype.log(
+						`Network stream cannot create entity with class ${classId} because the class has not been defined! The engine will now stop.`,
+						'error'
+					);
 				}
 			}
 		} else {
-			TaroStreamComponent.prototype.log(`Cannot properly handle network streamed entity with id ${entityId} because it's parent with id ${parentId} does not exist on the scenegraph!`, 'warning');
+			TaroStreamComponent.prototype.log(
+				`Cannot properly handle network streamed entity with id ${entityId} because it's parent with id ${parentId} does not exist on the scenegraph!`,
+				'warning'
+			);
 		}
 	},
 
@@ -239,13 +255,15 @@ var TaroStreamComponent = TaroEventingClass.extend({
 			entity.destroy();
 			self.emit('entityDestroyed', entity);
 		}
-	}
+	},
 });
 
-function arr2hex (byteArray) {
+function arr2hex(byteArray) {
 	return Array.from(byteArray, function (byte) {
-		return (`0${(byte & 0xFF).toString(16)}`).slice(-2);
+		return `0${(byte & 0xff).toString(16)}`.slice(-2);
 	}).join('');
 }
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroStreamComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroStreamComponent;
+}

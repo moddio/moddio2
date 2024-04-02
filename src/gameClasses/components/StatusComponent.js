@@ -4,11 +4,11 @@ var StatusComponent = TaroEntity.extend({
 
 	init: function () {
 		TaroEntity.prototype.init.call(this);
-		
+
 		this.isEnabled = false;
-        this.actionCounter = {};
-        this.lastUpdateSent = 0;
-        this.mount(taro.$('baseScene'));
+		this.actionCounter = {};
+		this.lastUpdateSent = 0;
+		this.mount(taro.$('baseScene'));
 	},
 
 	logAction: function (path) {
@@ -21,8 +21,8 @@ var StatusComponent = TaroEntity.extend({
 			.slice(0, 10)
 			.map(([path, count]) => ({ path, count }));
 	},
-	
-    getSummary: function () {
+
+	getSummary: function () {
 		var self = this;
 
 		var cpuDelta = null;
@@ -54,7 +54,7 @@ var StatusComponent = TaroEntity.extend({
 					item: taro.$$('item').length,
 					projectile: taro.$$('projectile').length,
 					sensor: taro.$$('sensor').length,
-					region: taro.$$('region').length
+					region: taro.$$('region').length,
 				},
 				bandwidth: self.bandwidthUsage,
 				heapUsed: process.memoryUsage().heapUsed / 1024 / 1024,
@@ -66,18 +66,18 @@ var StatusComponent = TaroEntity.extend({
 					jointCount: taro.physics._world?.m_jointCount || taro.physics._world?.GetJointCount?.() || 0,
 					stepDuration: taro.physics.avgPhysicsTickDuration.toFixed(2),
 					stepsPerSecond: taro._physicsFPS,
-					totalBodiesCreated: taro.physics.totalBodiesCreated
+					totalBodiesCreated: taro.physics.totalBodiesCreated,
 				},
 				etc: {
 					totalPlayersCreated: taro.server.totalPlayersCreated,
 					totalUnitsCreated: taro.server.totalUnitsCreated,
 					totalItemsCreated: taro.server.totalItemsCreated,
 					totalProjectilesCreated: taro.server.totalProjectilesCreated,
-					totalWallsCreated: taro.server.totalWallsCreated
+					totalWallsCreated: taro.server.totalWallsCreated,
 				},
 				cpu: cpuDelta,
 				lastSnapshotLength: JSON.stringify(taro.server.lastSnapshot).length,
-				top10MostCalledActions: this.getTop10Actions()
+				top10MostCalledActions: this.getTop10Actions(),
 			};
 
 			self.bandwidthUsage = {
@@ -86,34 +86,31 @@ var StatusComponent = TaroEntity.extend({
 				player: 0,
 				projectile: 0,
 				region: 0,
-				sensor: 0
+				sensor: 0,
 			};
 
 			return returnData;
 		}
 	},
 
-    update: function () {
+	update: function () {
 		var self = this;
 
-        if (taro._currentTime - this.lastUpdateSent > 1000) {
+		if (taro._currentTime - this.lastUpdateSent > 1000) {
 			if (taro.isServer && taro.server.developerClientIds.length) {
-										
 				const sendErrors = Object.keys(taro.script.errorLogs).length;
-				taro.server.developerClientIds.forEach(
-					id => {
-						taro.game.devLogs.status = self.getSummary();
-						taro.network.send('devLogs', taro.game.devLogs, id);									
-	
-						if (taro.profiler.isEnabled) {
-							taro.network.send('profile', taro.profiler.getProfile(), id);
-						}
-	
-						if (sendErrors) {
-							taro.network.send('errorLogs', taro.script.errorLogs, id);
-						}
-	
-					});
+				taro.server.developerClientIds.forEach((id) => {
+					taro.game.devLogs.status = self.getSummary();
+					taro.network.send('devLogs', taro.game.devLogs, id);
+
+					if (taro.profiler.isEnabled) {
+						taro.network.send('profile', taro.profiler.getProfile(), id);
+					}
+
+					if (sendErrors) {
+						taro.network.send('errorLogs', taro.script.errorLogs, id);
+					}
+				});
 				if (sendErrors) {
 					taro.script.errorLogs = {};
 				}
@@ -122,8 +119,9 @@ var StatusComponent = TaroEntity.extend({
 
 			this.lastUpdateSent = taro._currentTime;
 		}
-    }
-    
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = StatusComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = StatusComponent;
+}

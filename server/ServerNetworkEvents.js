@@ -1,5 +1,4 @@
 var ServerNetworkEvents = {
-
 	/**
 	 * Is called when the network tells us a new client has connected
 	 * to the server. This is the point we can return true to reject
@@ -14,19 +13,22 @@ var ServerNetworkEvents = {
 		// Don't reject the client connection
 
 		var clientId = socket.id;
-		console.log('3. _onClientConnect ' + clientId + ' (ip: ' + socket._remoteAddress + ') client count: ' + Object.keys(taro.server.clients).length, '(ServerNetworkEvents.js)');
+		console.log(
+			`3. _onClientConnect ${clientId} (ip: ${socket._remoteAddress}) client count: ${Object.keys(taro.server.clients).length}`,
+			'(ServerNetworkEvents.js)'
+		);
 
 		taro.server.clients[clientId] = {
 			id: clientId,
 			socket: socket,
-			ip: socket._remoteAddress
+			ip: socket._remoteAddress,
 		};
 
 		taro.server.clients[clientId].lastEventAt = Date.now();
 		taro.server.testerId = clientId;
 	},
 
-	_onClientDisconnect: function ({clientId, reason}) {
+	_onClientDisconnect: function ({ clientId, reason }) {
 		var self = this;
 
 		if (!reason) {
@@ -43,10 +45,10 @@ var ServerNetworkEvents = {
 		var player = taro.game.getPlayerByClientId(clientId);
 
 		if (client && client._id) {
-			taro.devLog('BE(out): clientDisconnect: ' + clientId + ' ' + client._id);
+			taro.devLog(`BE(out): clientDisconnect: ${clientId} ${client._id}`);
 
 			if (player) {
-				console.log('_onclientDisconnect' + clientId + ' (' + player._stats.name + ')' + (Date.now() - client.lastEventAt));
+				console.log(`_onclientDisconnect${clientId} (${player._stats.name})${Date.now() - client.lastEventAt}`);
 				player.updatePlayerHighscore();
 
 				if (player._stats.userId) {
@@ -61,50 +63,54 @@ var ServerNetworkEvents = {
 	},
 
 	_onJoinGame: function (data, clientId) {
-		if (taro.workerComponent) { // this is used for hosted version of moddio
+		if (taro.workerComponent) {
+			// this is used for hosted version of moddio
 			// Step 1: Filter out players controlled by humans and extract their usernames
-			var humanPlayers = taro.$$('player').filter(player => player._stats.controlledBy === 'human');
-			var existingNames = humanPlayers.map(player => player._stats.username.substring('user'.length));
+			var humanPlayers = taro.$$('player').filter((player) => player._stats.controlledBy === 'human');
+			var existingNames = humanPlayers.map((player) => player._stats.username.substring('user'.length));
 
 			if (humanPlayers.length < 1000) {
 				// Step 2: Check if the generated number is already in use
-				if (existingNames.includes("user" + String(data.number))) {
+				if (existingNames.includes(`user${String(data.number)}`)) {
 					// Step 3: Generate a unique number if the current one is already in use
 					do {
-						data.number = (Math.floor(Math.random() * 999) + 100);
-					} while (existingNames.includes("user" + String(data.number))); // Step 4: Repeat until a unique number is found
+						data.number = Math.floor(Math.random() * 999) + 100;
+					} while (existingNames.includes(`user${String(data.number)}`)); // Step 4: Repeat until a unique number is found
 				}
 			}
 
-			let clientData = taro.workerComponent.authenticateClient(data, clientId) // will return data if user is authenticated. otherwise, will return undefined
+			let clientData = taro.workerComponent.authenticateClient(data, clientId); // will return data if user is authenticated. otherwise, will return undefined
 
 			if (clientData) {
 				let playerId = clientData?._id;
-				if (clientData && playerId) { // authenticate logged-in player
-					taro.workerComponent.authenticatePlayer(playerId, clientId, data)
-				} else { // authenticate guest player
-					taro.workerComponent.authenticateGuest(clientId, data)
+				if (clientData && playerId) {
+					// authenticate logged-in player
+					taro.workerComponent.authenticatePlayer(playerId, clientId, data);
+				} else {
+					// authenticate guest player
+					taro.workerComponent.authenticateGuest(clientId, data);
 				}
 			} else {
 				// client authentication failed
 			}
-		} else { // this is for the standalone version of moddio
+		} else {
+			// this is for the standalone version of moddio
 			var player = taro.game.createPlayer({
 				controlledBy: 'human',
-				name: 'user' + data.number,
+				name: `user${data.number}`,
 				coins: 0,
 				points: 0,
 				clientId: clientId,
 				isAdBlockEnabled: data.isAdBlockEnabled,
-				isMobile: data.isMobile
+				isMobile: data.isMobile,
 			});
 
 			player.joinGame();
 		}
 	},
 
-	_onPing: function(data, clientId) {
-		taro.network.send('ping', data, clientId, true)
+	_onPing: function (data, clientId) {
+		taro.network.send('ping', data, clientId, true);
 	},
 
 	_onBuySkin: function (skinHandle, clientId) {
@@ -123,10 +129,7 @@ var ServerNetworkEvents = {
 				unit.updateTexture(skinHandle);
 
 				taro.network.send('buySkin', skinHandle, clientId);
-				unit.streamUpdateData([
-					{ skin: unit._stats.skin },
-					{ points: unit._stats.points }
-				]);
+				unit.streamUpdateData([{ skin: unit._stats.skin }, { points: unit._stats.points }]);
 			}
 		}
 	},
@@ -153,12 +156,16 @@ var ServerNetworkEvents = {
 				from.acceptTrading = false;
 				to.acceptTrading = false;
 				if (from && to && from._category === 'player' && from._category === 'player' && from.tradingWith === to.id()) {
-					taro.network.send('trade', {
-						type: 'offer',
-						from: msg.from,
-						to: msg.to,
-						tradeItems: msg.tradeItems
-					}, to._stats.clientId);
+					taro.network.send(
+						'trade',
+						{
+							type: 'offer',
+							from: msg.from,
+							to: msg.to,
+							tradeItems: msg.tradeItems,
+						},
+						to._stats.clientId
+					);
 				}
 				break;
 			}
@@ -168,7 +175,11 @@ var ServerNetworkEvents = {
 
 				if (acceptedBy && acceptedFor) {
 					if (!acceptedBy.acceptTrading) {
-						taro.chat.sendToRoom('1', 'Trading has been accepted by ' + acceptedBy._stats.name, acceptedFor._stats.clientId);
+						taro.chat.sendToRoom(
+							'1',
+							`Trading has been accepted by ${acceptedBy._stats.name}`,
+							acceptedFor._stats.clientId
+						);
 						taro.network.send('trade', { type: 'accept', between: tradeBetween }, acceptedFor._stats.clientId);
 					}
 					if (acceptedBy.tradingWith === acceptedFor.id()) {
@@ -215,7 +226,7 @@ var ServerNetworkEvents = {
 						}
 						var tradeBetween = {
 							playerA: msg.acceptedBy,
-							playerB: msg.acceptedFor
+							playerB: msg.acceptedFor,
 						};
 
 						if (!isTradingSuccessful) {
@@ -226,7 +237,6 @@ var ServerNetworkEvents = {
 
 						unitA.streamUpdateData([{ itemIds: unitA._stats.itemIds }]);
 						unitB.streamUpdateData([{ itemIds: unitB._stats.itemIds }]);
-
 
 						taro.network.send('trade', { type: 'success', between: tradeBetween }, acceptedFor._stats.clientId);
 
@@ -263,7 +273,7 @@ var ServerNetworkEvents = {
 				var tradeBetween = { playerA: msg.cancleBy, playerB: msg.cancleTo };
 				if (playerB) {
 					taro.network.send('trade', { type: 'cancel', between: tradeBetween }, playerB._stats.clientId);
-					taro.chat.sendToRoom('1', 'Trading has been cancel by ' + playerA._stats.name, playerB._stats.clientId);
+					taro.chat.sendToRoom('1', `Trading has been cancel by ${playerA._stats.name}`, playerB._stats.clientId);
 				}
 
 				var unitA = playerA.getSelectedUnit();
@@ -302,37 +312,37 @@ var ServerNetworkEvents = {
 		}
 	},
 
-	_onEditTile: function(data, clientId) {
+	_onEditTile: function (data, clientId) {
 		taro.developerMode.editTile(data, clientId);
 	},
 
-	_onEditRegion: function(data, clientId) {
+	_onEditRegion: function (data, clientId) {
 		taro.developerMode.editRegion(data, clientId);
 	},
 
-	_onEditVariable: function(data, clientId) {
+	_onEditVariable: function (data, clientId) {
 		taro.developerMode.editVariable(data, clientId);
 	},
 
-	_onEditInitEntity: function(data, clientId) {
+	_onEditInitEntity: function (data, clientId) {
 		taro.developerMode.editInitEntity(data, clientId);
 	},
 
-	_onEditGlobalScripts: function(data, clientId) {
+	_onEditGlobalScripts: function (data, clientId) {
 		taro.developerMode.editGlobalScripts(data, clientId);
 	},
 
-	_onRequestInitEntities: function(data, clientId) {
+	_onRequestInitEntities: function (data, clientId) {
 		taro.developerMode.requestInitEntities(data, clientId);
 	},
 
-	_onEditEntity: function(data, clientId) {
+	_onEditEntity: function (data, clientId) {
 		taro.developerMode.editEntity(data, clientId);
 	},
 
 	_onBuyItem: function (data, clientId) {
-		const {id, token} = data;
-		taro.devLog('player ' + clientId + ' wants to purchase item' + id);
+		const { id, token } = data;
+		taro.devLog(`player ${clientId} wants to purchase item${id}`);
 
 		var player = taro.game.getPlayerByClientId(clientId);
 		if (player) {
@@ -341,14 +351,14 @@ var ServerNetworkEvents = {
 				unit.buyItem(id, token);
 				taro.script.trigger('playerPurchasesItem', {
 					itemId: id,
-					playerId: player.id()
-				})
+					playerId: player.id(),
+				});
 			}
 		}
 	},
 
 	_onBuyUnit: function (id, clientId) {
-		taro.devLog('player ' + clientId + ' wants to purchase item' + id);
+		taro.devLog(`player ${clientId} wants to purchase item${id}`);
 		var player = taro.game.getPlayerByClientId(clientId);
 		if (player) {
 			var unit = player.getSelectedUnit();
@@ -378,10 +388,7 @@ var ServerNetworkEvents = {
 				var toItem = taro.$(itemIds[data.to]);
 
 				// both FROM & TO slots have items
-				if (
-					(fromItem && fromItem._stats) &&
-					(toItem && toItem._stats)
-				) {
+				if (fromItem && fromItem._stats && toItem && toItem._stats) {
 					// merge
 					// if (fromItem._stats.itemTypeId == toItem._stats.itemTypeId) {
 					// 	var qtyToBeAdded = Math.min(toItem._stats.maxQuantity - toItem._stats.quantity, fromItem._stats.quantity)
@@ -393,42 +400,53 @@ var ServerNetworkEvents = {
 					// 	}
 					// 	return;
 					// }
-					
+
 					// swap
 					if (
-						(data.to < unit.inventory.getTotalInventorySize() || (data.to >= unit.inventory.getTotalInventorySize() && !fromItem._stats.controls.undroppable && !fromItem._stats.controls.untradable)) && //check if try to trade undroppable item
-						(
-							fromItem._stats.controls == undefined ||
+						(data.to < unit.inventory.getTotalInventorySize() ||
+							(data.to >= unit.inventory.getTotalInventorySize() &&
+								!fromItem._stats.controls.undroppable &&
+								!fromItem._stats.controls.untradable)) && //check if try to trade undroppable item
+						(fromItem._stats.controls == undefined ||
 							fromItem._stats.controls.permittedInventorySlots == undefined ||
 							fromItem._stats.controls.permittedInventorySlots.length == 0 ||
 							fromItem._stats.controls.permittedInventorySlots.includes(data.to + 1) ||
-							(data.to + 1 > unit._stats.inventorySize && (fromItem._stats.controls.backpackAllowed == true || fromItem._stats.controls.backpackAllowed == undefined || fromItem._stats.controls.backpackAllowed == null)) // any item can be moved into backpack slots if the backpackAllowed property is true
-						) &&
-						(
-							toItem._stats.controls == undefined ||
+							(data.to + 1 > unit._stats.inventorySize &&
+								(fromItem._stats.controls.backpackAllowed == true ||
+									fromItem._stats.controls.backpackAllowed == undefined ||
+									fromItem._stats.controls.backpackAllowed == null))) && // any item can be moved into backpack slots if the backpackAllowed property is true
+						(toItem._stats.controls == undefined ||
 							toItem._stats.controls.permittedInventorySlots == undefined ||
 							toItem._stats.controls.permittedInventorySlots.length == 0 ||
 							toItem._stats.controls.permittedInventorySlots.includes(data.from + 1) ||
-							(data.from + 1 > unit._stats.inventorySize && (toItem._stats.controls.backpackAllowed == true || toItem._stats.controls.backpackAllowed == undefined || toItem._stats.controls.backpackAllowed == null)) // any item can be moved into backpack slots if the backpackAllowed property is true
-						)
+							(data.from + 1 > unit._stats.inventorySize &&
+								(toItem._stats.controls.backpackAllowed == true ||
+									toItem._stats.controls.backpackAllowed == undefined ||
+									toItem._stats.controls.backpackAllowed == null))) // any item can be moved into backpack slots if the backpackAllowed property is true
 					) {
 						fromItem.streamUpdateData([{ slotIndex: parseInt(data.to) }]);
 						toItem.streamUpdateData([{ slotIndex: parseInt(data.from) }]);
 
-						if (fromItem._stats.bonus && fromItem._stats.bonus.passive && fromItem._stats.bonus.passive.isDisabledInBackpack == true) {
+						if (
+							fromItem._stats.bonus &&
+							fromItem._stats.bonus.passive &&
+							fromItem._stats.bonus.passive.isDisabledInBackpack == true
+						) {
 							if (data.from + 1 <= unit._stats.inventorySize && data.to + 1 > unit._stats.inventorySize) {
 								unit.updateStats(fromItem.id(), true);
-							}
-							else if (data.to + 1 <= unit._stats.inventorySize && data.from + 1 > unit._stats.inventorySize) {
+							} else if (data.to + 1 <= unit._stats.inventorySize && data.from + 1 > unit._stats.inventorySize) {
 								unit.updateStats(fromItem.id());
 							}
 						}
 
-						if (toItem._stats.bonus && toItem._stats.bonus.passive && toItem._stats.bonus.passive.isDisabledInBackpack == true) {
+						if (
+							toItem._stats.bonus &&
+							toItem._stats.bonus.passive &&
+							toItem._stats.bonus.passive.isDisabledInBackpack == true
+						) {
 							if (data.to + 1 <= unit._stats.inventorySize && data.from + 1 > unit._stats.inventorySize) {
 								unit.updateStats(toItem.id(), true);
-							}
-							else if (data.from + 1 <= unit._stats.inventorySize && data.to + 1 > unit._stats.inventorySize) {
+							} else if (data.from + 1 <= unit._stats.inventorySize && data.to + 1 > unit._stats.inventorySize) {
 								unit.updateStats(toItem.id());
 							}
 						}
@@ -443,23 +461,29 @@ var ServerNetworkEvents = {
 				if (
 					fromItem != undefined &&
 					toItem == undefined &&
-					(data.to < unit.inventory.getTotalInventorySize() || (data.to >= unit.inventory.getTotalInventorySize() && !fromItem._stats.controls.undroppable && !fromItem._stats.controls.untradable)) && //check if try to trade undroppable item
-					(
-						fromItem._stats.controls == undefined ||
+					(data.to < unit.inventory.getTotalInventorySize() ||
+						(data.to >= unit.inventory.getTotalInventorySize() &&
+							!fromItem._stats.controls.undroppable &&
+							!fromItem._stats.controls.untradable)) && //check if try to trade undroppable item
+					(fromItem._stats.controls == undefined ||
 						fromItem._stats.controls.permittedInventorySlots == undefined ||
 						fromItem._stats.controls.permittedInventorySlots.length == 0 ||
 						fromItem._stats.controls.permittedInventorySlots.includes(data.to + 1) ||
-						(data.to + 1 > unit._stats.inventorySize && (fromItem._stats.controls.backpackAllowed == true || fromItem._stats.controls.backpackAllowed == undefined || fromItem._stats.controls.backpackAllowed == null)) // any item can be moved into backpack slots if the backpackAllowed property is true
-						
-					)
+						(data.to + 1 > unit._stats.inventorySize &&
+							(fromItem._stats.controls.backpackAllowed == true ||
+								fromItem._stats.controls.backpackAllowed == undefined ||
+								fromItem._stats.controls.backpackAllowed == null))) // any item can be moved into backpack slots if the backpackAllowed property is true
 				) {
 					fromItem.streamUpdateData([{ slotIndex: parseInt(data.to) }]);
 
-					if (fromItem._stats.bonus && fromItem._stats.bonus.passive && fromItem._stats.bonus.passive.isDisabledInBackpack == true) {
-						if (data.from + 1 <= unit._stats.inventorySize && data.to + 1 > unit._stats.inventorySize){
+					if (
+						fromItem._stats.bonus &&
+						fromItem._stats.bonus.passive &&
+						fromItem._stats.bonus.passive.isDisabledInBackpack == true
+					) {
+						if (data.from + 1 <= unit._stats.inventorySize && data.to + 1 > unit._stats.inventorySize) {
 							unit.updateStats(fromItem.id(), true);
-						}
-						else if (data.to + 1 <= unit._stats.inventorySize && data.from + 1 > unit._stats.inventorySize) {
+						} else if (data.to + 1 <= unit._stats.inventorySize && data.from + 1 > unit._stats.inventorySize) {
 							unit.updateStats(fromItem.id());
 						}
 					}
@@ -483,7 +507,6 @@ var ServerNetworkEvents = {
 			} else {
 				taro.profiler.stop();
 			}
-
 		}
 	},
 
@@ -492,7 +515,7 @@ var ServerNetworkEvents = {
 		var kickedPlayer = taro.game.getPlayerByClientId(kickedClientId);
 
 		if (modPlayer && modPlayer.isDeveloper() && kickedPlayer) {
-			taro.game.kickPlayer(kickedPlayer.id(), 'You were kicked by ' + modPlayer._stats?.name);
+			taro.game.kickPlayer(kickedPlayer.id(), `You were kicked by ${modPlayer._stats?.name}`);
 		}
 	},
 
@@ -511,7 +534,7 @@ var ServerNetworkEvents = {
 			});
 			kickedPlayer.streamUpdateData([{ playerJoined: false }]);
 			taro.workerComponent.banUser({
-				userId: userId
+				userId: userId,
 			});
 		}
 	},
@@ -543,7 +566,7 @@ var ServerNetworkEvents = {
 				taro.workerComponent.banIp({
 					ipaddress: ipaddress,
 					gameId: gameId,
-					userId: userId
+					userId: userId,
 				});
 			}
 		}
@@ -566,7 +589,7 @@ var ServerNetworkEvents = {
 			taro.workerComponent.banChat({
 				userId: banPlayer._stats.userId,
 				gameId: gameId,
-				status: !banPlayer._stats.banChat
+				status: !banPlayer._stats.banChat,
 			});
 
 			banPlayer.streamUpdateData([{ banChat: !banPlayer._stats.banChat }]);
@@ -585,14 +608,22 @@ var ServerNetworkEvents = {
 		}
 	},
 
-	_onPlayerMouseMoved: function (position, clientId) {
+	_onPlayerMouseMoved: function (state, clientId) {
 		var player = taro.game.getPlayerByClientId(clientId);
 		if (player) {
+			// NOTE(nick): Asked sloont why this check is here, apparantly it's to
+			// prevent sending mouse data to the server when we are dead/spectating.
+			// Should probably have that kind of logic elsewhere, like closer to
+			// where we are actually sending it.
 			var unit = player.getSelectedUnit();
 			if (unit) {
-				player.control.input.mouse.x = position[0];
-				player.control.input.mouse.y = position[1];
+				player.control.input.mouse.x = state[0];
+				player.control.input.mouse.y = state[1];
+				player.control.input.mouse.yaw = state[2];
+				player.control.input.mouse.pitch = state[3];
 			}
+
+			player.control.mouseMove(state[0], state[1], state[2], state[3]);
 		}
 	},
 
@@ -646,13 +677,17 @@ var ServerNetworkEvents = {
 					taro.script.runScript(selectedOption.scriptName, {});
 				}
 				if (selectedOption.followUpDialogue) {
-					taro.network.send('openDialogue', {
-						dialogueId: selectedOption.followUpDialogue,
-						extraData: {
-							playerName: player._stats.name,
-							dialogueTemplate: _.get(taro, 'game.data.ui.dialogueview.htmlData', '')
-						}
-					}, player._stats.clientId);
+					taro.network.send(
+						'openDialogue',
+						{
+							dialogueId: selectedOption.followUpDialogue,
+							extraData: {
+								playerName: player._stats.name,
+								dialogueTemplate: _.get(taro, 'game.data.ui.dialogueview.htmlData', ''),
+							},
+						},
+						player._stats.clientId
+					);
 				}
 			}
 		}
@@ -672,7 +707,7 @@ var ServerNetworkEvents = {
 		}
 	},
 
-	_onDropItemToCanvas: function(data, clientId) {
+	_onDropItemToCanvas: function (data, clientId) {
 		var player = taro.game.getPlayerByClientId(clientId);
 		if (player) {
 			taro.script.trigger('whenPlayerDropsItemToCanvas', { playerId: player.id(), itemId: data.itemId });
@@ -720,7 +755,7 @@ var ServerNetworkEvents = {
 			return;
 		}
 
-		data = {...data, requester: clientId };
+		data = { ...data, requester: clientId };
 
 		if (taro.workerComponent) {
 			taro.workerComponent.sendLogs(data);
@@ -745,7 +780,9 @@ var ServerNetworkEvents = {
 
 	_onSomeBullshit: function () {
 		//bullshit
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = ServerNetworkEvents; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = ServerNetworkEvents;
+}

@@ -19,7 +19,7 @@ class CommandController implements CommandControllerProps {
 	/**
 	 * if CommandController shift(), the cache's pointer do not auto shift, so add offset to make
 	 * sure it could point to right cache;
-	*/
+	 */
 	offset = 0;
 	constructor(defaultCommands: Record<DefaultCommands, () => void>, map: Phaser.Tilemaps.Tilemap, maxCommands = 200) {
 		this.defaultCommands = defaultCommands;
@@ -41,8 +41,10 @@ class CommandController implements CommandControllerProps {
 		command.func();
 		if (history || forceToHistory) {
 			if (mapEdit && !forceToHistory) {
-				if (JSON.stringify(this.getAllTiles()) === JSON.stringify(mapBeforeCommand) &&
-					JSON.stringify(taro.game.data.map.layers) === oldTaroMap) {
+				if (
+					JSON.stringify(this.getAllTiles()) === JSON.stringify(mapBeforeCommand) &&
+					JSON.stringify(taro.game.data.map.layers) === oldTaroMap
+				) {
 					return;
 				}
 			}

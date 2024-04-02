@@ -1,3 +1,1 @@
-declare class Unit extends TaroEntityPhysics {
-
-}
+declare class Unit extends TaroEntityPhysics {}

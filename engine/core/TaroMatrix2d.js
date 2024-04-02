@@ -3,18 +3,14 @@
  * Creates a new transformation matrix.
  */
 var TaroMatrix2d = function () {
-	this.matrix = [
-		1.0, 0.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0
-	];
+	this.matrix = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
 
 	this._rotateOrigin = new TaroPoint3d(0, 0, 0);
 	this._scaleOrigin = new TaroPoint3d(0, 0, 0);
 };
 
 TaroMatrix2d.prototype = {
-	matrix:	null,
+	matrix: null,
 
 	/**
 	 * Transform a point by this matrix. The parameter point will be modified with the transformation values.
@@ -443,7 +439,9 @@ TaroMatrix2d.prototype = {
 		var m = this.matrix;
 		ctx.transform(m[0], m[3], m[1], m[4], m[2], m[5]);
 		return this;
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroMatrix2d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroMatrix2d;
+}

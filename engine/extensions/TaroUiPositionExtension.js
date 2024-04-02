@@ -16,7 +16,7 @@ var TaroUiPositionExtension = {
 				delete this._uiCenter;
 				delete this._uiCenterPercent;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					// Store the percentage value
 					this._uiLeftPercent = px;
 
@@ -35,7 +35,7 @@ var TaroUiPositionExtension = {
 					}
 
 					// Calculate real width from percentage
-					newVal = (parentWidth / 100 * val) | 0;
+					newVal = ((parentWidth / 100) * val) | 0;
 
 					this._uiLeft = newVal;
 				} else {
@@ -71,7 +71,7 @@ var TaroUiPositionExtension = {
 				delete this._uiCenter;
 				delete this._uiCenterPercent;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					// Store the percentage value
 					this._uiRightPercent = px;
 
@@ -90,7 +90,7 @@ var TaroUiPositionExtension = {
 					}
 
 					// Calculate real width from percentage
-					newVal = (parentWidth / 100 * val) | 0;
+					newVal = ((parentWidth / 100) * val) | 0;
 
 					this._uiRight = newVal;
 				} else {
@@ -128,7 +128,7 @@ var TaroUiPositionExtension = {
 				delete this._uiRight;
 				delete this._uiRightPercent;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					// Store the percentage value
 					this._uiCenterPercent = px;
 
@@ -147,7 +147,7 @@ var TaroUiPositionExtension = {
 					}
 
 					// Calculate real width from percentage
-					newVal = (parentWidth / 100 * val) | 0;
+					newVal = ((parentWidth / 100) * val) | 0;
 
 					this._uiCenter = newVal;
 				} else {
@@ -183,7 +183,7 @@ var TaroUiPositionExtension = {
 				delete this._uiMiddle;
 				delete this._uiMiddlePercent;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					// Store the percentage value
 					this._uiTopPercent = px;
 
@@ -202,7 +202,7 @@ var TaroUiPositionExtension = {
 					}
 
 					// Calculate real width from percentage
-					newVal = (parentHeight / 100 * val) | 0;
+					newVal = ((parentHeight / 100) * val) | 0;
 
 					this._uiTop = newVal;
 				} else {
@@ -238,7 +238,7 @@ var TaroUiPositionExtension = {
 				delete this._uiMiddle;
 				delete this._uiMiddlePercent;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					// Store the percentage value
 					this._uiBottomPercent = px;
 
@@ -257,7 +257,7 @@ var TaroUiPositionExtension = {
 					}
 
 					// Calculate real width from percentage
-					newVal = (parentHeight / 100 * val) | 0;
+					newVal = ((parentHeight / 100) * val) | 0;
 
 					this._uiBottom = newVal;
 				} else {
@@ -295,7 +295,7 @@ var TaroUiPositionExtension = {
 				delete this._uiBottom;
 				delete this._uiBottomPercent;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					// Store the percentage value
 					this._uiMiddlePercent = px;
 
@@ -314,7 +314,7 @@ var TaroUiPositionExtension = {
 					}
 
 					// Calculate real width from percentage
-					newVal = (parentWidth / 100 * val) | 0;
+					newVal = ((parentWidth / 100) * val) | 0;
 
 					this._uiMiddle = newVal;
 				} else {
@@ -354,7 +354,7 @@ var TaroUiPositionExtension = {
 				this._uiWidth = px;
 				this._widthModifier = modifier !== undefined ? modifier : 0;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					if (this._parent) {
 						// Percentage
 						var parentWidth = this._parent._bounds2d.x;
@@ -363,7 +363,7 @@ var TaroUiPositionExtension = {
 						var ratio;
 
 						// Calculate real width from percentage
-						newVal = (parentWidth / 100 * val) + this._widthModifier | 0;
+						newVal = ((parentWidth / 100) * val + this._widthModifier) | 0;
 
 						if (lockAspect) {
 							// Calculate the height from the change in width
@@ -380,7 +380,7 @@ var TaroUiPositionExtension = {
 						var val = parseInt(px, 10);
 
 						// Calculate real height from percentage
-						this._bounds2d.x = (parentWidth / 100 * val) + this._widthModifier | 0;
+						this._bounds2d.x = ((parentWidth / 100) * val + this._widthModifier) | 0;
 						this._bounds2d.x2 = Math.floor(this._bounds2d.x / 2);
 					}
 				} else {
@@ -425,7 +425,7 @@ var TaroUiPositionExtension = {
 				this._uiHeight = px;
 				this._heightModifier = modifier !== undefined ? modifier : 0;
 
-				if (typeof (px) === 'string') {
+				if (typeof px === 'string') {
 					if (this._parent) {
 						// Percentage
 						var parentHeight = this._parent._bounds2d.y;
@@ -435,7 +435,7 @@ var TaroUiPositionExtension = {
 
 						// Calculate real height from percentage
 						// Calculate real width from percentage
-						newVal = (parentHeight / 100 * val) + this._heightModifier | 0;
+						newVal = ((parentHeight / 100) * val + this._heightModifier) | 0;
 
 						if (lockAspect) {
 							// Calculate the height from the change in width
@@ -452,7 +452,7 @@ var TaroUiPositionExtension = {
 						var val = parseInt(px, 10);
 
 						// Calculate real height from percentage
-						this._bounds2d.y = (parentHeight / 100 * val) + this._heightModifier | 0;
+						this._bounds2d.y = ((parentHeight / 100) * val + this._heightModifier) | 0;
 						this._bounds2d.y2 = Math.floor(this._bounds2d.y / 2);
 					}
 				} else {
@@ -519,7 +519,7 @@ var TaroUiPositionExtension = {
 					arrItem._updateUiPosition();
 				}
 
-				if (typeof (arrItem.updateUiChildren) === 'function') {
+				if (typeof arrItem.updateUiChildren === 'function') {
 					arrItem.updateUiChildren();
 				}
 			}
@@ -551,7 +551,7 @@ var TaroUiPositionExtension = {
 				percent = parseInt(this._autoScaleX, 10);
 
 				// Calculate new width from percentage
-				newVal = (parentGeom.x / 100 * percent);
+				newVal = (parentGeom.x / 100) * percent;
 
 				// Calculate scale ratio
 				ratio = newVal / this._bounds2d.x;
@@ -569,7 +569,7 @@ var TaroUiPositionExtension = {
 				percent = parseInt(this._autoScaleY, 10);
 
 				// Calculate new height from percentage
-				newVal = (parentGeom.y / 100 * percent);
+				newVal = (parentGeom.y / 100) * percent;
 
 				// Calculate scale ratio
 				ratio = newVal / this._bounds2d.y;
@@ -582,15 +582,31 @@ var TaroUiPositionExtension = {
 				}
 			}
 
-			if (this._uiWidth) { this.width(this._uiWidth, false, this._widthModifier, true); }
-			if (this._uiHeight) { this.height(this._uiHeight, false, this._heightModifier, true); }
+			if (this._uiWidth) {
+				this.width(this._uiWidth, false, this._widthModifier, true);
+			}
+			if (this._uiHeight) {
+				this.height(this._uiHeight, false, this._heightModifier, true);
+			}
 
-			if (this._uiCenterPercent) { this.center(this._uiCenterPercent, true); }
-			if (this._uiMiddlePercent) { this.middle(this._uiMiddlePercent, true); }
-			if (this._uiLeftPercent) { this.left(this._uiLeftPercent, true); }
-			if (this._uiRightPercent) { this.right(this._uiRightPercent, true); }
-			if (this._uiTopPercent) { this.top(this._uiTopPercent, true); }
-			if (this._uiBottomPercent) { this.bottom(this._uiBottomPercent, true); }
+			if (this._uiCenterPercent) {
+				this.center(this._uiCenterPercent, true);
+			}
+			if (this._uiMiddlePercent) {
+				this.middle(this._uiMiddlePercent, true);
+			}
+			if (this._uiLeftPercent) {
+				this.left(this._uiLeftPercent, true);
+			}
+			if (this._uiRightPercent) {
+				this.right(this._uiRightPercent, true);
+			}
+			if (this._uiTopPercent) {
+				this.top(this._uiTopPercent, true);
+			}
+			if (this._uiBottomPercent) {
+				this.bottom(this._uiBottomPercent, true);
+			}
 
 			if (this._uiCenter !== undefined) {
 				// The element is center-aligned
@@ -599,14 +615,14 @@ var TaroUiPositionExtension = {
 				// The element is not center-aligned, process left and right
 				if (this._uiLeft !== undefined && this._uiRight !== undefined) {
 					// Both left and right values are set, position left and assign width to reach right
-					this.width((parentGeom.x) - this._uiLeft - this._uiRight, false, 0, true);
+					this.width(parentGeom.x - this._uiLeft - this._uiRight, false, 0, true);
 
 					// Update translation
-					this._translate.x = Math.floor(this._uiLeft + geomScaled.x2 - (parentGeom.x2));
+					this._translate.x = Math.floor(this._uiLeft + geomScaled.x2 - parentGeom.x2);
 				} else {
 					if (this._uiLeft !== undefined) {
 						// Position left aligned
-						this._translate.x = Math.floor(this._uiLeft + geomScaled.x2 - (parentGeom.x2));
+						this._translate.x = Math.floor(this._uiLeft + geomScaled.x2 - parentGeom.x2);
 					}
 
 					if (this._uiRight !== undefined) {
@@ -623,14 +639,14 @@ var TaroUiPositionExtension = {
 				// The element is not middle-aligned, process top and bottom
 				if (this._uiTop !== undefined && this._uiBottom !== undefined) {
 					// Both top and bottom values are set, position top and assign height to reach bottom
-					this.height((parentGeom.y) - this._uiTop - this._uiBottom, false, 0, true);
+					this.height(parentGeom.y - this._uiTop - this._uiBottom, false, 0, true);
 
 					// Update translation
-					this._translate.y = Math.floor(this._uiTop + geomScaled.y2 - (parentGeom.y2));
+					this._translate.y = Math.floor(this._uiTop + geomScaled.y2 - parentGeom.y2);
 				} else {
 					if (this._uiTop !== undefined) {
 						// Position top aligned
-						this._translate.y = Math.floor(this._uiTop + geomScaled.y2 - (parentGeom.y2));
+						this._translate.y = Math.floor(this._uiTop + geomScaled.y2 - parentGeom.y2);
 					}
 
 					if (this._uiBottom !== undefined) {
@@ -644,7 +660,9 @@ var TaroUiPositionExtension = {
 
 			this.cacheDirty(true);
 		}
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroUiPositionExtension; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroUiPositionExtension;
+}

@@ -1,12 +1,11 @@
 var taroPhysicsConfig = {
-
 	taroPhysicsChoices: {
 		/* Includes for the main taro loader. Flags are indicated as:
-		* c = client
-		* s = server
-		* a =
-		* p = prototype
-		*/
+		 * c = client
+		 * s = server
+		 * a =
+		 * p = prototype
+		 */
 
 		/* Physics Libraries */
 		planck: [
@@ -14,7 +13,7 @@ var taroPhysicsConfig = {
 			['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],
 			['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
 			['csap', 'dists', './components/physics/box2d/dists.js'],
-			['csap', 'planck', './components/physics/box2d/dists/planck/planck.js']
+			['csap', 'planck', './components/physics/box2d/dists/planck/planck.js'],
 		],
 
 		box2dwasm: [
@@ -31,7 +30,7 @@ var taroPhysicsConfig = {
 			['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
 			['csap', 'dists', './components/physics/box2d/dists.js'],
 			['csap', 'box2dweb', './components/physics/box2d/dists/box2dweb/lib_box2d.js', 'box2dweb'],
-			['csap', 'box2dninja', './components/physics/box2d/dists/box2dweb/box2d_ninja.js', 'box2dninja']
+			['csap', 'box2dninja', './components/physics/box2d/dists/box2dweb/box2d_ninja.js', 'box2dninja'],
 		],
 
 		box2dts: [
@@ -39,7 +38,7 @@ var taroPhysicsConfig = {
 			['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],
 			['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
 			['csap', 'dists', './components/physics/box2d/dists.js'],
-			['csap', 'box2dts', './components/physics/box2d/dists/flyoverbox2dts/bundle.js']
+			['csap', 'box2dts', './components/physics/box2d/dists/flyoverbox2dts/bundle.js'],
 		],
 
 		crash: [
@@ -49,8 +48,8 @@ var taroPhysicsConfig = {
 			['csap', 'quickselect', './components/physics/crash/crashDependencies/quickselect.js'],
 			['csap', 'rbush', './components/physics/crash/crashDependencies/rbush.js'],
 			['csap', 'sat', './components/physics/crash/crashDependencies/sat.js'],
-			['csap', 'crash', './components/physics/crash/crashDependencies/crash.js', 'crash']
-		]
+			['csap', 'crash', './components/physics/crash/crashDependencies/crash.js', 'crash'],
+		],
 	},
 
 	gameClasses: [
@@ -60,7 +59,7 @@ var taroPhysicsConfig = {
 		['csap', 'Item', '../src/gameClasses/Item.js'],
 		['csap', 'Projectile', '../src/gameClasses/Projectile.js'],
 		['csap', 'Particle', '../src/gameClasses/Particle.js'],
-		['csap', 'Sensor', '../src/gameClasses/Sensor.js']
+		['csap', 'Sensor', '../src/gameClasses/Sensor.js'],
 	],
 
 	loadSelectPhysics: function (physicsChoice) {
@@ -99,6 +98,8 @@ var taroPhysicsConfig = {
 				eval(itemJs);
 			}
 		}
-	}
+	},
 };
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = taroPhysicsConfig; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = taroPhysicsConfig;
+}

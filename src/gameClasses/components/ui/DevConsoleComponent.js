@@ -70,13 +70,17 @@ var DevConsoleComponent = TaroEntity.extend({
 			statsPanels.serverCpuUser = new Stats();
 			statsPanels.serverCpuUser.showPanel(3); // 0: fps, 1: ms, 2: mb, 3+: custom
 			statsPanels.serverCpuUser.domElement.style.cssText = 'position:relative;display:inline-block;';
-			statsPanels.serverCpuUser._serverCpuUserPanel = statsPanels.serverCpuUser.addPanel(new Stats.Panel('CpuUser', '#ff8', '#221'));
+			statsPanels.serverCpuUser._serverCpuUserPanel = statsPanels.serverCpuUser.addPanel(
+				new Stats.Panel('CpuUser', '#ff8', '#221')
+			);
 			GSDiv.append(statsPanels.serverCpuUser.dom);
 
 			statsPanels.serverCpuSystem = new Stats();
 			statsPanels.serverCpuSystem.showPanel(3); // 0: fps, 1: ms, 2: mb, 3+: custom
 			statsPanels.serverCpuSystem.domElement.style.cssText = 'position:relative;display:inline-block;';
-			statsPanels.serverCpuSystem._serverCpuSystemPanel = statsPanels.serverCpuSystem.addPanel(new Stats.Panel('CpuSys', '#ff8', '#221'));
+			statsPanels.serverCpuSystem._serverCpuSystemPanel = statsPanels.serverCpuSystem.addPanel(
+				new Stats.Panel('CpuSys', '#ff8', '#221')
+			);
 			GSDiv.append(statsPanels.serverCpuSystem.dom);
 
 			graphsDiv.append(GSDiv);
@@ -149,7 +153,15 @@ var DevConsoleComponent = TaroEntity.extend({
 			// });
 
 			var controllerExtrapolation = gui.add(taro.client, 'extrapolation');
-			var controllerResolution = gui.add(taro.client, 'resolution', { Auto: 0, '320x240': 320, '640x480': 640, '800x600': 800, '1024x768': 1024, '1280x720': 1280, '1920x1080': 1920 });
+			var controllerResolution = gui.add(taro.client, 'resolution', {
+				Auto: 0,
+				'320x240': 320,
+				'640x480': 640,
+				'800x600': 800,
+				'1024x768': 1024,
+				'1280x720': 1280,
+				'1920x1080': 1920,
+			});
 			controllerResolution.onChange(function (value) {
 				if (value == 0) {
 					taro._autoSize = true;
@@ -164,9 +176,7 @@ var DevConsoleComponent = TaroEntity.extend({
 			});
 
 			var controllerClientSideInputDelay = gui.add(taro.client, 'inputDelay', 0, 1000);
-			controllerClientSideInputDelay.onChange(function (value) {
-
-			});
+			controllerClientSideInputDelay.onChange(function (value) {});
 
 			var f1 = gui.addFolder('Render control');
 
@@ -195,7 +205,9 @@ var DevConsoleComponent = TaroEntity.extend({
 
 			// devDiv.append(tuningDiv);
 
-			devDiv.append('<div class="col-sm-12 my-2"><div id="variables-div-accordion" class="px-2 py-1">Variables</div></div>');
+			devDiv.append(
+				'<div class="col-sm-12 my-2"><div id="variables-div-accordion" class="px-2 py-1">Variables</div></div>'
+			);
 			devDiv.append('<div id="variables-div"></div>');
 		}
 
@@ -210,9 +222,9 @@ var DevConsoleComponent = TaroEntity.extend({
 		$('#variables-div-accordion').click(function () {
 			$('#variables-div').slideToggle('slow');
 		});
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = DevConsoleComponent;
 }

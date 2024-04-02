@@ -70,21 +70,19 @@ var TaroTimeSyncExtension = {
 
 	// // speed up or slow down taro.timeScale depending on discrepancy between client & server's time.
 	timeSync: function () {
-
 		// var latency = Math.floor(taro._currentTime - this.lastTimeSyncSentAt); // ping (round trip)
-
 		// if (statsPanels.latency) {
 		// 	statsPanels.latency._latencyPanel.update(latency, 1000);
 		// }
-
 		// if (!taro.pingElement) {
 		// 	taro.pingElement = document.getElementById('updateping');
 		// }
-
 		// if (taro.pingElement) {
 		// 	taro.pingElement.innerHTML = Math.floor(latency);
 		// }
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroTimeSyncExtension; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroTimeSyncExtension;
+}

@@ -11,7 +11,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 			_cancelled: false,
 			stopPropagation: function () {
 				this._cancelled = true;
-			}
+			},
 		};
 		this.lastMousePosition = { x: undefined, y: undefined };
 		this.lastEvent = undefined;
@@ -30,7 +30,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 			y: -254,
 			button1: -253,
 			button2: -252,
-			button3: -251
+			button3: -251,
 		};
 
 		this.pad1 = {
@@ -64,7 +64,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 			stick2Up: -224,
 			stick2Down: -223,
 			stick2Left: -222,
-			stick2Right: -221
+			stick2Right: -221,
 		};
 
 		this.pad2 = {
@@ -98,7 +98,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 			stick2Up: -194,
 			stick2Down: -193,
 			stick2Left: -192,
-			stick2Right: -191
+			stick2Right: -191,
 		};
 
 		// Keycodes from http://www.asciitable.com/
@@ -159,7 +159,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 			w: 87,
 			x: 88,
 			y: 89,
-			z: 90
+			z: 90,
 		};
 
 		this._controlMap = [];
@@ -264,7 +264,7 @@ var TaroInputComponent = TaroEventingClass.extend({
 				event.taroType = 'key';
 				self._rationalise(event);
 				self._keyUp(event);
-			}
+			},
 		};
 
 		// Listen for mouse events
@@ -326,7 +326,10 @@ var TaroInputComponent = TaroEventingClass.extend({
 			if (this._evRef[eventName]) {
 				this._evRef[eventName](eventObj);
 			} else {
-				this.log(`Cannot fire manual event "${eventName}" because no listener exists in the engine for this event type!`, 'warning');
+				this.log(
+					`Cannot fire manual event "${eventName}" because no listener exists in the engine for this event type!`,
+					'warning'
+				);
 			}
 		} else {
 			this.log('Cannot fire manual event because both eventName and eventObj params are required.', 'warning');
@@ -345,7 +348,8 @@ var TaroInputComponent = TaroEventingClass.extend({
 	_rationalise: function (event, touch, debug) {
 		// Check if we want to prevent default behaviour
 		if (event.taroType === 'key') {
-			if (event.keyCode === 8) { // Backspace
+			if (event.keyCode === 8) {
+				// Backspace
 				// Check if the event occurred on the body
 				var elem = event.srcElement || event.target;
 
@@ -405,14 +409,18 @@ var TaroInputComponent = TaroEventingClass.extend({
 			let inside = false;
 
 			if (this.editorWidgets.length === 0) {
-				this.editorWidgets = Array.from(document.querySelectorAll('.game-editor-widget')).map((widget) => widget.getBoundingClientRect());
+				this.editorWidgets = Array.from(document.querySelectorAll('.game-editor-widget')).map((widget) =>
+					widget.getBoundingClientRect()
+				);
 			}
 
 			this.editorWidgets.forEach((widget) => {
-				if (event.taroX >= widget.left &&
+				if (
+					event.taroX >= widget.left &&
 					event.taroX <= widget.right &&
 					event.taroY >= widget.top &&
-					event.taroY <= widget.bottom) {
+					event.taroY <= widget.bottom
+				) {
 					inside = true;
 					return;
 				}
@@ -680,15 +688,16 @@ var TaroInputComponent = TaroEventingClass.extend({
 
 		var arr = taro._children;
 		var arrCount = arr.length;
-		var vp; var vpUpdated;
+		var vp;
+		var vpUpdated;
 
 		// low resolution has half bound as compared to high quality bounds so multiply bound by 2
 		if (taro.client.resolutionQuality == 'low') {
-			var mx = resolvedCoordinate.x - (taro._bounds2d.x2 * 2) - taro._translate.x;
-			var my = resolvedCoordinate.y - (taro._bounds2d.y2 * 2) - taro._translate.y;
+			var mx = resolvedCoordinate.x - taro._bounds2d.x2 * 2 - taro._translate.x;
+			var my = resolvedCoordinate.y - taro._bounds2d.y2 * 2 - taro._translate.y;
 		} else {
-			var mx = (resolvedCoordinate.x - taro._bounds2d.x2) - taro._translate.x;
-			var my = (resolvedCoordinate.y - taro._bounds2d.y2) - taro._translate.y;
+			var mx = resolvedCoordinate.x - taro._bounds2d.x2 - taro._translate.x;
+			var my = resolvedCoordinate.y - taro._bounds2d.y2 - taro._translate.y;
 		}
 
 		taro._mouseAbsoluteTranslation = [event.clientX, event.clientY];
@@ -750,13 +759,13 @@ var TaroInputComponent = TaroEventingClass.extend({
 		return this._state[this._controlMap[actionName]];
 	},
 
-  /**
-   * Set the passed action's input state value.
-   * @param actionName
-   */
-  setActionVal: function (actionName, val) {
-    this._state[this._controlMap[actionName]] = val;
-  },
+	/**
+	 * Set the passed action's input state value.
+	 * @param actionName
+	 */
+	setActionVal: function (actionName, val) {
+		this._state[this._controlMap[actionName]] = val;
+	},
 
 	/**
 	 * Returns true if the passed action's input is pressed or it's state
@@ -810,25 +819,31 @@ var TaroInputComponent = TaroEventingClass.extend({
 		return this;
 	},
 
-   /**
-   * Release key by key string.
-   * @param key 'a', 'b', 'c' etc...
-   */
-   releaseKey: function (key) {
-    this.setActionVal(key, false);
-  },
+	/**
+	 * Release key by key string.
+	 * @param key 'a', 'b', 'c' etc...
+	 */
+	releaseKey: function (key) {
+		this.setActionVal(key, false);
+	},
 
-  /**
-   * Release mouse button by button string.
-   * @param button 'button1', 'button2' or 'button3"
-   */
-  releaseMouseButton: function (button) {
-    switch (button) {
-      case 'button1': this.setActionVal(this.mouse.button1, false); break;
-      case 'button2': this.setActionVal(this.mouse.button1, false); break;
-      case 'button3': this.setActionVal(this.mouse.button1, false); break;
-    }
-  },
+	/**
+	 * Release mouse button by button string.
+	 * @param button 'button1', 'button2' or 'button3"
+	 */
+	releaseMouseButton: function (button) {
+		switch (button) {
+			case 'button1':
+				this.setActionVal(this.mouse.button1, false);
+				break;
+			case 'button2':
+				this.setActionVal(this.mouse.button1, false);
+				break;
+			case 'button3':
+				this.setActionVal(this.mouse.button1, false);
+				break;
+		}
+	},
 
 	/**
 	 * Called by the engine after ALL other tick methods have processed.
@@ -874,12 +889,17 @@ var TaroInputComponent = TaroEventingClass.extend({
 				var eventCount = this._eventListeners[eventName].length;
 				var eventCount2 = this._eventListeners[eventName].length - 1;
 				var evc = this._eventControl;
-				var finalArgs; var i; var cancelFlag; var eventIndex; var tempEvt; var retVal;
+				var finalArgs;
+				var i;
+				var cancelFlag;
+				var eventIndex;
+				var tempEvt;
+				var retVal;
 
 				// If there are some events, ensure that the args is ready to be used
 				if (eventCount) {
 					finalArgs = [];
-					if (typeof (args) === 'object' && args !== null && args[0] !== null) {
+					if (typeof args === 'object' && args !== null && args[0] !== null) {
 						for (i in args) {
 							if (args.hasOwnProperty(i)) {
 								finalArgs[i] = args[i];
@@ -933,10 +953,9 @@ var TaroInputComponent = TaroEventingClass.extend({
 				}
 			}
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroInputComponent;
 }
-

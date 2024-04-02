@@ -218,8 +218,12 @@ var TaroPoint2d = TaroClass.extend({
 		var newX = this.x;
 		var newY = this.y;
 
-		if (point.x) { newX = this.x / point.x; }
-		if (point.y) { newY = this.y / point.y; }
+		if (point.x) {
+			newX = this.x / point.x;
+		}
+		if (point.y) {
+			newY = this.y / point.y;
+		}
 
 		return new TaroPoint2d(newX, newY);
 	},
@@ -263,7 +267,7 @@ var TaroPoint2d = TaroClass.extend({
 		var deltaTime = totalTime - (currentTime - startTime);
 		var timeRatio = deltaTime / totalTime;
 
-		return new TaroPoint2d(endPoint.x - (totalX * timeRatio), endPoint.y - (totalY * timeRatio));
+		return new TaroPoint2d(endPoint.x - totalX * timeRatio, endPoint.y - totalY * timeRatio);
 	},
 
 	/**
@@ -316,7 +320,9 @@ var TaroPoint2d = TaroClass.extend({
 		}
 
 		return `${parseFloat(this.x).toFixed(precision)},${parseFloat(this.y).toFixed(precision)}`;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroPoint2d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroPoint2d;
+}

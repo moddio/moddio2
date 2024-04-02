@@ -1,3 +1,1 @@
-declare class Projectile extends TaroEntityPhysics {
-
-}
+declare class Projectile extends TaroEntityPhysics {}

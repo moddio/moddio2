@@ -9,4 +9,6 @@ TaroDummyCanvas.prototype.getContext = function () {
 	return TaroDummyContext;
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroDummyCanvas; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroDummyCanvas;
+}

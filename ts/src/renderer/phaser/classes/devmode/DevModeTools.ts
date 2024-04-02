@@ -1,6 +1,4 @@
-
 class DevModeTools extends Phaser.GameObjects.Container {
-
 	public palette: TilePalette;
 	public tileEditor: TileEditor;
 	public regionEditor: RegionEditor;
@@ -19,22 +17,29 @@ class DevModeTools extends Phaser.GameObjects.Container {
 	altKey: Phaser.Input.Keyboard.Key;
 	shiftKey: Phaser.Input.Keyboard.Key;
 
-	constructor(
-		public scene: DevModeScene,
-	) {
+	constructor(public scene: DevModeScene) {
 		super(scene);
 
-		this.commandController = new CommandController({
-			'increaseBrushSize': () => {
-				this.brushSize = Math.min(this.brushSize + 1, 50);
-				this.updateBrushArea();
-			}, 'decreaseBrushSize': () => {
-				this.brushSize = Math.max(this.brushSize - 1, 1);
-				this.updateBrushArea();
-			}
-		}, this.scene.gameScene.tilemap);
+		this.commandController = new CommandController(
+			{
+				increaseBrushSize: () => {
+					this.brushSize = Math.min(this.brushSize + 1, 50);
+					this.updateBrushArea();
+				},
+				decreaseBrushSize: () => {
+					this.brushSize = Math.max(this.brushSize - 1, 1);
+					this.updateBrushArea();
+				},
+			},
+			this.scene.gameScene.tilemap
+		);
 
-		const palette = this.palette = new TilePalette(this.scene, this.scene.tileset, this.scene.rexUI, this.commandController);
+		const palette = (this.palette = new TilePalette(
+			this.scene,
+			this.scene.tileset,
+			this.scene.rexUI,
+			this.commandController
+		));
 		this.tileEditor = new TileEditor(this.scene.gameScene, this.scene, this, this.commandController);
 		this.regionEditor = new RegionEditor(this.scene.gameScene, this.scene, this);
 		this.entityEditor = new EntityEditor(this.scene.gameScene, this.scene, this);
@@ -54,7 +59,7 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		taro.client.on('change-shape', (value) => {
 			this.changeShape(value);
 		});
-		
+
 		this.activeButton = 'cursor';
 		taro.client.on('cursor', () => {
 			this.cursor();
@@ -96,9 +101,7 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		taro.client.on('decrease-brush-size', () => {
 			this.commandController.defaultCommands.decreaseBrushSize();
 		});
-		taro.client.on('current-brush-size', () => {
-
-		});
+		taro.client.on('current-brush-size', () => {});
 		taro.client.on('increase-brush-size', () => {
 			this.commandController.defaultCommands.increaseBrushSize();
 		});
@@ -124,7 +127,12 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		const ctrlKey = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL, false);
 
 		this.scene.input.on('pointermove', (p) => {
-			if (taro.developerMode.active && taro.developerMode.activeTab !== 'play' && scene.tileEditor.startDragIn !== 'palette' && (p.rightButtonDown() || (p.isDown && ctrlKey.isDown))) {
+			if (
+				taro.developerMode.active &&
+				taro.developerMode.activeTab !== 'play' &&
+				scene.tileEditor.startDragIn !== 'palette' &&
+				(p.rightButtonDown() || (p.isDown && ctrlKey.isDown))
+			) {
 				const camera = this.scene.gameScene.cameras.main;
 				const scrollX = (p.x - p.prevPosition.x) / camera.zoom;
 				const scrollY = (p.y - p.prevPosition.y) / camera.zoom;
@@ -148,12 +156,13 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		this.regionEditor.cancelDrawRegion();
 		this.palette.hide();
 		this.regionEditor.hideRegions();
-        this.showAllLayers();
+		this.showAllLayers();
 	}
 
 	queryWidgets(): void {
-		this.gameEditorWidgets = Array.from(document.querySelectorAll<HTMLElement>('.game-editor-widget'))
-			.map((widget: HTMLElement) => widget.getBoundingClientRect());
+		this.gameEditorWidgets = Array.from(document.querySelectorAll<HTMLElement>('.game-editor-widget')).map(
+			(widget: HTMLElement) => widget.getBoundingClientRect()
+		);
 	}
 
 	isForceTo1x1(): boolean {
@@ -165,16 +174,20 @@ class DevModeTools extends Phaser.GameObjects.Container {
 
 	keyBindings(): void {
 		const keyboard = this.scene.input.keyboard;
-		const altKey = this.altKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ALT, true);
-		const shiftKey = this.shiftKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT, false);
+		const altKey = (this.altKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ALT, true));
+		const shiftKey = (this.shiftKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT, false));
 		const deleteEntity = (event) => {
-			if (!taro.developerMode.checkIfInputModalPresent() && taro.developerMode.active && taro.developerMode.activeTab === 'map') {
-                this.entityEditor.deleteInitEntity();
-            }
-		}
+			if (
+				!taro.developerMode.checkIfInputModalPresent() &&
+				taro.developerMode.active &&
+				taro.developerMode.activeTab === 'map'
+			) {
+				this.entityEditor.deleteInitEntity();
+			}
+		};
 
-        const deleteKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DELETE, false);
-        const backspaceKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE, false);
+		const deleteKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DELETE, false);
+		const backspaceKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE, false);
 
 		deleteKey.on('down', deleteEntity);
 		backspaceKey.on('down', deleteEntity);
@@ -237,8 +250,8 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		const data: TileData<'clear'> = {
 			clear: {
 				layer: gameMap.currentLayerIndex,
-				layerName: taro.game.data.map.layers[gameMap.currentLayerIndex].name
-			}
+				layerName: taro.game.data.map.layers[gameMap.currentLayerIndex].name,
+			},
 		};
 		inGameEditor.showClearLayerConfirmation(data);
 	}
@@ -278,13 +291,13 @@ class DevModeTools extends Phaser.GameObjects.Container {
 		tilemapLayers[value].setVisible(!state);
 	}
 
-    showAllLayers(): void {
-        const scene = this.scene as any;
-        const tilemapLayers = scene.gameScene.tilemapLayers;
-        for (let i = 0; i < tilemapLayers.length; i++) {
-            if (tilemapLayers[i].visible === false) {
-                this.hideLayer(i, false);
-            }
-        }
-    }
+	showAllLayers(): void {
+		const scene = this.scene as any;
+		const tilemapLayers = scene.gameScene.tilemapLayers;
+		for (let i = 0; i < tilemapLayers.length; i++) {
+			if (tilemapLayers[i].visible === false) {
+				this.hideLayer(i, false);
+			}
+		}
+	}
 }

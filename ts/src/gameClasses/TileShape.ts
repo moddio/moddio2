@@ -1,10 +1,9 @@
-type Shape = 'circle' | 'rectangle' | 'diamond'
+type Shape = 'circle' | 'rectangle' | 'diamond';
 
 interface Vector2D {
 	x: number;
 	y: number;
 }
-
 
 class TileShape {
 	shape: Shape;
@@ -23,9 +22,17 @@ class TileShape {
 	 * @param temp if true, it won't change this.sample, but only return it instead.
 	 * @returns sample to print
 	 */
-	calcSample(selectedTileArea: Record<number, Record<number, number>>, size: Vector2D | 'fitContent', shape?: Shape, temp = false): { sample: Record<number, Record<number, number>>, xLength: number, yLength: number, minX: number, minY: number } {
+	calcSample(
+		selectedTileArea: Record<number, Record<number, number>>,
+		size: Vector2D | 'fitContent',
+		shape?: Shape,
+		temp = false
+	): { sample: Record<number, Record<number, number>>; xLength: number; yLength: number; minX: number; minY: number } {
 		const xArray = Object.keys(selectedTileArea);
-		const yArray = Object.values(selectedTileArea).map((object) => Object.keys(object)).flat().sort((a, b) => parseInt(a) - parseInt(b));
+		const yArray = Object.values(selectedTileArea)
+			.map((object) => Object.keys(object))
+			.flat()
+			.sort((a, b) => parseInt(a) - parseInt(b));
 		const minX = parseInt(xArray[0]);
 		const minY = parseInt(yArray[0]);
 		const maxX = parseInt(xArray[xArray.length - 1]);
@@ -36,7 +43,7 @@ class TileShape {
 		if (size === 'fitContent') {
 			size = {
 				x: xLength,
-				y: yLength
+				y: yLength,
 			};
 		}
 		switch (shape || this.shape) {
@@ -59,8 +66,14 @@ class TileShape {
 		return { sample: tempSample, xLength, yLength, minX, minY };
 	}
 
-	static calcCircle(minX: number, xLength: number, minY: number, yLength: number, selectedTileArea: Record<number, Record<number, number>>, size: Vector2D) {
-
+	static calcCircle(
+		minX: number,
+		xLength: number,
+		minY: number,
+		yLength: number,
+		selectedTileArea: Record<number, Record<number, number>>,
+		size: Vector2D
+	) {
 		const circleGenerator = Combinator.circle(Math.floor(Math.max(size.x, size.y) / 2) + 1);
 		let maxLoop = Constants.MAX_LOOP;
 		const newSample: Record<number, Record<number, number>> = {};
@@ -70,20 +83,28 @@ class TileShape {
 				break;
 			}
 			const vec2d = circleValue.value as Vector2D;
-			if (selectedTileArea[minX + vec2d.x % xLength] && selectedTileArea[minX + vec2d.x % xLength][minY + vec2d.y % yLength] !== undefined) {
+			if (
+				selectedTileArea[minX + (vec2d.x % xLength)] &&
+				selectedTileArea[minX + (vec2d.x % xLength)][minY + (vec2d.y % yLength)] !== undefined
+			) {
 				if (!newSample[vec2d.x]) {
 					newSample[vec2d.x] = {};
 				}
-				newSample[vec2d.x][vec2d.y] = selectedTileArea[minX + vec2d.x % xLength][minY + vec2d.y % yLength];
+				newSample[vec2d.x][vec2d.y] = selectedTileArea[minX + (vec2d.x % xLength)][minY + (vec2d.y % yLength)];
 			}
 			maxLoop -= 1;
 		}
 		return newSample;
 	}
 
-
-	static calcDiamond(minX: number, xLength: number, minY: number, yLength: number, selectedTileArea: Record<number, Record<number, number>>, size: Vector2D) {
-
+	static calcDiamond(
+		minX: number,
+		xLength: number,
+		minY: number,
+		yLength: number,
+		selectedTileArea: Record<number, Record<number, number>>,
+		size: Vector2D
+	) {
 		const diamondGenerator = Combinator.diamond(Math.floor(Math.max(size.x, size.y) / 2) + 1);
 		let maxLoop = Constants.MAX_LOOP;
 		const newSample: Record<number, Record<number, number>> = {};
@@ -93,18 +114,28 @@ class TileShape {
 				break;
 			}
 			const vec2d = diamondValue.value as Vector2D;
-			if (selectedTileArea[minX + vec2d.x % xLength] && selectedTileArea[minX + vec2d.x % xLength][minY + vec2d.y % yLength] !== undefined) {
+			if (
+				selectedTileArea[minX + (vec2d.x % xLength)] &&
+				selectedTileArea[minX + (vec2d.x % xLength)][minY + (vec2d.y % yLength)] !== undefined
+			) {
 				if (!newSample[vec2d.x]) {
 					newSample[vec2d.x] = {};
 				}
-				newSample[vec2d.x][vec2d.y] = selectedTileArea[minX + vec2d.x % xLength][minY + vec2d.y % yLength];
+				newSample[vec2d.x][vec2d.y] = selectedTileArea[minX + (vec2d.x % xLength)][minY + (vec2d.y % yLength)];
 			}
 			maxLoop -= 1;
 		}
 		return newSample;
 	}
 
-	static calcRect(minX: number, xLength: number, minY: number, yLength: number, selectedTileArea: Record<number, Record<number, number>>, size: Vector2D) {
+	static calcRect(
+		minX: number,
+		xLength: number,
+		minY: number,
+		yLength: number,
+		selectedTileArea: Record<number, Record<number, number>>,
+		size: Vector2D
+	) {
 		const rectGenerator = Combinator.rect(size.x, size.y);
 		let maxLoop = Constants.MAX_LOOP;
 		const newSample: Record<number, Record<number, number>> = {};
@@ -115,19 +146,21 @@ class TileShape {
 			}
 			const vec2d = rectValue.value as Vector2D;
 
-			if (selectedTileArea[minX + vec2d.x % xLength] && selectedTileArea[minX + vec2d.x % xLength][minY + vec2d.y % yLength] !== undefined) {
+			if (
+				selectedTileArea[minX + (vec2d.x % xLength)] &&
+				selectedTileArea[minX + (vec2d.x % xLength)][minY + (vec2d.y % yLength)] !== undefined
+			) {
 				if (!newSample[vec2d.x]) {
 					newSample[vec2d.x] = {};
 				}
-				newSample[vec2d.x][vec2d.y] = selectedTileArea[minX + vec2d.x % xLength][minY + vec2d.y % yLength];
+				newSample[vec2d.x][vec2d.y] = selectedTileArea[minX + (vec2d.x % xLength)][minY + (vec2d.y % yLength)];
 			}
 			maxLoop -= 1;
 		}
 		return newSample;
 	}
-
 }
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TileShape;
 }

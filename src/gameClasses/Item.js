@@ -4,7 +4,7 @@ var Item = TaroEntityPhysics.extend({
 	init: function (data, entityIdFromServer) {
 		var self = this;
 		self.category('item'); // necessary for box2d contact listener (it only cares about 'unit' categories touching)
-		
+
 		TaroEntityPhysics.prototype.init.call(this, data.defaultData);
 		this.id(entityIdFromServer); // ensure that entityId is consistent between server & client
 
@@ -42,7 +42,9 @@ var Item = TaroEntityPhysics.extend({
 		self.raycastTargets = [];
 		// dont save variables in _stats as _stats is stringified and synced
 		// and some variables of type unit, item, projectile may contain circular json objects
-		self.variables = {}		
+
+		self.variables = {};
+
 		if (self._stats.variables) {
 			self.variables = self._stats.variables;
 			delete self._stats.variables;
@@ -52,7 +54,7 @@ var Item = TaroEntityPhysics.extend({
 		// self._stats.handle = data.type
 		self._stats.lastUsed = 0;
 		self.anchoredOffset = { x: 0, y: 0, rotate: 0 };
-		
+
 		// convert numbers stored as string in database to int
 		self.parseEntityObject(self._stats);
 		self.addComponent(AttributeComponent); // every item gets one
@@ -75,7 +77,7 @@ var Item = TaroEntityPhysics.extend({
 				this.streamMode(1);
 				self.streamCreate(); // without this, newly purchased item wont' show on unit
 			} else {
-				this.streamMode(self._stats.streamMode);				
+				this.streamMode(self._stats.streamMode);
 			}
 
 			taro.server.totalItemsCreated++;
@@ -84,16 +86,16 @@ var Item = TaroEntityPhysics.extend({
 			if (self._stats.currentBody == undefined || self._stats.currentBody.type == 'none' || self._hidden) {
 				self.hide();
 				this.emit('hide');
-
 			} else {
 				self.show();
 				this.emit('show');
 
-				self.width(self._stats.currentBody.width)
-					.height(self._stats.currentBody.height);
+				self.width(self._stats.currentBody.width).height(self._stats.currentBody.height);
 			}
 			self.addToRenderer();
 			self.drawBounds(false);
+
+			this.createParticleEmitters();
 		}
 		self.playEffect('create');
 		// self.addComponent(EffectComponent);
@@ -101,7 +103,6 @@ var Item = TaroEntityPhysics.extend({
 		// behaviour handles:
 		this.addBehaviour('itemBehaviour', this._behaviour);
 		this.scaleDimensions(this._stats.width, this._stats.height);
-
 	},
 
 	updateBody: function (initTransform) {
@@ -145,13 +146,13 @@ var Item = TaroEntityPhysics.extend({
 
 	/* mount the item on unit. if it has box2d body, then create an appropriate joint */
 	mount: function (obj) {
-		var state = this._stats.states && this._stats.states[this._stats.stateId] || {};
+		var state = (this._stats.states && this._stats.states[this._stats.stateId]) || {};
 		var body = this._stats.currentBody;
 
 		// console.log("mounting on", obj._category)
 		if (obj && obj._category == 'unit') {
 			if (body && body.type != 'none') {
-				taro.devLog('mounting item to unit ', body.unitAnchor.x, (-1 * body.unitAnchor.y));
+				taro.devLog('mounting item to unit ', body.unitAnchor.x, -1 * body.unitAnchor.y);
 
 				this.width(body.width);
 				this.height(body.height);
@@ -162,12 +163,12 @@ var Item = TaroEntityPhysics.extend({
 
 					var unitAnchorX = body.unitAnchor.x;
 					var unitAnchorY = body.unitAnchor.y;
-					TaroEntity.prototype.translateTo.call(this, unitAnchorX, (-1 * unitAnchorY), 0);
+					TaroEntity.prototype.translateTo.call(this, unitAnchorX, -1 * unitAnchorY, 0);
 					// TaroEntity.prototype.rotateTo.call(this, 0, 0, body.unitAnchor.rotation || 0)
 				}
 			}
 		} else {
-			taro.devLog('there\'s no unit to attach!');
+			taro.devLog("there's no unit to attach!");
 			// item is dropped
 			if (body && body.type != 'none') {
 				this.width(body.width);
@@ -207,20 +208,15 @@ var Item = TaroEntityPhysics.extend({
 	},
 
 	getOwnerUnit: function () {
-		return ((this._stats.ownerUnitId) ? taro.$(this._stats.ownerUnitId) : undefined);
+		return this._stats.ownerUnitId ? taro.$(this._stats.ownerUnitId) : undefined;
 	},
 
 	setOwnerUnit: function (newOwner) {
 		var oldOwner = taro.$(this.oldOwnerId);
 
-		if (newOwner == oldOwner)
-			return;
+		if (newOwner == oldOwner) return;
 		if (newOwner) {
-
-			if (
-				taro.isClient &&
-				newOwner == taro.client.selectedUnit
-			) {
+			if (taro.isClient && newOwner == taro.client.selectedUnit) {
 				if (newOwner._stats.currentItemIndex !== this._stats.slotIndex) {
 					this.setState('unselected');
 				}
@@ -256,7 +252,7 @@ var Item = TaroEntityPhysics.extend({
 				if (this._stats.streamMode == 1 || this._stats.streamMode == undefined) {
 					this.streamMode(1);
 				} else {
-					this.streamMode(this._stats.streamMode);				
+					this.streamMode(this._stats.streamMode);
 				}
 			}
 		}
@@ -280,22 +276,26 @@ var Item = TaroEntityPhysics.extend({
 	use: function () {
 		var self = this;
 		var owner = self.getOwnerUnit();
-		var ownerId = (owner) ? owner.id() : undefined;
+		var ownerId = owner ? owner.id() : undefined;
 		var player = owner && owner.getOwner();
 		var isUsed = false;
 		// console.log(`calling Item.use by ${ownerId}`);
 
 		// if item has no owner, or item is unusable type, or it cannot be used by its current owner, then return
-		if (!owner ||
-			(self._stats.canBeUsedBy && self._stats.canBeUsedBy.length > 0 && self._stats.canBeUsedBy.indexOf(owner._stats.type) == -1) ||
-			self._stats.type === 'unusable') {
+		if (
+			!owner ||
+			(self._stats.canBeUsedBy &&
+				self._stats.canBeUsedBy.length > 0 &&
+				self._stats.canBeUsedBy.indexOf(owner._stats.type) == -1) ||
+			self._stats.type === 'unusable'
+		) {
 			return;
 		}
 
 		if (self.hasQuantityRemaining()) {
 			taro.game.lastUsedItemId = self.id();
 
-			if ((self._stats.lastUsed + self._stats.fireRate < taro.now) || self._stats.type == 'consumable') {
+			if (self._stats.lastUsed + self._stats.fireRate < taro.now || self._stats.type == 'consumable') {
 				if (!self.canAffordItemCost()) {
 					taro.devLog('cannot afford item cost');
 					return;
@@ -304,7 +304,13 @@ var Item = TaroEntityPhysics.extend({
 				isUsed = true;
 
 				// item must be ready to fire (accordingly to fire rate), and must have ammo or have infinite ammo
-				if (taro.isClient && self._stats.type == 'weapon' && self._stats.effects && self._stats.effects.use && self._stats.effects.use.animation) {
+				if (
+					taro.isClient &&
+					self._stats.type == 'weapon' &&
+					self._stats.effects &&
+					self._stats.effects.use &&
+					self._stats.effects.use.animation
+				) {
 					self.applyAnimationById(self._stats.effects.use.animation);
 				}
 
@@ -314,21 +320,21 @@ var Item = TaroEntityPhysics.extend({
 
 				//we cant use queueTrigger here because it will be called after entity scripts and item or unit probably no longer exists
 				self.script.trigger('itemIsUsed', triggerParams); // this entity (item) (need to rename rename 'itemIsUsed' -> 'thisItemIsUsed')
-                owner.script.trigger('thisUnitUsesItem', triggerParams); // this entity (unit)
-                taro.script.trigger('unitUsesItem', triggerParams); // unit uses item
+				owner.script.trigger('thisUnitUsesItem', triggerParams); // this entity (unit)
+				taro.script.trigger('unitUsesItem', triggerParams); // unit uses item
 
 				if (taro.physics && self._stats.type == 'weapon') {
 					if (self._stats.isGun) {
 						if (self._stats.bulletStartPosition) {
 							var rotate = this._rotate.z;
 							let bulletY = self._stats.bulletStartPosition.y || 0;
-							let bulletX = (owner._stats.flip === 1 ? -1 : 1);
-							
+							let bulletX = owner._stats.flip === 1 ? -1 : 1;
+
 							if (owner && self._stats.currentBody && self._stats.currentBody.jointType == 'weldJoint') {
 								rotate = owner._rotate.z;
 								// if we are welded to owner unit, we have to invert the start position when the item is flipped
 								// multiply bullet start position y-component by -1 if flip === 1
-								bulletY *= (owner._stats.flip === 1 ? -1 : 1);
+								bulletY *= owner._stats.flip === 1 ? -1 : 1;
 							}
 
 							if (self.anchoredOffset == undefined) {
@@ -338,8 +344,15 @@ var Item = TaroEntityPhysics.extend({
 							// item is flipped, then mirror the rotation
 
 							var bulletStartPosition = {
-								x: (owner._translate.x + self.anchoredOffset.x) + (self._stats.bulletStartPosition.x * bulletX * Math.cos(rotate)) + (bulletY * Math.sin(rotate)),
-								y: (owner._translate.y + self.anchoredOffset.y) + ((self._stats.bulletStartPosition.x * bulletX * Math.sin(rotate)) - (bulletY * Math.cos(rotate))) //* bulletX
+								x:
+									owner._translate.x +
+									self.anchoredOffset.x +
+									self._stats.bulletStartPosition.x * bulletX * Math.cos(rotate) +
+									bulletY * Math.sin(rotate),
+								y:
+									owner._translate.y +
+									self.anchoredOffset.y +
+									(self._stats.bulletStartPosition.x * bulletX * Math.sin(rotate) - bulletY * Math.cos(rotate)), //* bulletX
 							};
 
 							if (
@@ -348,12 +361,15 @@ var Item = TaroEntityPhysics.extend({
 							) {
 								var defaultData = {
 									rotate: rotate,
-									translate: bulletStartPosition
+									translate: bulletStartPosition,
 								};
 
 								// projectileStreamMode: 0 is clientside predicted
 								// projectileStreamMode: 1 is serverside streamed
-								if (self.projectileData && (taro.isServer || (taro.isClient && self._stats.projectileStreamMode != 1))) {
+								if (
+									self.projectileData &&
+									(taro.isServer || (taro.isClient && self._stats.projectileStreamMode != 1))
+								) {
 									defaultData.velocity = {
 										deployMethod: self._stats.deployMethod,
 										x: Math.cos(rotate + Math.radians(-90)) * self._stats.bulletForce,
@@ -362,23 +378,21 @@ var Item = TaroEntityPhysics.extend({
 									// we don't create a Projectile entity for raycasts
 									if (this._stats.bulletType !== 'raycast') {
 										self.projectileData = taro.game.cloneAsset('projectileTypes', self._stats.projectileType);
-										var projectileData = Object.assign(
-											rfdc()(self.projectileData),
-											{
-												type: self._stats.projectileType,
-												sourceItemId: self.id(),
+										var projectileData = Object.assign(rfdc()(self.projectileData), {
+											type: self._stats.projectileType,
+											sourceItemId: self.id(),
+											sourceUnitId: ownerId,
+											defaultData: defaultData,
+											damageData: {
+												targetsAffected: this._stats.damage.targetsAffected,
 												sourceUnitId: ownerId,
-												defaultData: defaultData,
-												damageData: {
-													targetsAffected: this._stats.damage.targetsAffected,
-													sourceUnitId: ownerId,
-													sourceItemId: self.id(),
-													sourcePlayerId: owner.getOwner().id(),
-													unitAttributes: this._stats.damage.unitAttributes,
-													playerAttributes: this._stats.damage.playerAttributes
-												},
-												streamMode: this._stats.projectileStreamMode || 0 // editor incorrectly sets streamMode to undefined when item CSP is on
-											});
+												sourceItemId: self.id(),
+												sourcePlayerId: owner.getOwner().id(),
+												unitAttributes: this._stats.damage.unitAttributes,
+												playerAttributes: this._stats.damage.playerAttributes,
+											},
+											streamMode: this._stats.projectileStreamMode || 0, // editor incorrectly sets streamMode to undefined when item CSP is on
+										});
 										var projectile = new Projectile(projectileData);
 										projectile.script.trigger('entityCreated');
 										taro.game.lastCreatedProjectileId = projectile.id();
@@ -389,19 +403,21 @@ var Item = TaroEntityPhysics.extend({
 									// starting from unit center position
 									let offset = { x: 0, y: 0 };
 
-									const useOwnerBody = self._stats.currentBody && (self._stats.currentBody.type == 'spriteOnly' || self._stats.currentBody.type == 'none');
+									const useOwnerBody =
+										self._stats.currentBody &&
+										(self._stats.currentBody.type == 'spriteOnly' || self._stats.currentBody.type == 'none');
 
-									const pos = useOwnerBody ?
-										{
-											x: owner._translate.x,
-											y: owner._translate.y,
-											rotation: owner._rotate.z
-										} :
-										{
-											x: this._translate.x,
-											y: this._translate.y,
-											rotation: this._rotate.z
-										};
+									const pos = useOwnerBody
+										? {
+												x: owner._translate.x,
+												y: owner._translate.y,
+												rotation: owner._rotate.z,
+											}
+										: {
+												x: this._translate.x,
+												y: this._translate.y,
+												rotation: this._rotate.z,
+											};
 
 									// factor in unit anchor
 									if (useOwnerBody) {
@@ -410,10 +426,9 @@ var Item = TaroEntityPhysics.extend({
 
 									// factor in bullet start position
 									if (this._stats.bulletStartPosition) {
-
 										let bulletOffset = {
 											x: this._stats.bulletStartPosition.x,
-											y: this._stats.bulletStartPosition.y
+											y: this._stats.bulletStartPosition.y,
 										};
 
 										if (owner._stats.flip === 1) {
@@ -427,55 +442,54 @@ var Item = TaroEntityPhysics.extend({
 									pos.x += offset.x;
 									pos.y += offset.y;
 
-									const raycastStart = { x, y } = pos;
+									const raycastStart = ({ x, y } = pos);
 									const raycastEnd = {
-										x: pos.x + (this._stats.bulletDistance * Math.cos(owner._rotate.z + Math.radians(-90))),
-										y: pos.y + (this._stats.bulletDistance * Math.sin(owner._rotate.z + Math.radians(-90)))
+										x: pos.x + this._stats.bulletDistance * Math.cos(owner._rotate.z + Math.radians(-90)),
+										y: pos.y + this._stats.bulletDistance * Math.sin(owner._rotate.z + Math.radians(-90)),
 									};
 
 									// end pos calcs; fire raycast
 									const bulletReturn = taro.raycaster.raycastBullet(
 										{
 											x: raycastStart.x / self.scaleRatio,
-											y: raycastStart.y / self.scaleRatio
+											y: raycastStart.y / self.scaleRatio,
 										},
 										{
 											x: raycastEnd.x / self.scaleRatio,
-											y: raycastEnd.y / self.scaleRatio
-										},
+											y: raycastEnd.y / self.scaleRatio,
+										}
 									);
 
 									// if the shot was not obstructed (shooting through a physics body)
 									// render the bullet according to its projectile data on Client
 									if (taro.isClient && !bulletReturn.obstructed) {
-										taro.raycaster.renderBullet(
-											bulletReturn.start,
-											bulletReturn.point,
-											{
-												color: 0xff0000,
-												projType: this._stats.projectileType ? this._stats.projectileType : null,
-												fraction: bulletReturn.fraction,
-												rotation: pos.rotation,
-												dimensions: {
-													// we are pulling display size of raycast bullet from its default body
-													width: this.projectileData && this.projectileData.bodies && this.projectileData.bodies.default ?
-														this.projectileData.bodies.default.width : null,
-													height: this.projectileData && this.projectileData.bodies && this.projectileData.bodies.default ?
-														this.projectileData.bodies.default.height : null,
-												}
-											}
-										);
+										taro.raycaster.renderBullet(bulletReturn.start, bulletReturn.point, {
+											color: 0xff0000,
+											projType: this._stats.projectileType ? this._stats.projectileType : null,
+											fraction: bulletReturn.fraction,
+											rotation: pos.rotation,
+											dimensions: {
+												// we are pulling display size of raycast bullet from its default body
+												width:
+													this.projectileData && this.projectileData.bodies && this.projectileData.bodies.default
+														? this.projectileData.bodies.default.width
+														: null,
+												height:
+													this.projectileData && this.projectileData.bodies && this.projectileData.bodies.default
+														? this.projectileData.bodies.default.height
+														: null,
+											},
+										});
 									}
 
 									if (taro.game.entitiesCollidingWithLastRaycast.length > 0) {
-
 										const damageData = {
 											targetsAffected: this._stats.damage.targetsAffected,
 											sourceUnitId: ownerId,
 											sourceItemId: self.id(),
 											sourcePlayerId: owner.getOwner().id(),
 											unitAttributes: this._stats.damage.unitAttributes,
-											playerAttributes: this._stats.damage.playerAttributes
+											playerAttributes: this._stats.damage.playerAttributes,
 										};
 
 										this.raycastTargets = _.filter(
@@ -494,39 +508,50 @@ var Item = TaroEntityPhysics.extend({
 
 									taro.queueTrigger('raycastItemFired', {
 										itemId: self.id(),
-										unitId: ownerId
+										unitId: ownerId,
 									});
-
 
 									this.raycastTargets = [];
 								}
 
 								if (self._stats.recoilForce) {
 									// apply recoil on its owner if item itself doesn't have physical body
-									if (self._stats.currentBody == undefined || self._stats.currentBody.type == 'none' || self._stats.currentBody.type == 'spriteOnly') {
-										owner.applyForce(self._stats.recoilForce * Math.cos(owner._rotate.z + Math.radians(90)), self._stats.recoilForce * Math.sin(owner._rotate.z + Math.radians(90)));
-									} else { // apply recoil on item
-										self.applyForce(self._stats.recoilForce * Math.cos(this._rotate.z + Math.radians(90)), self._stats.recoilForce * Math.sin(this._rotate.z + Math.radians(90)));
+									if (
+										self._stats.currentBody == undefined ||
+										self._stats.currentBody.type == 'none' ||
+										self._stats.currentBody.type == 'spriteOnly'
+									) {
+										owner.applyForce(
+											self._stats.recoilForce * Math.cos(owner._rotate.z + Math.radians(90)),
+											self._stats.recoilForce * Math.sin(owner._rotate.z + Math.radians(90))
+										);
+									} else {
+										// apply recoil on item
+										self.applyForce(
+											self._stats.recoilForce * Math.cos(this._rotate.z + Math.radians(90)),
+											self._stats.recoilForce * Math.sin(this._rotate.z + Math.radians(90))
+										);
 									}
 								}
 							}
 						}
-					} else { // melee weapon
+					} else {
+						// melee weapon
 						var hitboxData = this._stats.damageHitBox;
 
 						if (hitboxData) {
 							// console.log(hitboxData);
-							var rotate = (owner.angleToTarget) ? owner.angleToTarget : 0;
+							var rotate = owner.angleToTarget ? owner.angleToTarget : 0;
 							var hitboxPosition = {
-								x: (owner._translate.x) + (hitboxData.offsetX * Math.cos(rotate)) + (hitboxData.offsetY * Math.sin(rotate)),
-								y: (owner._translate.y) + (hitboxData.offsetX * Math.sin(rotate)) - (hitboxData.offsetY * Math.cos(rotate))
+								x: owner._translate.x + hitboxData.offsetX * Math.cos(rotate) + hitboxData.offsetY * Math.sin(rotate),
+								y: owner._translate.y + hitboxData.offsetX * Math.sin(rotate) - hitboxData.offsetY * Math.cos(rotate),
 							};
 
 							var hitbox = {
 								x: hitboxPosition.x - hitboxData.width,
 								y: hitboxPosition.y - hitboxData.width,
 								width: hitboxData.width * 2,
-								height: hitboxData.width * 2 // width is used as a radius
+								height: hitboxData.width * 2, // width is used as a radius
 							};
 
 							var damageData = {
@@ -535,7 +560,7 @@ var Item = TaroEntityPhysics.extend({
 								sourceItemId: self.id(),
 								sourcePlayerId: owner.getOwner().id(),
 								unitAttributes: this._stats.damage.unitAttributes,
-								playerAttributes: this._stats.damage.playerAttributes
+								playerAttributes: this._stats.damage.playerAttributes,
 							};
 							// console.log(owner._translate.x, owner._translate.y, hitbox);                                              //////////Hitbox log
 
@@ -549,7 +574,8 @@ var Item = TaroEntityPhysics.extend({
 							}
 						}
 					}
-				} else if (self._stats.type == 'consumable') { // item is not a gun (e.g. consumable)
+				} else if (self._stats.type == 'consumable') {
+					// item is not a gun (e.g. consumable)
 					// if cost quantity of consumable item is not defined or 0
 					// it should be 1 by default. Bcz 1 item will be consumed when fire.
 					// currently we dont have cost quantity setting in consumable items so
@@ -580,7 +606,13 @@ var Item = TaroEntityPhysics.extend({
 								}
 							}
 
-							if (taro.isServer && self._stats && self._stats.bonus && self._stats.bonus.consume && self._stats.bonus.consume.coin) {
+							if (
+								taro.isServer &&
+								self._stats &&
+								self._stats.bonus &&
+								self._stats.bonus.consume &&
+								self._stats.bonus.consume.coin
+							) {
 								// player.streamUpdateData([{
 								// 	coins: self._stats.bonus.consume.coin + player._stats.coins
 								// }]);
@@ -597,7 +629,8 @@ var Item = TaroEntityPhysics.extend({
 			}
 
 			// lowering the quantity by self.quantityCost
-		} else { // quantity is 0
+		} else {
+			// quantity is 0
 			self.stopUsing();
 		}
 
@@ -654,9 +687,7 @@ var Item = TaroEntityPhysics.extend({
 			// check unit attribute can afford cost
 			for (var attrName in ability.cost.unitAttributes) {
 				var cost = ability.cost.unitAttributes[attrName];
-				if (owner._stats.attributes[attrName] == undefined ||
-					owner._stats.attributes[attrName].value < cost
-				) {
+				if (owner._stats.attributes[attrName] == undefined || owner._stats.attributes[attrName].value < cost) {
 					canAffordCost = false;
 				}
 			}
@@ -664,9 +695,7 @@ var Item = TaroEntityPhysics.extend({
 			// check player attributes can afford cost
 			for (attrName in ability.cost.playerAttributes) {
 				var cost = ability.cost.playerAttributes[attrName];
-				if (player._stats.attributes[attrName] == undefined ||
-					player._stats.attributes[attrName].value < cost
-				) {
+				if (player._stats.attributes[attrName] == undefined || player._stats.attributes[attrName].value < cost) {
 					canAffordCost = false;
 				}
 			}
@@ -744,8 +773,7 @@ var Item = TaroEntityPhysics.extend({
 	startUsing: function () {
 		var self = this;
 
-		if (self._stats.isBeingUsed)
-			return;
+		if (self._stats.isBeingUsed) return;
 
 		self._stats.isBeingUsed = true;
 		self._stats.useQueued = true; // ensures that use() is executed at least once
@@ -767,8 +795,7 @@ var Item = TaroEntityPhysics.extend({
 	stopUsing: function () {
 		var self = this;
 
-		if (!self._stats.isBeingUsed)
-			return;
+		if (!self._stats.isBeingUsed) return;
 
 		self._stats.isBeingUsed = false;
 		var owner = self.getOwnerUnit();
@@ -793,10 +820,7 @@ var Item = TaroEntityPhysics.extend({
 	},
 	refillAmmo: function () {
 		var itemData = taro.game.cloneAsset('itemTypes', this._stats.itemTypeId);
-		this.streamUpdateData([
-			{ ammoTotal: itemData.ammoTotal },
-			{ ammo: itemData.ammoSize }
-		]);
+		this.streamUpdateData([{ ammoTotal: itemData.ammoTotal }, { ammo: itemData.ammoSize }]);
 	},
 
 	/**
@@ -812,6 +836,14 @@ var Item = TaroEntityPhysics.extend({
 			// place item correctly based on its owner's transformation & its body's offsets.
 			if (self._stats.currentBody) {
 				var unitRotate = ownerUnit._rotate.z;
+
+				// Keep the items anchored in the correct place even when the
+				// camera is rotated. The camera's yaw is present in the
+				// angleToTargetRelative variable.
+				if (ownerUnit.angleToTarget && ownerUnit.angleToTargetRelative) {
+					const yaw = ownerUnit.angleToTarget - ownerUnit.angleToTargetRelative;
+					unitRotate += yaw;
+				}
 
 				if (self._stats.currentBody.fixedRotation) {
 					rotate = unitRotate;
@@ -842,18 +874,21 @@ var Item = TaroEntityPhysics.extend({
 						rotate += unitAnchorOffsetRotate;
 					}
 
-
 					var unitAnchoredPosition = {
-						x: (unitAnchorOffsetX * Math.cos(unitRotate)) + (unitAnchorOffsetY * Math.sin(unitRotate)),
-						y: (unitAnchorOffsetX * Math.sin(unitRotate)) - (unitAnchorOffsetY * Math.cos(unitRotate))
+						x: unitAnchorOffsetX * Math.cos(unitRotate) + unitAnchorOffsetY * Math.sin(unitRotate),
+						y: unitAnchorOffsetX * Math.sin(unitRotate) - unitAnchorOffsetY * Math.cos(unitRotate),
 					};
 
-
-					offset.x = (unitAnchoredPosition.x) + (itemAnchorOffsetX * Math.cos(rotate)) + (itemAnchorOffsetY * Math.sin(rotate)),
-						offset.y = (unitAnchoredPosition.y) + (itemAnchorOffsetX * Math.sin(rotate)) - (itemAnchorOffsetY * Math.cos(rotate));
+					(offset.x =
+						unitAnchoredPosition.x + itemAnchorOffsetX * Math.cos(rotate) + itemAnchorOffsetY * Math.sin(rotate)),
+						(offset.y =
+							unitAnchoredPosition.y + itemAnchorOffsetX * Math.sin(rotate) - itemAnchorOffsetY * Math.cos(rotate));
 
 					if (self._stats.controls && self._stats.controls.mouseBehaviour) {
-						if (self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor || (self._stats.currentBody && (self._stats.currentBody.jointType == 'weldJoint'))) {
+						if (
+							self._stats.controls.mouseBehaviour.rotateToFaceMouseCursor ||
+							(self._stats.currentBody && self._stats.currentBody.jointType == 'weldJoint')
+						) {
 							offset.rotate = rotate;
 						}
 					}
@@ -871,7 +906,10 @@ var Item = TaroEntityPhysics.extend({
 		// removing passive attributes
 		if (ownerUnit) {
 			if (self._stats.bonus && self._stats.bonus.passive) {
-				if (self._stats.slotIndex < this._stats.inventorySize || self._stats.bonus.passive.isDisabledInBackpack != true) {
+				if (
+					self._stats.slotIndex < this._stats.inventorySize ||
+					self._stats.bonus.passive.isDisabledInBackpack != true
+				) {
 					ownerUnit.updateStats(self.id(), true);
 				}
 			} else {
@@ -891,11 +929,12 @@ var Item = TaroEntityPhysics.extend({
 
 		self.script.load(data.scripts);
 		self.script.scriptCache = {};
-		
+
 		self._stats.itemTypeId = type;
 
 		for (var i in data) {
-			if (i === 'name' || i === 'attributes' || i === 'variables') { // don't overwrite item's name with item type name
+			if (i === 'name' || i === 'attributes' || i === 'variables') {
+				// don't overwrite item's name with item type name
 				continue;
 			}
 			self._stats[i] = data[i];
@@ -925,11 +964,14 @@ var Item = TaroEntityPhysics.extend({
 						attributeValue = self._stats.attributes[attrId].value;
 					}
 					if (this._stats.attributes[attrId]) {
-						this._stats.attributes[attrId].value = Math.max(data.attributes[attrId].min, Math.min(data.attributes[attrId].max, parseFloat(attributeValue)));
+						this._stats.attributes[attrId].value = Math.max(
+							data.attributes[attrId].min,
+							Math.min(data.attributes[attrId].max, parseFloat(attributeValue))
+						);
 					}
 				}
 			}
-		}	
+		}
 
 		if (taro.isClient) {
 			self.updateTexture();
@@ -944,7 +986,8 @@ var Item = TaroEntityPhysics.extend({
 			// if the unit type cannot carry the item, then remove it.
 			if (ownerUnit.canCarryItem(self._stats) == false) {
 				self.remove();
-			} else if (ownerUnit.canUseItem(self._stats)) { // if unit cannot use the item, then unselect the item
+			} else if (ownerUnit.canUseItem(self._stats)) {
+				// if unit cannot use the item, then unselect the item
 				if (self._stats.slotIndex != undefined && ownerUnit._stats.currentItemIndex != undefined) {
 					if (ownerUnit._stats.currentItemIndex === self._stats.slotIndex) {
 						self.setState('selected');
@@ -957,7 +1000,10 @@ var Item = TaroEntityPhysics.extend({
 			}
 			// adding back passive attributes
 			if (self._stats.bonus && self._stats.bonus.passive) {
-				if (self._stats.slotIndex < this._stats.inventorySize || self._stats.bonus.passive.isDisabledInBackpack != true) {
+				if (
+					self._stats.slotIndex < this._stats.inventorySize ||
+					self._stats.bonus.passive.isDisabledInBackpack != true
+				) {
 					ownerUnit.updateStats(self.id());
 				}
 			} else {
@@ -973,7 +1019,7 @@ var Item = TaroEntityPhysics.extend({
 				ownerUnit.changeItem(index); // this will call change item on client for all units
 			}*/
 		} else if (taro.isClient) {
-			var zIndex = self._stats.currentBody && self._stats.currentBody['z-index'] || { layer: 3, depth: 3 };
+			var zIndex = (self._stats.currentBody && self._stats.currentBody['z-index']) || { layer: 3, depth: 3 };
 
 			if (zIndex && taro.network.id() == self._stats.clientId && !taro.game.data.heightBasedZIndex) {
 				// depth of this player's units should have +1 depth to avoid flickering on overlap
@@ -1003,7 +1049,10 @@ var Item = TaroEntityPhysics.extend({
 		for (var attrId in this._stats.attributes) {
 			if (this._stats.attributes[attrId]) {
 				var attributeValue = data.attributes[attrId].value; // default attribute value from new unit type
-				this._stats.attributes[attrId].value = Math.max(data.attributes[attrId].min, Math.min(data.attributes[attrId].max, parseFloat(attributeValue)));
+				this._stats.attributes[attrId].value = Math.max(
+					data.attributes[attrId].min,
+					Math.min(data.attributes[attrId].max, parseFloat(attributeValue))
+				);
 			}
 		}
 	},
@@ -1038,7 +1087,6 @@ var Item = TaroEntityPhysics.extend({
 						if (taro.isClient) {
 							self._stats.scale = newValue;
 							self._scaleTexture();
-
 						} else {
 							// finding all attach entities before changing body dimensions
 							if (self.jointsAttached) {
@@ -1060,7 +1108,6 @@ var Item = TaroEntityPhysics.extend({
 							if (newValue) {
 								self.hide();
 								this.emit('hide');
-
 							} else {
 								self.show();
 								this.emit('show');
@@ -1163,9 +1210,8 @@ var Item = TaroEntityPhysics.extend({
 			self.script.trigger(trigger.name, trigger.params);
 		});
 
-		var ownerUnit = this.getOwnerUnit();		
+		var ownerUnit = this.getOwnerUnit();
 		if (ownerUnit && this._stats.stateId != 'dropped') {
-			
 			// this is necessary for games that has sprite-only item with no joint. (e.g. team elimination)
 			if (taro.isServer) {
 				var rotate = this._rotate.z;
@@ -1182,7 +1228,7 @@ var Item = TaroEntityPhysics.extend({
 				self.anchoredOffset = self.getAnchoredOffset(rotate);
 				var x = ownerUnit._translate.x + self.anchoredOffset.x;
 				var y = ownerUnit._translate.y + self.anchoredOffset.y;
-			
+
 				self.translateTo(x, y);
 				self.rotateTo(0, 0, rotate);
 			}
@@ -1193,14 +1239,13 @@ var Item = TaroEntityPhysics.extend({
 					self._stats.controls.mouseBehaviour &&
 					self._stats.controls.mouseBehaviour.flipSpriteHorizontallyWRTMouse
 				) {
-					if (ownerUnit.angleToTarget > 0 && ownerUnit.angleToTarget < Math.PI) {
+					if (ownerUnit.angleToTargetRelative > 0 && ownerUnit.angleToTargetRelative < Math.PI) {
 						self.flip(0);
 					} else {
 						self.flip(1);
 					}
 				}
 			}
-
 		}
 
 		if (this._stats.isBeingUsed || this._stats.useQueued) {
@@ -1215,7 +1260,7 @@ var Item = TaroEntityPhysics.extend({
 			}
 		} else if (taro.isClient) {
 			var processedUpdates = [];
-			var updateQueue = taro.client.entityUpdateQueue[self.id()];			
+			var updateQueue = taro.client.entityUpdateQueue[self.id()];
 			if (updateQueue) {
 				for (var key in updateQueue) {
 					var value = updateQueue[key];
@@ -1223,19 +1268,14 @@ var Item = TaroEntityPhysics.extend({
 					if (
 						// Don't run if we're updating item's state/owner unit, but its owner doesn't exist yet
 						// updating item's owner unit, but the owner hasn't been created yet
-						(
-							key == "ownerUnitId" && value != 0 && taro.$(value) == undefined
-						) || 
-						(   // changing item's state to selected/unselected, but owner doesn't exist yet
-							(key == "stateId" && (value == "selected" || value == "unselected")) &&
-							this.getOwnerUnit() == undefined
-						)						
+						(key == 'ownerUnitId' && value != 0 && taro.$(value) == undefined) || // changing item's state to selected/unselected, but owner doesn't exist yet
+						(key == 'stateId' && (value == 'selected' || value == 'unselected') && this.getOwnerUnit() == undefined)
 					) {
 						continue;
 					} else {
-						processedUpdates.push({[key]: value});
-						delete taro.client.entityUpdateQueue[self.id()][key]
-						
+						processedUpdates.push({ [key]: value });
+						delete taro.client.entityUpdateQueue[self.id()][key];
+
 						// remove queue object for this entity is there's no queue remaining in order to prevent memory leak
 						if (Object.keys(taro.client.entityUpdateQueue[this.id()]).length == 0) {
 							delete taro.client.entityUpdateQueue[this.id()];
@@ -1270,7 +1310,6 @@ var Item = TaroEntityPhysics.extend({
 		TaroEntity.prototype.tick.call(this, ctx);
 	},
 
-	
 	remove: function () {
 		// traverse through owner's inventory, and remove itself
 		// change streammode of spriteOnly items
@@ -1283,7 +1322,10 @@ var Item = TaroEntityPhysics.extend({
 		if (ownerUnit) {
 			// remove its passive attributes from its ownerUnit unit.
 			if (this._stats.bonus && this._stats.passive) {
-				if (this._stats.slotIndex < ownerUnit._stats.inventorySize || this._stats.bonus.passive.isDisabledInBackpack != true) {
+				if (
+					this._stats.slotIndex < ownerUnit._stats.inventorySize ||
+					this._stats.bonus.passive.isDisabledInBackpack != true
+				) {
 					ownerUnit.updateStats(this.id(), true);
 				}
 			} else {
@@ -1302,9 +1344,9 @@ var Item = TaroEntityPhysics.extend({
 		this.script.trigger('initEntityDestroy');
 		this.playEffect('destroy');
 		TaroEntityPhysics.prototype.destroy.call(this);
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Item;
 }

@@ -13,7 +13,7 @@
 		"build:gs": "cross-env TEST=true node server/taro.js -deploy ./src -to ../../be/assets",
 		"build:git": "tsc && cross-env TEST=true node server/taro.js -deploy ./src -to ./build",
 		"debug": "cross-env ENV=standalone JWT_SECRET_KEY='change-this' node --inspect server/taro.js -g ./src",
-		"dev:lint": "eslint . --fix"
+		"dev:lint": "eslint --fix --ext .js,.ts ."
 	},
 	"repository": {
 		"type": "git",
@@ -43,6 +43,7 @@
 		"lz-string": "^1.4.4",
 		"lzutf8": "^0.6.3",
 		"msgpack-lite": "^0.1.26",
+		"nipplejs": "^0.10.1",
 		"phaser": "^3.60.0",
 		"phaser3-rex-plugins": "1.1.70",
 		"phaser3-rex-plugins-types": "^0.2.0",

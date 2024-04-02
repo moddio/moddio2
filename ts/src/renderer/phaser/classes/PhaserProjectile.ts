@@ -13,12 +13,12 @@ class PhaserProjectile extends PhaserAnimatedEntity {
 		scene.projectilesList.push(this);
 
 		Object.assign(this.evtListeners, {
-			"update-texture": entity.on("update-texture", this.updateTexture, this),
+			'update-texture': entity.on('update-texture', this.updateTexture, this),
 		});
 	}
 
 	protected updateTexture(data) {
-		if (data === "basic_texture_change") {
+		if (data === 'basic_texture_change') {
 			this.sprite.anims.stop();
 			this.key = `projectile/${this.entity._stats.cellSheet.url}`;
 			if (!this.scene.textures.exists(this.key)) {
@@ -50,4 +50,3 @@ class PhaserProjectile extends PhaserAnimatedEntity {
 		super.destroy();
 	}
 }
-

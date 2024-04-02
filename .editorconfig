@@ -10,5 +10,5 @@ max_line_length = 120
 tab_width = 4
 trim_trailing_whitespace = true
 
-[{*.cjs,*.js}]
+[{*.cjs,*.js,*.ts}]
 indent_style = tab

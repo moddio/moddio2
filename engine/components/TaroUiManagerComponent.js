@@ -14,7 +14,9 @@ var TaroUiManagerComponent = TaroClass.extend({
 		this._styles = {};
 		this._elementsByStyle = {};
 
-		taro.input.on('keyDown', function (event) { self._keyDown(event); });
+		taro.input.on('keyDown', function (event) {
+			self._keyDown(event);
+		});
 	},
 
 	/**
@@ -153,5 +155,5 @@ var TaroUiManagerComponent = TaroClass.extend({
 			this._focus.emit('keyDown', event);
 			taro.input.stopPropagation();
 		}
-	}
+	},
 });

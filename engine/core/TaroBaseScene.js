@@ -19,16 +19,10 @@ var TaroBaseScene = TaroSceneGraph.extend({
 		}
 
 		// Create the scene
-		var baseScene = new TaroScene2d()
-			.id('baseScene');
+		var baseScene = new TaroScene2d().id('baseScene');
 
 		// Create the main viewport to look at "baseScene"
-		new TaroViewport()
-			.id('vp1')
-			.autoSize(true)
-			.scene(baseScene)
-			.drawBounds(false)
-			.mount(taro);
+		new TaroViewport().id('vp1').autoSize(true).scene(baseScene).drawBounds(false).mount(taro);
 	},
 
 	/**
@@ -41,7 +35,9 @@ var TaroBaseScene = TaroSceneGraph.extend({
 
 		// Destroy the baseScene
 		taro.$('baseScene').destroy();
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroBaseScene; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroBaseScene;
+}

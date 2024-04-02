@@ -32,7 +32,7 @@
 	} else {
 		root.SAT = factory();
 	}
-}(this, function () {
+})(this, function () {
 	'use strict';
 
 	var SAT = {};
@@ -45,11 +45,11 @@
 	// Create a new Vector, optionally passing in the `x` and `y` coordinates. If
 	// a coordinate is not specified, it will be set to `0`
 	/**
-     * @param {?number=} x The x position.
-     * @param {?number=} y The y position.
-     * @constructor
-     */
-	function Vector (x, y) {
+	 * @param {?number=} x The x position.
+	 * @param {?number=} y The y position.
+	 * @constructor
+	 */
+	function Vector(x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
 	}
@@ -59,9 +59,9 @@
 
 	// Copy the values of another Vector into this one.
 	/**
-     * @param {Vector} other The other Vector.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {Vector} other The other Vector.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.copy = Vector.prototype.copy = function (other) {
 		this.x = other.x;
 		this.y = other.y;
@@ -70,8 +70,8 @@
 
 	// Create a new vector with the same coordinates as this on.
 	/**
-     * @return {Vector} The new cloned vector
-     */
+	 * @return {Vector} The new cloned vector
+	 */
 	Vector.prototype.clone = Vector.prototype.clone = function () {
 		return new Vector(this.x, this.y);
 	};
@@ -79,8 +79,8 @@
 	// Change this vector to be perpendicular to what it was before. (Effectively
 	// roatates it 90 degrees in a clockwise direction)
 	/**
-     * @return {Vector} This for chaining.
-     */
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.perp = Vector.prototype.perp = function () {
 		var x = this.x;
 		this.x = this.y;
@@ -90,9 +90,9 @@
 
 	// Rotate this vector (counter-clockwise) by the specified angle (in radians).
 	/**
-     * @param {number} angle The angle to rotate (in radians)
-     * @return {Vector} This for chaining.
-     */
+	 * @param {number} angle The angle to rotate (in radians)
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.rotate = Vector.prototype.rotate = function (angle) {
 		var x = this.x;
 		var y = this.y;
@@ -103,8 +103,8 @@
 
 	// Reverse this vector.
 	/**
-     * @return {Vector} This for chaining.
-     */
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.reverse = Vector.prototype.reverse = function () {
 		this.x = -this.x;
 		this.y = -this.y;
@@ -113,8 +113,8 @@
 
 	// Normalize this vector.  (make it have length of `1`)
 	/**
-     * @return {Vector} This for chaining.
-     */
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.normalize = Vector.prototype.normalize = function () {
 		var d = this.len();
 		if (d > 0) {
@@ -126,9 +126,9 @@
 
 	// Add another vector to this one.
 	/**
-     * @param {Vector} other The other Vector.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {Vector} other The other Vector.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.add = Vector.prototype.add = function (other) {
 		this.x += other.x;
 		this.y += other.y;
@@ -137,9 +137,9 @@
 
 	// Subtract another vector from this one.
 	/**
-     * @param {Vector} other The other Vector.
-     * @return {Vector} This for chaiing.
-     */
+	 * @param {Vector} other The other Vector.
+	 * @return {Vector} This for chaiing.
+	 */
 	Vector.prototype.sub = Vector.prototype.sub = function (other) {
 		this.x -= other.x;
 		this.y -= other.y;
@@ -149,11 +149,11 @@
 	// Scale this vector. An independent scaling factor can be provided
 	// for each axis, or a single scaling factor that will scale both `x` and `y`.
 	/**
-     * @param {number} x The scaling factor in the x direction.
-     * @param {?number=} y The scaling factor in the y direction.  If this
-     *   is not specified, the x scaling factor will be used.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {number} x The scaling factor in the x direction.
+	 * @param {?number=} y The scaling factor in the y direction.  If this
+	 *   is not specified, the x scaling factor will be used.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.scale = Vector.prototype.scale = function (x, y) {
 		this.x *= x;
 		this.y *= typeof y != 'undefined' ? y : x;
@@ -162,9 +162,9 @@
 
 	// Project this vector on to another vector.
 	/**
-     * @param {Vector} other The vector to project onto.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {Vector} other The vector to project onto.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.project = Vector.prototype.project = function (other) {
 		var amt = this.dot(other) / other.len2();
 		this.x = amt * other.x;
@@ -175,9 +175,9 @@
 	// Project this vector onto a vector of unit length. This is slightly more efficient
 	// than `project` when dealing with unit vectors.
 	/**
-     * @param {Vector} other The unit vector to project onto.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {Vector} other The unit vector to project onto.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.projectN = Vector.prototype.projectN = function (other) {
 		var amt = this.dot(other);
 		this.x = amt * other.x;
@@ -187,9 +187,9 @@
 
 	// Reflect this vector on an arbitrary axis.
 	/**
-     * @param {Vector} axis The vector representing the axis.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {Vector} axis The vector representing the axis.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.reflect = Vector.prototype.reflect = function (axis) {
 		var x = this.x;
 		var y = this.y;
@@ -202,9 +202,9 @@
 	// Reflect this vector on an arbitrary axis (represented by a unit vector). This is
 	// slightly more efficient than `reflect` when dealing with an axis that is a unit vector.
 	/**
-     * @param {Vector} axis The unit vector representing the axis.
-     * @return {Vector} This for chaining.
-     */
+	 * @param {Vector} axis The unit vector representing the axis.
+	 * @return {Vector} This for chaining.
+	 */
 	Vector.prototype.reflectN = Vector.prototype.reflectN = function (axis) {
 		var x = this.x;
 		var y = this.y;
@@ -216,25 +216,25 @@
 
 	// Get the dot product of this vector and another.
 	/**
-     * @param {Vector}  other The vector to dot this one against.
-     * @return {number} The dot product.
-     */
+	 * @param {Vector}  other The vector to dot this one against.
+	 * @return {number} The dot product.
+	 */
 	Vector.prototype.dot = Vector.prototype.dot = function (other) {
 		return this.x * other.x + this.y * other.y;
 	};
 
 	// Get the squared length of this vector.
 	/**
-     * @return {number} The length^2 of this vector.
-     */
+	 * @return {number} The length^2 of this vector.
+	 */
 	Vector.prototype.len2 = Vector.prototype.len2 = function () {
 		return this.dot(this);
 	};
 
 	// Get the length of this vector.
 	/**
-     * @return {number} The length of this vector.
-     */
+	 * @return {number} The length of this vector.
+	 */
 	Vector.prototype.len = Vector.prototype.len = function () {
 		return Math.sqrt(this.len2());
 	};
@@ -247,11 +247,11 @@
 	// is given, the circle will be at `(0,0)`. If no radius is provided, the circle will
 	// have a radius of `0`.
 	/**
-     * @param {Vector=} pos A vector representing the position of the center of the circle
-     * @param {?number=} r The radius of the circle
-     * @constructor
-     */
-	function Circle (pos, r) {
+	 * @param {Vector=} pos A vector representing the position of the center of the circle
+	 * @param {?number=} r The radius of the circle
+	 * @constructor
+	 */
+	function Circle(pos, r) {
 		this.pos = pos || new Vector();
 		this.r = r || 0;
 		this.offset = new Vector();
@@ -262,8 +262,8 @@
 	//
 	// Note: Returns a _new_ `Polygon` each time you call this.
 	/**
-     * @return {Polygon} The AABB
-     */
+	 * @return {Polygon} The AABB
+	 */
 	Circle.prototype.getAABB = Circle.prototype.getAABB = function () {
 		var r = this.r;
 		var corner = this.pos.clone().add(this.offset).sub(new Vector(r, r));
@@ -272,9 +272,9 @@
 
 	// Set the current offset to apply to the radius.
 	/**
-     * @param {Vector} offset The new offset vector.
-     * @return {Circle} This for chaining.
-     */
+	 * @param {Vector} offset The new offset vector.
+	 * @return {Circle} This for chaining.
+	 */
 	Circle.prototype.setOffset = Circle.prototype.setOffset = function (offset) {
 		this.offset = offset;
 		return this;
@@ -293,13 +293,13 @@
 	// by vectors relative to the position vector). If no position is passed in, the position
 	// of the polygon will be `(0,0)`.
 	/**
-     * @param {Vector=} pos A vector representing the origin of the polygon. (all other
-     *   points are relative to this one)
-     * @param {Array<Vector>=} points An array of vectors representing the points in the polygon,
-     *   in counter-clockwise order.
-     * @constructor
-     */
-	function Polygon (pos, points) {
+	 * @param {Vector=} pos A vector representing the origin of the polygon. (all other
+	 *   points are relative to this one)
+	 * @param {Array<Vector>=} points An array of vectors representing the points in the polygon,
+	 *   in counter-clockwise order.
+	 * @constructor
+	 */
+	function Polygon(pos, points) {
 		this.pos = pos || new Vector();
 		this.angle = 0;
 		this.offset = new Vector();
@@ -314,18 +314,18 @@
 	// it will _appear_ visually that the points are being specified clockwise. This is just
 	// because of the inversion of the Y-axis when being displayed.
 	/**
-     * @param {Array<Vector>=} points An array of vectors representing the points in the polygon,
-     *   in counter-clockwise order.
-     * @return {Polygon} This for chaining.
-     */
+	 * @param {Array<Vector>=} points An array of vectors representing the points in the polygon,
+	 *   in counter-clockwise order.
+	 * @return {Polygon} This for chaining.
+	 */
 	Polygon.prototype.setPoints = Polygon.prototype.setPoints = function (points) {
 		// Only re-allocate if this is a new polygon or the number of points has changed.
 		var lengthChanged = !this.points || this.points.length !== points.length;
 		if (lengthChanged) {
 			var i;
-			var calcPoints = this.calcPoints = [];
-			var edges = this.edges = [];
-			var normals = this.normals = [];
+			var calcPoints = (this.calcPoints = []);
+			var edges = (this.edges = []);
+			var normals = (this.normals = []);
 			// Allocate the vector arrays for the calculated properties
 			for (i = 0; i < points.length; i++) {
 				// Remove consecutive duplicate points
@@ -348,9 +348,9 @@
 
 	// Set the current rotation angle of the polygon.
 	/**
-     * @param {number} angle The current rotation angle (in radians).
-     * @return {Polygon} This for chaining.
-     */
+	 * @param {number} angle The current rotation angle (in radians).
+	 * @return {Polygon} This for chaining.
+	 */
 	Polygon.prototype.setAngle = Polygon.prototype.setAngle = function (angle) {
 		this.angle = angle;
 		this._recalc();
@@ -359,9 +359,9 @@
 
 	// Set the current offset to apply to the `points` before applying the `angle` rotation.
 	/**
-     * @param {Vector} offset The new offset vector.
-     * @return {Polygon} This for chaining.
-     */
+	 * @param {Vector} offset The new offset vector.
+	 * @return {Polygon} This for chaining.
+	 */
 	Polygon.prototype.setOffset = Polygon.prototype.setOffset = function (offset) {
 		this.offset = offset;
 		this._recalc();
@@ -372,9 +372,9 @@
 	//
 	// Note: This changes the **original** points (so any `angle` will be applied on top of this rotation).
 	/**
-     * @param {number} angle The angle to rotate (in radians)
-     * @return {Polygon} This for chaining.
-     */
+	 * @param {number} angle The angle to rotate (in radians)
+	 * @return {Polygon} This for chaining.
+	 */
 	Polygon.prototype.rotate = Polygon.prototype.rotate = function (angle) {
 		var points = this.points;
 		var len = points.length;
@@ -393,10 +393,10 @@
 	//
 	// Note: This changes the **original** points (so any `offset` will be applied on top of this translation)
 	/**
-     * @param {number} x The horizontal amount to translate.
-     * @param {number} y The vertical amount to translate.
-     * @return {Polygon} This for chaining.
-     */
+	 * @param {number} x The horizontal amount to translate.
+	 * @param {number} y The vertical amount to translate.
+	 * @return {Polygon} This for chaining.
+	 */
 	Polygon.prototype.translate = Polygon.prototype.translate = function (x, y) {
 		var points = this.points;
 		var len = points.length;
@@ -411,8 +411,8 @@
 	// Computes the calculated collision polygon. Applies the `angle` and `offset` to the original points then recalculates the
 	// edges and normals of the collision polygon.
 	/**
-     * @return {Polygon} This for chaining.
-     */
+	 * @return {Polygon} This for chaining.
+	 */
 	Polygon.prototype._recalc = function () {
 		// Calculated points - this is what is used for underlying collisions and takes into account
 		// the angle/offset set on the polygon.
@@ -454,8 +454,8 @@
 	//
 	// Note: Returns a _new_ `Polygon` each time you call this.
 	/**
-     * @return {Polygon} The AABB
-     */
+	 * @return {Polygon} The AABB
+	 */
 	Polygon.prototype.getAABB = Polygon.prototype.getAABB = function () {
 		var points = this.calcPoints;
 		var len = points.length;
@@ -486,8 +486,8 @@
 	//
 	// Note: Returns a _new_ `Vector` each time you call this.
 	/**
-     * @return {Vector} A Vector that contains the coordinates of the Centroid.
-     */
+	 * @return {Vector} A Vector that contains the coordinates of the Centroid.
+	 */
 	Polygon.prototype.getCentroid = Polygon.prototype.getCentroid = function () {
 		var points = this.calcPoints;
 		var len = points.length;
@@ -516,12 +516,12 @@
 	// is given, the position will be `(0,0)`. If no width or height are given, they will
 	// be set to `0`.
 	/**
-     * @param {Vector=} pos A vector representing the bottom-left of the box (i.e. the smallest x and smallest y value).
-     * @param {?number=} w The width of the box.
-     * @param {?number=} h The height of the box.
-     * @constructor
-     */
-	function Box (pos, w, h) {
+	 * @param {Vector=} pos A vector representing the bottom-left of the box (i.e. the smallest x and smallest y value).
+	 * @param {?number=} w The width of the box.
+	 * @param {?number=} h The height of the box.
+	 * @constructor
+	 */
+	function Box(pos, w, h) {
 		this.pos = pos || new Vector();
 		this.w = w || 0;
 		this.h = h || 0;
@@ -530,16 +530,13 @@
 
 	// Returns a polygon whose edges are the same as this box.
 	/**
-     * @return {Polygon} A new Polygon that represents this box.
-     */
+	 * @return {Polygon} A new Polygon that represents this box.
+	 */
 	Box.prototype.toPolygon = Box.prototype.toPolygon = function () {
 		var pos = this.pos;
 		var w = this.w;
 		var h = this.h;
-		return new Polygon(new Vector(pos.x, pos.y), [
-			new Vector(), new Vector(w, 0),
-			new Vector(w, h), new Vector(0, h)
-		]);
+		return new Polygon(new Vector(pos.x, pos.y), [new Vector(), new Vector(w, 0), new Vector(w, h), new Vector(0, h)]);
 	};
 
 	// ## Response
@@ -551,9 +548,9 @@
 	//    of the overlap)
 	//  - Whether the first object is entirely inside the second, and vice versa.
 	/**
-     * @constructor
-     */
-	function Response () {
+	 * @constructor
+	 */
+	function Response() {
 		this.a = null;
 		this.b = null;
 		this.overlapN = new Vector();
@@ -566,8 +563,8 @@
 	// you are going to reuse a single Response object for multiple intersection tests (recommented
 	// as it will avoid allcating extra memory)
 	/**
-     * @return {Response} This for chaining
-     */
+	 * @return {Response} This for chaining
+	 */
 	Response.prototype.clear = Response.prototype.clear = function () {
 		this.aInB = true;
 		this.bInA = true;
@@ -580,29 +577,33 @@
 	// A pool of `Vector` objects that are used in calculations to avoid
 	// allocating memory.
 	/**
-     * @type {Array<Vector>}
-     */
+	 * @type {Array<Vector>}
+	 */
 	var T_VECTORS = [];
-	for (var i = 0; i < 10; i++) { T_VECTORS.push(new Vector()); }
+	for (var i = 0; i < 10; i++) {
+		T_VECTORS.push(new Vector());
+	}
 
 	// A pool of arrays of numbers used in calculations to avoid allocating
 	// memory.
 	/**
-     * @type {Array<Array<number>>}
-     */
+	 * @type {Array<Array<number>>}
+	 */
 	var T_ARRAYS = [];
-	for (var i = 0; i < 5; i++) { T_ARRAYS.push([]); }
+	for (var i = 0; i < 5; i++) {
+		T_ARRAYS.push([]);
+	}
 
 	// Temporary response used for polygon hit detection.
 	/**
-     * @type {Response}
-     */
+	 * @type {Response}
+	 */
 	var T_RESPONSE = new Response();
 
 	// Tiny "point" polygon used for polygon hit detection.
 	/**
-     * @type {Polygon}
-     */
+	 * @type {Polygon}
+	 */
 	var TEST_POINT = new Box(new Vector(), 0.000001, 0.000001).toPolygon();
 
 	// ## Helper Functions
@@ -611,41 +612,46 @@
 	// resulting in a one dimensional range of the minimum and
 	// maximum value on that axis.
 	/**
-     * @param {Array<Vector>} points The points to flatten.
-     * @param {Vector} normal The unit vector axis to flatten on.
-     * @param {Array<number>} result An array.  After calling this function,
-     *   result[0] will be the minimum value,
-     *   result[1] will be the maximum value.
-     */
-	function flattenPointsOn (points, normal, result) {
+	 * @param {Array<Vector>} points The points to flatten.
+	 * @param {Vector} normal The unit vector axis to flatten on.
+	 * @param {Array<number>} result An array.  After calling this function,
+	 *   result[0] will be the minimum value,
+	 *   result[1] will be the maximum value.
+	 */
+	function flattenPointsOn(points, normal, result) {
 		var min = Number.MAX_VALUE;
 		var max = -Number.MAX_VALUE;
 		var len = points.length;
 		for (var i = 0; i < len; i++) {
 			// The magnitude of the projection of the point onto the normal
 			var dot = points[i].dot(normal);
-			if (dot < min) { min = dot; }
-			if (dot > max) { max = dot; }
+			if (dot < min) {
+				min = dot;
+			}
+			if (dot > max) {
+				max = dot;
+			}
 		}
-		result[0] = min; result[1] = max;
+		result[0] = min;
+		result[1] = max;
 	}
 
 	// Check whether two convex polygons are separated by the specified
 	// axis (must be a unit vector).
 	/**
-     * @param {Vector} aPos The position of the first polygon.
-     * @param {Vector} bPos The position of the second polygon.
-     * @param {Array<Vector>} aPoints The points in the first polygon.
-     * @param {Array<Vector>} bPoints The points in the second polygon.
-     * @param {Vector} axis The axis (unit sized) to test against.  The points of both polygons
-     *   will be projected onto this axis.
-     * @param {Response=} response A Response object (optional) which will be populated
-     *   if the axis is not a separating axis.
-     * @return {boolean} true if it is a separating axis, false otherwise.  If false,
-     *   and a response is passed in, information about how much overlap and
-     *   the direction of the overlap will be populated.
-     */
-	function isSeparatingAxis (aPos, bPos, aPoints, bPoints, axis, response) {
+	 * @param {Vector} aPos The position of the first polygon.
+	 * @param {Vector} bPos The position of the second polygon.
+	 * @param {Array<Vector>} aPoints The points in the first polygon.
+	 * @param {Array<Vector>} bPoints The points in the second polygon.
+	 * @param {Vector} axis The axis (unit sized) to test against.  The points of both polygons
+	 *   will be projected onto this axis.
+	 * @param {Response=} response A Response object (optional) which will be populated
+	 *   if the axis is not a separating axis.
+	 * @return {boolean} true if it is a separating axis, false otherwise.  If false,
+	 *   and a response is passed in, information about how much overlap and
+	 *   the direction of the overlap will be populated.
+	 */
+	function isSeparatingAxis(aPos, bPos, aPoints, bPoints, axis, response) {
 		var rangeA = T_ARRAYS.pop();
 		var rangeB = T_ARRAYS.pop();
 		// The magnitude of the offset between the two polygons
@@ -718,47 +724,53 @@
 	//     (-1)  [S]--------------[E]  (1)
 	//            |       (0)      |
 	/**
-     * @param {Vector} line The line segment.
-     * @param {Vector} point The point.
-     * @return  {number} LEFT_VORONOI_REGION (-1) if it is the left region,
-     *          MIDDLE_VORONOI_REGION (0) if it is the middle region,
-     *          RIGHT_VORONOI_REGION (1) if it is the right region.
-     */
-	function voronoiRegion (line, point) {
+	 * @param {Vector} line The line segment.
+	 * @param {Vector} point The point.
+	 * @return  {number} LEFT_VORONOI_REGION (-1) if it is the left region,
+	 *          MIDDLE_VORONOI_REGION (0) if it is the middle region,
+	 *          RIGHT_VORONOI_REGION (1) if it is the right region.
+	 */
+	function voronoiRegion(line, point) {
 		var len2 = line.len2();
 		var dp = point.dot(line);
 		// If the point is beyond the start of the line, it is in the
 		// left voronoi region.
-		if (dp < 0) { return LEFT_VORONOI_REGION; }
+		if (dp < 0) {
+			return LEFT_VORONOI_REGION;
+		}
 		// If the point is beyond the end of the line, it is in the
 		// right voronoi region.
-		else if (dp > len2) { return RIGHT_VORONOI_REGION; }
+		else if (dp > len2) {
+			return RIGHT_VORONOI_REGION;
+		}
 		// Otherwise, it's in the middle one.
-		else { return MIDDLE_VORONOI_REGION; }
+		else {
+			return MIDDLE_VORONOI_REGION;
+		}
 	}
 	// Constants for Voronoi regions
 	/**
-     * @const
-     */
+	 * @const
+	 */
 	var LEFT_VORONOI_REGION = -1;
 	/**
-     * @const
-     */
+	 * @const
+	 */
 	var MIDDLE_VORONOI_REGION = 0;
 	/**
-     * @const
-     */
+	 * @const
+	 */
 	var RIGHT_VORONOI_REGION = 1;
 
 	// ## Collision Tests
 
 	// Check if a point is inside a circle.
 	/**
-     * @param {Vector} p The point to test.
-     * @param {Circle} c The circle to test.
-     * @return {boolean} true if the point is inside the circle, false if it is not.
-     */
-	function pointInCircle (p, c) {
+	 * @param {Vector} p The point to test.
+	 * @param {Circle} c The circle to test.
+	 * @return {boolean} true if the point is inside the circle, false if it is not.
+	 */
+	function pointInCircle(p, c) {
 		var differenceV = T_VECTORS.pop().copy(p).sub(c.pos).sub(c.offset);
 		var radiusSq = c.r * c.r;
 		var distanceSq = differenceV.len2();
@@ -770,11 +782,11 @@
 
 	// Check if a point is inside a convex polygon.
 	/**
-     * @param {Vector} p The point to test.
-     * @param {Polygon} poly The polygon to test.
-     * @return {boolean} true if the point is inside the polygon, false if it is not.
-     */
-	function pointInPolygon (p, poly) {
+	 * @param {Vector} p The point to test.
+	 * @param {Polygon} poly The polygon to test.
+	 * @return {boolean} true if the point is inside the polygon, false if it is not.
+	 */
+	function pointInPolygon(p, poly) {
 		TEST_POINT.pos.copy(p);
 		T_RESPONSE.clear();
 		var result = testPolygonPolygon(TEST_POINT, poly, T_RESPONSE);
@@ -787,13 +799,13 @@
 
 	// Check if two circles collide.
 	/**
-     * @param {Circle} a The first circle.
-     * @param {Circle} b The second circle.
-     * @param {Response=} response Response object (optional) that will be populated if
-     *   the circles intersect.
-     * @return {boolean} true if the circles intersect, false if they don't.
-     */
-	function testCircleCircle (a, b, response) {
+	 * @param {Circle} a The first circle.
+	 * @param {Circle} b The second circle.
+	 * @param {Response=} response Response object (optional) that will be populated if
+	 *   the circles intersect.
+	 * @return {boolean} true if the circles intersect, false if they don't.
+	 */
+	function testCircleCircle(a, b, response) {
 		// Check if the distance between the centers of the two
 		// circles is greater than their combined radius.
 		var differenceV = T_VECTORS.pop().copy(b.pos).add(b.offset).sub(a.pos).sub(a.offset);
@@ -823,13 +835,13 @@
 
 	// Check if a polygon and a circle collide.
 	/**
-     * @param {Polygon} polygon The polygon.
-     * @param {Circle} circle The circle.
-     * @param {Response=} response Response object (optional) that will be populated if
-     *   they interset.
-     * @return {boolean} true if they intersect, false if they don't.
-     */
-	function testPolygonCircle (polygon, circle, response) {
+	 * @param {Polygon} polygon The polygon.
+	 * @param {Circle} circle The circle.
+	 * @param {Response=} response Response object (optional) that will be populated if
+	 *   they interset.
+	 * @return {boolean} true if they intersect, false if they don't.
+	 */
+	function testPolygonCircle(polygon, circle, response) {
 		// Get the position of the circle relative to the polygon.
 		var circlePos = T_VECTORS.pop().copy(circle.pos).add(circle.offset).sub(polygon.pos);
 		var radius = circle.r;
@@ -962,13 +974,13 @@
 	// **NOTE:** This is slightly less efficient than polygonCircle as it just
 	// runs polygonCircle and reverses everything at the end.
 	/**
-     * @param {Circle} circle The circle.
-     * @param {Polygon} polygon The polygon.
-     * @param {Response=} response Response object (optional) that will be populated if
-     *   they interset.
-     * @return {boolean} true if they intersect, false if they don't.
-     */
-	function testCirclePolygon (circle, polygon, response) {
+	 * @param {Circle} circle The circle.
+	 * @param {Polygon} polygon The polygon.
+	 * @param {Response=} response Response object (optional) that will be populated if
+	 *   they interset.
+	 * @return {boolean} true if they intersect, false if they don't.
+	 */
+	function testCirclePolygon(circle, polygon, response) {
 		// Test the polygon against the circle.
 
 		var result = testPolygonCircle(polygon, circle, response);
@@ -989,13 +1001,13 @@
 
 	// Checks whether polygons collide.
 	/**
-     * @param {Polygon} a The first polygon.
-     * @param {Polygon} b The second polygon.
-     * @param {Response=} response Response object (optional) that will be populated if
-     *   they interset.
-     * @return {boolean} true if they intersect, false if they don't.
-     */
-	function testPolygonPolygon (a, b, response) {
+	 * @param {Polygon} a The first polygon.
+	 * @param {Polygon} b The second polygon.
+	 * @param {Response=} response Response object (optional) that will be populated if
+	 *   they interset.
+	 * @return {boolean} true if they intersect, false if they don't.
+	 */
+	function testPolygonPolygon(a, b, response) {
 		var aPoints = a.calcPoints;
 		var aLen = aPoints.length;
 		var bPoints = b.calcPoints;
@@ -1025,4 +1037,4 @@
 	SAT.testPolygonPolygon = testPolygonPolygon;
 
 	return SAT;
-}));
+});

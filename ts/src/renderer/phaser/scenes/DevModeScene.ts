@@ -1,5 +1,4 @@
 class DevModeScene extends PhaserScene {
-
 	rexUI: any;
 	gameScene: any;
 
@@ -43,7 +42,8 @@ class DevModeScene extends PhaserScene {
 			let trackingDelay = taro?.game?.data?.settings?.camera?.trackingDelay || 3;
 			trackingDelay = trackingDelay / 60;
 			const camera = this.gameScene.cameras.main;
-			if (this.gameScene.cameraTarget) camera.startFollow(this.gameScene.cameraTarget, false, trackingDelay, trackingDelay);
+			if (this.gameScene.cameraTarget)
+				camera.startFollow(this.gameScene.cameraTarget, false, trackingDelay, trackingDelay);
 			if (this.gameScene.useBounds) camera.useBounds = true;
 		});
 
@@ -55,19 +55,15 @@ class DevModeScene extends PhaserScene {
 			this.leaveMapTab();
 		});
 
-		taro.client.on('enterEntitiesTab', () => {
+		taro.client.on('enterEntitiesTab', () => {});
 
-		});
-
-		taro.client.on('leaveEntitiesTab', () => {
-
-		});
+		taro.client.on('leaveEntitiesTab', () => {});
 
 		taro.client.on('editTile', (data: TileData<MapEditToolEnum>) => {
 			this.tileEditor.edit(data);
 		});
 
-		taro.client.on('changeLayerOpacity', (data: { layer: number, opacity: number }) => {
+		taro.client.on('changeLayerOpacity', (data: { layer: number; opacity: number }) => {
 			this.tileEditor.changeLayerOpacity(data.layer, data.opacity);
 		});
 
@@ -106,9 +102,9 @@ class DevModeScene extends PhaserScene {
 					playerId: playerId,
 					position: {
 						x: worldPoint.x,
-						y: worldPoint.y
+						y: worldPoint.y,
 					},
-					angle: draggedEntity.angle
+					angle: draggedEntity.angle,
 				};
 				taro.developerMode.editEntity(data, playerId);
 				taro.unitBeingDragged = null;
@@ -138,15 +134,27 @@ class DevModeScene extends PhaserScene {
 		this.load.image('entity', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1686840222943_cube.png'));
 		this.load.image('region', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1666882309997_region.png'));
 		this.load.image('stamp', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1666724706664_stamp.png'));
-		this.load.image('eraser', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1666276083246_erasergap.png'));
+		this.load.image(
+			'eraser',
+			this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1666276083246_erasergap.png')
+		);
 		this.load.image('eyeopen', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1669820752914_eyeopen.png'));
-		this.load.image('eyeclosed', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1669821066279_eyeclosed.png'));
+		this.load.image(
+			'eyeclosed',
+			this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1669821066279_eyeclosed.png')
+		);
 		this.load.image('fill', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1675428550006_fill_(1).png'));
-		this.load.image('clear', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1681917489086_layerClear.png'));
+		this.load.image(
+			'clear',
+			this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1681917489086_layerClear.png')
+		);
 		this.load.image('save', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1681916834218_saveIcon.png'));
 		this.load.image('redo', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1686899810953_redo.png'));
 		this.load.image('undo', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1686899853748_undo.png'));
-		this.load.image('settings', this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1707131801364_download.png'));
+		this.load.image(
+			'settings',
+			this.patchAssetUrl('https://cache.modd.io/asset/spriteImage/1707131801364_download.png')
+		);
 
 		this.load.scenePlugin(
 			'rexuiplugin',
@@ -159,14 +167,17 @@ class DevModeScene extends PhaserScene {
 
 	create(): void {
 		const data = taro.game.data;
-		const map = this.tilemap = this.make.tilemap({ key: 'map' });
+		const map = (this.tilemap = this.make.tilemap({ key: 'map' }));
 
 		data.map.tilesets.forEach((tileset) => {
 			const key = `tiles/${tileset.name}`;
 			const extrudedKey = `extruded-${key}`;
 			if (this.textures.exists(extrudedKey)) {
-				this.tileset = map.addTilesetImage(tileset.name, extrudedKey,
-					tileset.tilewidth, tileset.tileheight,
+				this.tileset = map.addTilesetImage(
+					tileset.name,
+					extrudedKey,
+					tileset.tilewidth,
+					tileset.tileheight,
 					(tileset.margin || 0) + 2,
 					(tileset.spacing || 0) + 4
 				);
@@ -193,10 +204,10 @@ class DevModeScene extends PhaserScene {
 		}
 
 		this.devModeTools.enterMapTab();
-		this.gameScene.renderedEntities.forEach(element => {
+		this.gameScene.renderedEntities.forEach((element) => {
 			element.setVisible(false);
 		});
-		this.gameScene.particles.forEach(particle => {
+		this.gameScene.particles.forEach((particle) => {
 			particle.setVisible(false);
 		});
 
@@ -234,20 +245,28 @@ class DevModeScene extends PhaserScene {
 			image.setVisible(false);
 		});
 
-		this.gameScene.renderedEntities.forEach(element => {
+		this.gameScene.renderedEntities.forEach((element) => {
 			element.setVisible(true);
 		});
-		this.gameScene.particles.forEach(particle => {
+		this.gameScene.particles.forEach((particle) => {
 			particle.setVisible(true);
 		});
-
 	}
 
 	createEntityImage(action: ActionData): void {
-		if (!action.disabled && action.position?.function === 'xyCoordinate'
-			&& !isNaN(action.position?.x) && !isNaN(action.position?.y)) {
-			if (action.type === 'createEntityForPlayerAtPositionWithDimensions' || action.type === 'createEntityAtPositionWithDimensions'
-				&& !isNaN(action.width) && !isNaN(action.height) && !isNaN(action.angle)) {
+		if (
+			!action.disabled &&
+			action.position?.function === 'xyCoordinate' &&
+			!isNaN(action.position?.x) &&
+			!isNaN(action.position?.y)
+		) {
+			if (
+				action.type === 'createEntityForPlayerAtPositionWithDimensions' ||
+				(action.type === 'createEntityAtPositionWithDimensions' &&
+					!isNaN(action.width) &&
+					!isNaN(action.height) &&
+					!isNaN(action.angle))
+			) {
 				if (action.actionId) new EntityImage(this.gameScene, this.devModeTools, this.entityImages, action);
 				else {
 					this.showRepublishWarning = true;
@@ -257,20 +276,24 @@ class DevModeScene extends PhaserScene {
 				else {
 					this.showRepublishWarning = true;
 				}
-			} else if (action.type === 'createUnitForPlayerAtPosition'
-				&& !isNaN(action.angle) && !isNaN(action.width) && !isNaN(action.height)) {
+			} else if (
+				action.type === 'createUnitForPlayerAtPosition' &&
+				!isNaN(action.angle) &&
+				!isNaN(action.width) &&
+				!isNaN(action.height)
+			) {
 				if (action.actionId) new EntityImage(this.gameScene, this.devModeTools, this.entityImages, action, 'unit');
 				else {
 					this.showRepublishWarning = true;
 				}
-			}
-			else if (action.type === 'spawnItem' || action.type === 'createItemWithMaxQuantityAtPosition') {
+			} else if (action.type === 'spawnItem' || action.type === 'createItemWithMaxQuantityAtPosition') {
 				if (action.actionId) new EntityImage(this.gameScene, this.devModeTools, this.entityImages, action, 'item');
 				else {
 					this.showRepublishWarning = true;
 				}
 			} else if (action.type === 'createProjectileAtPosition' && !isNaN(action.angle)) {
-				if (action.actionId) new EntityImage(this.gameScene, this.devModeTools, this.entityImages, action, 'projectile');
+				if (action.actionId)
+					new EntityImage(this.gameScene, this.devModeTools, this.entityImages, action, 'projectile');
 				else {
 					this.showRepublishWarning = true;
 				}
@@ -278,19 +301,20 @@ class DevModeScene extends PhaserScene {
 		}
 	}
 
-	static pointerInsideMap(pointerX: number, pointerY: number, map: { width: number, height: number }): boolean {
-		return (0 <= pointerX && pointerX < map.width
-			&& 0 <= pointerY && pointerY < map.height);
+	static pointerInsideMap(pointerX: number, pointerY: number, map: { width: number; height: number }): boolean {
+		return 0 <= pointerX && pointerX < map.width && 0 <= pointerY && pointerY < map.height;
 	}
 
 	pointerInsideWidgets(): boolean {
 		let inside = false;
 
 		this.gameEditorWidgets.forEach((widget: DOMRect) => {
-			if (this.input.activePointer.x >= widget.left
-				&& this.input.activePointer.x <= widget.right
-				&& this.input.activePointer.y >= widget.top
-				&& this.input.activePointer.y <= widget.bottom) {
+			if (
+				this.input.activePointer.x >= widget.left &&
+				this.input.activePointer.x <= widget.right &&
+				this.input.activePointer.y >= widget.top &&
+				this.input.activePointer.y <= widget.bottom
+			) {
 				inside = true;
 				return;
 			}
@@ -300,10 +324,12 @@ class DevModeScene extends PhaserScene {
 	}
 
 	pointerInsidePalette(): boolean {
-		return (this.input.activePointer.x > this.tilePalette.scrollBarContainer.x
-			&& this.input.activePointer.x < this.tilePalette.scrollBarContainer.x + this.tilePalette.scrollBarContainer.width
-			&& this.input.activePointer.y > this.tilePalette.scrollBarContainer.y - 30
-			&& this.input.activePointer.y < this.tilePalette.scrollBarContainer.y + this.tilePalette.scrollBarContainer.height);
+		return (
+			this.input.activePointer.x > this.tilePalette.scrollBarContainer.x &&
+			this.input.activePointer.x < this.tilePalette.scrollBarContainer.x + this.tilePalette.scrollBarContainer.width &&
+			this.input.activePointer.y > this.tilePalette.scrollBarContainer.y - 30 &&
+			this.input.activePointer.y < this.tilePalette.scrollBarContainer.y + this.tilePalette.scrollBarContainer.height
+		);
 	}
 
 	update(): void {
@@ -324,7 +350,5 @@ class DevModeScene extends PhaserScene {
 				this.createEntityImage(action);
 			}
 		});
-
 	}
-
 }

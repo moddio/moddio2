@@ -12,7 +12,7 @@ class TileMarker {
 		private map: Phaser.Tilemaps.Tilemap,
 		private palette: boolean,
 		w: number,
-		commandController: CommandController,
+		commandController: CommandController
 	) {
 		this.active = true;
 		this.commandController = commandController;
@@ -29,7 +29,7 @@ class TileMarker {
 		const data = taro.game.data;
 		const tileset = data.map.tilesets[0];
 		const key = `tiles/${tileset.name}`;
-		const extrudedKey = this.extrudedKey = `extruded-${key}`;
+		const extrudedKey = (this.extrudedKey = `extruded-${key}`);
 
 		let width = Constants.TILE_SIZE;
 		let height = Constants.TILE_SIZE;
@@ -57,7 +57,9 @@ class TileMarker {
 
 	changePreview(): void {
 		if (!this.palette) {
-			const { x, y } = this.devModeScene.devModeTools.isForceTo1x1() ? { x: 1, y: 1 } : this.devModeScene.tileEditor.brushArea.size;
+			const { x, y } = this.devModeScene.devModeTools.isForceTo1x1()
+				? { x: 1, y: 1 }
+				: this.devModeScene.tileEditor.brushArea.size;
 			this.graphics.scaleSides(x, y);
 			this.hideImages();
 			const previewTarget = this.devModeScene.tileEditor.selectedTileArea;
@@ -74,7 +76,7 @@ class TileMarker {
 					// apply tint to palette tile
 					const paletteLayer = this.devModeScene.tilePalette.map.layers[0];
 					const row = Math.floor((tile - 1) / paletteLayer.width);
-					const paletteTile = paletteLayer?.data[row]?.[tile - 1 - (row * paletteLayer.width)];
+					const paletteTile = paletteLayer?.data[row]?.[tile - 1 - row * paletteLayer.width];
 					if (paletteTile) paletteTile.tint = 0x87cfff;
 				});
 			});

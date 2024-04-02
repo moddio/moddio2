@@ -26,9 +26,13 @@ window.taroLoader = (function () {
 		ccScript.onload = function () {
 			self.loadCoreConfig();
 		};
-		ccScript.addEventListener('error', function () {
-			throw (`ERROR LOADING ${taroRoot}CoreConfig.js` + ' - does it exist?');
-		}, true);
+		ccScript.addEventListener(
+			'error',
+			function () {
+				throw `ERROR LOADING ${taroRoot}CoreConfig.js` + ' - does it exist?';
+			},
+			true
+		);
 
 		// // Load the physicsConfig.js file into browser memory
 		// pcScript = document.createElement('script');
@@ -45,20 +49,24 @@ window.taroLoader = (function () {
 	TaroLoader.prototype.loadCoreConfig = function () {
 		var self = this;
 
-		if (typeof (taroCoreConfig) !== 'undefined') {
+		if (typeof taroCoreConfig !== 'undefined') {
 			// Load the client config
 			ccScript = document.createElement('script');
 			ccScript.src = `${taroClientRoot}ClientConfig.js`;
 			ccScript.onload = function () {
 				self.loadClientConfig();
 			};
-			ccScript.addEventListener('error', function () {
-				throw ('ERROR LOADING ClientConfig.js - does it exist?');
-			}, true);
+			ccScript.addEventListener(
+				'error',
+				function () {
+					throw 'ERROR LOADING ClientConfig.js - does it exist?';
+				},
+				true
+			);
 
 			document.getElementsByTagName('head')[0].appendChild(ccScript);
 		} else {
-			throw ('ERROR READING taroCoreConfig object - was it specified in CoreConfig.js?');
+			throw 'ERROR READING taroCoreConfig object - was it specified in CoreConfig.js?';
 		}
 	};
 
@@ -123,9 +131,13 @@ window.taroLoader = (function () {
 				self.loadNext();
 			};
 
-			script.addEventListener('error', function () {
-				throw (`ERROR LOADING ${url} - does it exist?`);
-			}, true);
+			script.addEventListener(
+				'error',
+				function () {
+					throw `ERROR LOADING ${url} - does it exist?`;
+				},
+				true
+			);
 
 			document.getElementsByTagName('head')[0].appendChild(script);
 		} else {
@@ -136,4 +148,4 @@ window.taroLoader = (function () {
 	};
 
 	return new TaroLoader();
-}());
+})();

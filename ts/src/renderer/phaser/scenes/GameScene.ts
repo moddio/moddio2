@@ -1,11 +1,10 @@
 class GameScene extends PhaserScene {
-
 	private zoomSize: number;
 	heightRenderer: HeightRenderComponent;
 
 	entityLayers: Phaser.GameObjects.Layer[] = [];
 	renderedEntities: TGameObject[] = [];
-	particles: Phaser.GameObjects.Particles.ParticleEmitter[] = []
+	particles: PhaserParticle[] = [];
 	unitsList: PhaserUnit[] = [];
 	projectilesList: PhaserProjectile[] = [];
 	itemList: PhaserItem[] = [];
@@ -18,7 +17,7 @@ class GameScene extends PhaserScene {
 	resolutionCoef: number;
 	trackingDelay: number;
 	useBounds: boolean;
-	cameraDeadzone: { width: number; height: number; };
+	cameraDeadzone: { width: number; height: number };
 	visibility: VisibilityMask;
 
 	constructor() {
@@ -26,7 +25,6 @@ class GameScene extends PhaserScene {
 	}
 
 	init(): void {
-
 		if (taro.isMobile) {
 			this.scene.launch('MobileControls');
 		}
@@ -41,7 +39,13 @@ class GameScene extends PhaserScene {
 		// set camera bounds
 		if (this.useBounds) {
 			if (taro.game.data.defaultData.dontResize) {
-				camera.setBounds(0, 0, taro.game.data.map.width * taro.game.data.map.tilewidth, taro.game.data.map.height * taro.game.data.map.tileheight, true);
+				camera.setBounds(
+					0,
+					0,
+					taro.game.data.map.width * taro.game.data.map.tilewidth,
+					taro.game.data.map.height * taro.game.data.map.tileheight,
+					true
+				);
 			} else {
 				camera.setBounds(0, 0, taro.game.data.map.width * 64, taro.game.data.map.height * 64, true);
 			}
@@ -84,12 +88,7 @@ class GameScene extends PhaserScene {
 			this.setZoomSize(height);
 			const ratio = this.calculateZoom();
 
-			camera.zoomTo(
-				ratio,
-				1000,
-				Phaser.Math.Easing.Quadratic.Out,
-				true
-			);
+			camera.zoomTo(ratio, 1000, Phaser.Math.Easing.Quadratic.Out, true);
 
 			taro.client.emit('scale', { ratio: ratio * this.resolutionCoef });
 		});
@@ -126,18 +125,27 @@ class GameScene extends PhaserScene {
 			new PhaserRay(this, data.start, data.end, data.config);
 		});
 
-
 		taro.client.on('create-particle', (particle: Particle) => {
 			this.particles.push(new PhaserParticle(this, particle));
 		});
 
+		taro.client.on('start-particle', ({ particleTypeId, entityId }) => {
+			const emitter = this.particles.find(({ particleId, target }) => {
+				return particleId === particleTypeId && target === entityId;
+			});
 
-		taro.client.on('floating-text', (data: {
-			text: string,
-			x: number,
-			y: number,
-			color: string
-		}) => {
+			emitter.start();
+		});
+
+		taro.client.on('stop-particle', ({ particleTypeId, entityId }) => {
+			const emitter = this.particles.find(({ particleId, target }) => {
+				return particleId === particleTypeId && target === entityId;
+			});
+
+			emitter.stop();
+		});
+
+		taro.client.on('floating-text', (data: { text: string; x: number; y: number; color: string }) => {
 			new PhaserFloatingText(this, data);
 		});
 
@@ -164,10 +172,7 @@ class GameScene extends PhaserScene {
 		});
 
 		// visibility mask graphics update
-		taro.client.on('update-visibility-mask', (data: {
-			enabled: boolean,
-			range: number,
-		}) => {
+		taro.client.on('update-visibility-mask', (data: { enabled: boolean; range: number }) => {
 			if (!this.visibility && data.enabled) {
 				this.visibility = new VisibilityMask(this);
 				this.visibility.generateFieldOfView(data.range);
@@ -186,7 +191,6 @@ class GameScene extends PhaserScene {
 	}
 
 	preload(): void {
-
 		const data = taro.game.data;
 
 		if (data.texturePack) {
@@ -219,46 +223,54 @@ class GameScene extends PhaserScene {
 			const key = `tiles/${tileset.name}`;
 			this.load.once(`filecomplete-image-${key}`, () => {
 				const texture = this.textures.get(key);
-				const canvas = this.extrude(tileset,
-					texture.getSourceImage() as HTMLImageElement
-				);
+				const canvas = this.extrude(tileset, texture.getSourceImage() as HTMLImageElement);
 				if (canvas) {
 					this.textures.remove(texture);
 					this.textures.addCanvas(`extruded-${key}`, canvas);
 				} else {
-
 					if (window.toastErrorMessage) {
-						window.toastErrorMessage(`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
-							'Double check your margin, spacing, tilewidth and tileheight.');
+						window.toastErrorMessage(
+							`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
+								'Double check your margin, spacing, tilewidth and tileheight.'
+						);
 					} else {
 						// WAITING TILL EDITOR IS LOADED
 						setTimeout(() => {
 							if (window.toastErrorMessage) {
-								window.toastErrorMessage(`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
-									'Double check your margin, spacing, tilewidth and tileheight.');
+								window.toastErrorMessage(
+									`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
+										'Double check your margin, spacing, tilewidth and tileheight.'
+								);
 							} else {
 								// IF editor is not loaded, show alert
-								alert(`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
-									'Double check your margin, spacing, tilewidth and tileheight.');
+								alert(
+									`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
+										'Double check your margin, spacing, tilewidth and tileheight.'
+								);
 							}
 						}, 5000);
 					}
 
-
-					console.warn(`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
-						'Double check your margin, spacing, tilewidth and tileheight.');
+					console.warn(
+						`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
+							'Double check your margin, spacing, tilewidth and tileheight.'
+					);
 					this.scene.stop();
 					return;
 				}
 				const extrudedTexture = this.textures.get(`extruded-${key}`);
 				Phaser.Textures.Parsers.SpriteSheet(
 					extrudedTexture,
-					0, 0, 0, extrudedTexture.source[0].width, extrudedTexture.source[0].height,
+					0,
+					0,
+					0,
+					extrudedTexture.source[0].width,
+					extrudedTexture.source[0].height,
 					{
 						frameWidth: tileset.tilewidth,
 						frameHeight: tileset.tileheight,
 						margin: (tileset.margin || 0) + 2,
-						spacing: (tileset.spacing || 0) + 4
+						spacing: (tileset.spacing || 0) + 4,
 					}
 				);
 			});
@@ -267,7 +279,7 @@ class GameScene extends PhaserScene {
 
 		//to be sure every layer of map have correct number of tiles
 		const tilesPerLayer = data.map.height * data.map.width;
-		data.map.layers.forEach(layer => {
+		data.map.layers.forEach((layer) => {
 			if (layer.data) {
 				const length = layer.data.length;
 				layer.width = data.map.width;
@@ -296,10 +308,10 @@ class GameScene extends PhaserScene {
 	}
 
 	loadEntity(key: string, data: EntityData): void {
-
 		const cellSheet = data.cellSheet;
 
-		if (!cellSheet) { // skip if no cell sheet data
+		if (!cellSheet) {
+			// skip if no cell sheet data
 			return;
 		}
 
@@ -310,18 +322,13 @@ class GameScene extends PhaserScene {
 				const texture = this.textures.get(key);
 				const width = texture.source[0].width;
 				const height = texture.source[0].height;
-				Phaser.Textures.Parsers.SpriteSheet(
-					texture,
-					0, 0, 0, width, height,
-					{
-						frameWidth: width / cellSheet.columnCount,
-						frameHeight: height / cellSheet.rowCount,
-					}
-				);
+				Phaser.Textures.Parsers.SpriteSheet(texture, 0, 0, 0, width, height, {
+					frameWidth: width / cellSheet.columnCount,
+					frameHeight: height / cellSheet.rowCount,
+				});
 
 				// add animations
 				for (let animationsKey in data.animations) {
-
 					const animation = data.animations[animationsKey];
 					const frames = animation.frames;
 					const animationFrames: number[] = [];
@@ -342,10 +349,10 @@ class GameScene extends PhaserScene {
 					this.anims.create({
 						key: `${key}/${animationsKey}/${data.id}`,
 						frames: this.anims.generateFrameNumbers(key, {
-							frames: animationFrames
+							frames: animationFrames,
 						}),
 						frameRate: animation.framesPerSecond || 15,
-						repeat: (animation.loopCount - 1) // correction for loop/repeat values
+						repeat: animation.loopCount - 1, // correction for loop/repeat values
 					});
 				}
 			});
@@ -363,7 +370,7 @@ class GameScene extends PhaserScene {
 
 		BitmapFontManager.create(this);
 
-		const map = this.tilemap = this.make.tilemap({ key: 'map' });
+		const map = (this.tilemap = this.make.tilemap({ key: 'map' }));
 
 		const data = taro.game.data;
 		const scaleFactor = taro.scaleMapDetails.scaleFactor;
@@ -372,8 +379,11 @@ class GameScene extends PhaserScene {
 			const key = `tiles/${tileset.name}`;
 			const extrudedKey = `extruded-${key}`;
 			if (this.textures.exists(extrudedKey)) {
-				this.tileset = map.addTilesetImage(tileset.name, extrudedKey,
-					tileset.tilewidth, tileset.tileheight,
+				this.tileset = map.addTilesetImage(
+					tileset.name,
+					extrudedKey,
+					tileset.tilewidth,
+					tileset.tileheight,
 					(tileset.margin || 0) + 2,
 					(tileset.spacing || 0) + 4
 				);
@@ -387,7 +397,6 @@ class GameScene extends PhaserScene {
 		const entityLayers = this.entityLayers;
 		this.tilemapLayers = [];
 		data.map.layers.forEach((layer) => {
-
 			if (layer.type === 'tilelayer' && layer.data) {
 				const tileLayer = map.createLayer(layer.name, map.tilesets, layer.x, layer.y);
 				tileLayer.name = layer.name;
@@ -403,13 +412,13 @@ class GameScene extends PhaserScene {
 
 			entityLayers.push(this.add.layer());
 		});
-		const layerNames = data.map.layers.map(layer => layer.name);
+		const layerNames = data.map.layers.map((layer) => layer.name);
 		map.layers.sort((a, b) => layerNames.indexOf(a.name) - layerNames.indexOf(b.name));
 
 		const camera = this.cameras.main;
 		camera.centerOn(
-			map.width * map.tileWidth / 2 * scaleFactor.x,
-			map.height * map.tileHeight / 2 * scaleFactor.y
+			((map.width * map.tileWidth) / 2) * scaleFactor.x,
+			((map.height * map.tileHeight) / 2) * scaleFactor.y
 		);
 
 		if (data.defaultData.heightBasedZIndex) {
@@ -427,7 +436,7 @@ class GameScene extends PhaserScene {
 			this.filter = Phaser.Textures.FilterMode.LINEAR;
 		}
 		//apply filter to each texture
-		Object.values(this.textures.list).forEach(val => {
+		Object.values(this.textures.list).forEach((val) => {
 			val.setFilter(this.filter);
 		});
 	}
@@ -461,7 +470,6 @@ class GameScene extends PhaserScene {
 	}
 
 	private patchMapData(map: GameComponent['data']['map']): typeof map {
-
 		/**
 		 * map data gets patched in place
 		 * to not make a copy of a huge object
@@ -470,21 +478,15 @@ class GameScene extends PhaserScene {
 		const tilecount = map.tilesets[0].tilecount;
 
 		map.layers.forEach((layer) => {
-
 			if (layer.type !== 'tilelayer') {
 				return;
 			}
 
 			for (let i = 0; i < layer.data.length; i++) {
-
 				const value = layer.data[i];
 
 				if (value > tilecount) {
-
-					console.warn(`map data error: layer[${layer.name
-						}], index[${i
-						}], value[${value
-						}].`);
+					console.warn(`map data error: layer[${layer.name}], index[${i}], value[${value}].`);
 
 					layer.data[i] = 0;
 				}
@@ -500,7 +502,6 @@ class GameScene extends PhaserScene {
 		extrusion = 2,
 		color = '#ffffff00'
 	): HTMLCanvasElement {
-
 		const { tilewidth, tileheight, margin = 0, spacing = 0 } = tileset;
 		const { width, height } = sourceImage;
 
@@ -510,8 +511,8 @@ class GameScene extends PhaserScene {
 		if (!Number.isInteger(cols) || !Number.isInteger(rows)) {
 			console.warn(
 				'Non-integer number of rows or cols found while extruding. ' +
-				`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
-				'Double check your margin, spacing, tilewidth and tileheight.'
+					`Tileset "${tileset.name}" image doesn't match the specified parameters. ` +
+					'Double check your margin, spacing, tilewidth and tileheight.'
 			);
 			return null;
 		}
@@ -538,84 +539,60 @@ class GameScene extends PhaserScene {
 				const th = tileheight;
 
 				// Copy the tile.
-				ctx.drawImage(sourceImage,
-					srcX, srcY,
-					tw, th,
-					destX + extrusion,
-					destY + extrusion,
-					tw, th
-				);
+				ctx.drawImage(sourceImage, srcX, srcY, tw, th, destX + extrusion, destY + extrusion, tw, th);
 
 				// Extrude the top row.
-				ctx.drawImage(sourceImage,
-					srcX, srcY,
-					tw, 1,
-					destX + extrusion, destY,
-					tw, extrusion
-				);
+				ctx.drawImage(sourceImage, srcX, srcY, tw, 1, destX + extrusion, destY, tw, extrusion);
 
 				// Extrude the bottom row.
-				ctx.drawImage(sourceImage,
-					srcX, srcY + th - 1,
-					tw, 1,
+				ctx.drawImage(
+					sourceImage,
+					srcX,
+					srcY + th - 1,
+					tw,
+					1,
 					destX + extrusion,
 					destY + extrusion + th,
-					tw, extrusion
+					tw,
+					extrusion
 				);
 
 				// Extrude left column.
-				ctx.drawImage(sourceImage,
-					srcX, srcY,
-					1, th,
-					destX,
-					destY + extrusion,
-					extrusion, th
-				);
+				ctx.drawImage(sourceImage, srcX, srcY, 1, th, destX, destY + extrusion, extrusion, th);
 
 				// Extrude the right column.
-				ctx.drawImage(sourceImage,
+				ctx.drawImage(
+					sourceImage,
 					srcX + tw - 1,
 					srcY,
-					1, th,
+					1,
+					th,
 					destX + extrusion + tw,
 					destY + extrusion,
-					extrusion, th
+					extrusion,
+					th
 				);
 
 				// Extrude the top left corner.
-				ctx.drawImage(sourceImage,
-					srcX, srcY, 1, 1,
-					destX, destY, extrusion, extrusion
-				);
+				ctx.drawImage(sourceImage, srcX, srcY, 1, 1, destX, destY, extrusion, extrusion);
 
 				// Extrude the top right corner.
-				ctx.drawImage(sourceImage,
-					srcX + tw - 1,
-					srcY,
-					1, 1,
-					destX + extrusion + tw,
-					destY,
-					extrusion, extrusion
-				);
+				ctx.drawImage(sourceImage, srcX + tw - 1, srcY, 1, 1, destX + extrusion + tw, destY, extrusion, extrusion);
 
 				// Extrude the bottom left corner.
-				ctx.drawImage(sourceImage,
-					srcX,
-					srcY + th - 1,
-					1, 1,
-					destX,
-					destY + extrusion + th,
-					extrusion, extrusion
-				);
+				ctx.drawImage(sourceImage, srcX, srcY + th - 1, 1, 1, destX, destY + extrusion + th, extrusion, extrusion);
 
 				// Extrude the bottom right corner.
-				ctx.drawImage(sourceImage,
+				ctx.drawImage(
+					sourceImage,
 					srcX + tw - 1,
 					srcY + th - 1,
-					1, 1,
+					1,
+					1,
 					destX + extrusion + tw,
 					destY + extrusion + th,
-					extrusion, extrusion
+					extrusion,
+					extrusion
 				);
 			}
 		}
@@ -624,19 +601,15 @@ class GameScene extends PhaserScene {
 	}
 
 	findUnit(unitId: string): PhaserUnit {
-		return this.unitsList.find(
-			(unit) => {
-				return unit.entity._id === unitId;
-			}
-		);
+		return this.unitsList.find((unit) => {
+			return unit.entity._id === unitId;
+		});
 	}
 
 	findEntity(entityId: string): PhaserUnit | PhaserProjectile | PhaserItem {
-		return [...this.unitsList, ...this.itemList, ...this.projectilesList].find(
-			(entity) => {
-				return entity.entity._id === entityId;
-			}
-		);
+		return [...this.unitsList, ...this.itemList, ...this.projectilesList].find((entity) => {
+			return entity.entity._id === entityId;
+		});
 	}
 
 	setResolution(resolution: number, setResolutionCoef: boolean): void {
@@ -653,7 +626,6 @@ class GameScene extends PhaserScene {
 	}
 
 	update(): void {
-
 		this.visibility?.update();
 
 		//cause black screen and camera jittering when change tab
@@ -661,25 +633,27 @@ class GameScene extends PhaserScene {
 		this.cameras.main.setLerp(trackingDelay, trackingDelay);*/
 		const worldPoint = this.cameras.main.getWorldPoint(this.input.activePointer.x, this.input.activePointer.y);
 		if (!taro.isMobile) {
-			taro.input.emit('pointermove', [{
-				x: worldPoint.x,
-				y: worldPoint.y,
-			}]);
+			taro.input.emit('pointermove', [
+				{
+					x: worldPoint.x,
+					y: worldPoint.y,
+				},
+			]);
 		}
 
-		this.renderedEntities.forEach(element => {
+		this.renderedEntities.forEach((element) => {
 			element.setVisible(false);
 		});
-		this.particles.forEach(particle => {
+		this.particles.forEach((particle) => {
 			particle.setVisible(false);
-		})
+		});
 
 		if (!taro.developerMode.active || (taro.developerMode.active && taro.developerMode.activeTab !== 'map')) {
 			var visibleEntities = this.cameras.main.cull(this.renderedEntities);
-			this.particles.forEach(particle => {
+			this.particles.forEach((particle) => {
 				particle.setVisible(true);
-			})
-			visibleEntities.forEach(element => {
+			});
+			visibleEntities.forEach((element) => {
 				if (!element.hidden) {
 					element.setVisible(true);
 
@@ -697,6 +671,6 @@ class GameScene extends PhaserScene {
 
 type renderingFilter = 'pixelArt' | 'smooth';
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = GameScene;
 }

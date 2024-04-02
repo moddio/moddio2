@@ -19,7 +19,7 @@ var MenuUiComponent = TaroEntity.extend({
 					$('#backpack').show();
 				}
 			});
-		}
+		};
 
 		if (taro.isClient) {
 			//console.log('initializing UI elements...');
@@ -102,7 +102,10 @@ var MenuUiComponent = TaroEntity.extend({
 
 			$('#kick-player-body').on('click', '.kick-player-btn', function () {
 				var clientId = $(this).attr('data-clientid');
-				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && clientId) {
+				if (
+					(taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) &&
+					clientId
+				) {
 					taro.network.send('kick', clientId);
 				}
 			});
@@ -122,7 +125,7 @@ var MenuUiComponent = TaroEntity.extend({
 				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && gameId) {
 					taro.network.send('ban-ip', {
 						gameId: gameId,
-						kickuserId: clientId
+						kickuserId: clientId,
 					});
 				}
 			});
@@ -133,7 +136,7 @@ var MenuUiComponent = TaroEntity.extend({
 				if ((taro.game.data.isDeveloper || (taro.client.myPlayer && taro.client.myPlayer._stats.isUserMod)) && gameId) {
 					taro.network.send('ban-chat', {
 						gameId: gameId,
-						kickuserId: clientId
+						kickuserId: clientId,
 					});
 				}
 			});
@@ -142,7 +145,7 @@ var MenuUiComponent = TaroEntity.extend({
 				if (!taro.game.data.isGameDeveloper && !window.isStandalone) {
 					return;
 				}
-				if ((['1', '4', '5'].includes(window.gameDetails?.tier)) || window.isStandalone) {
+				if (['1', '4', '5'].includes(window.gameDetails?.tier) || window.isStandalone) {
 					// console.log("taro developermode: ", taro.developerMode);
 					taro.developerMode.enter();
 
@@ -192,7 +195,6 @@ var MenuUiComponent = TaroEntity.extend({
 						}
 					}
 					$('#toggle-dev-panels').text(isEditorVisible ? 'Exit Dev Mode' : 'Enter Dev Mode'); */
-
 				} else {
 					$('#dev-console').toggle();
 				}
@@ -211,7 +213,7 @@ var MenuUiComponent = TaroEntity.extend({
 				var url = `${window.location.host}/play/${gameSlug}?add-instance=true`;
 				Swal({
 					html: `<div class='swal2-title'>Want to add player instance?</div><div class='swal2-text' style='user-select: text;'>Copy the link given below and open it in incognito mode.<br/><input type='text' class='form-control mt-2' value='${url}' /></div>`,
-					button: 'close'
+					button: 'close',
 				});
 			});
 
@@ -312,7 +314,7 @@ var MenuUiComponent = TaroEntity.extend({
 
 			if (document.getElementById('open-inventory-button')) {
 				customUiListeners();
-			}else{
+			} else {
 				let checkForCustomUi = setInterval(() => {
 					if (document.getElementById('open-inventory-button')) {
 						clearInterval(checkForCustomUi);
@@ -324,7 +326,6 @@ var MenuUiComponent = TaroEntity.extend({
 	},
 
 	setItem: function (key, value) {
-
 		if (USE_LOCAL_STORAGE) {
 			try {
 				value = JSON.stringify(value);
@@ -333,13 +334,12 @@ var MenuUiComponent = TaroEntity.extend({
 					// this won't tell us much, but it will tell us what type we tried to stringify
 					throw new SyntaxError(`cannot stringify ${value}`);
 				}
-
 			}
 
 			return localStorage.setItem(key, value);
 		}
 
-		return storage[key] = value;
+		return (storage[key] = value);
 	},
 
 	getItem: function (key) {
@@ -361,19 +361,11 @@ var MenuUiComponent = TaroEntity.extend({
 
 	toggleButton: function (type, mode) {
 		if (mode == 'on') {
-			$(`#${type}-on`)
-				.removeClass('btn-light')
-				.addClass('btn-success');
-			$(`#${type}-off`)
-				.removeClass('btn-success')
-				.addClass('btn-light');
+			$(`#${type}-on`).removeClass('btn-light').addClass('btn-success');
+			$(`#${type}-off`).removeClass('btn-success').addClass('btn-light');
 		} else {
-			$(`#${type}-off`)
-				.removeClass('btn-light')
-				.addClass('btn-success');
-			$(`#${type}-on`)
-				.removeClass('btn-success')
-				.addClass('btn-light');
+			$(`#${type}-off`).removeClass('btn-light').addClass('btn-success');
+			$(`#${type}-on`).removeClass('btn-success').addClass('btn-light');
 		}
 	},
 	toggleScoreBoard: function (show) {
@@ -448,7 +440,13 @@ var MenuUiComponent = TaroEntity.extend({
 	kickPlayerFromGame: function (excludeEntity) {
 		var self = this;
 		var players = taro.$$('player').filter(function (player) {
-			if (player && player._stats && player._stats.controlledBy === 'human' && player._alive && player.id() !== excludeEntity)
+			if (
+				player &&
+				player._stats &&
+				player._stats.controlledBy === 'human' &&
+				player._alive &&
+				player.id() !== excludeEntity
+			)
 				return true;
 		});
 		var html = '<table class="table table-hover">';
@@ -536,22 +534,21 @@ var MenuUiComponent = TaroEntity.extend({
 
 							return {
 								alphabets: chars.join(''),
-								numbers: numbers
+								numbers: numbers,
 							};
 						}
 
 						// generate server list
 						servers.forEach(function (server) {
 							var protocol = location.protocol.indexOf('https') > -1 ? 'wss' : 'ws';
-							var dataUrl = `${protocol}://${server.ip}${(server.port) ? `:${server.port}` : ''}`;
+							var dataUrl = `${protocol}://${server.ip}${server.port ? `:${server.port}` : ''}`;
 							if (server) {
 								var serverIP = server.ip.slice(0, server.ip.indexOf('.'));
 								var separated = separate(serverIP);
 								var optionText = server.name || `${separated.alphabets} ${separated.numbers}`;
 								var acceptingPlayers = server.acceptingPlayers ? '' : ' not accepting players';
-								serversList += `${'<option ' +
-									' class="game-server"' +
-									' id="server-option-'}${index++}"` +
+								serversList +=
+									`${'<option ' + ' class="game-server"' + ' id="server-option-'}${index++}"` +
 									` owner="${server.owner}"` +
 									` player-count="${server.playerCount}"` +
 									` max-players="${server.maxPlayers}"` +
@@ -590,7 +587,7 @@ var MenuUiComponent = TaroEntity.extend({
 						window.rerenderServerList(servers);
 					}
 					$('#menu-wrapper').removeClass('d-none').addClass('d-flex');
-				}
+				},
 			});
 		}
 	},
@@ -651,14 +648,14 @@ var MenuUiComponent = TaroEntity.extend({
 						$(serverOption).text(`${existingText} (${Number.POSITIVE_INFINITY} ms)`);
 						resolve({
 							server: serverOption,
-							ping: ping
+							ping: ping,
 						});
 					}
 				}, 5000);
 			};
 
 			socket.onmessage = function (event) {
-				var jsonString = LZUTF8.decompress(data.data, { inputEncoding: "StorageBinaryString" });
+				var jsonString = LZUTF8.decompress(data.data, { inputEncoding: 'StorageBinaryString' });
 				var json = JSON.parse(jsonString);
 
 				if (json.type === 'pong') {
@@ -670,7 +667,7 @@ var MenuUiComponent = TaroEntity.extend({
 					$(serverOption).text(`${existingText} (${ping} ms)`);
 					resolve({
 						server: serverOption,
-						ping: ping
+						ping: ping,
 					});
 				}
 			};
@@ -800,7 +797,7 @@ var MenuUiComponent = TaroEntity.extend({
 		// edited for play/:gameId
 		var gameId = window.location.pathname.split('/')[2];
 		var vars = {
-			gameId: gameId
+			gameId: gameId,
 		};
 
 		// if serverId is present then add it to vars
@@ -854,7 +851,12 @@ var MenuUiComponent = TaroEntity.extend({
 			if (whitelistedReasons.findIndex((m) => m.includes(reason)) === -1) {
 				const autojoinAttempted = window.sessionStorage.getItem('autojoinAttempted');
 				const isTabActive = !document.hidden;
-				if ((!autojoinAttempted || Date.now() - autojoinAttempted > 15 * 60 * 1000 || message.includes('Game has been republished')) && isTabActive) {
+				if (
+					(!autojoinAttempted ||
+						Date.now() - autojoinAttempted > 15 * 60 * 1000 ||
+						message.includes('Game has been republished')) &&
+					isTabActive
+				) {
 					if (window.trackEvent) {
 						window.trackEvent('Auto Refresh', {
 							reason,
@@ -865,7 +867,7 @@ var MenuUiComponent = TaroEntity.extend({
 					window.sessionStorage.setItem('autojoinAttempted', Date.now());
 
 					// autojoin in 5 seconds
-					this.refreshIn("connection-lost-refresh", 5);
+					this.refreshIn('connection-lost-refresh', 5);
 				}
 			}
 		}
@@ -877,20 +879,20 @@ var MenuUiComponent = TaroEntity.extend({
 		$('.return-to-homepage-cta').remove();
 		$('.refresh-page-cta').removeClass('col-md-6');
 
-		$('#' + id).text(" Reconnecting in " + second + "...");
+		$(`#${id}`).text(` Reconnecting in ${second}...`);
 
 		const interval = setInterval(() => {
 			second--;
 			if (second <= 0) {
-				$('#' + id).text(" Reconnecting...");
+				$(`#${id}`).text(' Reconnecting...');
 
 				clearInterval(interval);
 				let currentUrl = window.location.href;
 				currentUrl = currentUrl.endsWith('#') ? currentUrl.slice(0, -1) : currentUrl;
-				window.history.pushState({}, '', currentUrl + '?autojoin=true');
+				window.history.pushState({}, '', `${currentUrl}?autojoin=true`);
 				window.location.reload();
 			} else {
-				$('#' + id).text(" Reconnecting in " + second + "...");
+				$(`#${id}`).text(` Reconnecting in ${second}...`);
 			}
 		}, 1000);
 	},
@@ -934,9 +936,9 @@ var MenuUiComponent = TaroEntity.extend({
 		var self = this;
 		const forceCanvas = self.getItem('forceCanvas') || {};
 		return forceCanvas[0];
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = MenuUiComponent;
 }

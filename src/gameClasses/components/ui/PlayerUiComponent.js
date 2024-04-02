@@ -12,15 +12,16 @@ var PlayerUiComponent = TaroEntity.extend({
 		self.lastInputValue = '';
 		self.dialogue = {
 			message: null,
-			messagePrinter: null
+			messagePrinter: null,
 		};
 
 		self.playerAttributeDivElement = null;
 
 		self.moddItemShopModalElement = null;
 
-		$("#custom-ingame-ui-container").hide();
-		window.renderHBSTemplate && window.renderHBSTemplate({}, taro.game.data?.ui?.inGameUiFull?.htmlData, "custom-ingame-ui-container");
+		$('#custom-ingame-ui-container').hide();
+		window.renderHBSTemplate &&
+			window.renderHBSTemplate({}, taro.game.data?.ui?.inGameUiFull?.htmlData, 'custom-ingame-ui-container');
 	},
 
 	setupListeners: function () {
@@ -86,7 +87,7 @@ var PlayerUiComponent = TaroEntity.extend({
 			taro.network.send('htmlUiClick', { id: $(this).attr('id') });
 			//support for local htmlUiClick trigger
 			taro.client.myPlayer.lastHtmlUiClickData = { id: $(this).attr('id') };
-			taro.script.trigger('htmlUiClick', { playerId: taro.client.myPlayer.id() });	
+			taro.script.trigger('htmlUiClick', { playerId: taro.client.myPlayer.id() });
 		});
 	},
 
@@ -113,7 +114,7 @@ var PlayerUiComponent = TaroEntity.extend({
 			} else if (myScoreDiv.classList.contains('no-padding')) {
 				myScoreDiv.classList.remove('no-padding');
 			}
-		};
+		}
 
 		if (attributeTypes == undefined) {
 			return;
@@ -127,16 +128,19 @@ var PlayerUiComponent = TaroEntity.extend({
 
 				var attributeType = attributeTypes[attrKey];
 
-				$(self.playerAttributeDivElement).append(
-					$('<span/>', {
-						text: attributeType ? attributeType.name + ": " : attr.name,
-						id: `pt-attribute-${attrKey}`
-					})
-				).append(
-					$('<span/>', {
-						id: `pt-attribute-value-${attrKey}`
-					})
-				).append($('<br/>'));
+				$(self.playerAttributeDivElement)
+					.append(
+						$('<span/>', {
+							text: attributeType ? `${attributeType.name}: ` : attr.name,
+							id: `pt-attribute-${attrKey}`,
+						})
+					)
+					.append(
+						$('<span/>', {
+							id: `pt-attribute-value-${attrKey}`,
+						})
+					)
+					.append($('<br/>'));
 			}
 		}
 
@@ -182,7 +186,7 @@ var PlayerUiComponent = TaroEntity.extend({
 				var value = attr.value || 0;
 
 				var selector = taro.client.getCachedElementById(`pt-attribute-value-${attrKey}`);
-				$(selector).text(attr.value)
+				$(selector).text(attr.value);
 			}
 		}
 		if (needUpdateDiv) {
@@ -232,7 +236,7 @@ var PlayerUiComponent = TaroEntity.extend({
 	// open a modal to ask for input
 	showInputModal: function (config) {
 		var self = this;
-		config.isDismissible = config.isDismissible === undefined ? true : !!(config.isDismissible);
+		config.isDismissible = config.isDismissible === undefined ? true : !!config.isDismissible;
 		self.isDismissibleInputModalShown = config.isDismissible;
 		$('#player-input-field-label').html(window.DOMPurify?.sanitize(config.fieldLabel || 'Field'));
 
@@ -240,7 +244,7 @@ var PlayerUiComponent = TaroEntity.extend({
 		$('#player-input-modal').addClass('d-flex');
 		$('#player-input-modal').modal({
 			backdrop: config.isDismissible ? true : 'static',
-			keyboard: config.isDismissible
+			keyboard: config.isDismissible,
 		});
 
 		if (config.isDismissible) {
@@ -260,7 +264,7 @@ var PlayerUiComponent = TaroEntity.extend({
 	showCustomModal: function (config) {
 		var self = this;
 
-		config.isDismissible = config.isDismissible === undefined ? true : !!(config.isDismissible);
+		config.isDismissible = config.isDismissible === undefined ? true : !!config.isDismissible;
 
 		if (window.DOMPurify) {
 			$('#custom-modal .content').html(window.DOMPurify.sanitize(config.content || ''));
@@ -276,7 +280,7 @@ var PlayerUiComponent = TaroEntity.extend({
 		$('#custom-modal').addClass('d-flex');
 		$('#custom-modal').modal({
 			backdrop: config.isDismissible ? true : 'static',
-			keyboard: config.isDismissible
+			keyboard: config.isDismissible,
 		});
 
 		if (config.isDismissible) {
@@ -296,7 +300,7 @@ var PlayerUiComponent = TaroEntity.extend({
 	openWebsite: function (config) {
 		var self = this;
 
-		config.isDismissible = config.isDismissible === undefined ? true : !!(config.isDismissible);
+		config.isDismissible = config.isDismissible === undefined ? true : !!config.isDismissible;
 		function openTab() {
 			var newWin = window.open(config.url);
 			if (!newWin || newWin.closed || typeof newWin.closed == 'undefined') {
@@ -305,22 +309,22 @@ var PlayerUiComponent = TaroEntity.extend({
 					text: 'Your browser is blocking the content modd.io is trying to display',
 					imageWidth: 300,
 					imageUrl: '/assets/images/enable-popup.gif',
-					imageClass: 'rounded border'
+					imageClass: 'rounded border',
 				});
 			}
 		}
-		var isExternal = !(new URL(config.url)).hostname.includes('modd.io');
+		var isExternal = !new URL(config.url).hostname.includes('modd.io');
 		if (isExternal) {
 			swal({
 				html: `You are being redirected to ${config.url}.<br>Are you sure you want to visit this external site?`,
 				type: 'warning',
 				showCancelButton: true,
 				confirmButtonText: 'Yes',
-			}).then(result => {
+			}).then((result) => {
 				if (result.value) {
 					openTab();
 				}
-			})
+			});
 		} else {
 			openTab();
 		}
@@ -328,22 +332,22 @@ var PlayerUiComponent = TaroEntity.extend({
 	showWebsiteModal: function (config) {
 		var self = this;
 
-		config.isDismissible = config.isDismissible === undefined ? true : !!(config.isDismissible);
+		config.isDismissible = config.isDismissible === undefined ? true : !!config.isDismissible;
 
 		$('#website-modal').find('iframe').attr('src', config.url);
 		$('#website-modal').modal({
 			backdrop: config.isDismissible ? true : 'static',
-			keyboard: config.isDismissible
+			keyboard: config.isDismissible,
 		});
 	},
 	showSocialShareModal: function (config) {
 		var self = this;
 
-		config.isDismissible = config.isDismissible === undefined ? true : !!(config.isDismissible);
+		config.isDismissible = config.isDismissible === undefined ? true : !!config.isDismissible;
 
 		$('#social-share-modal').modal({
 			backdrop: config.isDismissible ? true : 'static',
-			keyboard: config.isDismissible
+			keyboard: config.isDismissible,
 		});
 	},
 
@@ -352,11 +356,11 @@ var PlayerUiComponent = TaroEntity.extend({
 		window.handleOptionClick = function (e, index) {
 			e.preventDefault();
 			e.stopPropagation();
-			const optionId = index.toString()
+			const optionId = index.toString();
 			$('.dialogue-option').addClass('disabled');
 			$(this).find('.option-check').removeClass('d-none');
 			taro.playerUi.submitDialogueModal(dialogueId, optionId);
-		}
+		};
 
 		var self = this;
 
@@ -402,14 +406,17 @@ var PlayerUiComponent = TaroEntity.extend({
 		}
 
 		function initModal() {
-			window.renderHBSTemplate({
-				dialogue: {
-					...dialogue,
-					message: '',
-					options: [],
-					letterPrintSpeed: 0
-				}
-			}, dialogueTemplate);
+			window.renderHBSTemplate(
+				{
+					dialogue: {
+						...dialogue,
+						message: '',
+						options: [],
+						letterPrintSpeed: 0,
+					},
+				},
+				dialogueTemplate
+			);
 
 			if (self.dialogue.messagePrinter) {
 				clearInterval(self.dialogue.messagePrinter);
@@ -420,15 +427,17 @@ var PlayerUiComponent = TaroEntity.extend({
 		}
 
 		function showOptions() {
-
 			dialogue.areOptionsRendered = true;
 
-			window.renderHBSTemplate({
-				dialogue: {
-					...dialogue,
-					message: self.dialogue.message
+			window.renderHBSTemplate(
+				{
+					dialogue: {
+						...dialogue,
+						message: self.dialogue.message,
+					},
 				},
-			}, dialogueTemplate);
+				dialogueTemplate
+			);
 		}
 
 		function showNextMessage() {
@@ -448,13 +457,16 @@ var PlayerUiComponent = TaroEntity.extend({
 					options = dialogue.options;
 				}
 
-				window.renderHBSTemplate({
-					dialogue: {
-						...dialogue,
-						message: self.dialogue.message,
-						options: options
-					}
-				}, dialogueTemplate);
+				window.renderHBSTemplate(
+					{
+						dialogue: {
+							...dialogue,
+							message: self.dialogue.message,
+							options: options,
+						},
+					},
+					dialogueTemplate
+				);
 			}
 		}
 
@@ -521,8 +533,8 @@ var PlayerUiComponent = TaroEntity.extend({
 			const data = {
 				status: 'submitted',
 				dialogue: dialogueId,
-				option: optionId
-			}
+				option: optionId,
+			};
 			taro.network.send('playerDialogueSubmit', data);
 
 			var player = taro.client.myPlayer;
@@ -567,7 +579,7 @@ var PlayerUiComponent = TaroEntity.extend({
 					break;
 			}
 		} catch (err) {
-			console.log("playerUi - updateBackpack error: ", err);
+			console.log('playerUi - updateBackpack error: ', err);
 		}
 	},
 
@@ -593,9 +605,11 @@ var PlayerUiComponent = TaroEntity.extend({
 					break;
 			}
 		} catch (err) {
-			console.log("playerUi - updateUiElement error: ", err);
+			console.log('playerUi - updateUiElement error: ', err);
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PlayerUiComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = PlayerUiComponent;
+}

@@ -16,7 +16,7 @@ var TaroChatClient = {
 			msg = {
 				roomId: roomId,
 				text: message,
-				to: to
+				to: to,
 			};
 
 			taro.network.send('taroChatMsg', msg);
@@ -27,14 +27,15 @@ var TaroChatClient = {
 		var self = taro.chat;
 
 		// message from a player
-		if (data && data.from) { 
+		if (data && data.from) {
 			var player = taro.game.getPlayerByClientId(data.from);
 
-			var isPlayerMuted = taro.client.myPlayer &&
+			var isPlayerMuted =
+				taro.client.myPlayer &&
 				taro.client.myPlayer._stats &&
 				taro.client.myPlayer._stats.mutedUsers &&
 				taro.client.myPlayer._stats.mutedUsers.indexOf(player._stats.userId) > -1;
-			
+
 			// ignore messages from players I muted
 			if (player && isPlayerMuted) {
 				return;
@@ -42,12 +43,11 @@ var TaroChatClient = {
 		}
 
 		var isChatHidden = false;
-				
+
 		// display message if it's either system message, or if chat is visible
 		if (player == undefined || !isChatHidden) {
-
 			taro.chat.postMessage(data);
-			
+
 			if (player) {
 				var selectedUnit = player.getSelectedUnit();
 
@@ -55,9 +55,7 @@ var TaroChatClient = {
 					selectedUnit.emit('render-chat-bubble', data.text);
 				}
 			}
-						
 		}
-		
 	},
 
 	_onJoinedRoom: function (data) {
@@ -122,9 +120,9 @@ var TaroChatClient = {
 		if (!self.emit('roomRemoved', [data])) {
 			console.log('Server told us room was removed:', data);
 		}
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroChatClient;
 }

@@ -33,7 +33,7 @@ var GameTextComponent = TaroEntity.extend({
 			for (i in this.latestText) {
 				var data = {
 					target: i,
-					value: this.latestText[i]
+					value: this.latestText[i],
 				};
 				// taro.log("sendLatestText: " + JSON.stringify(data) + " to "+clientId)
 				data.value = taro.sanitizer(data.value);
@@ -46,7 +46,7 @@ var GameTextComponent = TaroEntity.extend({
 		if (taro.isServer) {
 			taro.network.send('alertHighscore', {}, clientId);
 		}
-	}
+	},
 
 	// showKillStreakMessage: function(playerName, killStreakCount) {
 
@@ -79,7 +79,8 @@ var GameTextComponent = TaroEntity.extend({
 	// 	}
 	// 	$("#kill-streak-message").css({ fontSize: fontSize }).text(message).delay(5000).fadeOut("slow");;
 	// },
-
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = GameTextComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = GameTextComponent;
+}

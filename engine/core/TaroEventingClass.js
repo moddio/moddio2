@@ -50,7 +50,7 @@ var TaroEventingClass = TaroClass.extend({
 					call: call,
 					context: context,
 					oneShot: oneShot,
-					sendEventName: sendEventName
+					sendEventName: sendEventName,
 				};
 
 				elArr = this._eventListeners[eventName] = this._eventListeners[eventName] || [];
@@ -106,10 +106,13 @@ var TaroEventingClass = TaroClass.extend({
 				}
 			}
 		} else {
-			if (typeof (eventName) !== 'string') {
+			if (typeof eventName !== 'string') {
 				eventName = '*Multi-Event*';
 			}
-			this.log(`Cannot register event listener for event "${eventName}" because the passed callback is not a function!`, 'error');
+			this.log(
+				`Cannot register event listener for event "${eventName}" because the passed callback is not a function!`,
+				'error'
+			);
 		}
 	},
 
@@ -209,12 +212,17 @@ var TaroEventingClass = TaroClass.extend({
 				// Fire the listeners for this event
 				var eventCount = this._eventListeners[eventName].length;
 				var eventCount2 = this._eventListeners[eventName].length - 1;
-				var finalArgs; var i; var cancelFlag; var eventIndex; var tempEvt; var retVal;
+				var finalArgs;
+				var i;
+				var cancelFlag;
+				var eventIndex;
+				var tempEvt;
+				var retVal;
 
 				// If there are some events, ensure that the args is ready to be used
 				if (eventCount) {
 					finalArgs = [];
-					if (typeof (args) === 'object' && args !== null && args[0] !== null && args[0] !== undefined) {
+					if (typeof args === 'object' && args !== null && args[0] !== null && args[0] !== undefined) {
 						for (i in args) {
 							if (args.hasOwnProperty(i)) {
 								finalArgs[i] = args[i];
@@ -317,9 +325,9 @@ var TaroEventingClass = TaroClass.extend({
 			// Remove the removal array
 			delete this._eventListeners._removeQueue;
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroEventingClass;
 }

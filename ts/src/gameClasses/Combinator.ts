@@ -44,11 +44,7 @@ class Combinator {
 			return Combinator.equal(start);
 		}
 		let middle = Math.floor((end + start) / 2);
-		return Combinator.toggle(
-			Combinator.range(middle, start, step),
-			Combinator.range(middle + step, end, step)
-		);
-
+		return Combinator.toggle(Combinator.range(middle, start, step), Combinator.range(middle + step, end, step));
 	};
 
 	static rect = function* (x: number, y: number) {
@@ -70,13 +66,11 @@ class Combinator {
 				}
 			}
 		}
-
-
 	};
 
 	static circle = function* (radius: number) {
 		if (radius < 1) {
-			throw ('radius must greater than 1');
+			throw 'radius must greater than 1';
 		}
 		let rightIndex = (radius - 1) * 2;
 		let _y = Combinator.spread(0, rightIndex);
@@ -106,10 +100,9 @@ class Combinator {
 		}
 	};
 
-
 	static diamond = function* (radius: number) {
 		if (radius < 1) {
-			throw ('radius must greater than 1');
+			throw 'radius must greater than 1';
 		}
 		let rightIndex = (radius - 1) * 2;
 		let _y = Combinator.spread(0, rightIndex);
@@ -139,11 +132,6 @@ class Combinator {
 	};
 }
 
-
-
-
-
-
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Combinator;
 }

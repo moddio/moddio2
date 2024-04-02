@@ -26,7 +26,9 @@ var VideoChatComponent = TaroEntity.extend({
 	},
 
 	updatePlayerGroups: function (self) {
-		var players = taro.$$('player').filter(function (player) { return player._stats.controlledBy == 'human'; });
+		var players = taro.$$('player').filter(function (player) {
+			return player._stats.controlledBy == 'human';
+		});
 		// var players = taro.$$('player')
 
 		// update centoid of the groups
@@ -126,7 +128,7 @@ var VideoChatComponent = TaroEntity.extend({
 		// console.log("creating a group.. initial members:", playerIds)
 		var groupId = taro.newIdHex();
 		self.groups[groupId] = {
-			playerIds: []
+			playerIds: [],
 		};
 		for (i = 0; i < playerIds.length; i++) {
 			var playerId = playerIds[i];
@@ -167,7 +169,7 @@ var VideoChatComponent = TaroEntity.extend({
 			this.groupedPlayers[playerId] = groupId;
 			taro.network.send('videoChat', { command: 'joinGroup', groupId: groupId }, player._stats.clientId);
 		} else {
-			console.log('Cannot add player to videoChat group. Player doesn\'t exist!');
+			console.log("Cannot add player to videoChat group. Player doesn't exist!");
 		}
 	},
 
@@ -210,7 +212,7 @@ var VideoChatComponent = TaroEntity.extend({
 				}
 				delete this.groupedPlayers[playerId];
 			}
-			console.log('Player ', playerId, ' remove from videoChat group even if Player doesn\'t exist!');
+			console.log('Player ', playerId, " remove from videoChat group even if Player doesn't exist!");
 		}
 		// this.emit("playerRemovedFromGroup", [playerId])
 	},
@@ -253,7 +255,9 @@ var VideoChatComponent = TaroEntity.extend({
 
 	updatePlayerDistanceMatrix: function (self) {
 		self.playerDistances = {};
-		var players = taro.$$('player').filter(function (player) { return player._stats.controlledBy == 'human'; });
+		var players = taro.$$('player').filter(function (player) {
+			return player._stats.controlledBy == 'human';
+		});
 
 		for (var i = 0; i < players.length; i++) {
 			var playerA = players[i];
@@ -266,7 +270,8 @@ var VideoChatComponent = TaroEntity.extend({
 				var unitA = playerA.getSelectedUnit();
 				if (unitA) {
 					for (var j = 0; j < players.length; j++) {
-						if (i != j) { // dont compare distance between same unit
+						if (i != j) {
+							// dont compare distance between same unit
 							var playerB = players[j];
 
 							if (playerB) {
@@ -287,8 +292,9 @@ var VideoChatComponent = TaroEntity.extend({
 			videoChatUpdateSpatialVideo(self.playerDistances[taro.client.myPlayer.id()]);
 		}
 		// console.log("distance to other players", self.playerDistances[taro.client.myPlayer.id()])
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = VideoChatComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = VideoChatComponent;
+}

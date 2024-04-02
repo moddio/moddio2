@@ -75,7 +75,7 @@ var TaroScene2d = TaroEntity.extend({
 	 * @return {*}
 	 */
 	autoSize: function (val) {
-		if (typeof (val) !== 'undefined') {
+		if (typeof val !== 'undefined') {
 			this._autoSize = val;
 			return this;
 		}
@@ -167,7 +167,8 @@ var TaroScene2d = TaroEntity.extend({
 	 */
 	_stringify: function () {
 		// Get the properties for all the super-classes
-		var str = TaroEntity.prototype._stringify.call(this); var i;
+		var str = TaroEntity.prototype._stringify.call(this);
+		var i;
 
 		// Loop properties and add property assignment code to string
 		for (i in this) {
@@ -184,7 +185,9 @@ var TaroScene2d = TaroEntity.extend({
 		}
 
 		return str;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroScene2d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroScene2d;
+}

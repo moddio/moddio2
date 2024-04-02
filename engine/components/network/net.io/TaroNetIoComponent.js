@@ -1,6 +1,4 @@
-var TaroNetIoComponent = TaroEventingClass.extend([
-	{ extension: TaroTimeSyncExtension, overwrite: false }
-], {
+var TaroNetIoComponent = TaroEventingClass.extend([{ extension: TaroTimeSyncExtension, overwrite: false }], {
 	classId: 'TaroNetIoComponent',
 	componentId: 'network',
 
@@ -49,12 +47,12 @@ var TaroNetIoComponent = TaroEventingClass.extend([
 		this.log(`Network component initiated with Net.IO version: ${this._netio.version}`);
 	},
 
-	pause: function() {
+	pause: function () {
 		// console.log("network pause")
 		this.isPaused = true;
 	},
 
-	resume: function() {
+	resume: function () {
 		// console.log("network resume")
 		this.isPaused = false;
 	},
@@ -99,7 +97,9 @@ var TaroNetIoComponent = TaroEventingClass.extend([
 		}
 
 		return this._debugMax;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroNetIoComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroNetIoComponent;
+}

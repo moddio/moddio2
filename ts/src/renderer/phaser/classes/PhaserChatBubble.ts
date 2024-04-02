@@ -1,5 +1,4 @@
 class PhaserChatBubble extends Phaser.GameObjects.Container {
-
 	private readonly bubble: Phaser.GameObjects.Graphics;
 	private readonly textObject: Phaser.GameObjects.Text;
 	//private readonly bitmapText: Phaser.GameObjects.BitmapText;
@@ -17,23 +16,18 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 	) {
 		super(scene);
 
-		const bubble = this.bubble = scene.add.graphics();
+		const bubble = (this.bubble = scene.add.graphics());
 		this.add(bubble);
 
 		/*const text = this.bitmapText = scene.add.bitmapText(
 			0, 0,
 			BitmapFontManager.font(scene, 'Arial', true, false, '#FFFFFF')
 		);*/
-		const text = this.textObject = scene.add.text(
-			0,
-			0,
-			this.trimText(chatText),
-			{
-				font: '600 24px Arial',
-				color: '#ffffff',
-				align: 'center'
-			}
-		);
+		const text = (this.textObject = scene.add.text(0, 0, this.trimText(chatText), {
+			font: '600 24px Arial',
+			color: '#ffffff',
+			align: 'center',
+		}));
 
 		text.setOrigin(0.5);
 		text.depth = 1;
@@ -51,9 +45,7 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 		this.add(text);
 
 		if (scene.renderer.type === Phaser.CANVAS) {
-
 			//text.visible = false;
-
 			/*const rt = this.rtText = scene.add.renderTexture(0, 0);
 			rt.setOrigin(0.5);
 
@@ -113,16 +105,16 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 				onComplete: () => {
 					this.fadeTween = null;
 					this.visible = false;
-				}
+				},
 			});
 		});
 	}
 
-	private updateScale (): void {
+	private updateScale(): void {
 		this.setScale(1 / this.scene.cameras.main.zoom);
 	}
 
-	private trimText (chatText: string): string {
+	private trimText(chatText: string): string {
 		if (chatText.length > 43) {
 			chatText = chatText.substring(0, 40);
 			chatText += '...';
@@ -130,7 +122,7 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 		return chatText;
 	}
 
-	private drawBubble (): void {
+	private drawBubble(): void {
 		const bubble = this.bubble;
 		//const text = this.rtText || this.bitmapText;
 		const text = this.textObject;
@@ -139,32 +131,22 @@ class PhaserChatBubble extends Phaser.GameObjects.Container {
 
 		bubble.clear();
 		bubble.fillStyle(0x000000, 0.5);
-		bubble.fillRoundedRect(
-			-width / 2,
-			-height / 2,
-			width,
-			height,
-			5
-		);
-		bubble.fillTriangle(
-			0, height / 2 + 7,
-			7, height / 2,
-			-7, height / 2
-		);
+		bubble.fillRoundedRect(-width / 2, -height / 2, width, height, 5);
+		bubble.fillTriangle(0, height / 2 + 7, 7, height / 2, -7, height / 2);
 	}
 
-	private updateOffset (): void {
+	private updateOffset(): void {
 		const { sprite, label, gameObject } = this.unit;
-		const {displayHeight, displayWidth} = sprite;
+		const { displayHeight, displayWidth } = sprite;
 		const labelHeight = label.getBounds().height;
-		this.offset = displayHeight/2 + labelHeight*4;
+		this.offset = displayHeight / 2 + labelHeight * 4;
 		/*this.offset =  25 +
 			(sprite.displayHeight + sprite.displayWidth) / 4 +
 			label.height * 2;*/
 		this.y = gameObject.y - this.offset;
 	}
 
-	updatePosition (): void {
+	updatePosition(): void {
 		const { x, y } = this.unit.gameObject;
 		this.x = x;
 		this.y = y - this.offset;

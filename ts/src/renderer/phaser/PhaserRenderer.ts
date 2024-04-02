@@ -1,34 +1,28 @@
 /// <reference types="@types/google.analytics" />
 
 class PhaserRenderer extends Phaser.Game {
-
-	constructor () {
+	constructor() {
 		let forceCanvas;
 		if (!USE_LOCAL_STORAGE) {
 			forceCanvas = storage['force-canvas'];
 		} else {
 			try {
-				forceCanvas = JSON.parse(
-					localStorage.getItem('forceCanvas')
-				) || {};
+				forceCanvas = JSON.parse(localStorage.getItem('forceCanvas')) || {};
 			} catch (e) {
 				// attempting to reset bugged localStorage.forceCanvas that just return [object Object]
 				if (e instanceof SyntaxError) {
 					// enable on menuUi
 					taro.menuUi.setForceCanvas(true);
-					forceCanvas = JSON.parse(
-						localStorage.getItem('forceCanvas')
-					) || {};
+					forceCanvas = JSON.parse(localStorage.getItem('forceCanvas')) || {};
 				}
 			}
 		}
 
 		super({
-			type: forceCanvas[gameId] || forceCanvas[0] ?
-				Phaser.CANVAS : Phaser.AUTO,
+			type: forceCanvas[gameId] || forceCanvas[0] ? Phaser.CANVAS : Phaser.AUTO,
 			scale: {
-				width: (!taro.isMobile ? window.innerWidth : window.outerWidth * window.devicePixelRatio),
-				height: (!taro.isMobile ? window.innerHeight : window.outerHeight * window.devicePixelRatio),
+				width: !taro.isMobile ? window.innerWidth : window.outerWidth * window.devicePixelRatio,
+				height: !taro.isMobile ? window.innerHeight : window.outerHeight * window.devicePixelRatio,
 				parent: 'game-div',
 				mode: Phaser.Scale.ScaleModes.ENVELOP,
 				autoCenter: Phaser.Scale.Center.CENTER_BOTH,
@@ -37,38 +31,33 @@ class PhaserRenderer extends Phaser.Game {
 			},
 			render: {
 				pixelArt: false,
-				transparent: false
+				transparent: false,
 			},
 			fps: {
-				smoothStep: false
+				smoothStep: false,
 			},
-			scene: [
-				GameScene,
-				UiScene,
-				DevModeScene,
-				MobileControlsScene
-			],
+			scene: [GameScene, UiScene, DevModeScene, MobileControlsScene],
 			loader: {
-				crossOrigin: 'anonymous'
+				crossOrigin: 'anonymous',
 			},
 			plugins: {
-				global: [{
-					key: 'virtual-joystick',
-					plugin: rexvirtualjoystickplugin,
-					start: true
-				}]
+				global: [
+					{
+						key: 'virtual-joystick',
+						plugin: rexvirtualjoystickplugin,
+						start: true,
+					},
+				],
 			},
 			audio: {
-				disableWebAudio: true
-			}
+				disableWebAudio: true,
+			},
 		});
 
 		if (this.isBooted) {
 			this.setupInputListeners();
 		} else {
-			this.events.once(Phaser.Core.Events.BOOT,
-				this.setupInputListeners, this
-			);
+			this.events.once(Phaser.Core.Events.BOOT, this.setupInputListeners, this);
 		}
 	}
 
@@ -77,15 +66,15 @@ class PhaserRenderer extends Phaser.Game {
 		taro.input.setupListeners(this.canvas);
 	}
 
-	getViewportBounds (): Phaser.Geom.Rectangle {
+	getViewportBounds(): Phaser.Geom.Rectangle {
 		return this.scene.getScene('Game').cameras.main.worldView;
 	}
 
-	getCameraWidth (): number {
+	getCameraWidth(): number {
 		return this.scene.getScene('Game').cameras.main.displayWidth;
 	}
 
-	getCameraHeight (): number {
+	getCameraHeight(): number {
 		return this.scene.getScene('Game').cameras.main.displayHeight;
 	}
 }

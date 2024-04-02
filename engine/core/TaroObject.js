@@ -18,11 +18,7 @@ var TaroObject = TaroEventingClass.extend({
 		this._inView = true;
 		this._managed = 1;
 
-		this._specialProp = [
-			'_id',
-			'_parent',
-			'_children'
-		];
+		this._specialProp = ['_id', '_parent', '_children'];
 
 		// if (taro.isClient) {
 		// 	this.viewChecking(true);
@@ -102,7 +98,10 @@ var TaroObject = TaroEventingClass.extend({
 				if (taro._register[id]) {
 					// Already an object with this ID!
 					if (taro._register[id] !== this) {
-						this.log(`Cannot set ID of object to "${id}" because that ID is already in use by another object!`, 'error');
+						this.log(
+							`Cannot set ID of object to "${id}" because that ID is already in use by another object!`,
+							'error'
+						);
 					}
 				} else {
 					// Check if we already have an id assigned
@@ -370,7 +369,7 @@ var TaroObject = TaroEventingClass.extend({
 				}
 			}
 		} else {
-			return (this._groups && this._groups.indexOf(groupName) > -1);
+			return this._groups && this._groups.indexOf(groupName) > -1;
 		}
 
 		return false;
@@ -543,28 +542,34 @@ var TaroObject = TaroEventingClass.extend({
 	 * @return {*} Returns this on success or false on failure.
 	 */
 	addBehaviour: function (id, behaviour, duringTick) {
-		if (typeof (id) === 'string') {
-			if (typeof (behaviour) === 'function') {
+		if (typeof id === 'string') {
+			if (typeof behaviour === 'function') {
 				if (duringTick) {
 					this._tickBehaviours = this._tickBehaviours || [];
 					this._tickBehaviours.push({
 						id: id,
-						method: behaviour
+						method: behaviour,
 					});
 				} else {
 					this._updateBehaviours = this._updateBehaviours || [];
 					this._updateBehaviours.push({
 						id: id,
-						method: behaviour
+						method: behaviour,
 					});
 				}
 
 				return this;
 			} else {
-				this.log('The behaviour you passed is not a function! The second parameter of the call must be a function!', 'error');
+				this.log(
+					'The behaviour you passed is not a function! The second parameter of the call must be a function!',
+					'error'
+				);
 			}
 		} else {
-			this.log('Cannot add behaviour to object because the specified behaviour id is not a string. You must provide two parameters with the addBehaviour() call, an id:String and a behaviour:Function. Adding a behaviour with an id allows you to remove it by it\'s id at a later stage!', 'error');
+			this.log(
+				"Cannot add behaviour to object because the specified behaviour id is not a string. You must provide two parameters with the addBehaviour() call, an id:String and a behaviour:Function. Adding a behaviour with an id allows you to remove it by it's id at a later stage!",
+				'error'
+			);
 		}
 
 		return false;
@@ -590,8 +595,7 @@ var TaroObject = TaroEventingClass.extend({
 	 */
 	removeBehaviour: function (id, duringTick) {
 		if (id !== undefined) {
-			var arr,
-				arrCount;
+			var arr, arrCount;
 
 			if (duringTick) {
 				arr = this._tickBehaviours;
@@ -636,8 +640,7 @@ var TaroObject = TaroEventingClass.extend({
 	 */
 	hasBehaviour: function (id, duringTick) {
 		if (id !== undefined) {
-			var arr,
-				arrCount;
+			var arr, arrCount;
 
 			if (duringTick) {
 				arr = this._tickBehaviours;
@@ -883,7 +886,6 @@ var TaroObject = TaroEventingClass.extend({
 
 	mount: function (obj) {
 		if (obj) {
-
 			if (obj === this) {
 				this.log('Cannot mount an object to itself!', 'error');
 				return this;
@@ -945,7 +947,10 @@ var TaroObject = TaroEventingClass.extend({
 				return this;
 			} else {
 				// The object has no _children array!
-				this.log('Cannot mount object because it has no _children array! If you are mounting to a custom class, ensure that you have called the prototype.init() method of your super-class during the init of your custom class.', 'warning');
+				this.log(
+					'Cannot mount object because it has no _children array! If you are mounting to a custom class, ensure that you have called the prototype.init() method of your super-class during the init of your custom class.',
+					'warning'
+				);
 				return false;
 			}
 		} else {
@@ -1142,7 +1147,7 @@ var TaroObject = TaroEventingClass.extend({
 	 * @return {*} Returns this when setting the value or the current value if none is specified.
 	 */
 	indestructible: function (val) {
-		if (typeof (val) !== 'undefined') {
+		if (typeof val !== 'undefined') {
 			this._indestructible = val;
 			return this;
 		}
@@ -1197,7 +1202,7 @@ var TaroObject = TaroEventingClass.extend({
 			this._layer = val;
 
 			if (taro.isClient) {
-				this.emit('layer', [ val ]);
+				this.emit('layer', [val]);
 			}
 
 			return this;
@@ -1253,7 +1258,7 @@ var TaroObject = TaroEventingClass.extend({
 			this._depth = val;
 
 			if (taro.isClient) {
-				this.emit('depth', [ val ]);
+				this.emit('depth', [val]);
 			}
 
 			return this;
@@ -1267,7 +1272,7 @@ var TaroObject = TaroEventingClass.extend({
 			this._zOffset = val;
 
 			if (taro.isClient) {
-				this.emit('z-offset', [ val ]);
+				this.emit('z-offset', [val]);
 			}
 
 			return this;
@@ -1368,7 +1373,8 @@ var TaroObject = TaroEventingClass.extend({
 			var arr = this._children;
 			var arrCount;
 			var sortObj;
-			var i; var j;
+			var i;
+			var j;
 
 			if (arr) {
 				arrCount = arr.length;
@@ -1378,14 +1384,15 @@ var TaroObject = TaroEventingClass.extend({
 					// Check if the mount mode is isometric
 					if (this._mountMode === 1) {
 						// Check the depth sort mode
-						if (this._depthSortMode === 0) { // Slowest, uses 3d bounds
+						if (this._depthSortMode === 0) {
+							// Slowest, uses 3d bounds
 							// Calculate depths from 3d bounds
 							sortObj = {
 								adj: [],
 								c: [],
 								p: [],
 								order: [],
-								order_ind: arrCount - 1
+								order_ind: arrCount - 1,
 							};
 
 							for (i = 0; i < arrCount; ++i) {
@@ -1431,7 +1438,8 @@ var TaroObject = TaroEventingClass.extend({
 							});
 						}
 
-						if (this._depthSortMode === 1) { // Medium speed, optimised for almost-cube shaped 3d bounds
+						if (this._depthSortMode === 1) {
+							// Medium speed, optimised for almost-cube shaped 3d bounds
 							// Now sort the entities by depth
 							this._children.sort(function (a, b) {
 								var layerIndex = b._layer - a._layer;
@@ -1452,7 +1460,8 @@ var TaroObject = TaroEventingClass.extend({
 							});
 						}
 
-						if (this._depthSortMode === 2) { // Fastest, optimised for cube-shaped 3d bounds
+						if (this._depthSortMode === 2) {
+							// Fastest, optimised for cube-shaped 3d bounds
 							while (arrCount--) {
 								sortObj = arr[arrCount];
 								j = sortObj._translate;
@@ -1475,7 +1484,8 @@ var TaroObject = TaroEventingClass.extend({
 								}
 							});
 						}
-					} else { // 2d mode
+					} else {
+						// 2d mode
 						// Now sort the entities by depth
 						this._children.sort(function (a, b) {
 							var layerIndex = b._layer - a._layer;
@@ -1565,14 +1575,14 @@ var TaroObject = TaroEventingClass.extend({
 			}
 			var arr = this._children;
 			var arrCount;
-			var ts; var td;
+			var ts;
+			var td;
 
 			if (arr) {
 				arrCount = arr.length;
 				while (arrCount--) {
 					var obj = arr[arrCount];
-					if (obj)
-						obj.update(ctx, tickDelta);
+					if (obj) obj.update(ctx, tickDelta);
 				}
 			}
 		}
@@ -1588,7 +1598,8 @@ var TaroObject = TaroEventingClass.extend({
 			var parentLayer = parseInt(this.layer());
 			var parentDepth = parseInt(this.depth());
 			var arrCount;
-			var ts; var td;
+			var ts;
+			var td;
 			if (this._viewChecking) {
 				// Set the in-scene flag for each child based on
 				// the current viewport
@@ -1596,11 +1607,7 @@ var TaroObject = TaroEventingClass.extend({
 			}
 			// dont render regions if they are not visible
 
-			if (
-				this._category === 'region' &&
-				this._stats.default &&
-				!this._stats.default.inside
-			) {
+			if (this._category === 'region' && this._stats.default && !this._stats.default.inside) {
 				return;
 			}
 			// Loop the child objects of this object
@@ -1693,7 +1700,8 @@ var TaroObject = TaroEventingClass.extend({
 	_depthSortVisit: function (u, sortObj) {
 		var arr = sortObj.adj[u];
 		var arrCount = arr.length;
-		var i; var v;
+		var i;
+		var v;
 
 		sortObj.c[u] = 1;
 
@@ -1776,25 +1784,21 @@ var TaroObject = TaroEventingClass.extend({
 	 * @param obj
 	 * @private
 	 */
-	_childUnMounted: function (obj) { },
+	_childUnMounted: function (obj) {},
 
 	/**
 	 * Called when this object is mounted to another object.
 	 * @param obj
 	 * @private
 	 */
-	_mounted: function (obj) {
-
-	},
+	_mounted: function (obj) {},
 
 	/**
 	 * Called when this object is un-mounted from it's parent.
 	 * @param obj
 	 * @private
 	 */
-	_unMounted: function (obj) {
-
-	},
+	_unMounted: function (obj) {},
 
 	/**
 	 * Destroys the object and all it's child objects, removing them from the
@@ -1879,15 +1883,12 @@ var TaroObject = TaroEventingClass.extend({
 		switch (i) {
 			case '_id':
 				return { _id: obj[i] };
-				break;
 
 			case '_parent':
 				return { _parent: obj[i] };
-				break;
 
 			case '_children':
 				return { _children: obj[i] };
-				break;
 		}
 		return undefined;
 	},
@@ -1940,12 +1941,12 @@ var TaroObject = TaroEventingClass.extend({
 		var specPropKey;
 		var i;
 
-		if (typeof (obj) === 'object' && !(obj instanceof Array)) {
+		if (typeof obj === 'object' && !(obj instanceof Array)) {
 			copyObj = {};
 
 			for (i in obj) {
 				if (obj.hasOwnProperty(i)) {
-					if (typeof (obj[i]) === 'object') {
+					if (typeof obj[i] === 'object') {
 						if (specialKeys.indexOf(i) === -1) {
 							// Check if the ref already exists
 							refIndex = ref.indexOf(obj[i]);
@@ -1964,7 +1965,7 @@ var TaroObject = TaroEventingClass.extend({
 							specProp = this.saveSpecialProp(obj, i);
 
 							if (specProp) {
-								if (typeof (specProp) === 'object' && !(specProp instanceof Array)) {
+								if (typeof specProp === 'object' && !(specProp instanceof Array)) {
 									// Process the returned object properties
 									for (specPropKey in specProp) {
 										if (specProp.hasOwnProperty(specPropKey)) {
@@ -1999,7 +2000,7 @@ var TaroObject = TaroEventingClass.extend({
 		for (i in newProps) {
 			if (newProps.hasOwnProperty(i)) {
 				if (specialKeys.indexOf(i) === -1) {
-					if (typeof (newProps[i]) === 'object' && obj[i]) {
+					if (typeof newProps[i] === 'object' && obj[i]) {
 						this._objLoadReassign(obj[i], newProps[i]);
 					} else {
 						// Assign the property value directly
@@ -2012,7 +2013,7 @@ var TaroObject = TaroEventingClass.extend({
 					specProp = this.loadSpecialProp(newProps, i);
 
 					if (specProp) {
-						if (typeof (specProp) === 'object' && !(specProp instanceof Array)) {
+						if (typeof specProp === 'object' && !(specProp instanceof Array)) {
 							// Process the returned object properties
 							for (specPropKey in specProp) {
 								if (specProp.hasOwnProperty(specPropKey)) {
@@ -2073,7 +2074,8 @@ var TaroObject = TaroEventingClass.extend({
 			options = {};
 		}
 
-		var str = ''; var i;
+		var str = '';
+		var i;
 
 		// Loop properties and add property assignment code to string
 		for (i in this) {
@@ -2111,9 +2113,9 @@ var TaroObject = TaroEventingClass.extend({
 		}
 
 		return str;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroObject;
 }

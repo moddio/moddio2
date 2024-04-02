@@ -2,6 +2,7 @@
  * MobileControlsComponent
  * Virtual game controls for use on mobile devices
  */
+
 var MobileControlsComponent = TaroEntity.extend({
 	classId: 'MobileControlsComponent',
 	componentId: 'mobileControls',
@@ -16,22 +17,23 @@ var MobileControlsComponent = TaroEntity.extend({
 
 		this.controls = {};
 
-		this.secondaryTouchPosition = {x: NaN, y: NaN};
+		this.secondaryTouchPosition = { x: NaN, y: NaN };
 
-        var self = this;
+		var self = this;
 
 		// mouse move listener
 		taro.input.on('touchpointermove', function (point) {
-            taro.client.myPlayer.control.newMousePosition = [
-                point.x.toFixed(0),
-                point.y.toFixed(0)
-            ];
-            taro.client.myPlayer.control.lastMousePosition = taro.client.myPlayer.control.newMousePosition;
+			taro.client.myPlayer.control.newMouseState[0] = point.x.toFixed(0);
+			taro.client.myPlayer.control.newMouseState[1] = point.y.toFixed(0);
+
+			for (let i = 0; i < taro.client.myPlayer.control.newMouseState.length; i++) {
+				taro.client.myPlayer.control.lastMouseState[i] = taro.client.myPlayer.control.newMouseState[i];
+			}
 		});
 
 		// second touch listener
 		taro.input.on('secondarytouchpointermove', function (point) {
-			self.secondaryTouchPosition = {x: point.x.toFixed(0), y: point.y.toFixed(0)};
+			self.secondaryTouchPosition = { x: point.x.toFixed(0), y: point.y.toFixed(0) };
 		});
 
 		$(window).on('orientationchange load resize', function () {
@@ -40,7 +42,7 @@ var MobileControlsComponent = TaroEntity.extend({
 				if (taro.client && taro.client.myPlayer && taro.network.id() == taro.client.myPlayer._stats.clientId) {
 					var unit = taro.$(taro.client.myPlayer._stats.selectedUnitId);
 					if (unit && unit._stats.controls) {
-                        self.emit('orientationchange', screen.orientation.type);
+						self.emit('orientationchange', screen.orientation.type);
 						if (unit._stats.controls.abilities) {
 							// update mobile controls
 							taro.mobileControls.configure(unit._stats.controls);
@@ -92,7 +94,7 @@ var MobileControlsComponent = TaroEntity.extend({
 		$('#chat-history').css('width', '200px');
 		$('#dev-console').hide(); // this gets in the way of testing too
 		$('#modd-item-shop-modal').css({
-			zIndex: 9050
+			zIndex: 9050,
 		});
 		taro.scoreboard.hideScores(); // default to collapsed state on mobile
 
@@ -188,7 +190,6 @@ var MobileControlsComponent = TaroEntity.extend({
 
 	// add a button or stick to the virtual controller
 	addControl: function (key, x, y, keybinding, abilities) {
-
 		var self = this;
 
 		var settings = {};
@@ -196,31 +197,64 @@ var MobileControlsComponent = TaroEntity.extend({
 		this.controls[key] = settings;
 
 		switch (key) {
+			case 'movementWheel':
+				{
+					let moveStick = {
+						_isUp: false,
+						_isDown: false,
+						_isLeft: false,
+						_isRight: false,
+					};
 
-			case 'movementWheel': {
+					// building joystick zone
+					let joystickZone = document.createElement('div');
+					joystickZone.id = 'movementWheel_joystick';
+					joystickZone.style.width = '50vw';
+					joystickZone.style.height = '50vw';
+					joystickZone.style.position = 'fixed';
 
-				let moveStick = {
-					_isUp: false,
-					_isDown: false,
-					_isLeft: false,
-					_isRight: false
-				};
+					// if x is more than 450, then place the joystick on the right side of the screen
+					if (x > 450) {
+						joystickZone.style.right = '0';
+						joystickZone.style.top = '0';
+					} else {
+						joystickZone.style.left = '0';
+						joystickZone.style.top = '0';
+					}
+					document.body.appendChild(joystickZone);
 
-				Object.assign(settings, {
-					onChange: (data) => {
+					// calculate joystick position based on x and y coordinates
+					const [xPercentage, yPercentage] = [
+						((x / window.innerWidth) * 100).toFixed(2),
+						((y / window.innerHeight) * 100).toFixed(2),
+					];
+
+					// assign joystick to the zone
+					var manager = window.nipplejs.create({
+						zone: joystickZone,
+						mode: 'dynamic',
+						position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
+						color: 'black',
+					});
+
+					manager.on('move', function (evt, data) {
+						let joystickData = {
+							angle: data.angle.degree,
+							power: data.force,
+						};
 						if (taro.client.myPlayer) {
 							// Endel's joystick angles are in "Maths style" (zero degrees is EAST and positive anticlockwise)
 							// Convert into compass style angle (zero degrees NORTH and positive clockwise)
-							var compassAngle = (360 - (data.angle - 90)) % 360;
+							var compassAngle = (360 - (joystickData.angle - 90)) % 360;
 
 							var tolerance = 12;
 
-							var isUp = (compassAngle <= 90 - tolerance) || (compassAngle >= 270 + tolerance);
-							var isDown = (compassAngle >= 90 + tolerance) && (compassAngle <= 270 - tolerance);
-							var isLeft = (compassAngle <= 360 - tolerance) && (compassAngle >= 180 + tolerance);
-							var isRight = (compassAngle >= tolerance) && (compassAngle <= 180 - tolerance);
+							var isUp = compassAngle <= 90 - tolerance || compassAngle >= 270 + tolerance;
+							var isDown = compassAngle >= 90 + tolerance && compassAngle <= 270 - tolerance;
+							var isLeft = compassAngle <= 360 - tolerance && compassAngle >= 180 + tolerance;
+							var isRight = compassAngle >= tolerance && compassAngle <= 180 - tolerance;
 
-							if (data.power > 0.5) {
+							if (joystickData.power > 0.5) {
 								if (isUp && moveStick._isUp == false) {
 									self.upPressed();
 								}
@@ -268,8 +302,9 @@ var MobileControlsComponent = TaroEntity.extend({
 								moveStick._isRight = false;
 							}
 						}
-					},
-					onEnd: () => {
+					});
+
+					manager.on('end', function (evt, data) {
 						if (moveStick._isUp) {
 							self.upReleased();
 						}
@@ -286,33 +321,105 @@ var MobileControlsComponent = TaroEntity.extend({
 						moveStick._isDown = false;
 						moveStick._isLeft = false;
 						moveStick._isRight = false;
-					}
-				});
-			}
+					});
+				}
 				break;
 
-			case 'lookWheel': {
+			case 'lookWheel':
+				{
+					// building joystick zone
+					let joystickZone = document.createElement('div');
+					joystickZone.id = 'lookWheel_joystick';
+					joystickZone.style.width = '50vw';
+					joystickZone.style.height = '50vw';
+					joystickZone.style.position = 'fixed';
 
-				Object.assign(settings, {
-					onChange: (data) => {
+					// if x is more than 450, then place the joystick on the right side of the screen
+					if (x > 450) {
+						joystickZone.style.right = '0';
+						joystickZone.style.top = '0';
+					} else {
+						joystickZone.style.left = '0';
+						joystickZone.style.top = '0';
+					}
+					document.body.appendChild(joystickZone);
+
+					// calculate joystick position based on x and y coordinates
+					const [xPercentage, yPercentage] = [
+						((x / window.innerWidth) * 100).toFixed(2),
+						((y / window.innerHeight) * 100).toFixed(2),
+					];
+
+					// assign joystick to the zone
+					var manager = window.nipplejs.create({
+						zone: joystickZone,
+						mode: 'dynamic',
+						position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
+						color: 'black',
+					});
+
+					// handle look wheel inputs
+					const handleLookWheelInputs = (data) => {
+						let joystickData = {
+							angle: ((data.angle.degree + 180) % 360) - 180,
+							power: data.force,
+						};
+
+						this.mouseMovement(joystickData.power, joystickData.angle);
+					};
+
+					// listen for joystick movement
+					manager.on('move', function (evt, data) {
 						if (taro.client.myPlayer) {
-                            this.mouseMovement(data.power, data.angle);
+							handleLookWheelInputs(data);
 						}
-					}
-				});
-			}
+					});
+				}
 				break;
 
-			case 'lookAndFireWheel': {
+			case 'lookAndFireWheel':
+				{
+					// building joystick zone
+					let joystickZone = document.createElement('div');
+					joystickZone.id = 'lookAndFireWheel_joystick';
+					joystickZone.style.width = '50vw';
+					joystickZone.style.height = '50vw';
+					joystickZone.style.position = 'fixed';
 
-				Object.assign(settings, {
-					redFireZone: true,
-					onChange: (data) => {
+					// if x is more than 450, then place the joystick on the right side of the screen
+					if (x > 450) {
+						joystickZone.style.right = '0';
+						joystickZone.style.top = '0';
+					} else {
+						joystickZone.style.left = '0';
+						joystickZone.style.top = '0';
+					}
+					document.body.appendChild(joystickZone);
+					// calculate joystick position based on x and y coordinates
+					const [xPercentage, yPercentage] = [
+						((x / window.innerWidth) * 100).toFixed(2),
+						((y / window.innerHeight) * 100).toFixed(2),
+					];
+
+					// assign joystick to the zone
+					var manager = window.nipplejs.create({
+						zone: joystickZone,
+						mode: 'dynamic',
+						position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
+						color: 'black',
+					});
+
+					// handle look wheel inputs and fire
+					const handleShoot = (data) => {
+						let joystickData = {
+							angle: ((data.angle.degree + 180) % 360) - 180,
+							power: data.force,
+						};
 						if (taro.client.myPlayer) {
-                            this.mouseMovement(data.power, data.angle);
+							this.mouseMovement(joystickData.power, joystickData.angle);
 
 							// when fire stick is moved to the red ring...
-							if (data.power > 1) {
+							if (joystickData.power > 1) {
 								// start firing
 								taro.client.myPlayer.control.keyDown('mouse', 'button1');
 							} else {
@@ -320,36 +427,50 @@ var MobileControlsComponent = TaroEntity.extend({
 								taro.client.myPlayer.control.keyUp('mouse', 'button1');
 							}
 						}
-					},
-					onEnd: () => {
-						// if the player lets go of the fire stick perform a keyup on mouse button1 to stop firing
+					};
+
+					// handle end of shooting
+					const endShoot = () => {
 						if (taro.client.myPlayer) {
 							taro.client.myPlayer.control.keyUp('mouse', 'button1');
 						}
-					}
-				});
-			}
+					};
+
+					// listen for joystick movement
+					manager.on('move', function (evt, data) {
+						if (taro.client.myPlayer) {
+							handleShoot(data);
+						}
+					});
+
+					// listen for end of joystick movement
+					manager.on('end', function (evt, data) {
+						endShoot();
+					});
+				}
 				break;
 
-			default: {
-
-				Object.assign(settings, {
-					onStart: () => {
-						if (key) {
-							taro.network.send('playerKeyDown', {
-								device: 'key', key: key.toLowerCase()
-							});
-						}
-					},
-					onEnd: () => {
-						if (key) {
-							taro.network.send('playerKeyUp', {
-								device: 'key', key: key.toLowerCase()
-							});
-						}
-					}
-				});
-			}
+			default:
+				{
+					Object.assign(settings, {
+						onStart: () => {
+							if (key) {
+								taro.network.send('playerKeyDown', {
+									device: 'key',
+									key: key.toLowerCase(),
+								});
+							}
+						},
+						onEnd: () => {
+							if (key) {
+								taro.network.send('playerKeyUp', {
+									device: 'key',
+									key: key.toLowerCase(),
+								});
+							}
+						},
+					});
+				}
 				break;
 		}
 
@@ -357,9 +478,9 @@ var MobileControlsComponent = TaroEntity.extend({
 		let ability = null;
 		if (abilityId) {
 			ability = abilities[abilityId];
-			this.emit('add-control', [ key, x, y, settings, abilityId, ability ]);
+			this.emit('add-control', [key, x, y, settings, abilityId, ability]);
 		} else {
-			this.emit('add-control', [ key, x, y, settings ]);
+			this.emit('add-control', [key, x, y, settings]);
 		}
 	},
 
@@ -367,37 +488,33 @@ var MobileControlsComponent = TaroEntity.extend({
 		this.emit('visible', value);
 	},
 
-    mouseMovement: function (power, angle) {
-        // simulate mouse movement 100000 units away from player (scaled by joystick "power") character but at the angle
-        if (power > 0) {
-            // Endel's joystick angles are in "Maths style" (zero degrees is EAST and positive anticlockwise)
-            // Convert into compass style angle (zero degrees NORTH and positive clockwise)
-            var compassAngle = -(angle - 90);
+	mouseMovement: function (power, angle) {
+		// simulate mouse movement 100000 units away from player (scaled by joystick "power") character but at the angle
+		if (power > 0) {
+			// Endel's joystick angles are in "Maths style" (zero degrees is EAST and positive anticlockwise)
+			// Convert into compass style angle (zero degrees NORTH and positive clockwise)
+			var compassAngle = -(angle - 90);
 
-            var unit = taro.client.myPlayer.getSelectedUnit();
-            if (unit) {
-                var unitTranslate = unit._translate;
-                var mx = unitTranslate.x + Math.sin(compassAngle / 360 * 2 * Math.PI) * 100000 * power;
-                var my = unitTranslate.y - Math.cos(compassAngle / 360 * 2 * Math.PI) * 100000 * power;
-            }
+			var unit = taro.client.myPlayer.getSelectedUnit();
+			if (unit) {
+				var unitTranslate = unit._translate;
+				var mx = unitTranslate.x + Math.sin((compassAngle / 360) * 2 * Math.PI) * 100000 * power;
+				var my = unitTranslate.y - Math.cos((compassAngle / 360) * 2 * Math.PI) * 100000 * power;
+			}
 
-            taro.client.myPlayer.control.input.mouse.x = mx;
-            taro.client.myPlayer.control.input.mouse.y = my;
+			taro.client.myPlayer.control.input.mouse.x = mx;
+			taro.client.myPlayer.control.input.mouse.y = my;
 
-            taro.client.myPlayer.absoluteAngle = compassAngle;
-			taro.client.myPlayer.control.newMousePosition = [
-				mx.toFixed(0),
-				my.toFixed(0)
-			];
-        }
-    },
+			taro.client.myPlayer.absoluteAngle = compassAngle;
+
+			taro.client.myPlayer.control.newMouseState[0] = mx.toFixed(0);
+			taro.client.myPlayer.control.newMouseState[1] = my.toFixed(0);
+		}
+	},
 
 	_behaviour: function () {
 		// necessary to prevent the game from crashing when EntitiesToRender.updateAllEntities() tries to call ._behaviour() for all entities that are rendered
-	}
-
-
-
+	},
 });
 
 // client side only

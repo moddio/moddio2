@@ -63,8 +63,12 @@ var TaroMap2d = TaroClass.extend({
 	collision: function (x, y, width, height) {
 		var xi, yi;
 
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		if (x !== undefined && y !== undefined) {
 			for (yi = 0; yi < height; yi++) {
@@ -91,8 +95,12 @@ var TaroMap2d = TaroClass.extend({
 	collisionWith: function (x, y, width, height, data) {
 		var xi, yi;
 
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		if (x !== undefined && y !== undefined) {
 			for (yi = 0; yi < height; yi++) {
@@ -118,12 +126,17 @@ var TaroMap2d = TaroClass.extend({
 	 * @param data
 	 */
 	collisionWithOnly: function (x, y, width, height, data) {
-		var xi; var yi;
+		var xi;
+		var yi;
 		var tileData;
 		var withData = false;
 
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		if (x !== undefined && y !== undefined) {
 			for (yi = 0; yi < height; yi++) {
@@ -252,9 +265,11 @@ var TaroMap2d = TaroClass.extend({
 	translateDataBy: function (transX, transY) {
 		var yArr = this.mapData();
 		var newArr = [];
-		var x; var y;
+		var x;
+		var y;
 		var xArr;
-		var i; var k;
+		var i;
+		var k;
 
 		for (y in yArr) {
 			if (yArr.hasOwnProperty(y)) {
@@ -273,7 +288,9 @@ var TaroMap2d = TaroClass.extend({
 		}
 
 		this.mapData(newArr, 0, 0);
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroMap2d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroMap2d;
+}

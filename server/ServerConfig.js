@@ -1,15 +1,16 @@
 var moddioConfig =
 	process.env.ENV === 'standalone'
-		? process.env.LOAD_CC === 'true' ? [{ name: 'WorkerComponent', path: '../../components/WorkerComponent' }]:[]
+		? process.env.LOAD_CC === 'true'
+			? [{ name: 'WorkerComponent', path: '../../components/WorkerComponent' }]
+			: []
 		: [
-			{ name: 'WorkerComponent', path: '../../components/WorkerComponent' },
-			{ name: 'MasterServerComponent', path: '../../components/MasterServerComponent' },
-			{ name: 'MasterComponent', path: '../../components/MasterComponent' },
-			{ name: 'HttpComponent', path: '../../components/HttpComponent' },
-			{ name: 'ProxyComponent', path: '../../components/ProxyComponent' },
-			{ name: 'betterFilter', path: '../../utils/betterFilter' }
-		];
-
+				{ name: 'WorkerComponent', path: '../../components/WorkerComponent' },
+				{ name: 'MasterServerComponent', path: '../../components/MasterServerComponent' },
+				{ name: 'MasterComponent', path: '../../components/MasterComponent' },
+				{ name: 'HttpComponent', path: '../../components/HttpComponent' },
+				{ name: 'ProxyComponent', path: '../../components/ProxyComponent' },
+				{ name: 'betterFilter', path: '../../utils/betterFilter' },
+			];
 
 var defaultConfig = [
 	{ name: 'ServerNetworkEvents', path: '../server/ServerNetworkEvents' },
@@ -43,7 +44,7 @@ var defaultConfig = [
 	{ name: 'AStarPathfindingComponent', path: '../src/gameClasses/components/unit/AStarPathfindingComponent' },
 
 	{ name: 'AttributeComponent', path: '../src/gameClasses/components/entity/AttributeComponent' },
-	{ name: 'VariableComponent', path: '../src/gameClasses/components/entity/VariableComponent' },	
+	{ name: 'VariableComponent', path: '../src/gameClasses/components/entity/VariableComponent' },
 
 	// Raycasting
 	{ name: 'Raycaster', path: '../src/gameClasses/Raycaster' },
@@ -61,11 +62,11 @@ var defaultConfig = [
 
 	{ name: 'DeveloperMode', path: '../src/gameClasses/DeveloperMode' },
 	// Color support
-	{ name: 'Colors', path: '../src/utils/Colors' }
+	{ name: 'Colors', path: '../src/utils/Colors' },
 ];
 
 var config = {
-	include: moddioConfig.concat(defaultConfig)
+	include: moddioConfig.concat(defaultConfig),
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

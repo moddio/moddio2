@@ -2,7 +2,6 @@ build/
 heapdump/
 log.log
 typings/**
-.vscode/
 .dockerignore
 Dockerfile
 commands

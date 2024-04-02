@@ -15,7 +15,10 @@ var AttributeComponent = TaroEntity.extend({
 
 			for (var attrId in attributes) {
 				const individualAttribute = attributes[attrId];
-				individualAttribute.value = Math.max(individualAttribute.min, Math.min(individualAttribute.max, individualAttribute.value));
+				individualAttribute.value = Math.max(
+					individualAttribute.min,
+					Math.min(individualAttribute.max, individualAttribute.value)
+				);
 			}
 		}
 	},
@@ -101,16 +104,16 @@ var AttributeComponent = TaroEntity.extend({
 								if (currentAttributeValue != undefined && bonus && unit._stats.attributes[attrId]) {
 									if (removeAttribute) {
 										if (bonus.type === 'percentage') {
-											var newValue = currentAttributeValue / (1 + (parseFloat(bonus.value) / 100));
-											var newMax = maxValue / (1 + (parseFloat(bonus.value) / 100));
+											var newValue = currentAttributeValue / (1 + parseFloat(bonus.value) / 100);
+											var newMax = maxValue / (1 + parseFloat(bonus.value) / 100);
 										} else {
 											var newMax = maxValue - parseFloat(bonus.value);
 											var newValue = Math.min(newMax, Math.max(selectedAttribute.min, currentAttributeValue));
 										}
 									} else {
 										if (bonus.type === 'percentage') {
-											var newValue = currentAttributeValue * (1 + (parseFloat(bonus.value) / 100));
-											var newMax = maxValue * (1 + (parseFloat(bonus.value) / 100));
+											var newValue = currentAttributeValue * (1 + parseFloat(bonus.value) / 100);
+											var newMax = maxValue * (1 + parseFloat(bonus.value) / 100);
 										} else {
 											var newMax = maxValue + parseFloat(bonus.value);
 											var newValue = Math.min(newMax, Math.max(selectedAttribute.min, currentAttributeValue));
@@ -138,16 +141,16 @@ var AttributeComponent = TaroEntity.extend({
 									// this condition check if attribute value is directly applyed from server side then not update on client side
 									if (removeAttribute) {
 										if (bonus.type === 'percentage') {
-											var newValue = currentAttributeValue / (1 + (parseFloat(bonus.value) / 100));
-											var newMax = maxValue / (1 + (parseFloat(bonus.value) / 100));
+											var newValue = currentAttributeValue / (1 + parseFloat(bonus.value) / 100);
+											var newMax = maxValue / (1 + parseFloat(bonus.value) / 100);
 										} else {
 											var newMax = maxValue - parseFloat(bonus.value);
 											var newValue = Math.min(newMax, Math.max(selectedAttribute.min, currentAttributeValue));
 										}
 									} else {
 										if (bonus.type === 'percentage') {
-											var newValue = currentAttributeValue * (1 + (parseFloat(bonus.value) / 100));
-											var newMax = maxValue * (1 + (parseFloat(bonus.value) / 100));
+											var newValue = currentAttributeValue * (1 + parseFloat(bonus.value) / 100);
+											var newMax = maxValue * (1 + parseFloat(bonus.value) / 100);
 										} else {
 											var newMax = maxValue + parseFloat(bonus.value);
 											var newValue = Math.min(newMax, Math.max(selectedAttribute.min, currentAttributeValue));
@@ -185,9 +188,7 @@ var AttributeComponent = TaroEntity.extend({
 		}
 	},
 
-	setValue(attributeTypeId, newValue) {
-
-	},
+	setValue(attributeTypeId, newValue) {},
 
 	// change attribute's value manually
 	// adding params newMin/Max to combine update value with min/max
@@ -208,8 +209,8 @@ var AttributeComponent = TaroEntity.extend({
 				// obj to collect changes for streaming
 				let attrData = {
 					attributes: {
-						[attributeTypeId]: {}
-					}
+						[attributeTypeId]: {},
+					},
 				};
 
 				/**
@@ -222,11 +223,7 @@ var AttributeComponent = TaroEntity.extend({
 				var min = parseFloat(attribute.min);
 				let updateMin = false;
 
-				if (
-					(!(newMin === null || newMin === undefined) &&
-					newMin !== min) ||
-					fromLoadData
-				) {
+				if ((!(newMin === null || newMin === undefined) && newMin !== min) || fromLoadData) {
 					self._entity._stats.attributes[attributeTypeId].min = min = newMin;
 					attrData.attributes[attributeTypeId]['min'] = newMin;
 					updateMin = true;
@@ -242,11 +239,7 @@ var AttributeComponent = TaroEntity.extend({
 				var max = parseFloat(attribute.max);
 				let updateMax = false;
 
-				if (
-					(!(newMax === null || newMax === undefined) &&
-					newMax !== max) ||
-					fromLoadData
-				) {
+				if ((!(newMax === null || newMax === undefined) && newMax !== max) || fromLoadData) {
 					self._entity._stats.attributes[attributeTypeId].max = max = newMax;
 					attrData.attributes[attributeTypeId]['max'] = newMax;
 					updateMax = true;
@@ -273,53 +266,56 @@ var AttributeComponent = TaroEntity.extend({
 				self._entity._stats.attributes[attributeTypeId].value = newValue;
 
 				if (taro.isServer) {
-					if (
-						newValue != oldValue ||
-						updateMin ||
-						updateMax
-					) {
+					if (newValue != oldValue || updateMin || updateMax) {
 						// value is different from last sync'ed value and...
-						if (self._entity?._stats?.attributes[attributeTypeId] && self._entity._stats.attributes[attributeTypeId].lastSyncedValue != newValue) {
+						if (
+							self._entity?._stats?.attributes[attributeTypeId] &&
+							self._entity._stats.attributes[attributeTypeId].lastSyncedValue != newValue
+						) {
 							self._entity._stats.attributes[attributeTypeId].lastSyncedValue = newValue;
 
 							attrData.attributes[attributeTypeId].value = newValue;
-
 						}
 
 						let clientId = null;
 						switch (this._entity._category) {
 							case 'unit':
-								clientId = this._entity?.getOwner()?._stats?.clientId
+								clientId = this._entity?.getOwner()?._stats?.clientId;
 								break;
 
 							case 'player':
-								clientId = this._entity?._stats?.clientId
+								clientId = this._entity?._stats?.clientId;
 								break;
 
 							case 'item':
-								clientId = this._entity?.getOwnerUnit()?.getOwner()?._stats?.clientId
+								clientId = this._entity?.getOwnerUnit()?.getOwner()?._stats?.clientId;
 								break;
 						}
 
 						if (
-							attribute.streamMode == null || attribute.streamMode == 1 ||  // don't stream if streamMode isn't sync'ed (1). Also added != null for legacy support.
+							attribute.streamMode == null ||
+							attribute.streamMode == 1 || // don't stream if streamMode isn't sync'ed (1). Also added != null for legacy support.
 							attribute.streamMode == 4 || // streamMode 4 also sends to everyone. the ignoring part is done on client-side.
-							attributeTypeId == taro.game.data.settings.scoreAttributeId // always stream attribute that's used for scoreboard
-							|| attributeTypeId === taro.game.data.settings.persistentScoreAttributeId
+							attributeTypeId == taro.game.data.settings.scoreAttributeId || // always stream attribute that's used for scoreboard
+							attributeTypeId === taro.game.data.settings.persistentScoreAttributeId
 						) {
 							self._entity.streamUpdateData([attrData]);
 						} else if (attribute.streamMode == 3) {
 							self._entity.streamUpdateData([attrData], clientId);
 						}
 
-						if (newValue <= 0 && oldValue > 0) { // when attribute becomes zero, trigger attributeBecomesZero event
+						if (newValue <= 0 && oldValue > 0) {
+							// when attribute becomes zero, trigger attributeBecomesZero event
 							// unit's health became 0. announce death
 							if (self._entity._category == 'unit' && attributeTypeId == 'health') {
 								self._entity.ai.announceDeath();
 							}
 						}
 						// check if user breaks his highscore then assign it to new highscore
-						if ((attributeTypeId == taro.game.data.settings?.persistentScoreAttributeId) && self._entity._stats.highscore < newValue) {
+						if (
+							attributeTypeId == taro.game.data.settings?.persistentScoreAttributeId &&
+							self._entity._stats.highscore < newValue
+						) {
 							if (!self._entity._stats.newHighscore) {
 								taro.gameText.alertHighscore(clientId);
 							}
@@ -332,15 +328,25 @@ var AttributeComponent = TaroEntity.extend({
 					var triggeredBy = { attribute: attribute };
 					triggeredBy[`${this._entity._category}Id`] = this._entity.id();
 
-					if (newValue <= 0 && oldValue > 0) { // when attribute becomes zero, trigger attributeBecomesZero event
+					if (newValue <= 0 && oldValue > 0) {
+						// when attribute becomes zero, trigger attributeBecomesZero event
 						// necessary as self._entity can be 'player' which doesn't have scriptComponent
-						if (self._entity._category == 'unit' || self._entity._category == 'item' || self._entity._category == 'projectile') {
+						if (
+							self._entity._category == 'unit' ||
+							self._entity._category == 'item' ||
+							self._entity._category == 'projectile'
+						) {
 							self._entity.script.trigger('entityAttributeBecomesZero', triggeredBy);
 						}
 						taro.queueTrigger(`${this._entity._category}AttributeBecomesZero`, triggeredBy);
-					} else if (newValue >= attribute.max) { // when attribute becomes full, trigger attributeBecomesFull event
+					} else if (newValue >= attribute.max) {
+						// when attribute becomes full, trigger attributeBecomesFull event
 						// necessary as self._entity can be 'player' which doesn't have scriptComponent
-						if (self._entity._category == 'unit' || self._entity._category == 'item' || self._entity._category == 'projectile') {
+						if (
+							self._entity._category == 'unit' ||
+							self._entity._category == 'item' ||
+							self._entity._category == 'projectile'
+						) {
 							self._entity.script.trigger('entityAttributeBecomesFull', triggeredBy);
 						}
 						taro.queueTrigger(`${this._entity._category}AttributeBecomesFull`, triggeredBy);
@@ -348,7 +354,6 @@ var AttributeComponent = TaroEntity.extend({
 				}
 
 				if (taro.isClient) {
-
 					// scoreboard attribute has been changed. queue update.
 					if (attributeTypeId == taro.game.data.settings.scoreAttributeId) {
 						taro.scoreboard.queueUpdate();
@@ -373,7 +378,11 @@ var AttributeComponent = TaroEntity.extend({
 								// or other variations of this
 
 								// need to patch in `type` so that other clients know which attribute bar and don't create an additional, new one
-								self._entity.updateAttributeBar({ ...self._entity._stats.attributes[attributeTypeId], type: attributeTypeId, hasChanged: attribute.hasChanged });
+								self._entity.updateAttributeBar({
+									...self._entity._stats.attributes[attributeTypeId],
+									type: attributeTypeId,
+									hasChanged: attribute.hasChanged,
+								});
 								break;
 							}
 							case 'item': {
@@ -431,7 +440,7 @@ var AttributeComponent = TaroEntity.extend({
 				attribute.max = value;
 				if (taro.isServer) {
 					var attribute = {
-						attributesMax: {}
+						attributesMax: {},
 					};
 					attribute.attributesMax[attrId] = value;
 
@@ -459,7 +468,7 @@ var AttributeComponent = TaroEntity.extend({
 				// attribute.min = value
 				if (taro.isServer) {
 					var attribute = {
-						attributesMin: {}
+						attributesMin: {},
 					};
 					attribute.attributesMin[attrId] = value;
 					this._entity.streamUpdateData([attribute]);
@@ -488,7 +497,7 @@ var AttributeComponent = TaroEntity.extend({
 						e: this._entity._id,
 						a: attrId,
 						x: value,
-						p: 'regenerateSpeed'
+						p: 'regenerateSpeed',
 					});
 				}
 			}
@@ -507,7 +516,9 @@ var AttributeComponent = TaroEntity.extend({
 			this.update();
 			this.updateQueued = false;
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = AttributeComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = AttributeComponent;
+}

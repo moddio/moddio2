@@ -5,7 +5,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 	classId: 'TaroEntityPhysics',
 
 	init: function (defaultData = {}) {
-
 		TaroEntity.prototype.init.call(this, defaultData);
 		var self = this;
 
@@ -33,11 +32,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 				this.rotateTo = this._rotateTo;
 				this.rotateBy = this._rotateBy;
 			} else {
-				this._translateToProto = function () { };
-				this._translateByProto = function () { };
+				this._translateToProto = function () {};
+				this._translateByProto = function () {};
 
-				this._rotateToProto = function () { };
-				this._rotateByProto = function () { };
+				this._rotateToProto = function () {};
+				this._rotateByProto = function () {};
 
 				this._updateProto = this.update;
 
@@ -70,7 +69,10 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this.width(parseFloat(body.width) * this._scale.x);
 		this.height(parseFloat(body.height) * this._scale.y);
 
-		var shapeData = (body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data) ? body.fixtures[0].shape.data : undefined;
+		var shapeData =
+			body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data
+				? body.fixtures[0].shape.data
+				: undefined;
 
 		// override body bounds
 		if (body?.fixtures) {
@@ -118,28 +120,33 @@ var TaroEntityPhysics = TaroEntity.extend({
 			bullet: body.bullet,
 			fixedRotation: body.fixedRotation,
 			affectedByGravity: body.affectedByGravity != false, // we want undefined to be considered as true for backward compatibility
-			fixtures: [{
-				density: body.fixtures ? parseFloat(body.fixtures[0].density) : 0,
-				friction: body.fixtures ? parseFloat(body.fixtures[0].friction) : 0,
-				restitution: body.fixtures ? body.fixtures[0].restitution : 0,
-				isSensor: body.fixtures ? (body.fixtures[0].isSensor || false) : false,
-				filter: {
-					filterGroupIndex: 0,
-					filterCategoryBits: filterCategoryBits,
-					filterMaskBits: ((collidesWith.walls) ? 0x0001 : 0) |
-						((collidesWith.units) ? 0x0002 : 0) |
-						((collidesWith.items) ? 0x0008 : 0) |
-						((collidesWith.projectiles) ? 0x0010 : 0) |
-						((this._category != 'sensor') ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
-						((this._category == 'unit' || this._category == 'item' || this._category == 'projectile') ? 0x0040 : 0) // units/items/projectile will collide with sensors
-
+			fixtures: [
+				{
+					density: body.fixtures ? parseFloat(body.fixtures[0].density) : 0,
+					friction: body.fixtures ? parseFloat(body.fixtures[0].friction) : 0,
+					restitution: body.fixtures ? body.fixtures[0].restitution : 0,
+					isSensor: body.fixtures ? body.fixtures[0].isSensor || false : false,
+					filter: {
+						filterGroupIndex: 0,
+						filterCategoryBits: filterCategoryBits,
+						filterMaskBits:
+							(collidesWith.walls ? 0x0001 : 0) |
+							(collidesWith.units ? 0x0002 : 0) |
+							(collidesWith.items ? 0x0008 : 0) |
+							(collidesWith.projectiles ? 0x0010 : 0) |
+							(this._category != 'sensor' ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
+							(this._category == 'unit' || this._category == 'item' || this._category == 'projectile' ? 0x0040 : 0), // units/items/projectile will collide with sensors
+					},
+					shape: {
+						type:
+							body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.type
+								? body.fixtures[0].shape.type
+								: 'rectangle',
+						data: shapeData,
+					},
+					taroId: this.id(), // in box2dbody, add reference to this entity
 				},
-				shape: {
-					type: (body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.type) ? body.fixtures[0].shape.type : 'rectangle',
-					data: shapeData,
-				},
-				taroId: this.id() // in box2dbody, add reference to this entity
-			}]
+			],
 		};
 		// console.log("collidesWith", this._category, filterCategoryBits, collidesWith, body)
 		this.physicsBody(body, isLossTolerant);
@@ -307,7 +314,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 					this._collisionStartListeners.push({
 						type: type,
 						target: target,
-						callback: callback
+						callback: callback,
 					});
 
 					if (!this._contactListener) {
@@ -321,7 +328,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 					this._collisionEndListeners.push({
 						type: type,
 						target: target,
-						callback: callback
+						callback: callback,
 					});
 
 					if (!this._contactListener) {
@@ -341,7 +348,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	off: function () {
 		if (arguments.length === 3) {
-
 		} else {
 			TaroEntity.prototype.off.apply(this, arguments);
 		}
@@ -360,7 +366,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			entityA: self,
 			entityB: entityB,
 			anchorA: anchorA,
-			anchorB: anchorB
+			anchorB: anchorB,
 		});
 	},
 
@@ -372,7 +378,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			taro.physics.queueAction({
 				type: 'destroyJoint',
 				entityA: this,
-				entityB: attachedEntity
+				entityB: attachedEntity,
 			});
 		}
 	},
@@ -380,7 +386,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		if (taro.physics._world.isLocked() || this.body == undefined) {
 			this.queueAction({
 				type: 'applyTorque',
-				torque: torque
+				torque: torque,
 			});
 		} else {
 			this.applyTorqueLT(torque);
@@ -397,7 +403,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			this.queueAction({
 				type: 'setLinearVelocity',
 				x: x,
-				y: y
+				y: y,
 			});
 		}
 	},
@@ -412,7 +418,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 				} else {
 					this.body.setLinearVelocity(new TaroPoint3d(x, y, 0));
 				}
-
 			}
 		} catch (e) {
 			console.log(`TaroEntityBox2d.js: setLinearVelocityLT ${e}`);
@@ -430,7 +435,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			this.queueAction({
 				type: 'applyForce',
 				x: x,
-				y: y
+				y: y,
 			});
 		}
 	},
@@ -463,7 +468,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			this.queueAction({
 				type: 'applyImpulse',
 				x: x,
-				y: y
+				y: y,
 			});
 		}
 	},
@@ -571,20 +576,20 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this._translateToProto(x, y);
 
 		if (this.body) {
-			if ((taro.physics._world && !taro.physics._world.isLocked())) {
+			if (taro.physics._world && !taro.physics._world.isLocked()) {
 				this.translateToLT(x, y);
 			} else {
 				this.queueAction({
 					type: 'translateTo',
 					x: x,
-					y: y
+					y: y,
 				});
 			}
 		} else {
 			this.queueAction({
 				type: 'translateTo',
 				x: x,
-				y: y
+				y: y,
 			});
 		}
 
@@ -597,12 +602,12 @@ var TaroEntityPhysics = TaroEntity.extend({
 			if (taro.physics.engine == 'crash') {
 				var position = {
 					x: x,
-					y: y
+					y: y,
 				};
 			} else {
 				var position = {
 					x: x / this._b2dRef._scaleRatio,
-					y: y / this._b2dRef._scaleRatio
+					y: y / this._b2dRef._scaleRatio,
 				};
 			}
 
@@ -648,7 +653,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			if ((taro.physics._world && taro.physics._world.isLocked()) || this.body == undefined) {
 				this.queueAction({
 					type: 'rotateTo',
-					angle: z
+					angle: z,
 				});
 			} else {
 				this.rotateToLT(z);
@@ -668,18 +673,18 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	_scaleTexture: function () {
 		var self = this;
-		var currentState = this._stats.states && this._stats.states[this._stats.stateId] || { body: 'none' };
+		var currentState = (this._stats.states && this._stats.states[this._stats.stateId]) || { body: 'none' };
 		var body = {};
 		if (!currentState) {
 			var defaultStateId = self.getDefaultStateId();
-			currentState = self._stats.states && self._stats.states[defaultStateId] || { body: 'none' };
+			currentState = (self._stats.states && self._stats.states[defaultStateId]) || { body: 'none' };
 		}
 		if (currentState && this._stats.bodies) {
 			body = this._stats.bodies[currentState.body];
 		}
 		// console.log(self._stats.name,'->',self._stats.scale)
-		var newWidth = (body && body.width || 1) * (self._stats.scale);
-		var newHeight = (body && body.height || 1) * (self._stats.scale);
+		var newWidth = ((body && body.width) || 1) * self._stats.scale;
+		var newHeight = ((body && body.height) || 1) * self._stats.scale;
 
 		self.width(newWidth, false);
 		self.height(newHeight, false);
@@ -698,19 +703,19 @@ var TaroEntityPhysics = TaroEntity.extend({
 			return;
 		}
 
-		var shapeType = body.fixtures[0].shape && body.fixtures[0].shape.type || 'rectangle';
+		var shapeType = (body.fixtures[0].shape && body.fixtures[0].shape.type) || 'rectangle';
 		var shapeData = {};
 
 		switch (shapeType) {
 			case 'circle': {
 				var normalizer = 0.5;
-				shapeData.radius = body.width * (scale) * normalizer;
+				shapeData.radius = body.width * scale * normalizer;
 				break;
 			}
 			case 'rectangle': {
 				var normalizer = 0.45;
-				shapeData.width = body.width * (scale) * normalizer;
-				shapeData.height = body.height * (scale) * normalizer;
+				shapeData.width = body.width * scale * normalizer;
+				shapeData.height = body.height * scale * normalizer;
 				break;
 			}
 		}
@@ -767,7 +772,10 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// prevent 'applyForce' causing memoryleak by overloading actionQueue
 		// this means if there's too many actions queued, chances are, applyForce will be ignored ;-;
 		// however, regardless of queueSize, translateTo and destroy will always be queued
-		if (this._actionQueue && (this._actionQueue.length < 10 || action.type == 'destroy' || action.type == 'translateTo')) {
+		if (
+			this._actionQueue &&
+			(this._actionQueue.length < 10 || action.type == 'destroy' || action.type == 'translateTo')
+		) {
 			// if we're sending translateTo before previously queued translateTo was processed, then replace the last translatedTo with the newest coordinates.
 			var previousAction = this._actionQueue[this._actionQueue.length - 1];
 			if (action.type == 'translateTo' && previousAction && previousAction.type == 'translateTo') {
@@ -789,7 +797,14 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 					x++;
 					if (x > 1000) {
-						console.log('TaroEntityPhysics processBox2dQueue running over 1000 times', action.type, this._category, this._stats.name, 'id:', this.id());
+						console.log(
+							'TaroEntityPhysics processBox2dQueue running over 1000 times',
+							action.type,
+							this._category,
+							this._stats.name,
+							'id:',
+							this.id()
+						);
 					}
 
 					switch (action.type) {
@@ -844,9 +859,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this.destroyBody();
 		TaroEntity.prototype.destroy.call(this);
 		delete this._actionQueue;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroEntityPhysics;
 }

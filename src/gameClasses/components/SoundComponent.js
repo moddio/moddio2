@@ -61,7 +61,7 @@ var SoundComponent = TaroEntity.extend({
 			return localStorage.setItem(key, value);
 		}
 
-		return storage[key] = value;
+		return (storage[key] = value);
 	},
 
 	getItem: function (key) {
@@ -74,19 +74,11 @@ var SoundComponent = TaroEntity.extend({
 
 	toggleButton: function (type, mode) {
 		if (mode == 'on') {
-			$(`#${type}-on`)
-				.removeClass('btn-light')
-				.addClass('btn-success');
-			$(`#${type}-off`)
-				.removeClass('btn-success')
-				.addClass('btn-light');
+			$(`#${type}-on`).removeClass('btn-light').addClass('btn-success');
+			$(`#${type}-off`).removeClass('btn-success').addClass('btn-light');
 		} else {
-			$(`#${type}-off`)
-				.removeClass('btn-light')
-				.addClass('btn-success');
-			$(`#${type}-on`)
-				.removeClass('btn-success')
-				.addClass('btn-light');
+			$(`#${type}-off`).removeClass('btn-light').addClass('btn-success');
+			$(`#${type}-on`).removeClass('btn-success').addClass('btn-light');
 		}
 	},
 
@@ -122,7 +114,12 @@ var SoundComponent = TaroEntity.extend({
 		settingsVolume = isNaN(settingsVolume) ? 1 : settingsVolume / 100;
 
 		var distanceSoundShouldHeard = 500;
-		if (taro.game.data.settings && taro.game.data.settings.camera && taro.game.data.settings.camera.zoom && taro.game.data.settings.camera.zoom.default) {
+		if (
+			taro.game.data.settings &&
+			taro.game.data.settings.camera &&
+			taro.game.data.settings.camera.zoom &&
+			taro.game.data.settings.camera.zoom.default
+		) {
 			distanceSoundShouldHeard = taro.game.data.settings.camera.zoom.default * 1.5;
 		}
 		var vpBound = taro.renderer.getViewportBounds();
@@ -197,7 +194,7 @@ var SoundComponent = TaroEntity.extend({
 	},
 
 	playMusic: function (music, startAt, shouldRepeat, key) {
-		if (startAt) startAt = startAt/1000;
+		if (startAt) startAt = startAt / 1000;
 		var self = this;
 		var playMusic;
 		if (taro.isClient) {
@@ -286,7 +283,7 @@ var SoundComponent = TaroEntity.extend({
 			this.preLoadedSounds[key].pause();
 			this.preLoadedSounds[key].currentTime = 0;
 		}
-	}
+	},
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

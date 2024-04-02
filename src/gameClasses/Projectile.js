@@ -13,11 +13,11 @@ var Projectile = TaroEntityPhysics.extend({
 		}
 
 		self.entityId = this._id;
-		self._stats = {...projectileData, ...data};
+		self._stats = { ...projectileData, ...data };
 
 		// dont save variables in _stats as _stats is stringified and synced
 		// and some variables of type unit, item, projectile may contain circular json objects
-		self.variables = {}
+		self.variables = {};
 		if (self._stats.variables) {
 			self.variables = self._stats.variables;
 			delete self._stats.variables;
@@ -43,7 +43,7 @@ var Projectile = TaroEntityPhysics.extend({
 		if (self._stats.states) {
 			var currentState = self._stats.states[self._stats.stateId];
 			if (currentState) {
-				var body = self._stats.bodies && self._stats.bodies[currentState.body] || { type: 'none' };
+				var body = (self._stats.bodies && self._stats.bodies[currentState.body]) || { type: 'none' };
 				if (body) {
 					self._stats.currentBody = body;
 					self.width(self._stats.currentBody.width);
@@ -54,7 +54,7 @@ var Projectile = TaroEntityPhysics.extend({
 				}
 			}
 		}
-		
+
 		self.addComponent(AttributeComponent); // every projectile gets one
 		self.addComponent(VariableComponent);
 
@@ -76,7 +76,8 @@ var Projectile = TaroEntityPhysics.extend({
 
 			if (
 				!taro.game.data.defaultData.clientPhysicsEngine || // always stream if there's no client-side physics
-				self._stats.streamMode == 1 || self._stats.streamMode == undefined
+				self._stats.streamMode == 1 ||
+				self._stats.streamMode == undefined
 			) {
 				this.streamMode(1);
 				// self.streamCreate(); // do we need this?
@@ -95,6 +96,7 @@ var Projectile = TaroEntityPhysics.extend({
 			self.updateLayer();
 			self.updateTexture();
 
+			this.createParticleEmitters();
 		}
 		this.playEffect('create');
 
@@ -123,7 +125,6 @@ var Projectile = TaroEntityPhysics.extend({
 			self.script.trigger(trigger.name, trigger.params);
 		});
 
-
 		// if entity (unit/item/player/projectile) has attribute, run regenerate
 		if (taro.isServer) {
 			if (this.attribute) {
@@ -136,8 +137,8 @@ var Projectile = TaroEntityPhysics.extend({
 				for (var key in updateQueue) {
 					var value = updateQueue[key];
 
-					processedUpdates.push({[key]: value});
-					delete taro.client.entityUpdateQueue[this.id()][key]
+					processedUpdates.push({ [key]: value });
+					delete taro.client.entityUpdateQueue[this.id()][key];
 
 					// remove queue object for this entity is there's no queue remaining in order to prevent memory leak
 					if (Object.keys(taro.client.entityUpdateQueue[this.id()]).length == 0) {
@@ -177,10 +178,11 @@ var Projectile = TaroEntityPhysics.extend({
 		// adding this flag so that clients receiving entity data from onStreamCreate don't overwrite values with default data
 		// when they are created by a client that has just joined.
 		for (var i in data) {
-			if (i === 'name' || i === 'streamMode') { // don't overwrite projectile's name with projectile type name
+			if (i === 'name' || i === 'streamMode') {
+				// don't overwrite projectile's name with projectile type name
 				continue;
 			}
-			if (self._stats[i] !== data[i]) console.log(i, self._stats[i], data[i])
+			if (self._stats[i] !== data[i]) console.log(i, self._stats[i], data[i]);
 			self._stats[i] = data[i];
 		}
 
@@ -205,7 +207,10 @@ var Projectile = TaroEntityPhysics.extend({
 				if (data.attributes[attrId]) {
 					var attributeValue = data.attributes[attrId].value; // default attribute value from new projectile type
 					if (this._stats.attributes[attrId]) {
-						this._stats.attributes[attrId].value = Math.max(data.attributes[attrId].min, Math.min(data.attributes[attrId].max, parseFloat(attributeValue)));
+						this._stats.attributes[attrId].value = Math.max(
+							data.attributes[attrId].min,
+							Math.min(data.attributes[attrId].max, parseFloat(attributeValue))
+						);
 					}
 				}
 			}
@@ -219,7 +224,6 @@ var Projectile = TaroEntityPhysics.extend({
 
 		this._stats.sourceUnitId = sourceUnit?.id();
 		this._stats.sourceItemId = sourceItem?.id();
-
 	},
 
 	resetProjectileType: function () {
@@ -229,13 +233,15 @@ var Projectile = TaroEntityPhysics.extend({
 		for (var attrId in this._stats.attributes) {
 			if (this._stats.attributes[attrId]) {
 				var attributeValue = data.attributes[attrId].value; // default attribute value from new unit type
-				this._stats.attributes[attrId].value = Math.max(data.attributes[attrId].min, Math.min(data.attributes[attrId].max, parseFloat(attributeValue)));
+				this._stats.attributes[attrId].value = Math.max(
+					data.attributes[attrId].min,
+					Math.min(data.attributes[attrId].max, parseFloat(attributeValue))
+				);
 			}
 		}
 	},
 
 	streamUpdateData: function (queuedData, clientId) {
-
 		TaroEntity.prototype.streamUpdateData.call(this, queuedData, clientId);
 		for (var i = 0; i < queuedData.length; i++) {
 			var data = queuedData[i];
@@ -243,7 +249,6 @@ var Projectile = TaroEntityPhysics.extend({
 				var newValue = data[attrName];
 
 				switch (attrName) {
-
 					case 'scaleBody':
 						this._stats[attrName] = newValue;
 						if (taro.isServer) {
@@ -283,14 +288,14 @@ var Projectile = TaroEntityPhysics.extend({
 	setSourceUnit: function (unit) {
 		if (unit) {
 			this._stats.sourceUnitId = unit.id();
-			this.streamUpdateData([{sourceUnitId: unit.id()}]); // stream update to the clients
+			this.streamUpdateData([{ sourceUnitId: unit.id() }]); // stream update to the clients
 		}
 	},
 
 	setSourceItem: function (item) {
 		if (item) {
 			this._stats.sourceItemId = item.id();
-			this.streamUpdateData([{sourceItemId: item.id()}]); // stream update to the clients
+			this.streamUpdateData([{ sourceItemId: item.id() }]); // stream update to the clients
 		}
 	},
 
@@ -307,10 +312,9 @@ var Projectile = TaroEntityPhysics.extend({
 		if (taro.physics && taro.physics.engine == 'CRASH') {
 			this.destroyBody();
 		}
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Projectile;
 }

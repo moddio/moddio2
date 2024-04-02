@@ -1,10 +1,7 @@
 declare namespace Phaser {
-
 	namespace Textures {
-
 		namespace Parsers {
-
-			function SpriteSheet (
+			function SpriteSheet(
 				texture: Phaser.Textures.Texture,
 				sourceIndex: number,
 				x: number,
@@ -19,8 +16,7 @@ declare namespace Phaser {
 					margin?: number;
 					spacing?: number;
 				}
-			): Phaser.Textures.Texture
-
+			): Phaser.Textures.Texture;
 		}
 	}
 }

@@ -41,11 +41,12 @@ var TaroCamera = TaroEntity.extend({
 	 */
 	panTo: function (point, durationMs, easing) {
 		if (point !== undefined) {
-			this._translate.tween()
+			this._translate
+				.tween()
 				.properties({
 					x: point.x,
 					y: point.y,
-					z: point.z
+					z: point.z,
 				})
 				.duration(durationMs)
 				.easing(easing)
@@ -64,11 +65,12 @@ var TaroCamera = TaroEntity.extend({
 	 */
 	panBy: function (point, durationMs, easing) {
 		if (point !== undefined) {
-			this._translate.tween()
+			this._translate
+				.tween()
 				.properties({
 					x: point.x + this._translate.x,
 					y: point.y + this._translate.y,
-					z: point.z + this._translate.z
+					z: point.z + this._translate.z,
 				})
 				.duration(durationMs)
 				.easing(easing)
@@ -212,11 +214,12 @@ var TaroCamera = TaroEntity.extend({
 				this._translate.x = Math.floor(entity._worldMatrix.matrix[2]);
 				this._translate.y = Math.floor(entity._worldMatrix.matrix[5]);
 			} else {
-				this._translate.tween()
+				this._translate
+					.tween()
 					.properties({
 						x: Math.floor(entity._worldMatrix.matrix[2]),
 						y: Math.floor(entity._worldMatrix.matrix[5]),
-						z: 0
+						z: 0,
 					})
 					.duration(durationMs)
 					.easing(easing)
@@ -239,7 +242,12 @@ var TaroCamera = TaroEntity.extend({
 			var targetMatrix = targetEntity._worldMatrix.matrix;
 			var targetX = targetMatrix[2];
 			var targetY = targetMatrix[5];
-			var sourceX; var sourceY; var distX; var distY; var destinationX; var destinationY;
+			var sourceX;
+			var sourceY;
+			var distX;
+			var distY;
+			var destinationX;
+			var destinationY;
 
 			if (!this._trackTranslateSmoothing) {
 				// Copy the target's world matrix translate data
@@ -278,14 +286,16 @@ var TaroCamera = TaroEntity.extend({
 
 				this._translate.x = destinationX;
 				this._translate.y = destinationY;
-			 }
+			}
 		}
 
 		// Check if we are tracking the rotation values of a target
 		if (this._trackRotateTarget) {
-			var targetParentRZ = this._trackRotateTarget._parent !== undefined ? this._trackRotateTarget._parent._rotate.z : 0;
+			var targetParentRZ =
+				this._trackRotateTarget._parent !== undefined ? this._trackRotateTarget._parent._rotate.z : 0;
 			var targetZ = -(targetParentRZ + this._trackRotateTarget._rotate.z);
-			var sourceZ; var distZ;
+			var sourceZ;
+			var distZ;
 
 			if (!this._trackRotateSmoothing) {
 				// Copy the target's rotate data
@@ -352,7 +362,8 @@ var TaroCamera = TaroEntity.extend({
 	 */
 	_stringify: function () {
 		// Get the properties for all the super-classes
-		var str = TaroEntity.prototype._stringify.call(this); var i;
+		var str = TaroEntity.prototype._stringify.call(this);
+		var i;
 
 		// Loop properties and add property assignment code to string
 		for (i in this) {
@@ -369,9 +380,9 @@ var TaroCamera = TaroEntity.extend({
 		}
 
 		return str;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroCamera;
 }

@@ -75,28 +75,33 @@ const TaroEntityPhysics = TaroEntity.extend({
 			bullet: body.bullet,
 			fixedRotation: body.fixedRotation,
 			affectedByGravity: body.affectedByGravity != false, // we want undefined to be considered as true for backward compatibility
-			fixtures: [{
-				density: body.fixtures ? parseFloat(body.fixtures[0].density) : 0,
-				friction: body.fixtures ? parseFloat(body.fixtures[0].friction) : 0,
-				restitution: body.fixtures ? body.fixtures[0].restitution : 0,
-				isSensor: body.fixtures ? (body.fixtures[0].isSensor || false) : false,
-				filter: {
-					filterGroupIndex: 0,
-					filterCategoryBits: filterCategoryBits,
-					filterMaskBits: ((collidesWith.walls) ? 0x0001 : 0) |
-						((collidesWith.units) ? 0x0002 : 0) |
-						((collidesWith.items) ? 0x0008 : 0) |
-						((collidesWith.projectiles) ? 0x0010 : 0) |
-						((this._category != 'sensor') ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
-						((this._category == 'unit' || this._category == 'item') ? 0x0040 : 0) // units & items will collide with sensors
-
+			fixtures: [
+				{
+					density: body.fixtures ? parseFloat(body.fixtures[0].density) : 0,
+					friction: body.fixtures ? parseFloat(body.fixtures[0].friction) : 0,
+					restitution: body.fixtures ? body.fixtures[0].restitution : 0,
+					isSensor: body.fixtures ? body.fixtures[0].isSensor || false : false,
+					filter: {
+						filterGroupIndex: 0,
+						filterCategoryBits: filterCategoryBits,
+						filterMaskBits:
+							(collidesWith.walls ? 0x0001 : 0) |
+							(collidesWith.units ? 0x0002 : 0) |
+							(collidesWith.items ? 0x0008 : 0) |
+							(collidesWith.projectiles ? 0x0010 : 0) |
+							(this._category != 'sensor' ? 0x0020 : 0) | // all entities aside from sensor will collide with regions
+							(this._category == 'unit' || this._category == 'item' ? 0x0040 : 0), // units & items will collide with sensors
+					},
+					shape: {
+						type:
+							body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.type
+								? body.fixtures[0].shape.type
+								: 'rectangle',
+						// data: (body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data) ? body.fixtures[0].shape.data : undefined
+					},
+					taroId: this.id(), // in box2dbody, add reference to this entity
 				},
-				shape: {
-					type: (body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.type) ? body.fixtures[0].shape.type : 'rectangle',
-					// data: (body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data) ? body.fixtures[0].shape.data : undefined
-				},
-				taroId: this.id() // in box2dbody, add reference to this entity
-			}]
+			],
 		};
 
 		// console.log("collidesWith", this._category, filterCategoryBits, collidesWith, body)
@@ -269,7 +274,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	setLinearVelocity: function (x, y, z, isLossTolerant) {
-		if ((this.body != undefined)) {
+		if (this.body != undefined) {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
 				// client side's predicted physics is weaker than the server's, so buff it up!
 				// if (taro.isClient && this == taro.client.selectedUnit) {
@@ -366,17 +371,17 @@ const TaroEntityPhysics = TaroEntity.extend({
 
 	_scaleTexture: function () {
 		const self = this;
-		let currentState = this._stats.states && this._stats.states[this._stats.stateId] || { body: 'none' };
+		let currentState = (this._stats.states && this._stats.states[this._stats.stateId]) || { body: 'none' };
 		let body = {};
 		if (!currentState) {
 			const defaultStateId = self.getDefaultStateId();
-			currentState = self._stats.states && self._stats.states[defaultStateId] || { body: 'none' };
+			currentState = (self._stats.states && self._stats.states[defaultStateId]) || { body: 'none' };
 		}
 		if (currentState && this._stats.bodies) {
 			body = this._stats.bodies[currentState.body];
 		}
-		const newWidth = (body && body.width || 1) * (self._stats.scale);
-		const newHeight = (body && body.height || 1) * (self._stats.scale);
+		const newWidth = ((body && body.width) || 1) * self._stats.scale;
+		const newHeight = ((body && body.height) || 1) * self._stats.scale;
 
 		self.width(newWidth, false);
 		self.height(newHeight, false);
@@ -455,9 +460,9 @@ const TaroEntityPhysics = TaroEntity.extend({
 		if (this.crashBody && this.bodyDef.fixtures[0].shape.type != 'circle') {
 			this.crashBody.rotate(angle * -1);
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroEntityPhysics;
 }

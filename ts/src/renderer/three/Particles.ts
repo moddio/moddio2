@@ -119,6 +119,8 @@ namespace Renderer {
 				const opacityFrom = 1;
 				const opacityTo = particleData.deathOpacityBase;
 
+				const emitting = false;
+
 				const duration = particleData.duration * 0.001;
 
 				const frequency = particleData.emitFrequency * 0.001;
@@ -134,9 +136,10 @@ namespace Renderer {
 				}
 
 				return {
+					particleTypeId: config.particleId,
 					position: { x: config.position.x, y: zPosition, z: config.position.y },
 					target: undefined,
-					direction: direction,
+					direction,
 					azimuth: { min: angleMin, max: angleMax },
 					elevation: { min: 0, max: 0 },
 					shape: { width: emitWidth, height: 0, depth: emitDepth },
@@ -151,7 +154,8 @@ namespace Renderer {
 					opacity: { start: opacityFrom, end: opacityTo },
 					blend: 1,
 					texture: tex,
-					duration: duration,
+					emitting,
+					duration,
 				};
 			}
 
@@ -174,8 +178,12 @@ namespace Renderer {
 					emitter.elapsed += dt;
 
 					const isTimeUp = emitter.duration > 0 && emitter.elapsed >= emitter.duration;
+					if (isTimeUp) {
+						emitter.emitting = false;
+					}
+
 					const isOrphan = emitter.hasTarget && !emitter.target;
-					if (isTimeUp || isOrphan) {
+					if (isOrphan) {
 						emittersIndicesMarkedForDestroy.push(i);
 						continue;
 					}
@@ -218,7 +226,6 @@ namespace Renderer {
 
 				for (let i = 0; i < this.numTextureGroups; i++) {
 					const texGroup = texGroups[i];
-					if (texGroup.length === 0) continue;
 
 					const offsetAttribute = this.geometries[i].attributes.offset.array;
 					const scaleAttribute = this.geometries[i].attributes.scale.array;
@@ -242,7 +249,6 @@ namespace Renderer {
 						colorAttribute[j * 4 + 1] = particle.color[1];
 						colorAttribute[j * 4 + 2] = particle.color[2];
 						colorAttribute[j * 4 + 3] = particle.color[3];
-
 						blendAttribute[j] = particle.blend;
 
 						textureAttribute[j] = particle.texIdx;
@@ -266,6 +272,8 @@ namespace Renderer {
 			updateEmitters(delta: number) {
 				for (let n = 0; n < this.emitters.length; n++) {
 					const emitter = this.emitters[n] as EmitterInternal;
+
+					if (!emitter.emitting) continue;
 
 					emitter.accumulator += delta;
 
@@ -384,6 +392,21 @@ namespace Renderer {
 				});
 			}
 
+			startEmitter(emitter: Emitter) {
+				const e = emitter as EmitterInternal;
+				if (e) {
+					e.emitting = true;
+					e.elapsed = 0;
+				}
+			}
+
+			stopEmitter(emitter: Emitter) {
+				const e = emitter as EmitterInternal;
+				if (e) {
+					e.emitting = false;
+				}
+			}
+
 			destroyEmittersWithTarget(target: Unit) {
 				const emitterIndicesMarkedForDestroy = [];
 
@@ -459,7 +482,8 @@ namespace Renderer {
     else if (vTexture == 15.0) gl_FragColor = texture2D(textures[15], vUv) * vColor;
 
     gl_FragColor.rgb *= gl_FragColor.a;
-    gl_FragColor.a *= vBlend;
+	if (gl_FragColor.a < 0.5) discard;
+	gl_FragColor.a *= vBlend;
 
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -467,6 +491,7 @@ namespace Renderer {
 `;
 
 		export type Emitter = {
+			particleTypeId: string;
 			position: { x: number; y: number; z: number };
 			target: Unit | undefined;
 			direction: { x: number; y: number; z: number };
@@ -484,6 +509,7 @@ namespace Renderer {
 			opacity: { start: number; end: number };
 			blend: number;
 			texture: THREE.Texture;
+			emitting: boolean;
 			duration: number;
 		};
 

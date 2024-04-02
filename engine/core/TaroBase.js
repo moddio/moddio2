@@ -17,7 +17,7 @@ taroClassStore = {};
 taroConfig = {
 	debug: {
 		_enabled: false,
-		_node: typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined',
+		_node: typeof module !== 'undefined' && typeof module.exports !== 'undefined',
 		_level: ['log', 'warning', 'error'],
 		_stacks: true,
 		_throwErrors: true,
@@ -40,8 +40,8 @@ taroConfig = {
 			}
 
 			return this._enabled;
-		}
-	}
+		},
+	},
 };
 
 if (taroConfig.debug._node) {
@@ -54,7 +54,7 @@ if (taroConfig.debug._node) {
 Object.defineProperty(Object.prototype, 'tween', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -89,7 +89,7 @@ Object.defineProperty(Object.prototype, 'tween', {
 Object.defineProperty(Object.prototype, 'theSameAs', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -110,7 +110,7 @@ Object.prototype.theSameAs = function (obj) {
 Object.defineProperty(Array.prototype, 'clone', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -119,7 +119,8 @@ Object.defineProperty(Array.prototype, 'clone', {
  * @return {*}
  */
 Array.prototype.clone = function () {
-	var i; var newArray = [];
+	var i;
+	var newArray = [];
 	for (i in this) {
 		if (this.hasOwnProperty(i)) {
 			if (this[i] instanceof Array) {
@@ -139,7 +140,7 @@ Array.prototype.clone = function () {
 Object.defineProperty(Array.prototype, 'pull', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -163,7 +164,7 @@ Array.prototype.pull = function (item) {
 Object.defineProperty(Array.prototype, 'pushUnique', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -187,7 +188,7 @@ Array.prototype.pushUnique = function (item) {
 Object.defineProperty(Array.prototype, 'each', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -210,7 +211,7 @@ Array.prototype.each = function (callback) {
 Object.defineProperty(Array.prototype, 'eachReverse', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -233,7 +234,7 @@ Array.prototype.eachReverse = function (callback) {
 Object.defineProperty(Array.prototype, 'destroyAll', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -246,7 +247,7 @@ Array.prototype.destroyAll = function () {
 	var i;
 
 	for (i = arrCount - 1; i >= 0; i--) {
-		if (typeof (this[i].destroy) === 'function') {
+		if (typeof this[i].destroy === 'function') {
 			this[i].destroy();
 		}
 	}
@@ -258,7 +259,7 @@ Array.prototype.destroyAll = function () {
 Object.defineProperty(Array.prototype, 'eachIsolated', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -293,7 +294,7 @@ Array.prototype.eachIsolated = function (callback) {
 Object.defineProperty(Math, 'PI180', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -308,7 +309,7 @@ Math.PI180 = Math.PI / 180;
 Object.defineProperty(Math, 'PI180R', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -323,12 +324,12 @@ Math.PI180R = 180 / Math.PI;
 Object.defineProperty(Math, 'toIso', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 Math.toIso = function (x, y, z) {
 	var sx = x - y;
-	var sy = (-z) * 1.2247 + (x + y) * 0.5;
+	var sy = -z * 1.2247 + (x + y) * 0.5;
 
 	return { x: sx, y: sy };
 };
@@ -339,7 +340,7 @@ Math.toIso = function (x, y, z) {
 Object.defineProperty(Math, 'radians', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -357,7 +358,7 @@ Math.radians = function (degrees) {
 Object.defineProperty(Math, 'degrees', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -375,7 +376,7 @@ Math.degrees = function (radians) {
 Object.defineProperty(Math, 'distance', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -387,7 +388,7 @@ Object.defineProperty(Math, 'distance', {
  * @return {Number}
  */
 Math.distance = function (x1, y1, x2, y2) {
-	return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));
+	return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 };
 
 /**
@@ -396,7 +397,7 @@ Math.distance = function (x1, y1, x2, y2) {
 Object.defineProperty(Math, 'clamp', {
 	enumerable: false,
 	writable: true,
-	configurable: true
+	configurable: true,
 });
 
 /**
@@ -410,7 +411,7 @@ Math.clamp = function (value, min, max) {
 	return Math.min(Math.max(min, value), max);
 };
 
-if (typeof (CanvasRenderingContext2D) !== 'undefined') {
+if (typeof CanvasRenderingContext2D !== 'undefined') {
 	// Extend the canvas context to add some helper methods
 	/**
 	 * Make property non-enumerable.
@@ -418,19 +419,19 @@ if (typeof (CanvasRenderingContext2D) !== 'undefined') {
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'circle', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'strokeCircle', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	Object.defineProperty(CanvasRenderingContext2D.prototype, 'fillCircle', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	CanvasRenderingContext2D.prototype.circle = function (x, y, radius) {
@@ -454,14 +455,14 @@ if (typeof (CanvasRenderingContext2D) !== 'undefined') {
 	};
 }
 
-if (typeof (ImageData) !== 'undefined') {
+if (typeof ImageData !== 'undefined') {
 	/**
 	 * Make property non-enumerable.
 	 */
 	Object.defineProperty(ImageData.prototype, 'pixelAt', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	/**
@@ -475,13 +476,13 @@ if (typeof (ImageData) !== 'undefined') {
 	 */
 	ImageData.prototype.pixelAt = function (x, y) {
 		var data = this.data;
-		var pixelStart = (y * this.width * 4) + (x * 4);
+		var pixelStart = y * this.width * 4 + x * 4;
 
 		return {
 			r: data[pixelStart],
 			g: data[pixelStart + 1],
 			b: data[pixelStart + 2],
-			a: data[pixelStart + 3]
+			a: data[pixelStart + 3],
 		};
 	};
 
@@ -491,7 +492,7 @@ if (typeof (ImageData) !== 'undefined') {
 	Object.defineProperty(ImageData.prototype, 'isTransparent', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	/**
@@ -504,7 +505,7 @@ if (typeof (ImageData) !== 'undefined') {
 	 */
 	ImageData.prototype.isTransparent = function (x, y) {
 		var data = this.data;
-		var pixelStart = (y * this.width * 4) + (x * 4);
+		var pixelStart = y * this.width * 4 + x * 4;
 
 		return data[pixelStart + 3] === 0;
 	};
@@ -515,7 +516,7 @@ if (typeof (ImageData) !== 'undefined') {
 	Object.defineProperty(ImageData.prototype, 'makeTransparent', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	/**
@@ -527,7 +528,7 @@ if (typeof (ImageData) !== 'undefined') {
 	 */
 	ImageData.prototype.makeTransparent = function (x, y) {
 		var data = this.data;
-		var pixelStart = (y * this.width * 4) + (x * 4);
+		var pixelStart = y * this.width * 4 + x * 4;
 
 		data[pixelStart + 3] = 0;
 	};
@@ -540,7 +541,9 @@ if (typeof (ImageData) !== 'undefined') {
 var disableContextMenu = function (obj) {
 	if (obj !== null) {
 		// this.log('Disabling context menus for ' + obj, 'info');
-		obj.oncontextmenu = function () { return false; };
+		obj.oncontextmenu = function () {
+			return false;
+		};
 	}
 };
 
@@ -555,7 +558,7 @@ if (!Array.prototype.indexOf) {
 	Object.defineProperty(Array.prototype, 'indexOf', {
 		enumerable: false,
 		writable: true,
-		configurable: true
+		configurable: true,
 	});
 
 	/**
@@ -564,7 +567,8 @@ if (!Array.prototype.indexOf) {
 	 * @return {Number} The index of the passed item or -1 if not found.
 	 */
 	Array.prototype.indexOf = function (obj) {
-		var i; var l = this.length;
+		var i;
+		var l = this.length;
 		for (i = 0; i < l; i++) {
 			if (this[i] === obj) {
 				return i;
@@ -574,7 +578,7 @@ if (!Array.prototype.indexOf) {
 	};
 }
 
-if (typeof (window) !== 'undefined') {
+if (typeof window !== 'undefined') {
 	/**
 	 * A cross-browser/platform requestAnimationFrame method.
 	 */
@@ -585,29 +589,31 @@ if (typeof (window) !== 'undefined') {
 	}()); */
 
 	requestAnimFrame = (function () {
-		return window.requestAnimationFrame ||
-				window.webkitRequestAnimationFrame ||
-				window.mozRequestAnimationFrame ||
-				window.oRequestAnimationFrame ||
-				window.msRequestAnimationFrame ||
-		function (callback, element) {
-			setTimeout(function () { 
-				callback(new Date.now()); 
-				console.log("wtf", new Date.now())
-			}, 1000 / 60);
-		};
-	}());
+		return (
+			window.requestAnimationFrame ||
+			window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame ||
+			window.oRequestAnimationFrame ||
+			window.msRequestAnimationFrame ||
+			function (callback, element) {
+				setTimeout(function () {
+					callback(new Date.now());
+					console.log('wtf', new Date.now());
+				}, 1000 / 60);
+			}
+		);
+	})();
 }
 
 // Check console method existence
-if (typeof (console) === 'object') {
-	if (typeof (console.log) === 'function') {
-		if (typeof (console.info) === 'undefined') {
+if (typeof console === 'object') {
+	if (typeof console.log === 'function') {
+		if (typeof console.info === 'undefined') {
 			// We have console.log but not console.info so add it as a replica of console.log
 			console.info = console.log;
 		}
 
-		if (typeof (console.warn) === 'undefined') {
+		if (typeof console.warn === 'undefined') {
 			// We have console.log but not console.warn so add it as a replica of console.log
 			console.warn = console.log;
 		}
@@ -618,6 +624,6 @@ if (typeof (console) === 'object') {
 		log: function () {},
 		warn: function () {},
 		info: function () {},
-		error: function () {}
+		error: function () {},
 	};
 }

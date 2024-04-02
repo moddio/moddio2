@@ -16,8 +16,8 @@ class PhaserItem extends PhaserAnimatedEntity {
 
 		Object.assign(this.evtListeners, {
 			// this event is only emitted by height-based-zindex games
-			setOwnerUnit: entity.on("setOwnerUnit", this.setOwnerUnit, this),
-			"update-texture": entity.on("update-texture", this.updateTexture, this),
+			setOwnerUnit: entity.on('setOwnerUnit', this.setOwnerUnit, this),
+			'update-texture': entity.on('update-texture', this.updateTexture, this),
 		});
 
 		if (scene.heightRenderer) {
@@ -37,7 +37,7 @@ class PhaserItem extends PhaserAnimatedEntity {
 	}
 
 	protected updateTexture(data) {
-		if (data === "basic_texture_change") {
+		if (data === 'basic_texture_change') {
 			this.sprite.anims.stop();
 			this.key = `item/${this.entity._stats.cellSheet.url}`;
 			if (!this.scene.textures.exists(this.key)) {
@@ -96,4 +96,3 @@ class PhaserItem extends PhaserAnimatedEntity {
 		super.destroy();
 	}
 }
-

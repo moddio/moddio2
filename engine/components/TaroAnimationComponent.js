@@ -59,13 +59,16 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 				for (i = 0; i < frames.length; i++) {
 					frame = frames[i];
 
-					if (typeof (frame) === 'string') {
+					if (typeof frame === 'string') {
 						if (this._entity._texture) {
 							// The frame has a cell id so convert to an index
 							frame = this._entity._texture.cellIdToIndex(frame);
 							frames[i] = frame;
 						} else {
-							this.log(`You can increase the performance of id-based cell animations by specifying the animation.define AFTER you have assigned your sprite sheet to the entity on entity with ID: ${this._entity.id()}`, 'warning');
+							this.log(
+								`You can increase the performance of id-based cell animations by specifying the animation.define AFTER you have assigned your sprite sheet to the entity on entity with ID: ${this._entity.id()}`,
+								'warning'
+							);
 							break;
 						}
 					}
@@ -73,7 +76,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 			}
 
 			// Store the animation
-			var frameTime = ((1000 / fps) | 0);
+			var frameTime = (1000 / fps) | 0;
 			this._anims[id] = {
 				frames: frames,
 				frameTime: frameTime,
@@ -81,7 +84,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 				frameCount: frames.length,
 				totalTime: frames.length * frameTime,
 				currentDelta: 0,
-				currentLoop: 0
+				currentLoop: 0,
 			};
 
 			this._anims.length++;
@@ -95,7 +98,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 		if (this._anims[id]) {
 			var anim = this._anims[id];
 
-			if (typeof (frameId) === 'string' && this._entity && this._entity._texture) {
+			if (typeof frameId === 'string' && this._entity && this._entity._texture) {
 				frameId = this._entity._texture.cellIdToIndex(frameId);
 			}
 
@@ -157,7 +160,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 			var anim = this._anims[id];
 
 			if (anim) {
-				anim.frameTime = ((1000 / fps) | 0);
+				anim.frameTime = (1000 / fps) | 0;
 				anim.totalTime = anim.frameCount * anim.frameTime;
 			}
 		}
@@ -297,7 +300,10 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 				this.log(`Cannot set animation to "${animId}" because the animation does not exist!`, 'warning');
 			}
 		} else {
-			this.log(`Cannot set animation to "${animId}" because no animations have been defined with defineAnim(...);`, 'warning');
+			this.log(
+				`Cannot set animation to "${animId}" because no animations have been defined with defineAnim(...);`,
+				'warning'
+			);
 		}
 
 		return this._entity;
@@ -391,7 +397,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 						// Loop back round to the beginning
 						multiple = anim.currentDelta / anim.totalTime;
 						if (Math.abs(multiple) > 1) {
-							anim.currentDelta -= ((multiple | 0) * anim.totalTime); // Bitwise floor
+							anim.currentDelta -= (multiple | 0) * anim.totalTime; // Bitwise floor
 						}
 
 						if (self._loopCallback) {
@@ -404,7 +410,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 							// Loop back round to the beginning
 							multiple = anim.currentDelta / anim.totalTime;
 							if (Math.abs(multiple) > 1) {
-								anim.currentDelta -= ((multiple | 0) * anim.totalTime); // Bitwise floor
+								anim.currentDelta -= (multiple | 0) * anim.totalTime; // Bitwise floor
 							}
 
 							if (self._loopCallback) {
@@ -423,7 +429,7 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 				}
 			}
 
-			frame = ((anim.currentDelta / anim.frameTime) | 0);
+			frame = (anim.currentDelta / anim.frameTime) | 0;
 
 			if (frame >= anim.frameCount) {
 				frame = anim.frameCount - 1;
@@ -432,13 +438,15 @@ var TaroAnimationComponent = TaroEventingClass.extend({
 			cell = anim.frames[frame];
 
 			// Set the current frame
-			if (typeof (cell) === 'string') {
+			if (typeof cell === 'string') {
 				self._entity.cellById(cell);
 			} else {
 				self._entity.cell(cell);
 			}
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroAnimationComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroAnimationComponent;
+}

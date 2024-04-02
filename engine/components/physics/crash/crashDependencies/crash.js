@@ -22,14 +22,14 @@
 		window.Crash = factory(rbush, SAT);
 		Crash = window.Crash;
 	}
-}(function (RBush, SAT) {
+})(function (RBush, SAT) {
 	'use strict';
 
 	/***************
-     * CONSTRUCTOR *
-     * EXPORTS     *
-     * UTILITIES   *
-     ***************/
+	 * CONSTRUCTOR *
+	 * EXPORTS     *
+	 * UTILITIES   *
+	 ***************/
 
 	var SEARCH_OBJECT = {}; // will hold the AABB coordinates during search()
 	var ALL_MOVED = []; // will hold all the colliders that have moved during check(), so we can update their lastCheckedPos
@@ -42,7 +42,8 @@
 		this.__options = {
 			maxEntries: options.maxEntries || 9,
 			maxChecks: typeof options.maxChecks === 'number' ? options.maxChecks : 100,
-			overlapLimit: (typeof options.overlapLimit === 'number' || options.overlapLimit === false) ? options.overlapLimit : 0.5
+			overlapLimit:
+				typeof options.overlapLimit === 'number' || options.overlapLimit === false ? options.overlapLimit : 0.5,
 		};
 
 		this.rbush = new RBush(this.__options.maxEntries, ['.aabb.x1', '.aabb.y1', '.aabb.x2', '.aabb.y2']);
@@ -68,25 +69,25 @@
 				value: child,
 				enumerable: false,
 				writable: true,
-				configurable: true
-			}
+				configurable: true,
+			},
 		});
 	};
 
 	Crash.getTestString = Crash.prototype.getTestString = function (type1, type2) {
 		return type1 === 'circle'
-			? (
-				type2 === 'circle' ? 'testCircleCircle' : 'testCirclePolygon'
-			)
-			: (
-				type2 === 'circle' ? 'testPolygonCircle' : 'testPolygonPolygon'
-			);
+			? type2 === 'circle'
+				? 'testCircleCircle'
+				: 'testCirclePolygon'
+			: type2 === 'circle'
+				? 'testPolygonCircle'
+				: 'testPolygonPolygon';
 	};
 
 	/***********
-     * EXPORTS *
-     * METHODS *
-     ***********/
+	 * EXPORTS *
+	 * METHODS *
+	 ***********/
 
 	Crash.prototype.reset = function () {
 		this.clear();
@@ -196,8 +197,8 @@
 	};
 
 	/****************
-    * AABB UPDATES *
-    ****************/
+	 * AABB UPDATES *
+	 ****************/
 
 	Crash.updateAABB = Crash.prototype.updateAABB = function (collider) {
 		switch (collider.type) {
@@ -272,8 +273,8 @@
 	};
 
 	/*********
-     * TESTS *
-     *********/
+	 * TESTS *
+	 *********/
 
 	Crash.test = Crash.prototype.test = function (a, b, res) {
 		var res = res || this.RESPONSE;
@@ -287,8 +288,7 @@
 		var res = res || this.RESPONSE;
 		var possible = this.search(a);
 		// console.log(`Before inner for loop, B, length of Rbush.search result: ${possible.length}`);
-		loop:
-		for (var i = 0, len = possible.length; i < len; i++) {
+		loop: for (var i = 0, len = possible.length; i < len; i++) {
 			var b = possible[i];
 			var str = this.getTestString(a.type, b.type);
 
@@ -349,11 +349,11 @@
 	};
 
 	/***********
-     * CLASSES *
-     ***********/
+	 * CLASSES *
+	 ***********/
 
 	Crash.createColliders = Crash.prototype.createColliders = function (crash) {
-		var Collider = crash.Collider = function Collider (type, sat, insert, data) {
+		var Collider = (crash.Collider = function Collider(type, sat, insert, data) {
 			this.type = type;
 			this.sat = sat;
 			this.data = data;
@@ -372,9 +372,10 @@
 			}
 
 			return this;
-		};
+		});
 
-		Collider.prototype.insert = function () {			//HERE
+		Collider.prototype.insert = function () {
+			//HERE
 			if (this.awake) {
 				crash.insert(this);
 			}
@@ -385,27 +386,31 @@
 			this.sat.setAngle(angle);
 		};
 
-		Collider.prototype.remove = function () {			//Not sure if we should consider awake for removes.
+		Collider.prototype.remove = function () {
+			//Not sure if we should consider awake for removes.
 			crash.remove(this);
 
 			return this;
 		};
 
-		Collider.prototype.update = function () {			//HERE
+		Collider.prototype.update = function () {
+			//HERE
 			if (this.awake) {
 				crash.update(this);
 			}
 			return this;
 		};
 
-		Collider.prototype.updateAABB = function () {			//HERE
+		Collider.prototype.updateAABB = function () {
+			//HERE
 			if (this.awake) {
 				crash.updateAABB(this);
 			}
 			return this;
 		};
 
-		Collider.prototype.moved = function () {			//HERE
+		Collider.prototype.moved = function () {
+			//HERE
 			if (this.awake) {
 				crash.moved(this);
 			}
@@ -455,12 +460,12 @@
 			return this;
 		};
 
-		var Polygon = crash.Polygon = function Polygon (pos, points, insert, data) {
+		var Polygon = (crash.Polygon = function Polygon(pos, points, insert, data) {
 			var sat = new SAT.Polygon(pos, points);
 			Collider.call(this, 'polygon', sat, insert, data);
 
 			return this;
-		};
+		});
 
 		Crash.extend(Polygon, Collider);
 
@@ -492,34 +497,35 @@
 			return this;
 		};
 
-		var Circle = crash.Circle = function Circle (pos, r, insert, data) {
+		var Circle = (crash.Circle = function Circle(pos, r, insert, data) {
 			var sat = new SAT.Circle(pos, r);
 			Collider.call(this, 'circle', sat, insert, data);
 
 			return this;
-		};
+		});
 
 		Crash.extend(Circle, Collider);
 
-		var Point = crash.Point = function Point (pos, insert, data) {
-			var sat = (new SAT.Box(pos, 1, 1)).toPolygon();
+		var Point = (crash.Point = function Point(pos, insert, data) {
+			var sat = new SAT.Box(pos, 1, 1).toPolygon();
 			Collider.call(this, 'point', sat, insert, data);
 
 			return this;
-		};
+		});
 
 		Crash.extend(Point, Collider);
 
-		var Box = crash.Box = function Box (pos, w, h, insert, data) {
-			var sat = (new SAT.Box(pos, w, h)).toPolygon();
+		var Box = (crash.Box = function Box(pos, w, h, insert, data) {
+			var sat = new SAT.Box(pos, w, h).toPolygon();
 			Collider.call(this, 'box', sat, insert, data);
 
 			return this;
-		};
+		});
 
 		Crash.extend(Box, Collider); // moved this above new proto
 
-		Box.prototype.rotate = function (angle) { // added this
+		Box.prototype.rotate = function (angle) {
+			// added this
 			this.sat.rotate(angle);
 			this.moved();
 
@@ -528,4 +534,4 @@
 	};
 
 	return Crash;
-}));
+});

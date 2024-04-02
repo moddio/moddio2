@@ -101,7 +101,7 @@ const nativeWrapper: PhysicsDistProps = {
 		var cb = {
 			ReportFixture: function (fixture) {
 				callback(fixture);
-			}
+			},
 		};
 
 		self.world().QueryAABB(cb, aabb);
@@ -131,8 +131,10 @@ const nativeWrapper: PhysicsDistProps = {
 		var tempShape;
 		var tempFilterData;
 		var i;
-		var finalX; var finalY;
-		var finalWidth; var finalHeight;
+		var finalX;
+		var finalY;
+		var finalWidth;
+		var finalHeight;
 
 		// Process body definition and create a box2d body for it
 		switch (body.type) {
@@ -222,7 +224,7 @@ const nativeWrapper: PhysicsDistProps = {
 												}
 												*/
 
-											if (fixtureDef.shape.data && typeof (fixtureDef.shape.data.radius) !== 'undefined') {
+											if (fixtureDef.shape.data && typeof fixtureDef.shape.data.radius !== 'undefined') {
 												// tempShape.SetRadius(fixtureDef.shape.data.radius / self._scaleRatio);
 												var p = new self.b2Vec2(finalX / self._scaleRatio, finalY / self._scaleRatio);
 												var r = fixtureDef.shape.data.radius / self._scaleRatio;
@@ -244,13 +246,19 @@ const nativeWrapper: PhysicsDistProps = {
 											if (fixtureDef.shape.data) {
 												finalX = fixtureDef.shape.data.x !== undefined ? fixtureDef.shape.data.x : 0;
 												finalY = fixtureDef.shape.data.y !== undefined ? fixtureDef.shape.data.y : 0;
-												finalWidth = fixtureDef.shape.data.width !== undefined ? fixtureDef.shape.data.width : (entity._bounds2d.x / 2);
-												finalHeight = fixtureDef.shape.data.height !== undefined ? fixtureDef.shape.data.height : (entity._bounds2d.y / 2);
+												finalWidth =
+													fixtureDef.shape.data.width !== undefined
+														? fixtureDef.shape.data.width
+														: entity._bounds2d.x / 2;
+												finalHeight =
+													fixtureDef.shape.data.height !== undefined
+														? fixtureDef.shape.data.height
+														: entity._bounds2d.y / 2;
 											} else {
 												finalX = 0;
 												finalY = 0;
-												finalWidth = (entity._bounds2d.x / 2);
-												finalHeight = (entity._bounds2d.y / 2);
+												finalWidth = entity._bounds2d.x / 2;
+												finalHeight = entity._bounds2d.y / 2;
 											}
 
 											// Set the polygon as a box
@@ -265,10 +273,7 @@ const nativeWrapper: PhysicsDistProps = {
 
 											// review:
 
-											tempShape.SetAsBox(
-												(finalWidth / self._scaleRatio),
-												(finalHeight / self._scaleRatio)
-											);
+											tempShape.SetAsBox(finalWidth / self._scaleRatio, finalHeight / self._scaleRatio);
 											break;
 									}
 
@@ -311,7 +316,10 @@ const nativeWrapper: PhysicsDistProps = {
 								}
 							}
 						} else {
-							self.log('Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.', 'warning');
+							self.log(
+								'Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.',
+								'warning'
+							);
 						}
 						break;
 				}
@@ -341,32 +349,29 @@ const nativeWrapper: PhysicsDistProps = {
 		if (!aBody || aBody.jointType == 'none' || aBody.type == 'none') return;
 
 		// create a joint only if there isn't pre-existing joint
-		PhysicsComponent.prototype.log(`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`);
+		PhysicsComponent.prototype.log(
+			`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`
+		);
 
 		if (
-			entityA && entityA.body && entityB && entityB.body &&
+			entityA &&
+			entityA.body &&
+			entityB &&
+			entityB.body &&
 			entityA.id() != entityB.id() // im not creating joint to myself!
 		) {
 			if (aBody.jointType == 'revoluteJoint') {
 				var joint_def = new this.native.b2RevoluteJointDef();
 
-				joint_def.Initialize(
-					entityA.body,
-					entityB.body,
-					entityA.body.GetWorldCenter(),
-					entityB.body.GetWorldCenter());
+				joint_def.Initialize(entityA.body, entityB.body, entityA.body.GetWorldCenter(), entityB.body.GetWorldCenter());
 
 				joint_def.localAnchorA.Set(anchorA.x / self._scaleRatio, anchorA.y / self._scaleRatio); // item anchor
 				joint_def.localAnchorB.Set(anchorB.x / self._scaleRatio, -anchorB.y / self._scaleRatio); // unit anchor
-			} else // weld joint
-			{
+			} // weld joint
+			else {
 				var joint_def = new this.native.b2WeldJointDef();
 
-				joint_def.Initialize(
-					entityA.body,
-					entityB.body,
-					entityA.body.GetWorldCenter()
-				);
+				joint_def.Initialize(entityA.body, entityB.body, entityA.body.GetWorldCenter());
 
 				// joint_def.frequencyHz = 1;
 				// joint_def.dampingRatio = 0;
@@ -380,11 +385,9 @@ const nativeWrapper: PhysicsDistProps = {
 			entityA.jointsAttached[entityB.id()] = joint;
 			entityB.jointsAttached[entityA.id()] = joint;
 		}
-	}
+	},
 };
 
-
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = nativeWrapper;
 }
-

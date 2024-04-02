@@ -66,9 +66,8 @@ var ScriptComponent = TaroEntity.extend({
 
 			// console.log(scriptId, ': ', actions, params);
 
-
 			if (actions) {
-				var path = this._entity._id + "/" + scriptId;
+				var path = `${this._entity._id}/${scriptId}`;
 				var cmd = self.action.run(actions, params, path, 0); // path is passed for profiling purpose
 				if (cmd == 'return') {
 					taro.log('script return called');
@@ -79,20 +78,17 @@ var ScriptComponent = TaroEntity.extend({
 
 			// if we are running from entity script and the script was not found
 			// then check for the script on the global script component
-		} else if (
-			this._entity &&
-			this._entity._id &&
-			this._entity._id !== 'taro'
-		) {
+		} else if (this._entity && this._entity._id && this._entity._id !== 'taro') {
 			taro.script.runScript(scriptId, params);
 		}
-
-
 	},
 
 	getScriptActions: function (scriptId) {
 		var self = this;
-		if (self.scriptCache[scriptId] && (typeof mode === 'undefined' || (typeof mode === 'string' && mode != 'sandbox'))) {
+		if (
+			self.scriptCache[scriptId] &&
+			(typeof mode === 'undefined' || (typeof mode === 'string' && mode != 'sandbox'))
+		) {
 			return self.scriptCache[scriptId];
 		} else {
 			var script = this.scripts[scriptId];
@@ -115,10 +111,15 @@ var ScriptComponent = TaroEntity.extend({
 				if (taro.triggerProfiler[taro.lastTrigger]) {
 					var count = taro.triggerProfiler[taro.lastTrigger].count;
 					taro.triggerProfiler[taro.lastTrigger].count++;
-					taro.triggerProfiler[taro.lastTrigger].avgTime = ((taro.triggerProfiler[taro.lastTrigger].avgTime * count) + lastTriggerRunTime) / (count + 1);
+					taro.triggerProfiler[taro.lastTrigger].avgTime =
+						(taro.triggerProfiler[taro.lastTrigger].avgTime * count + lastTriggerRunTime) / (count + 1);
 					taro.triggerProfiler[taro.lastTrigger].totalTime += lastTriggerRunTime;
 				} else {
-					taro.triggerProfiler[taro.lastTrigger] = { count: 1, avgTime: lastTriggerRunTime, totalTime: lastTriggerRunTime };
+					taro.triggerProfiler[taro.lastTrigger] = {
+						count: 1,
+						avgTime: lastTriggerRunTime,
+						totalTime: lastTriggerRunTime,
+					};
 				}
 			}
 
@@ -133,7 +134,7 @@ var ScriptComponent = TaroEntity.extend({
 			this.scriptLog(`\ntrigger: ${triggerName}`);
 
 			var localVariables = {
-				triggeredBy: triggeredBy
+				triggeredBy: triggeredBy,
 			};
 
 			// console.log(this._entity._category, triggerName, scriptId)
@@ -142,8 +143,7 @@ var ScriptComponent = TaroEntity.extend({
 	},
 
 	scriptLog: function (str, tabCount) {
-		if (this.entryCount > 50000)
-			return;
+		if (this.entryCount > 50000) return;
 
 		this.entryCount++;
 
@@ -192,7 +192,7 @@ var ScriptComponent = TaroEntity.extend({
 
 	errorLog: function (message, path, withActionBlockIdx) {
 		if (path == undefined) {
-			path = `${this._entity._id}/${this.currentScriptId}/${this.currentActionName}`
+			path = `${this._entity._id}/${this.currentScriptId}/${this.currentActionName}`;
 		}
 		if (withActionBlockIdx !== true) {
 			path += `/${this.currentActionLineNumber}`;
@@ -204,16 +204,16 @@ var ScriptComponent = TaroEntity.extend({
 				taro.script.errorLogs[path].count++;
 			}
 
-			if (taro.env === 'standalone')
-				console.log('errorLog', path, message);
+			if (taro.env === 'standalone') console.log('errorLog', path, message);
 			// taro.devLog('errorLog', message);
 			// ScriptComponent.prototype.log(log);
 		}
 		if (taro.isServer && taro.server.unpublishQueued) {
-			taro.server.unpublish(message + " " + path);
+			taro.server.unpublish(`${message} ${path}`);
 		}
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = ScriptComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = ScriptComponent;
+}

@@ -3,5 +3,5 @@ enum TileLayer {
 	FLOOR_2,
 	DEBRIS,
 	WALLS,
-	TREES
+	TREES,
 }

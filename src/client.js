@@ -790,7 +790,6 @@ const Client = TaroEventingClass.extend({
 		taro.network.define('errorLogs', this._onErrorLogs);
 
 		taro.network.define('sound', this._onSound);
-		taro.network.define('particle', this._onParticle);
 		taro.network.define('camera', this._onCamera);
 
 		taro.network.define('gameSuggestion', this._onGameSuggestion);

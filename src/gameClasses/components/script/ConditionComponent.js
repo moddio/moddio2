@@ -62,7 +62,9 @@ var ConditionComponent = TaroEntity.extend({
 		} else if (op == '>=') {
 			return leftVar >= rightVar;
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = ConditionComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = ConditionComponent;
+}

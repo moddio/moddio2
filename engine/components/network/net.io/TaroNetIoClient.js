@@ -25,70 +25,69 @@ var TaroNetIoClient = {
 	 * network has started.
 	 */
 	start: function (server, callback) {
-
-		
 		if (this._state === 3) {
 			// We're already connected
-			if (typeof (callback) === 'function') {
+			if (typeof callback === 'function') {
 				callback(server);
 			}
 		} else {
-
 			this._diffSamples = [];
 			var self = this;
 
 			self._startCallback = callback;
 			var sortedServers = [server];
-			
+
 			// let's not try to connect to multiple servers at the same time, only connect with user's selected server
 			// while (server = taro.client.getBestServer(ignoreServerIds)) {
 			// 	ignoreServerIds.push(server.id);
 			// 	sortedServers.push(server);
 			// }
 
-			sortedServers.reduce(function (p, server) {
-				var defer = $.Deferred();
+			sortedServers
+				.reduce(function (p, server) {
+					var defer = $.Deferred();
 
-				p.then(function () {
-					// console.log(server, self._state);
-					// if client's is not connected yet
-					if (self._state < 2) {
-						if (window.isStandalone) {
-							console.log('connecting to a standalone server');
-							url = `ws://${window.location.hostname}:2001`;
+					p.then(function () {
+						// console.log(server, self._state);
+						// if client's is not connected yet
+						if (self._state < 2) {
+							if (window.isStandalone) {
+								console.log('connecting to a standalone server');
+								url = `ws://${window.location.hostname}:2001`;
+							} else {
+								url = server.url;
+							}
+
+							self._url = url;
+
+							var msg = `Connecting to net.io server at "${self._url}"...`;
+
+							self.log(msg);
+							console.log(msg);
+
+							window.connectedServer = server;
+
+							if (typeof WebSocket !== 'undefined') {
+								self
+									.connectToGS(url, server.id)
+									.done(function () {
+										window.activatePlayGame = true;
+										defer.resolve();
+									})
+									.fail(function (err) {
+										console.log('connection failed, retrying...', err || '');
+										// defer.resolve();
+									});
+							} else {
+								defer.reject('websockets are not available');
+							}
 						} else {
-							url = server.url;
+							defer.resolve();
 						}
+					});
 
-						self._url = url;
-
-						var msg = `Connecting to net.io server at "${self._url}"...`;
-
-						self.log(msg);
-						console.log(msg);
-
-						window.connectedServer = server;
-
-						if (typeof (WebSocket) !== 'undefined') {
-							self.connectToGS(url, server.id)
-								.done(function () {
-									window.activatePlayGame = true;
-									defer.resolve();
-								})
-								.fail(function (err) {
-									console.log('connection failed, retrying...', err || '');
-									// defer.resolve();
-								});
-						} else {
-							defer.reject('websockets are not available');
-						}
-					} else {
-						defer.resolve();
-					}
-				});
-
-				return defer;
-			}, $.when())
+					return defer;
+				}, $.when())
 				.done(function () {
 					// we have gone through every possible server
 					// and still client's not connected properly
@@ -101,15 +100,16 @@ var TaroNetIoClient = {
 						if ($('#menu-wrapper').is(':visible')) {
 							$('#play-game-button .content').addClass('bg-danger');
 							$('#play-game-button .content').html(
-								'<i class=\'fa fa-group pr-3\'></i>' +
-								'<div class="p-1">' +
-								'<div>' +
-								'<span>Connection Failed</span>' +
-								'</div>' +
-								'<div>' +
-								'<small style=\'font-size: 10px;\'>Please select a different server</small>' +
-								'</div>' +
-								'</div>');
+								"<i class='fa fa-group pr-3'></i>" +
+									'<div class="p-1">' +
+									'<div>' +
+									'<span>Connection Failed</span>' +
+									'</div>' +
+									'<div>' +
+									"<small style='font-size: 10px;'>Please select a different server</small>" +
+									'</div>' +
+									'</div>'
+							);
 							$('#play-game-button').prop('disabled', false);
 							console.log(taro.client.eventLog);
 							window.activatePlayGame = true;
@@ -126,7 +126,6 @@ var TaroNetIoClient = {
 	 * @param {string} id the game server ID
 	 */
 	connectToGS: function (url, id) {
-
 		var self = this;
 		var defer = $.Deferred();
 
@@ -168,7 +167,8 @@ var TaroNetIoClient = {
 			}
 
 			if (data.cmd) {
-				var i; var commandCount = 0;
+				var i;
+				var commandCount = 0;
 
 				// Check if the data is an init packet
 				if (data.cmd === 'init') {
@@ -190,8 +190,12 @@ var TaroNetIoClient = {
 					}
 
 					// Setup default commands
-					self.define('_taroRequest', function () { self._onRequest.apply(self, arguments); });
-					self.define('_taroResponse', function () { self._onResponse.apply(self, arguments); });
+					self.define('_taroRequest', function () {
+						self._onRequest.apply(self, arguments);
+					});
+					self.define('_taroResponse', function () {
+						self._onResponse.apply(self, arguments);
+					});
 					// self.define('_taroNetTimeSync', function () { self._onTimeSync.apply(self, arguments); });
 
 					self.log(`Received network command list with count: ${commandCount}`);
@@ -200,7 +204,7 @@ var TaroNetIoClient = {
 					taro.timeScale(parseFloat(data.ts));
 
 					// Now fire the start() callback
-					if (typeof (self._startCallback) === 'function') {
+					if (typeof self._startCallback === 'function') {
 						self._startCallback({ url, id });
 						delete self._startCallback;
 					}
@@ -285,7 +289,10 @@ var TaroNetIoClient = {
 			if (this._networkCommandsLookup[commandName] !== undefined) {
 				this._networkCommands[commandName] = callback;
 			} else {
-				this.log(`Cannot define network command "${commandName}" because it does not exist on the server. Please edit your server code and define the network command there before trying to define it on the client!`, 'error');
+				this.log(
+					`Cannot define network command "${commandName}" because it does not exist on the server. Please edit your server code and define the network command there before trying to define it on the client!`,
+					'error'
+				);
 			}
 
 			return this._entity;
@@ -315,10 +322,12 @@ var TaroNetIoClient = {
 			ciEncoded = String.fromCharCode(commandIndex);
 
 			this._io.send([ciEncoded, data]);
-
 		} else {
 			// console.log("error ?");
-			this.log(`Cannot send network packet with command "${commandName}" because the command has not been defined!`, 'error');
+			this.log(
+				`Cannot send network packet with command "${commandName}" because the command has not been defined!`,
+				'error'
+			);
 		}
 	},
 
@@ -339,21 +348,18 @@ var TaroNetIoClient = {
 			cmd: commandName,
 			data: data,
 			callback: callback,
-			timestamp: new Date().getTime()
+			timestamp: new Date().getTime(),
 		};
 
 		// Store the request object
 		this._requests[req.id] = req;
 
 		// Send the network request packet
-		this.send(
-			'_taroRequest',
-			{
-				id: req.id,
-				cmd: commandName,
-				data: req.data
-			}
-		);
+		this.send('_taroRequest', {
+			id: req.id,
+			cmd: commandName,
+			data: req.data,
+		});
 	},
 
 	/**
@@ -367,14 +373,11 @@ var TaroNetIoClient = {
 
 		if (req) {
 			// Send the network response packet
-			this.send(
-				'_taroResponse',
-				{
-					id: requestId,
-					cmd: req.commandName,
-					data: data
-				}
-			);
+			this.send('_taroResponse', {
+				id: requestId,
+				cmd: req.commandName,
+				data: data,
+			});
 
 			// Remove the request as we've now responded!
 			delete this._requests[requestId];
@@ -387,7 +390,13 @@ var TaroNetIoClient = {
 	 */
 	newIdHex: function () {
 		this._idCounter++;
-		return (this._idCounter + (Math.random() * Math.pow(10, 17) + Math.random() * Math.pow(10, 17) + Math.random() * Math.pow(10, 17) + Math.random() * Math.pow(10, 17))).toString(16);
+		return (
+			this._idCounter +
+			(Math.random() * Math.pow(10, 17) +
+				Math.random() * Math.pow(10, 17) +
+				Math.random() * Math.pow(10, 17) +
+				Math.random() * Math.pow(10, 17))
+		).toString(16);
 	},
 
 	_onRequest: function (data) {
@@ -409,8 +418,7 @@ var TaroNetIoClient = {
 	},
 
 	_onResponse: function (data) {
-		var id,
-			req;
+		var id, req;
 
 		// The message is a network response
 		// to a request we sent earlier
@@ -452,12 +460,11 @@ var TaroNetIoClient = {
 		var ciDecoded = data[0].charCodeAt(0);
 		var commandName = this._networkCommandsIndex[ciDecoded];
 		var now = taro._currentTime;
-		
+
 		// commandName is ALWAYS snapshot, because we're using snapshot compression. we may remove this if condition eventually
 		if (commandName === '_snapshot') {
-			var snapshot = rfdc()(data)[1];			
+			var snapshot = rfdc()(data)[1];
 			if (snapshot.length) {
-
 				var newSnapshotTimestamp = snapshot[snapshot.length - 1][1];
 
 				var obj = {};
@@ -490,7 +497,11 @@ var TaroNetIoClient = {
 								if (isTeleporting) {
 									// console.log("wtf")
 									entity.teleportTo(x, y, rotate, isTeleportingCamera);
-								} else if (entity == taro.client.selectedUnit && taro.physics && entity._stats.controls?.clientPredictedMovement) {
+								} else if (
+									entity == taro.client.selectedUnit &&
+									taro.physics &&
+									entity._stats.controls?.clientPredictedMovement
+								) {
 									if (taro.env === 'local' || taro.debugCSP) {
 										// emit position for entity debug image
 										entity.emit('transform-debug', {
@@ -500,13 +511,12 @@ var TaroNetIoClient = {
 											rotation: rotate,
 										});
 									}
-									
+
 									taro.client.myUnitStreamedPosition = {
 										x: x,
 										y: y,
 										rotation: rotate,
-									}									
-								
+									};
 								} else {
 									// console.log(entity._category, newPosition)
 									// extra 20ms of buffer removes jitter
@@ -539,20 +549,17 @@ var TaroNetIoClient = {
 						// this._diffSamples.shift();
 						let medianDiff = this.getMedian(this._diffSamples);
 						if (-300 < diff && diff < 300) {
-							taro._currentTime += medianDiff/4;
+							taro._currentTime += medianDiff / 4;
 						} else {
 							taro._currentTime = newSnapshotTimestamp;
 						}
-						
+
 						// console.log(medianDiff, now, newSnapshotTimestamp, this._diffSamples)
 
 						this._diffSamples = [];
-
-						
 					}
 				}
 			}
-			
 		} else if (commandName === 'ping') {
 			if (this._networkCommands[commandName]) {
 				this._networkCommands[commandName](data[1]);
@@ -574,17 +581,16 @@ var TaroNetIoClient = {
 	},
 
 	getMedian: function (values) {
-		if(values.length === 0) throw new Error('No inputs');
+		if (values.length === 0) throw new Error('No inputs');
 
 		// Create a copy of the array before sorting
-		var sortedValues = values.slice().sort(function(a, b) {
+		var sortedValues = values.slice().sort(function (a, b) {
 			return a - b;
 		});
 
 		var half = Math.floor(sortedValues.length / 2);
 
-		if (sortedValues.length % 2)
-			return sortedValues[half];
+		if (sortedValues.length % 2) return sortedValues[half];
 
 		return (sortedValues[half - 1] + sortedValues[half]) / 2.0;
 	},
@@ -610,7 +616,9 @@ var TaroNetIoClient = {
 	 */
 	_onError: function (data) {
 		this.log(`Error with connection: ${data.reason}`, 'error');
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroNetIoClient; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroNetIoClient;
+}

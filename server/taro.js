@@ -7,7 +7,7 @@ console.log(`Executing taro Under Node.js Version ${process.version}`);
 // Set a global variable for the location of
 // the node_modules folder
 modulePath = '../server/node_modules/';
-function generateId () {
+function generateId() {
 	let text = '';
 	let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -63,11 +63,14 @@ if (process.env.ENV == 'dev') {
 	TaroNode = require('./TaroNode');
 	var taroNode = new TaroNode();
 
-	if (cluster.isPrimary) {// master cluster!
+	if (cluster.isPrimary) {
+		// master cluster!
 		// Fork workers.
 		var debug = process.execArgv.indexOf('--debug') !== -1;
 		cluster.setupMaster({
-			execArgv: process.execArgv.filter(function (s) { return s !== '--debug'; })
+			execArgv: process.execArgv.filter(function (s) {
+				return s !== '--debug';
+			}),
 		});
 	} else {
 		// Workers can share any TCP connection

@@ -20,7 +20,9 @@ var TaroDummyContext = {
 	clip: nullMethod,
 	transform: nullMethod,
 	setTransform: nullMethod,
-	fillText: nullMethod
+	fillText: nullMethod,
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroDummyContext; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroDummyContext;
+}

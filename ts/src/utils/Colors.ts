@@ -141,7 +141,7 @@ const colors = {
 	white: '#ffffff',
 	whitesmoke: '#f5f5f5',
 	yellow: '#ffff00',
-	yellowgreen: '#9acd32'
+	yellowgreen: '#9acd32',
 };
 
 abstract class Colors {
@@ -155,14 +155,14 @@ abstract class Colors {
 
 	static isValidColor(color: string): boolean {
 		return (
-			color[0] === '#' &&
-			(color.length === 4 || color.length === 7) &&
-			!isNaN(Number(`0x${color.split('#')[1].toLowerCase()}`))
-		) ||
-			Colors.isExtendedColor(color);
+			(color[0] === '#' &&
+				(color.length === 4 || color.length === 7) &&
+				!isNaN(Number(`0x${color.split('#')[1].toLowerCase()}`))) ||
+			Colors.isExtendedColor(color)
+		);
 	}
 }
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Colors;
 }

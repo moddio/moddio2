@@ -12,9 +12,11 @@ for (var methodName in TaroEntity.prototype) {
 						this[i][methodName].apply(this[i], arguments);
 					}
 				};
-			}(methodName));
+			})(methodName);
 		}
 	}
 }
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroArray; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroArray;
+}

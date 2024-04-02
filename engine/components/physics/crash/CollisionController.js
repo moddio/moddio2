@@ -1,9 +1,12 @@
 // controller function
-const CollisionController = function(a, b, res) {
+const CollisionController = function (a, b, res) {
 	if (a.data.entity.body.type != 'dynamic') return;
 	// test case for now
-	if (!['unit', 'wall', 'projectile'].includes(a.data.entity._category) ||
-		!['unit', 'wall', 'projectile'].includes(b.data.entity._category)) return;
+	if (
+		!['unit', 'wall', 'projectile'].includes(a.data.entity._category) ||
+		!['unit', 'wall', 'projectile'].includes(b.data.entity._category)
+	)
+		return;
 
 	const b_type = b.data.entity.body.type;
 
@@ -16,23 +19,23 @@ const CollisionController = function(a, b, res) {
 ////////////////////////////////////////////////////////////////
 
 // we will eventually be adding b as a param
-const dyn_static_collision = function(a, b, res) {
+const dyn_static_collision = function (a, b, res) {
 	//
 	switch (b.data.entity._category) {
-		case ('unit'):
-		case ('wall'):
+		case 'unit':
+		case 'wall':
 		default:
 			dyn_static_exitPosition(a, b, res.overlapV);
 			dyn_static_exitVelocity(a.data.entity, res.overlapN);
 	}
 };
 
-const dyn_static_exitPosition = function(a, b, overlapV) {
+const dyn_static_exitPosition = function (a, b, overlapV) {
 	// for now expect this to be very simple
 	a.data.entity.translateTo(a.pos.x - overlapV.x, a.pos.y - overlapV.y, 0);
 };
 
-const dyn_static_exitVelocity = function(a_entity, overlapN) {
+const dyn_static_exitVelocity = function (a_entity, overlapN) {
 	//
 	let aVel = new taro.physics.crash.Vector(a_entity._velocity.x, a_entity._velocity.y);
 	const a_restitution = a_entity.body.fixtures[0].restitution;
@@ -50,19 +53,19 @@ const dyn_static_exitVelocity = function(a_entity, overlapN) {
 ////////////////   DYNAMIC   ///////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
-const dyn_dyn_collision = function(a, b, res) {
+const dyn_dyn_collision = function (a, b, res) {
 	//
 	switch (b.data.entity._category) {
-		case ('projectile'):
-		case ('unit'):
-		case ('item'):
+		case 'projectile':
+		case 'unit':
+		case 'item':
 		default:
 			dyn_dyn_exitPositions(a, b, res.overlapV);
 			dyn_dyn_exitVelocities(a.data.entity, b.data.entity, res.overlapN);
 	}
 };
 
-const dyn_dyn_exitPositions = function(a, b, overlapV) {
+const dyn_dyn_exitPositions = function (a, b, overlapV) {
 	const halfOverlapV = overlapV.clone().scale(0.5);
 
 	b.data.entity._hasMoved = true;
@@ -70,7 +73,7 @@ const dyn_dyn_exitPositions = function(a, b, overlapV) {
 	b.data.entity.translateTo(b.pos.x + halfOverlapV.x, b.pos.y + halfOverlapV.y);
 };
 
-const dyn_dyn_exitVelocities = function(a_entity, b_entity, overlapN) {
+const dyn_dyn_exitVelocities = function (a_entity, b_entity, overlapN) {
 	const normal = overlapN.clone();
 	const tangent = normal.clone().perp();
 	let temp;
@@ -97,4 +100,6 @@ const dyn_dyn_exitVelocities = function(a_entity, b_entity, overlapN) {
 	b_entity._velocity.y = bVel.y;
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = CollisionController; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = CollisionController;
+}

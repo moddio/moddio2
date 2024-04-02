@@ -23,16 +23,17 @@ var RegionManager = TaroClass.extend({
 
 			$('#region-modal-client').on('click', '#region-delete-btn', function (e) {
 				e.preventDefault();
-				var defaultKey = $('#region-modal-defaultKey').val(); x;
+				var defaultKey = $('#region-modal-defaultKey').val();
+				x;
 				var updatedRegion = {
-					deleteKey: defaultKey
+					deleteKey: defaultKey,
 				};
 				self.updateRegionToDatabase(updatedRegion);
 			});
 		}
 	},
 
-	getRegionById (regionName) {
+	getRegionById(regionName) {
 		return taro.$$('region').find(function (region) {
 			if (region && region._stats && region._stats.id === regionName) {
 				return true;
@@ -48,14 +49,14 @@ var RegionManager = TaroClass.extend({
 				x: parseFloat($('#region-modal-x').val()),
 				y: parseFloat($('#region-modal-y').val()),
 				width: parseFloat($('#region-modal-width').val()),
-				height: parseFloat($('#region-modal-height').val())
-			}
+				height: parseFloat($('#region-modal-height').val()),
+			},
 		};
 		if ($('#region-modal-key').val() != $('#region-modal-defaultKey').val()) {
 			updatedRegion.deleteKey = $('#region-modal-defaultKey').val();
 		}
 		if (updatedRegion.key.includes('.')) {
-			swal('Alert!!!', 'cannot create region having \'.\' in the key', 'error');
+			swal('Alert!!!', "cannot create region having '.' in the key", 'error');
 			return;
 		}
 		self.updateRegionToDatabase(updatedRegion);
@@ -124,11 +125,11 @@ var RegionManager = TaroClass.extend({
 			$('#region-modal-defaultKey').val(key);
 			$('#region-modal-key').val(key);
 			if (isAddNewRegion) {
-				$('#region-update-btn').html('<i class=\'fa fa-plus\'></i> Create</button>');
+				$('#region-update-btn').html("<i class='fa fa-plus'></i> Create</button>");
 				$('#region-delete-btn').prop('disabled', true);
 			} else {
 				taro.regionManager.isAddNewRegion = false;
-				$('#region-update-btn').html('<i class=\'fa fa-floppy-o\'></i> Save</button>');
+				$('#region-update-btn').html("<i class='fa fa-floppy-o'></i> Save</button>");
 				$('#region-delete-btn').prop('disabled', false);
 				// $('#region-modal-key').prop("disabled", true);
 			}
@@ -136,10 +137,12 @@ var RegionManager = TaroClass.extend({
 				this.blur();
 			});
 			$('#region-modal-client').modal({
-				show: true
+				show: true,
 			});
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = RegionManager; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = RegionManager;
+}

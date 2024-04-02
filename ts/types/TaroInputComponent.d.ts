@@ -1,6 +1,5 @@
 declare class TaroInputComponent extends TaroEventingClass {
+	processInputOnEveryFps(): void;
 
-	processInputOnEveryFps (): void
-
-	setupListeners (canvas: HTMLCanvasElement)
+	setupListeners(canvas: HTMLCanvasElement);
 }

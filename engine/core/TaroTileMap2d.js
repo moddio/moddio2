@@ -21,7 +21,6 @@ var TaroTileMap2d = TaroEntity.extend({
 		self.tileWidth(tileWidth);
 		self.tileHeight(tileHeight);
 		self.gridSize(3, 3);
-
 	},
 
 	/**
@@ -76,7 +75,7 @@ var TaroTileMap2d = TaroEntity.extend({
 			// If in isometric mount mode
 			if (this._mountMode === 1) {
 				if (this._tileWidth) {
-					this.width((this._tileWidth * 2) * this._gridSize.x);
+					this.width(this._tileWidth * 2 * this._gridSize.x);
 				}
 			}
 
@@ -106,8 +105,12 @@ var TaroTileMap2d = TaroEntity.extend({
 	occupyTile: function (x, y, width, height, obj) {
 		var xi, yi;
 
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		// Floor the values
 		x = Math.floor(x);
@@ -142,8 +145,12 @@ var TaroTileMap2d = TaroEntity.extend({
 	unOccupyTile: function (x, y, width, height) {
 		var xi, yi, item;
 
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		// Floor the values
 		x = Math.floor(x);
@@ -175,8 +182,12 @@ var TaroTileMap2d = TaroEntity.extend({
 	 * @return {*}
 	 */
 	isTileOccupied: function (x, y, width, height) {
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		return this.map.collision(x, y, width, height);
 	},
@@ -196,18 +207,16 @@ var TaroTileMap2d = TaroEntity.extend({
 		// TODO: supply the same pre-calculated data if it already exists?
 		var mx = point.x;
 		var my = point.y;
-		var dx; var dy; var tilePos;
+		var dx;
+		var dy;
+		var tilePos;
 
 		if (this._mountMode === 0) {
 			// 2d
 			dx = mx; // + this._tileWidth / 2;
 			dy = my; // + this._tileHeight / 2;
 
-			tilePos = new TaroPoint3d(
-				Math.floor(dx / this._tileWidth),
-				Math.floor(dy / this._tileWidth),
-				0
-			);
+			tilePos = new TaroPoint3d(Math.floor(dx / this._tileWidth), Math.floor(dy / this._tileWidth), 0);
 		}
 
 		if (this._mountMode === 1) {
@@ -215,11 +224,7 @@ var TaroTileMap2d = TaroEntity.extend({
 			dx = mx;
 			dy = my;
 
-			tilePos = new TaroPoint3d(
-				Math.floor(dx / this._tileWidth),
-				Math.floor(dy / this._tileHeight),
-				0
-			);
+			tilePos = new TaroPoint3d(Math.floor(dx / this._tileWidth), Math.floor(dy / this._tileHeight), 0);
 		}
 
 		return tilePos;
@@ -230,8 +235,7 @@ var TaroTileMap2d = TaroEntity.extend({
 	 * @return {TaroPoint3d}
 	 */
 	mouseTilePoint: function () {
-		var tilePos = this.mouseToTile()
-			.thisMultiply(this._tileWidth, this._tileHeight, 1);
+		var tilePos = this.mouseToTile().thisMultiply(this._tileWidth, this._tileHeight, 1);
 
 		tilePos.x += this._tileWidth / 2;
 		tilePos.y += this._tileHeight / 2;
@@ -243,15 +247,18 @@ var TaroTileMap2d = TaroEntity.extend({
 		var point;
 
 		if (this._mountMode === 0) {
-			point = new TaroPoint3d(x, y, 0)
-				.thisMultiply(this._tileWidth, this._tileHeight, 1);
+			point = new TaroPoint3d(x, y, 0).thisMultiply(this._tileWidth, this._tileHeight, 1);
 
-			point.x -= this._bounds2d.x2 - (this._tileWidth / 2);
-			point.y -= this._bounds2d.y2 - (this._tileHeight / 2);
+			point.x -= this._bounds2d.x2 - this._tileWidth / 2;
+			point.y -= this._bounds2d.y2 - this._tileHeight / 2;
 		}
 
 		if (this._mountMode === 1) {
-			point = new TaroPoint3d(x * this._tileWidth + this._tileWidth / 2, y * this._tileHeight + this._tileHeight / 2, 0);
+			point = new TaroPoint3d(
+				x * this._tileWidth + this._tileWidth / 2,
+				y * this._tileHeight + this._tileHeight / 2,
+				0
+			);
 			point.x -= this._bounds2d.x2 / 2;
 			point.y -= this._bounds2d.y2;
 		}
@@ -287,7 +294,8 @@ var TaroTileMap2d = TaroEntity.extend({
 	 * @return {Array}
 	 */
 	scanRects: function (callback) {
-		var x; var y;
+		var x;
+		var y;
 		var rectArray = [];
 		var mapData = this.map._mapData.clone();
 
@@ -313,7 +321,7 @@ var TaroTileMap2d = TaroEntity.extend({
 			x: x,
 			y: y,
 			width: 1,
-			height: 1
+			height: 1,
 		};
 		var nx = x + 1;
 		var ny = y + 1;
@@ -333,7 +341,11 @@ var TaroTileMap2d = TaroEntity.extend({
 
 		while (mapData[ny] && mapData[ny][x] && (!callback || (callback && callback(mapData[ny][x], x, ny)))) {
 			// Check for mapData either side of the column width
-			if ((mapData[ny][x - 1] && (!callback || (callback && callback(mapData[ny][x - 1], x - 1, ny)))) || (mapData[ny][x + rect.width] && (!callback || (callback && callback(mapData[ny][x + rect.width], x + rect.width, ny))))) {
+			if (
+				(mapData[ny][x - 1] && (!callback || (callback && callback(mapData[ny][x - 1], x - 1, ny)))) ||
+				(mapData[ny][x + rect.width] &&
+					(!callback || (callback && callback(mapData[ny][x + rect.width], x + rect.width, ny))))
+			) {
 				return rect;
 			}
 
@@ -360,8 +372,12 @@ var TaroTileMap2d = TaroEntity.extend({
 	},
 
 	inGrid: function (x, y, width, height) {
-		if (width === undefined) { width = 1; }
-		if (height === undefined) { height = 1; }
+		if (width === undefined) {
+			width = 1;
+		}
+		if (height === undefined) {
+			height = 1;
+		}
 
 		// Checks if the passed area is inside the tile map grid as defined by gridSize
 		return x >= 0 && y >= 0 && x + width <= this._gridSize.x && y + height <= this._gridSize.y;
@@ -385,9 +401,12 @@ var TaroTileMap2d = TaroEntity.extend({
 	 */
 	saveMap: function (layer) {
 		// in URL format
-		var textures = []; var i;
-		var x; var y;
-		var dataX = 0; var dataY = 0;
+		var textures = [];
+		var i;
+		var x;
+		var y;
+		var dataX = 0;
+		var dataY = 0;
 		var mapData = layer.map._mapData;
 
 		// Get the lowest x, y
@@ -409,7 +428,7 @@ var TaroTileMap2d = TaroEntity.extend({
 
 		return JSON.stringify({
 			data: layer.map.sortedMapDataAsArray(),
-			dataXY: [parseInt(dataX, 10), parseInt(dataY, 10)]
+			dataXY: [parseInt(dataX, 10), parseInt(dataY, 10)],
 		});
 	},
 
@@ -440,8 +459,8 @@ var TaroTileMap2d = TaroEntity.extend({
 
 			poly.addPoint(aabb.x + aabb.width / 2, aabb.y);
 			poly.addPoint(aabb.x + aabb.width, aabb.y + aabb.height / 2);
-			poly.addPoint(aabb.x + aabb.width / 2, (aabb.y + aabb.height) - 1);
-			poly.addPoint(aabb.x - 1, (aabb.y + aabb.height / 2) - 1);
+			poly.addPoint(aabb.x + aabb.width / 2, aabb.y + aabb.height - 1);
+			poly.addPoint(aabb.x - 1, aabb.y + aabb.height / 2 - 1);
 
 			return poly;
 		}
@@ -489,7 +508,9 @@ var TaroTileMap2d = TaroEntity.extend({
 		obj._tileHeight = obj._tileHeight || 1;
 
 		TaroEntity.prototype._childMounted.call(this, obj);
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroTileMap2d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroTileMap2d;
+}

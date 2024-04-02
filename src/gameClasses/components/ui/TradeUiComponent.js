@@ -18,7 +18,6 @@ var TradeUiComponent = TaroEntity.extend({
 			$('#accept-trade-button').addClass('disabled-trade-button');
 			$('#you-accept').addClass('active');
 
-
 			var selectedUnit = taro.client.myPlayer.getSelectedUnit();
 			var totalInventorySlot = selectedUnit?.inventory?.getTotalInventorySize();
 
@@ -33,7 +32,7 @@ var TradeUiComponent = TaroEntity.extend({
 			taro.network.send('trade', {
 				type: 'accept',
 				acceptedBy: taro.client.myPlayer.id(),
-				acceptedFor: taro.client.myPlayer.tradingWith
+				acceptedFor: taro.client.myPlayer.tradingWith,
 			});
 		});
 
@@ -60,13 +59,13 @@ var TradeUiComponent = TaroEntity.extend({
 			offerSlots.append(
 				$('<div/>', {
 					id: `offer-${i}`,
-					class: 'btn btn-light trade-offer-slot trade-slot'
+					class: 'btn btn-light trade-offer-slot trade-slot',
 				})
 			);
 			i++;
 		}
 
-		$('#accept-trade-button').removeClass('disabled-trade-button')
+		$('#accept-trade-button').removeClass('disabled-trade-button');
 		$('#you-accept').removeClass('active');
 		$('#trader-accept').removeClass('active');
 		$('#accept-trade-text').text('Accept');
@@ -77,7 +76,7 @@ var TradeUiComponent = TaroEntity.extend({
 			for (let i = 0; i <= 5; i++) {
 				const idx = totalInventorySlot + i;
 				$(`#item-${idx}`).removeClass('trade-item-success trade-item-added');
-				$(`#offer-${(i + 1)}`).removeClass('trade-item-success trade-item-added');
+				$(`#offer-${i + 1}`).removeClass('trade-item-success trade-item-added');
 			}
 		}
 	},
@@ -103,7 +102,7 @@ var TradeUiComponent = TaroEntity.extend({
 		var id = 0;
 		for (var i = totalInventorySlot; i < totalInventorySlot + 5; i++) {
 			$(`#item-${i}`).removeClass('trade-item-success');
-			$(`#offer-${(id + 1)}`).removeClass('trade-item-success');
+			$(`#offer-${id + 1}`).removeClass('trade-item-success');
 			tradeItems[id] = selectedUnit._stats.itemIds[i];
 
 			id++;
@@ -112,7 +111,7 @@ var TradeUiComponent = TaroEntity.extend({
 			type: 'offer',
 			from: taro.client.myPlayer.id(),
 			to: taro.client.myPlayer.tradingWith,
-			tradeItems: tradeItems
+			tradeItems: tradeItems,
 		});
 	},
 	receiveOfferingItems: function (tradeItems) {
@@ -129,16 +128,16 @@ var TradeUiComponent = TaroEntity.extend({
 				var itemDiv = taro.itemUi.getItemDiv(item, {
 					isDraggable: false,
 					popover: 'top',
-					isTrading: true
+					isTrading: true,
 				});
 				offerDiv.html(itemDiv);
 				offerDiv.addClass('trade-item-added');
 			} else {
 				offerDiv.removeClass('trade-item-added');
 			}
-			
+
 			offerDiv.removeClass('trade-item-success');
-			$(`#item-${(totalInventorySlot + i)}`).removeClass('trade-item-success');
+			$(`#item-${totalInventorySlot + i}`).removeClass('trade-item-success');
 		}
 
 		$('#you-accept').removeClass('active');
@@ -164,9 +163,9 @@ var TradeUiComponent = TaroEntity.extend({
 	tradeOptionClicked: function ({ clientId, unitId }) {
 		taro.network.send('playerClickTradeOption', {
 			tradeWithClientId: clientId,
-			tradeWithUnitId: unitId
+			tradeWithUnitId: unitId,
 		});
-	}
+	},
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

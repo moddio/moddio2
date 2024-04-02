@@ -70,7 +70,7 @@ var TaroNode = TaroClass.extend({
 	gamePath: function (gamePath) {
 		this.serverPath = `${process.cwd()}/server/`;
 
-		if (typeof (gamePath) !== 'undefined') {
+		if (typeof gamePath !== 'undefined') {
 			if (gamePath.substr(0, 1) === '/') {
 				// Absolute path
 				// this.log('Game path is absolute: ' + gamePath);
@@ -94,7 +94,10 @@ var TaroNode = TaroClass.extend({
 				return false;
 			} else if (!this.fs.existsSync(`${this.serverPath}ServerConfig.js`)) {
 				// The index.js file is missing, throw an error!
-				this.log(`The game's ServerConfig.js file cannot be found at: "${this.serverPath}ServerConfig.js", exiting!`, 'warning');
+				this.log(
+					`The game's ServerConfig.js file cannot be found at: "${this.serverPath}ServerConfig.js", exiting!`,
+					'warning'
+				);
 				setTimeout(this.exitProcess, 50);
 				return false;
 			} else {
@@ -113,7 +116,9 @@ var TaroNode = TaroClass.extend({
 
 		var arr = this.config.include;
 		var arrCount = arr.length;
-		var i; var item; var itemModule;
+		var i;
+		var item;
+		var itemModule;
 
 		// Loop the module items and check they exist first
 		this.log(`Checking module paths declared in: ${this.serverPath}ServerConfig.js`);
@@ -189,8 +194,11 @@ var TaroNode = TaroClass.extend({
 	},
 
 	_generateStage1: function (gamePath, toPath, deployOptions) {
-		var clientCode = ''; var coreCode = ''; var finalFileData;
-		var clientCodeReturn; var coreCodeReturn;
+		var clientCode = '';
+		var coreCode = '';
+		var finalFileData;
+		var clientCodeReturn;
+		var coreCodeReturn;
 		var fs = this.fs;
 		var taroCoreConfig = require('../engine/CoreConfig.js');
 		var arr = taroCoreConfig.include;
@@ -199,7 +207,8 @@ var TaroNode = TaroClass.extend({
 		var arrItem;
 		var className;
 		var nameToNew = [];
-		var reg; var indexData;
+		var reg;
+		var indexData;
 
 		// Generate the engine core
 		if (!deployOptions.proto) {
@@ -322,19 +331,15 @@ var TaroNode = TaroClass.extend({
 				file = arr[fileIndex];
 				// console.log('Checking for usage of: ' + file[1]);
 
-				if ((
+				if (
 					// If we are deploying prototype and file has "p" flag
-					(deployOptions.proto && file[0].indexOf('p') > -1) ||
-					(
+					((deployOptions.proto && file[0].indexOf('p') > -1) ||
 						// The class the file declares exists in the client-side source code
 						fullCodeEval.indexOf(file[1]) > -1 ||
-						(
-							// The file has a flag of "c" AND DOES NOT have a flag of "a"
-							file[0].indexOf('c') > -1 && file[0].indexOf('a') === -1
-						)
-					)
+						// The file has a flag of "c" AND DOES NOT have a flag of "a"
+						(file[0].indexOf('c') > -1 && file[0].indexOf('a') === -1)) &&
 					// The file has not already been included
-				) && finalArr.indexOf(file[2]) === -1
+					finalArr.indexOf(file[2]) === -1
 				) {
 					// The client code is using this class
 					console.log(`Class "${file[1]}" used in project, keeping file: engine/${file[2]}`);
@@ -394,7 +399,9 @@ var TaroNode = TaroClass.extend({
 		var fs = this.fs;
 		var arr = require(`${process.cwd()}/${gamePath}/ClientConfig.js`).include;
 		var arrCount = arr.length;
-		var i; var item; var itemModule;
+		var i;
+		var item;
+		var itemModule;
 		/// //////////////////////
 		var finalFileData = '';
 		var fileArr = [];
@@ -447,16 +454,16 @@ var TaroNode = TaroClass.extend({
 		source = source.replace(/\/\* CEXCLUDE \*\/[\s\S.]*?\* CEXCLUDE \*\//g, '');
 
 		// Return final code.
-		return babel.transform(source, {
-			ast: true,
-			compact: true,
-			minified: true,
-			comments: false,
-			// presets: [ '@babel/preset-env' ],
-			plugins: [
-				['transform-remove-console', { 'exclude': ['error', 'warn'] }]
-			]
-		}).code.toString();
+		return babel
+			.transform(source, {
+				ast: true,
+				compact: true,
+				minified: true,
+				comments: false,
+				// presets: [ '@babel/preset-env' ],
+				plugins: [['transform-remove-console', { exclude: ['error', 'warn'] }]],
+			})
+			.code.toString();
 	},
 
 	ask: function (question, callback) {
@@ -472,9 +479,9 @@ var TaroNode = TaroClass.extend({
 
 	exitProcess: function () {
 		process.exit(1);
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroNode;
 }

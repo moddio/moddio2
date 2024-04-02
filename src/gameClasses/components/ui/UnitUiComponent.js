@@ -19,7 +19,8 @@ var UnitUiComponent = TaroEntity.extend({
 		if (taro.isClient && taro.network.id() == self._entity._stats.clientId) {
 			// var attributeContainerComponent = self._entity.getAttributeBarContainer()
 			var ownerPlayer = self._entity.getOwner();
-			var belongsToSelectedUnit = ownerPlayer && ownerPlayer._stats && ownerPlayer._stats.selectedUnitId === self._entity.id();
+			var belongsToSelectedUnit =
+				ownerPlayer && ownerPlayer._stats && ownerPlayer._stats.selectedUnitId === self._entity.id();
 
 			if (belongsToSelectedUnit) {
 				$(taro.client.getCachedElementById('attribute-bars')).html('');
@@ -34,32 +35,33 @@ var UnitUiComponent = TaroEntity.extend({
 				if (belongsToSelectedUnit) {
 					var attribute = attributes[attributeTypeId];
 					if (
-						attribute.isVisible && (
-							attribute.isVisible === true || // for old deprecated method of showing attr bar
-							(attribute.isVisible.indexOf && attribute.isVisible.indexOf('centerBar') > -1)
-						)
+						attribute.isVisible &&
+						(attribute.isVisible === true || // for old deprecated method of showing attr bar
+							(attribute.isVisible.indexOf && attribute.isVisible.indexOf('centerBar') > -1))
 					) {
 						isAttributeBarPresent = true;
 						var width = (attribute.value / attribute.max) * 100;
 
 						var bar = $('<div/>', {
-							class: 'progress'
-						}).append(
-							$('<div/>', {
-								id: `player-${attributeTypeId}`,
-								class: `label progress-label`,
-								style: 'position: absolute; margin-top: 3px; width: 100%; color: black; font-size: 14px'
-							})
-						).append(
-							$('<div/>', {
-								id: `player-max-${attributeTypeId}`,
-								class: `progress-bar progress-bar-info`,
-								role: 'progressbar',
-								'aria-valuemin': '0',
-								'aria-valuemax': '100',
-								style: `width: ${width}%;font-weight:bold;transition:none; background-color:${attribute.color}`
-							})
-						);
+							class: 'progress',
+						})
+							.append(
+								$('<div/>', {
+									id: `player-${attributeTypeId}`,
+									class: `label progress-label`,
+									style: 'position: absolute; margin-top: 3px; width: 100%; color: black; font-size: 14px',
+								})
+							)
+							.append(
+								$('<div/>', {
+									id: `player-max-${attributeTypeId}`,
+									class: `progress-bar progress-bar-info`,
+									role: 'progressbar',
+									'aria-valuemin': '0',
+									'aria-valuemax': '100',
+									style: `width: ${width}%;font-weight:bold;transition:none; background-color:${attribute.color}`,
+								})
+							);
 
 						$(taro.client.getCachedElementById('attribute-bars')).append(bar);
 					}
@@ -69,7 +71,7 @@ var UnitUiComponent = TaroEntity.extend({
 			}
 			if (isAttributeBarPresent) {
 				$(taro.client.getCachedElementById('attribute-bars')).css({
-					minWidth: '200px'
+					minWidth: '200px',
 				});
 			}
 			taro.client.emit('update-abilities-position');
@@ -91,18 +93,16 @@ var UnitUiComponent = TaroEntity.extend({
 		}
 		attr = this._entity._stats.attributes[attributeTypeId];
 		var attributeTypes = taro.game.data.attributeTypes;
-		if (attributeTypes == undefined || attr == undefined)
-			return;
+		if (attributeTypes == undefined || attr == undefined) return;
 
 		var name = attributeTypes[attr.type] ? attributeTypes[attr.type].name : attr.name;
 
 		self._entity.updateAttributeBar(attr); // updating UnitBars from HTML Bar???
 
 		if (
-			attr.isVisible && (
-				attr.isVisible === true || // for old deprecated method of showing attr bar
-				(attr.isVisible.indexOf && attr.isVisible.indexOf('centerBar') > -1)
-			)
+			attr.isVisible &&
+			(attr.isVisible === true || // for old deprecated method of showing attr bar
+				(attr.isVisible.indexOf && attr.isVisible.indexOf('centerBar') > -1))
 		) {
 			if (attr.value % 1 === 0) {
 				attr.value = parseInt(attr.value);
@@ -143,12 +143,15 @@ var UnitUiComponent = TaroEntity.extend({
 
 			var widthInPercent = (attr.value / attr.max) * 100;
 
-			$(taro.client.getCachedElementById(`player-max-${attr.type}`)).stop().css({
-				width: `${widthInPercent}%`
-			});
+			$(taro.client.getCachedElementById(`player-max-${attr.type}`))
+				.stop()
+				.css({
+					width: `${widthInPercent}%`,
+				});
 		}
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = UnitUiComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = UnitUiComponent;
+}

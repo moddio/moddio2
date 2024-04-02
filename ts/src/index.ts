@@ -1,7 +1,7 @@
 var Game = TaroClass.extend({
 	classId: 'Game',
 
-	init (App: typeof Client, options?: object) {
+	init(App: typeof Client, options?: object) {
 		// Create the engine
 		taro = new TaroEngine(options);
 
@@ -13,10 +13,10 @@ var Game = TaroClass.extend({
 		if (taro.isServer) {
 			taro.server = new App(options);
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Game;
 } else {
 	var game = new Game(Client);

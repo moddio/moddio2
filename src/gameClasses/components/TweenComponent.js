@@ -11,44 +11,70 @@ var TweenComponent = TaroEntity.extend({
 		self.offset = { x: 0, y: 0, rotate: 0 }; // x, y, angle
 
 		self.tweens = {
-			idle: { // idle
+			idle: {
+				// idle
 				type: 'translate',
 				loopCount: -1, // loop infinitely
-				keyFrames: [[0, [0, 0, 0]], [400, [0, -2, 0]], [800, [0, 0, 0]]]
+				keyFrames: [
+					[0, [0, 0, 0]],
+					[400, [0, -2, 0]],
+					[800, [0, 0, 0]],
+				],
 			},
 			wobble: {
 				type: 'swing',
 				loopCount: 1,
-				keyFrames: [[0, [0, 0, 0]], [50, [0, 0, 0.1]], [100, [0, 0, -0.1]], [50, [0, 0, 0]]]
+				keyFrames: [
+					[0, [0, 0, 0]],
+					[50, [0, 0, 0.1]],
+					[100, [0, 0, -0.1]],
+					[50, [0, 0, 0]],
+				],
 			},
 			poke: {
 				type: 'translate',
 				loopCount: 1,
-				keyFrames: [[0, [0, 0, 0]], [60, [0, 50, 0]], [180, [0, 0, 0]]]
+				keyFrames: [
+					[0, [0, 0, 0]],
+					[60, [0, 50, 0]],
+					[180, [0, 0, 0]],
+				],
 			},
 			recoil: {
 				type: 'translate',
 				loopCount: 1,
-				keyFrames: [[0, [0, 0, 0]], [20, [0, -10, 0]], [150, [0, 0, 0]]]
+				keyFrames: [
+					[0, [0, 0, 0]],
+					[20, [0, -10, 0]],
+					[150, [0, 0, 0]],
+				],
 			},
 			swingCW: {
 				type: 'swing',
 				loopCount: 1,
-				keyFrames: [[0, [0, 0, 0]], [100, [0, 0, 3.14]], [250, [0, 0, 0]]]
+				keyFrames: [
+					[0, [0, 0, 0]],
+					[100, [0, 0, 3.14]],
+					[250, [0, 0, 0]],
+				],
 			},
 			swingCCW: {
 				type: 'swing',
 				loopCount: 1,
-				keyFrames: [[0, [0, 0, 0]], [100, [0, 0, -3.14]], [250, [0, 0, 0]]]
-			}
+				keyFrames: [
+					[0, [0, 0, 0]],
+					[100, [0, 0, -3.14]],
+					[250, [0, 0, 0]],
+				],
+			},
 		};
 	},
 
 	/* queue a new tween. if a matching tweenId exists among the previously queued tweens, remove that matching tween.
-    * @param {angle} the reference angle to apply tweening to.
-    * for example, if it's an item poking, then reference angle should be item's facing angle.
-    * If it's a tree that's being hit, then reference angle should be angle between tree and the item
-    */
+	 * @param {angle} the reference angle to apply tweening to.
+	 * for example, if it's an item poking, then reference angle should be item's facing angle.
+	 * If it's a tree that's being hit, then reference angle should be angle between tree and the item
+	 */
 	// queueTween: function(tweenId, angle) {
 	//     console.log("tweenQueuing", tweenId)
 	//     for (var i=0; i < this.queue.length; i++) {
@@ -65,7 +91,8 @@ var TweenComponent = TaroEntity.extend({
 		// use customTween (e.g. change item)
 		if (customTween) {
 			var tween = customTween;
-		} else { // pre-defined tween
+		} else {
+			// pre-defined tween
 			if (!this.tweens[tweenId]) {
 				this.stop();
 				return;
@@ -153,8 +180,8 @@ var TweenComponent = TaroEntity.extend({
 				}
 
 				interpolatedRotate += angle;
-				this.offset.x = (interpolatedX * Math.cos(interpolatedRotate)) + (interpolatedY * Math.sin(interpolatedRotate));
-				this.offset.y = (interpolatedX * Math.sin(interpolatedRotate)) - (interpolatedY * Math.cos(interpolatedRotate));
+				this.offset.x = interpolatedX * Math.cos(interpolatedRotate) + interpolatedY * Math.sin(interpolatedRotate);
+				this.offset.y = interpolatedX * Math.sin(interpolatedRotate) - interpolatedY * Math.cos(interpolatedRotate);
 			} else {
 				this.lastFrame = this.keyFrames.shift();
 				this.nextFrame = this.keyFrames[0];
@@ -169,10 +196,9 @@ var TweenComponent = TaroEntity.extend({
 			this.offset = { x: 0, y: 0, rotate: 0 };
 			this.isTweening = false;
 		}
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TweenComponent;
 }

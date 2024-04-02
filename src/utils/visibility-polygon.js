@@ -61,9 +61,9 @@ var viewportVisibility = VisibilityPolygon.computeViewport(position, segments, [
 
 */
 
-function VisibilityPolygon(){};
+function VisibilityPolygon() {}
 
-VisibilityPolygon.compute = function(position, segments) {
+VisibilityPolygon.compute = function (position, segments) {
 	var bounded = [];
 	var minX = position[0];
 	var minY = position[1];
@@ -76,16 +76,31 @@ VisibilityPolygon.compute = function(position, segments) {
 			maxX = Math.max(maxX, segments[i][j][0]);
 			maxY = Math.max(maxY, segments[i][j][1]);
 		}
-		bounded.push([[segments[i][0][0], segments[i][0][1]], [segments[i][1][0], segments[i][1][1]]]);
+		bounded.push([
+			[segments[i][0][0], segments[i][0][1]],
+			[segments[i][1][0], segments[i][1][1]],
+		]);
 	}
 	--minX;
 	--minY;
 	++maxX;
 	++maxY;
-	bounded.push([[minX, minY],[maxX, minY]]);
-	bounded.push([[maxX, minY],[maxX, maxY]]);
-	bounded.push([[maxX, maxY],[minX, maxY]]);
-	bounded.push([[minX, maxY],[minX, minY]]);
+	bounded.push([
+		[minX, minY],
+		[maxX, minY],
+	]);
+	bounded.push([
+		[maxX, minY],
+		[maxX, maxY],
+	]);
+	bounded.push([
+		[maxX, maxY],
+		[minX, maxY],
+	]);
+	bounded.push([
+		[minX, maxY],
+		[minX, minY],
+	]);
 	var polygon = [];
 	var sorted = VisibilityPolygon.sortPoints(position, bounded);
 	var map = new Array(bounded.length);
@@ -102,7 +117,7 @@ VisibilityPolygon.compute = function(position, segments) {
 			VisibilityPolygon.insert(i, heap, position, bounded, start, map);
 		}
 	}
-	for (var i = 0; i < sorted.length;) {
+	for (var i = 0; i < sorted.length; ) {
 		var extend = false;
 		var shorten = false;
 		var orig = i;
@@ -130,16 +145,23 @@ VisibilityPolygon.compute = function(position, segments) {
 			var cur = VisibilityPolygon.intersectLines(bounded[heap[0]][0], bounded[heap[0]][1], position, vertex);
 			if (!VisibilityPolygon.equal(cur, vertex)) polygon.push(cur);
 		} else if (shorten) {
-			polygon.push(VisibilityPolygon.intersectLines(bounded[old_segment][0], bounded[old_segment][1], position, vertex));
+			polygon.push(
+				VisibilityPolygon.intersectLines(bounded[old_segment][0], bounded[old_segment][1], position, vertex)
+			);
 			polygon.push(VisibilityPolygon.intersectLines(bounded[heap[0]][0], bounded[heap[0]][1], position, vertex));
 		}
 	}
 	return polygon;
 };
 
-VisibilityPolygon.computeViewport = function(position, segments, viewportMinCorner, viewportMaxCorner) {
+VisibilityPolygon.computeViewport = function (position, segments, viewportMinCorner, viewportMaxCorner) {
 	var brokenSegments = [];
-	var viewport = [[viewportMinCorner[0],viewportMinCorner[1]],[viewportMaxCorner[0],viewportMinCorner[1]],[viewportMaxCorner[0],viewportMaxCorner[1]],[viewportMinCorner[0],viewportMaxCorner[1]]];
+	var viewport = [
+		[viewportMinCorner[0], viewportMinCorner[1]],
+		[viewportMaxCorner[0], viewportMinCorner[1]],
+		[viewportMaxCorner[0], viewportMaxCorner[1]],
+		[viewportMinCorner[0], viewportMaxCorner[1]],
+	];
 	for (var i = 0; i < segments.length; ++i) {
 		if (segments[i][0][0] < viewportMinCorner[0] && segments[i][1][0] < viewportMinCorner[0]) continue;
 		if (segments[i][0][1] < viewportMinCorner[1] && segments[i][1][1] < viewportMinCorner[1]) continue;
@@ -149,10 +171,22 @@ VisibilityPolygon.computeViewport = function(position, segments, viewportMinCorn
 		for (var j = 0; j < viewport.length; ++j) {
 			var k = j + 1;
 			if (k == viewport.length) k = 0;
-			if (VisibilityPolygon.doLineSegmentsIntersect(segments[i][0][0], segments[i][0][1], segments[i][1][0], segments[i][1][1], viewport[j][0], viewport[j][1], viewport[k][0], viewport[k][1])) {
+			if (
+				VisibilityPolygon.doLineSegmentsIntersect(
+					segments[i][0][0],
+					segments[i][0][1],
+					segments[i][1][0],
+					segments[i][1][1],
+					viewport[j][0],
+					viewport[j][1],
+					viewport[k][0],
+					viewport[k][1]
+				)
+			) {
 				var intersect = VisibilityPolygon.intersectLines(segments[i][0], segments[i][1], viewport[j], viewport[k]);
 				if (intersect.length != 2) continue;
-				if (VisibilityPolygon.equal(intersect, segments[i][0]) || VisibilityPolygon.equal(intersect, segments[i][1])) continue;
+				if (VisibilityPolygon.equal(intersect, segments[i][0]) || VisibilityPolygon.equal(intersect, segments[i][1]))
+					continue;
 				intersections.push(intersect);
 			}
 		}
@@ -167,7 +201,10 @@ VisibilityPolygon.computeViewport = function(position, segments, viewportMinCorn
 					endIndex = j;
 				}
 			}
-			brokenSegments.push([[start[0], start[1]], [intersections[endIndex][0], intersections[endIndex][1]]]);
+			brokenSegments.push([
+				[start[0], start[1]],
+				[intersections[endIndex][0], intersections[endIndex][1]],
+			]);
 			start[0] = intersections[endIndex][0];
 			start[1] = intersections[endIndex][1];
 			intersections.splice(endIndex, 1);
@@ -177,19 +214,37 @@ VisibilityPolygon.computeViewport = function(position, segments, viewportMinCorn
 
 	var viewportSegments = [];
 	for (var i = 0; i < brokenSegments.length; ++i) {
-		if (VisibilityPolygon.inViewport(brokenSegments[i][0], viewportMinCorner, viewportMaxCorner) && VisibilityPolygon.inViewport(brokenSegments[i][1], viewportMinCorner, viewportMaxCorner)) {
-			viewportSegments.push([[brokenSegments[i][0][0], brokenSegments[i][0][1]], [brokenSegments[i][1][0], brokenSegments[i][1][1]]]);
+		if (
+			VisibilityPolygon.inViewport(brokenSegments[i][0], viewportMinCorner, viewportMaxCorner) &&
+			VisibilityPolygon.inViewport(brokenSegments[i][1], viewportMinCorner, viewportMaxCorner)
+		) {
+			viewportSegments.push([
+				[brokenSegments[i][0][0], brokenSegments[i][0][1]],
+				[brokenSegments[i][1][0], brokenSegments[i][1][1]],
+			]);
 		}
 	}
 	var eps = VisibilityPolygon.epsilon() * 10;
-	viewportSegments.push([[viewportMinCorner[0]-eps,viewportMinCorner[1]-eps],[viewportMaxCorner[0]+eps,viewportMinCorner[1]-eps]]);
-	viewportSegments.push([[viewportMaxCorner[0]+eps,viewportMinCorner[1]-eps],[viewportMaxCorner[0]+eps,viewportMaxCorner[1]+eps]]);
-	viewportSegments.push([[viewportMaxCorner[0]+eps,viewportMaxCorner[1]+eps],[viewportMinCorner[0]-eps,viewportMaxCorner[1]+eps]]);
-	viewportSegments.push([[viewportMinCorner[0]-eps,viewportMaxCorner[1]+eps],[viewportMinCorner[0]-eps,viewportMinCorner[1]-eps]]);
+	viewportSegments.push([
+		[viewportMinCorner[0] - eps, viewportMinCorner[1] - eps],
+		[viewportMaxCorner[0] + eps, viewportMinCorner[1] - eps],
+	]);
+	viewportSegments.push([
+		[viewportMaxCorner[0] + eps, viewportMinCorner[1] - eps],
+		[viewportMaxCorner[0] + eps, viewportMaxCorner[1] + eps],
+	]);
+	viewportSegments.push([
+		[viewportMaxCorner[0] + eps, viewportMaxCorner[1] + eps],
+		[viewportMinCorner[0] - eps, viewportMaxCorner[1] + eps],
+	]);
+	viewportSegments.push([
+		[viewportMinCorner[0] - eps, viewportMaxCorner[1] + eps],
+		[viewportMinCorner[0] - eps, viewportMinCorner[1] - eps],
+	]);
 	return VisibilityPolygon.compute(position, viewportSegments);
 };
 
-VisibilityPolygon.inViewport = function(position, viewportMinCorner, viewportMaxCorner) {
+VisibilityPolygon.inViewport = function (position, viewportMinCorner, viewportMaxCorner) {
 	if (position[0] < viewportMinCorner[0] - VisibilityPolygon.epsilon()) return false;
 	if (position[1] < viewportMinCorner[1] - VisibilityPolygon.epsilon()) return false;
 	if (position[0] > viewportMaxCorner[0] + VisibilityPolygon.epsilon()) return false;
@@ -197,18 +252,29 @@ VisibilityPolygon.inViewport = function(position, viewportMinCorner, viewportMax
 	return true;
 };
 
-VisibilityPolygon.inPolygon = function(position, polygon) {
+VisibilityPolygon.inPolygon = function (position, polygon) {
 	var val = polygon[0][0];
 	for (var i = 0; i < polygon.length; ++i) {
 		val = Math.min(polygon[i][0], val);
 		val = Math.min(polygon[i][1], val);
 	}
-	var edge = [val-1, val-1];
+	var edge = [val - 1, val - 1];
 	var parity = 0;
 	for (var i = 0; i < polygon.length; ++i) {
 		var j = i + 1;
 		if (j == polygon.length) j = 0;
-		if (VisibilityPolygon.doLineSegmentsIntersect(edge[0], edge[1], position[0], position[1], polygon[i][0], polygon[i][1], polygon[j][0], polygon[j][1])) {
+		if (
+			VisibilityPolygon.doLineSegmentsIntersect(
+				edge[0],
+				edge[1],
+				position[0],
+				position[1],
+				polygon[i][0],
+				polygon[i][1],
+				polygon[j][0],
+				polygon[j][1]
+			)
+		) {
 			var intersect = VisibilityPolygon.intersectLines(edge, position, polygon[i], polygon[j]);
 			if (VisibilityPolygon.equal(position, intersect)) return true;
 			if (VisibilityPolygon.equal(intersect, polygon[i])) {
@@ -220,31 +286,51 @@ VisibilityPolygon.inPolygon = function(position, polygon) {
 			}
 		}
 	}
-	return (parity%2)!=0;
+	return parity % 2 != 0;
 };
 
-VisibilityPolygon.convertToSegments = function(polygons) {
+VisibilityPolygon.convertToSegments = function (polygons) {
 	var segments = [];
 	for (var i = 0; i < polygons.length; ++i) {
 		for (var j = 0; j < polygons[i].length; ++j) {
-			var k = j+1;
+			var k = j + 1;
 			if (k == polygons[i].length) k = 0;
-			segments.push([[polygons[i][j][0], polygons[i][j][1]], [polygons[i][k][0], polygons[i][k][1]]]);
+			segments.push([
+				[polygons[i][j][0], polygons[i][j][1]],
+				[polygons[i][k][0], polygons[i][k][1]],
+			]);
 		}
 	}
 	return segments;
 };
 
-VisibilityPolygon.breakIntersections = function(segments) {
+VisibilityPolygon.breakIntersections = function (segments) {
 	var output = [];
 	for (var i = 0; i < segments.length; ++i) {
 		var intersections = [];
 		for (var j = 0; j < segments.length; ++j) {
 			if (i == j) continue;
-			if (VisibilityPolygon.doLineSegmentsIntersect(segments[i][0][0], segments[i][0][1], segments[i][1][0], segments[i][1][1], segments[j][0][0], segments[j][0][1], segments[j][1][0], segments[j][1][1])) {
-				var intersect = VisibilityPolygon.intersectLines(segments[i][0], segments[i][1], segments[j][0], segments[j][1]);
+			if (
+				VisibilityPolygon.doLineSegmentsIntersect(
+					segments[i][0][0],
+					segments[i][0][1],
+					segments[i][1][0],
+					segments[i][1][1],
+					segments[j][0][0],
+					segments[j][0][1],
+					segments[j][1][0],
+					segments[j][1][1]
+				)
+			) {
+				var intersect = VisibilityPolygon.intersectLines(
+					segments[i][0],
+					segments[i][1],
+					segments[j][0],
+					segments[j][1]
+				);
 				if (intersect.length != 2) continue;
-				if (VisibilityPolygon.equal(intersect, segments[i][0]) || VisibilityPolygon.equal(intersect, segments[i][1])) continue;
+				if (VisibilityPolygon.equal(intersect, segments[i][0]) || VisibilityPolygon.equal(intersect, segments[i][1]))
+					continue;
 				intersections.push(intersect);
 			}
 		}
@@ -259,7 +345,10 @@ VisibilityPolygon.breakIntersections = function(segments) {
 					endIndex = j;
 				}
 			}
-			output.push([[start[0], start[1]], [intersections[endIndex][0], intersections[endIndex][1]]]);
+			output.push([
+				[start[0], start[1]],
+				[intersections[endIndex][0], intersections[endIndex][1]],
+			]);
 			start[0] = intersections[endIndex][0];
 			start[1] = intersections[endIndex][1];
 			intersections.splice(endIndex, 1);
@@ -269,16 +358,17 @@ VisibilityPolygon.breakIntersections = function(segments) {
 	return output;
 };
 
-VisibilityPolygon.epsilon = function() {
+VisibilityPolygon.epsilon = function () {
 	return 0.0000001;
 };
 
-VisibilityPolygon.equal = function(a, b) {
-	if (Math.abs(a[0] - b[0]) < VisibilityPolygon.epsilon() && Math.abs(a[1] - b[1]) < VisibilityPolygon.epsilon()) return true;
+VisibilityPolygon.equal = function (a, b) {
+	if (Math.abs(a[0] - b[0]) < VisibilityPolygon.epsilon() && Math.abs(a[1] - b[1]) < VisibilityPolygon.epsilon())
+		return true;
 	return false;
 };
 
-VisibilityPolygon.remove = function(index, heap, position, segments, destination, map) {
+VisibilityPolygon.remove = function (index, heap, position, segments, destination, map) {
 	map[heap[index]] = -1;
 	if (index == heap.length - 1) {
 		heap.pop();
@@ -305,15 +395,21 @@ VisibilityPolygon.remove = function(index, heap, position, segments, destination
 		while (true) {
 			var left = VisibilityPolygon.child(cur);
 			var right = left + 1;
-			if (left < heap.length && VisibilityPolygon.lessThan(heap[left], heap[cur], position, segments, destination) &&
-					(right == heap.length || VisibilityPolygon.lessThan(heap[left], heap[right], position, segments, destination))) {
+			if (
+				left < heap.length &&
+				VisibilityPolygon.lessThan(heap[left], heap[cur], position, segments, destination) &&
+				(right == heap.length || VisibilityPolygon.lessThan(heap[left], heap[right], position, segments, destination))
+			) {
 				map[heap[left]] = cur;
 				map[heap[cur]] = left;
 				var temp = heap[left];
 				heap[left] = heap[cur];
 				heap[cur] = temp;
 				cur = left;
-			} else if (right < heap.length && VisibilityPolygon.lessThan(heap[right], heap[cur], position, segments, destination)) {
+			} else if (
+				right < heap.length &&
+				VisibilityPolygon.lessThan(heap[right], heap[cur], position, segments, destination)
+			) {
 				map[heap[right]] = cur;
 				map[heap[cur]] = right;
 				var temp = heap[right];
@@ -325,7 +421,7 @@ VisibilityPolygon.remove = function(index, heap, position, segments, destination
 	}
 };
 
-VisibilityPolygon.insert = function(index, heap, position, segments, destination, map) {
+VisibilityPolygon.insert = function (index, heap, position, segments, destination, map) {
 	var intersect = VisibilityPolygon.intersectLines(segments[index][0], segments[index][1], position, destination);
 	if (intersect.length == 0) return;
 	var cur = heap.length;
@@ -345,7 +441,7 @@ VisibilityPolygon.insert = function(index, heap, position, segments, destination
 	}
 };
 
-VisibilityPolygon.lessThan = function(index1, index2, position, segments, destination) {
+VisibilityPolygon.lessThan = function (index1, index2, position, segments, destination) {
 	var inter1 = VisibilityPolygon.intersectLines(segments[index1][0], segments[index1][1], position, destination);
 	var inter2 = VisibilityPolygon.intersectLines(segments[index2][0], segments[index2][1], position, destination);
 	if (!VisibilityPolygon.equal(inter1, inter2)) {
@@ -366,46 +462,48 @@ VisibilityPolygon.lessThan = function(index1, index2, position, segments, destin
 	return a1 < a2;
 };
 
-VisibilityPolygon.parent = function(index) {
-	return Math.floor((index-1)/2);
+VisibilityPolygon.parent = function (index) {
+	return Math.floor((index - 1) / 2);
 };
 
-VisibilityPolygon.child = function(index) {
-	return 2*index+1;
+VisibilityPolygon.child = function (index) {
+	return 2 * index + 1;
 };
 
-VisibilityPolygon.angle2 = function(a, b, c) {
-	var a1 = VisibilityPolygon.angle(a,b);
-	var a2 = VisibilityPolygon.angle(b,c);
+VisibilityPolygon.angle2 = function (a, b, c) {
+	var a1 = VisibilityPolygon.angle(a, b);
+	var a2 = VisibilityPolygon.angle(b, c);
 	var a3 = a1 - a2;
 	if (a3 < 0) a3 += 360;
 	if (a3 > 360) a3 -= 360;
 	return a3;
 };
 
-VisibilityPolygon.sortPoints = function(position, segments) {
+VisibilityPolygon.sortPoints = function (position, segments) {
 	var points = new Array(segments.length * 2);
 	for (var i = 0; i < segments.length; ++i) {
 		for (var j = 0; j < 2; ++j) {
 			var a = VisibilityPolygon.angle(segments[i][j], position);
-			points[2*i+j] = [i, j, a];
+			points[2 * i + j] = [i, j, a];
 		}
 	}
-	points.sort(function(a,b) {return a[2]-b[2];});
+	points.sort(function (a, b) {
+		return a[2] - b[2];
+	});
 	return points;
 };
 
-VisibilityPolygon.angle = function(a, b) {
-	return Math.atan2(b[1]-a[1], b[0]-a[0]) * 180 / Math.PI;
+VisibilityPolygon.angle = function (a, b) {
+	return (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
 };
 
-VisibilityPolygon.intersectLines = function(a1, a2, b1, b2) {
+VisibilityPolygon.intersectLines = function (a1, a2, b1, b2) {
 	var dbx = b2[0] - b1[0];
 	var dby = b2[1] - b1[1];
 	var dax = a2[0] - a1[0];
 	var day = a2[1] - a1[1];
 
-	var u_b  = dby * dax - dbx * day;
+	var u_b = dby * dax - dbx * day;
 	if (u_b != 0) {
 		var ua = (dbx * (a1[1] - b1[1]) - dby * (a1[0] - b1[0])) / u_b;
 		return [a1[0] - ua * -dax, a1[1] - ua * -day];
@@ -413,36 +511,36 @@ VisibilityPolygon.intersectLines = function(a1, a2, b1, b2) {
 	return [];
 };
 
-VisibilityPolygon.distance = function(a, b) {
-	var dx = a[0]-b[0];
-	var dy = a[1]-b[1];
-	return dx*dx + dy*dy;
+VisibilityPolygon.distance = function (a, b) {
+	var dx = a[0] - b[0];
+	var dy = a[1] - b[1];
+	return dx * dx + dy * dy;
 };
 
-VisibilityPolygon.isOnSegment = function(xi, yi, xj, yj, xk, yk) {
-  	return (xi <= xk || xj <= xk) && (xk <= xi || xk <= xj) &&
-		(yi <= yk || yj <= yk) && (yk <= yi || yk <= yj);
+VisibilityPolygon.isOnSegment = function (xi, yi, xj, yj, xk, yk) {
+	return (xi <= xk || xj <= xk) && (xk <= xi || xk <= xj) && (yi <= yk || yj <= yk) && (yk <= yi || yk <= yj);
 };
 
-VisibilityPolygon.computeDirection = function(xi, yi, xj, yj, xk, yk) {
-  	a = (xk - xi) * (yj - yi);
-  	b = (xj - xi) * (yk - yi);
-  	return a < b ? -1 : a > b ? 1 : 0;
+VisibilityPolygon.computeDirection = function (xi, yi, xj, yj, xk, yk) {
+	a = (xk - xi) * (yj - yi);
+	b = (xj - xi) * (yk - yi);
+	return a < b ? -1 : a > b ? 1 : 0;
 };
 
-VisibilityPolygon.doLineSegmentsIntersect = function(x1, y1, x2, y2, x3, y3, x4, y4) {
-  	d1 = VisibilityPolygon.computeDirection(x3, y3, x4, y4, x1, y1);
-  	d2 = VisibilityPolygon.computeDirection(x3, y3, x4, y4, x2, y2);
-  	d3 = VisibilityPolygon.computeDirection(x1, y1, x2, y2, x3, y3);
-  	d4 = VisibilityPolygon.computeDirection(x1, y1, x2, y2, x4, y4);
-  	return (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
-		((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) ||
+VisibilityPolygon.doLineSegmentsIntersect = function (x1, y1, x2, y2, x3, y3, x4, y4) {
+	d1 = VisibilityPolygon.computeDirection(x3, y3, x4, y4, x1, y1);
+	d2 = VisibilityPolygon.computeDirection(x3, y3, x4, y4, x2, y2);
+	d3 = VisibilityPolygon.computeDirection(x1, y1, x2, y2, x3, y3);
+	d4 = VisibilityPolygon.computeDirection(x1, y1, x2, y2, x4, y4);
+	return (
+		(((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) ||
 		(d1 == 0 && VisibilityPolygon.isOnSegment(x3, y3, x4, y4, x1, y1)) ||
 		(d2 == 0 && VisibilityPolygon.isOnSegment(x3, y3, x4, y4, x2, y2)) ||
 		(d3 == 0 && VisibilityPolygon.isOnSegment(x1, y1, x2, y2, x3, y3)) ||
-		(d4 == 0 && VisibilityPolygon.isOnSegment(x1, y1, x2, y2, x4, y4));
+		(d4 == 0 && VisibilityPolygon.isOnSegment(x1, y1, x2, y2, x4, y4))
+	);
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = VisibilityPolygon;
 }

@@ -7,8 +7,5 @@
   "trailingComma": "es5",
   "endOfLine": "auto",
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
-  "plugins": [
-    "prettier-plugin-sort-members"
-  ]
+  "importOrderSortSpecifiers": true
 }

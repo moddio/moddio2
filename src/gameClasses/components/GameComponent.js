@@ -8,7 +8,6 @@ var GameComponent = TaroEntity.extend({
 		this.gameOverModalIsShowing = false;
 		this.hasStarted = false;
 		this.devLogs = {};
-
 	},
 
 	start: function () {
@@ -28,7 +27,7 @@ var GameComponent = TaroEntity.extend({
 					name: `AI ${i}`,
 					controlledBy: 'computer',
 					unitIds: [], // all units owned by player
-					clientId: i
+					clientId: i,
 				});
 			}
 		} else if (taro.isClient) {
@@ -53,7 +52,7 @@ var GameComponent = TaroEntity.extend({
 
 		taro._physicsTickRate = Math.max(20, Math.min(60, taro.game?.data?.defaultData?.frameRate || 20));
 		console.log('physicsTickRate', taro._physicsTickRate);
-		
+
 		if (taro.isClient) {
 			// physicsTickRate dictates streaming fps, and renderBuffer is the wait time before next keyframe is sent to client.
 			// taro.client.renderBuffer = 1500 / taro._physicsTickRate // 20 fps = 75ms, 60 fps = 25ms
@@ -64,7 +63,7 @@ var GameComponent = TaroEntity.extend({
 			}
 		}
 
-		taro._gameLoopTickRate = Math.max(20, Math.min(60, taro.game?.data?.defaultData?.engineTickRate || 20));		
+		taro._gameLoopTickRate = Math.max(20, Math.min(60, taro.game?.data?.defaultData?.engineTickRate || 20));
 	},
 
 	// this applies to logged in players only
@@ -116,17 +115,18 @@ var GameComponent = TaroEntity.extend({
 		}
 
 		if (taro.isServer) {
-
 			// send latest ui information to the client
 			taro.gameText.sendLatestText(data.clientId);
 			// taro.shopkeeper.updateShopInventory(taro.shopkeeper.inventory, data.clientId) // send latest ui information to the client
-			
-			const {isOwner, isInvitedUser, isUserMod, isUserAdmin, isModerationAllowed} = taro.workerComponent ? taro.workerComponent.getUserPermissions(data) : {isOwner: true};
+
+			const { isOwner, isInvitedUser, isUserMod, isUserAdmin, isModerationAllowed } = taro.workerComponent
+				? taro.workerComponent.getUserPermissions(data)
+				: { isOwner: true };
 
 			player._stats.isUserAdmin = isUserAdmin;
 			player._stats.isUserMod = isUserMod;
 			player._stats.isModerationAllowed = isModerationAllowed;
-			
+
 			// if User/Admin has access to game then show developer logs
 			if (isOwner || isInvitedUser || isUserAdmin) {
 				GameComponent.prototype.log(`owner/admin/mod connected. _id: ${data._id}`);
@@ -137,16 +137,15 @@ var GameComponent = TaroEntity.extend({
 		return player;
 	},
 
-	restart: function() {
+	restart: function () {
 		// remove all players/units/items/projectiles
 		// remove world & map
-
 		// start buliding out world
 		// run scripts
 		// get existing players to re-join
 	},
 
-	kickPlayer: function(playerId, message) {
+	kickPlayer: function (playerId, message) {
 		// var player = this.getPlayerByClientId(clientId);
 		// if (player) {
 		// 	player.streamUpdateData([{ playerJoined: false }]);
@@ -157,7 +156,7 @@ var GameComponent = TaroEntity.extend({
 			if (player._stats.clientId) {
 				var client = taro.server.clients[player._stats.clientId];
 				if (client) {
-					client.socket.close(message)
+					client.socket.close(message);
 				}
 			} else {
 				// bot players don't have clientId
@@ -182,13 +181,14 @@ var GameComponent = TaroEntity.extend({
 
 		if (clientIds.length > 0) {
 			var method = all ? 'filter' : 'find';
-			return taro.$$('player')[method](player => {
+			return taro.$$('player')[method]((player) => {
 				// var clientId = player && player._stats && player._stats.clientId;
 				// added currentUserId check to confirm it is logged in user and not add-instance bot.
 				return (
 					player._stats &&
-          clientIds.includes(player._stats.clientId) &&
-          ((all && (!guestPlayersOnly || !player._stats.userId)) || (currentUserId && player._stats.userId != currentUserId))
+					clientIds.includes(player._stats.clientId) &&
+					((all && (!guestPlayersOnly || !player._stats.userId)) ||
+						(currentUserId && player._stats.userId != currentUserId))
 				);
 			});
 		}
@@ -214,9 +214,7 @@ var GameComponent = TaroEntity.extend({
 			var cloned = rfdc()(asset);
 			return cloned;
 		} catch (e) {
-			GameComponent.prototype.log(
-				`getAsset ${assetType} ${assetId} ${e}`
-			);
+			GameComponent.prototype.log(`getAsset ${assetType} ${assetId} ${e}`);
 		}
 	},
 
@@ -226,9 +224,7 @@ var GameComponent = TaroEntity.extend({
 			// return JSON.parse(JSON.stringify(asset));
 			return asset;
 		} catch (e) {
-			GameComponent.prototype.log(
-				`getAsset ${assetType} ${assetId} ${e}`
-			);
+			GameComponent.prototype.log(`getAsset ${assetType} ${assetId} ${e}`);
 		}
 	},
 	secondsToHms: function (seconds) {
@@ -247,15 +243,22 @@ var GameComponent = TaroEntity.extend({
 	updateDevConsole: function (data) {
 		var self = this;
 		// if a developer is connected, send devLog of global variables only
-		if (taro.isServer && (taro.server.developerClientIds.length || process.env.ENV === 'standalone' || process.env.ENV == 'standalone-remote')) {
+		if (
+			taro.isServer &&
+			(taro.server.developerClientIds.length ||
+				process.env.ENV === 'standalone' ||
+				process.env.ENV == 'standalone-remote')
+		) {
 			// only show 'object' string if env variable is object
 			if (typeof data.params.newValue == 'object') {
 				if (data.params.newValue?._stats) {
-					taro.game.devLogs[data.params.variableName] = `object (${data.params.newValue._category}): ${data.params.newValue._stats.name}`;
+					taro.game.devLogs[data.params.variableName] =
+						`object (${data.params.newValue._category}): ${data.params.newValue._stats.name}`;
 				} else {
 					taro.game.devLogs[data.params.variableName] = 'object';
 				}
-			} else { // otherwise, show the actual value
+			} else {
+				// otherwise, show the actual value
 
 				taro.game.devLogs[data.params.variableName] = data.params.newValue;
 			}
@@ -284,19 +287,21 @@ var GameComponent = TaroEntity.extend({
 							$('<div/>', {
 								name: variableName,
 								class: 'col-sm-12',
-								style: 'font-size: 12px'
-							}).append(
-								$('<td/>', {
-									html: variableName,
-									style: 'color:yellow; padding-left: 10px'
-								})
-							).append(
-								$('<td/>', {
-									class: 'setVariable-value text-left',
-									html: taro.clientSanitizer(newValue),
-									style: 'padding: 0px 10px 0px 10px'
-								})
-							)
+								style: 'font-size: 12px',
+							})
+								.append(
+									$('<td/>', {
+										html: variableName,
+										style: 'color:yellow; padding-left: 10px',
+									})
+								)
+								.append(
+									$('<td/>', {
+										class: 'setVariable-value text-left',
+										html: taro.clientSanitizer(newValue),
+										style: 'padding: 0px 10px 0px 10px',
+									})
+								)
 						);
 					}
 
@@ -306,24 +311,32 @@ var GameComponent = TaroEntity.extend({
 
 			if (data.status != {} /*&& taro.physics && taro.physics.engine != 'CRASH'*/) {
 				// if streaming entity count > 150 warn user
-				if (data.status && data.status.entityCount && data.status.entityCount.streaming > 150 && !self.streamingWarningShown) {
+				if (
+					data.status &&
+					data.status.entityCount &&
+					data.status.entityCount.streaming > 150 &&
+					!self.streamingWarningShown
+				) {
 					$('#streaming-entity-warning').show();
 					self.streamingWarningShown = true;
 				}
 
 				var innerHtml = '';
 
-				innerHtml = `${'' +
-					'<table class="table table-hover text-center" style="border:1px solid #eceeef">' +
-					'<tr>' +
-					'<th>Entity Count</th>' +
-					'<th class="text-center">Server</th>' +
-					'<th class="text-center">Client</th>' +
-					'<th class="text-center">Server Bandwidth</th>' +
-					'</tr>' +
-					'<tr>' +
-					'<td>Unit</td>' +
-					'<td>'}${data.status.entityCount.unit}</td>` +
+				innerHtml =
+					`${
+						'' +
+						'<table class="table table-hover text-center" style="border:1px solid #eceeef">' +
+						'<tr>' +
+						'<th>Entity Count</th>' +
+						'<th class="text-center">Server</th>' +
+						'<th class="text-center">Client</th>' +
+						'<th class="text-center">Server Bandwidth</th>' +
+						'</tr>' +
+						'<tr>' +
+						'<td>Unit</td>' +
+						'<td>'
+					}${data.status.entityCount.unit}</td>` +
 					`<td>${taro.$$('unit').length}</td>` +
 					`<td>${data.status.bandwidth.unit}</td>` +
 					'</tr>' +
@@ -360,25 +373,25 @@ var GameComponent = TaroEntity.extend({
 					'<tr>' +
 					'<th colspan= >Physics</th>' +
 					`<th>${data.status.physics.engine}</th>` +
-					`<th>${(taro.physics) ? taro.physics.engine : 'NONE'}</th>` +
+					`<th>${taro.physics ? taro.physics.engine : 'NONE'}</th>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Bodies</td>' +
 					`<td>${data.status.physics.bodyCount}</td>` +
-					`<td>${(taro.physics && taro.physics._world) ? taro.physics._world.m_bodyCount : ''}</td>` +
+					`<td>${taro.physics && taro.physics._world ? taro.physics._world.m_bodyCount : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Joints</td>' +
 					`<td>${data.status.physics.jointCount}</td>` +
-					`<td>${(taro.physics && taro.physics._world) ? taro.physics._world.m_jointCount : ''}</td>` +
+					`<td>${taro.physics && taro.physics._world ? taro.physics._world.m_jointCount : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Contacts</td>' +
 					`<td>${data.status.physics.contactCount}</td>` +
-					`<td>${(taro.physics && taro.physics._world) ? taro.physics._world.m_contactCount : ''}</td>` +
+					`<td>${taro.physics && taro.physics._world ? taro.physics._world.m_contactCount : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
@@ -390,13 +403,13 @@ var GameComponent = TaroEntity.extend({
 					'<tr>' +
 					'<td>Avg Step Duration(ms)</td>' +
 					`<td>${data.status.physics.stepDuration}</td>` +
-					`<td>${(taro.physics && taro.physics._world) ? taro.physics.avgPhysicsTickDuration.toFixed(2) : ''}</td>` +
+					`<td>${taro.physics && taro.physics._world ? taro.physics.avgPhysicsTickDuration.toFixed(2) : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Physics FPS</td>' +
 					`<td>${data.status.physics.stepsPerSecond}</td>` +
-					`<td>${(taro.physics) ? taro._physicsFPS : ''}</td>` +
+					`<td>${taro.physics ? taro._physicsFPS : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
@@ -410,14 +423,12 @@ var GameComponent = TaroEntity.extend({
 					`<td>${Math.floor(taro._currentTime)}(${Math.floor(taro._currentTime) - data.status.currentTime})</td>` +
 					`<td>${taro.timeScale()}</td>` +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>Client Count</td>' +
 					`<td>${data.status.clientCount}</td>` +
 					'<td></td>' +
 					'<td></td>' +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>entityUpdateQueue size</td>' +
 					'<td></td>' +
@@ -430,42 +441,36 @@ var GameComponent = TaroEntity.extend({
 					'<td></td>' +
 					'<td></td>' +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>Total units created</td>' +
 					`<td>${data.status.etc.totalUnitsCreated}</td>` +
 					'<td></td>' +
 					'<td></td>' +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>Total items created</td>' +
 					`<td>${data.status.etc.totalItemsCreated}</td>` +
 					'<td></td>' +
 					'<td></td>' +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>Total Bodies Created</td>' +
 					`<td>${data.status.physics.totalBodiesCreated}</td>` +
-					`<td>${(taro.physics && taro.physics._world) ? taro.physics.totalBodiesCreated : ''}</td>` +
+					`<td>${taro.physics && taro.physics._world ? taro.physics.totalBodiesCreated : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>CPU Usage</td>' +
 					`<td>${data.status.cpuDelta}</td>` +
 					'<td></td>' +
 					'<td></td>' +
 					'</tr>' +
-
 					'<tr>' +
 					'<td>Last Snapshot Length</td>' +
 					`<td>${data.status.lastSnapshotLength}</td>` +
 					'<td></td>' +
 					'<td></td>' +
 					'</tr>' +
-
 					'</table>';
 
 				taro.script.param.prevServerTime = data.status.currentTime;
@@ -475,7 +480,7 @@ var GameComponent = TaroEntity.extend({
 				self.secondCount++;
 			}
 		}
-	}
+	},
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

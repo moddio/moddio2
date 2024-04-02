@@ -88,7 +88,7 @@ namespace Renderer {
 			}
 
 			private correctZOffsetBasedOnCameraAngle() {
-				let angle = Math.abs(Renderer.Three.instance().camera.getElevationAngle() * (Math.PI / 180));
+				let angle = Math.abs(Renderer.Three.instance().camera.getElevationAngle());
 				angle = Math.PI * 0.5 - angle;
 				let halfHeight = this.scaleUnflipped.y * 0.5;
 				const adj = Math.cos(angle) * halfHeight;

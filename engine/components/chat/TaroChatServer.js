@@ -18,7 +18,7 @@ var TaroChatServer = {
 			id: newRoomId,
 			name: roomName,
 			options: options,
-			users: []
+			users: [],
 		};
 
 		// Inform all users that the room was created
@@ -68,7 +68,7 @@ var TaroChatServer = {
 			text: message,
 			from: from,
 			to: to,
-			bmToAll: additionalOpts?.isBroadcastMessageToAllGames
+			bmToAll: additionalOpts?.isBroadcastMessageToAllGames,
 		};
 
 		// send the system message (from the action 'sendChatMessage')
@@ -77,15 +77,15 @@ var TaroChatServer = {
 			return;
 		} else if (sender && sender._stats) {
 			// prevent sending messages from banned/unverified users
-			if (!global.isDev && ((sender._stats.banChat) || !sender._stats.userId)) {
+			if (!global.isDev && (sender._stats.banChat || !sender._stats.userId)) {
 				return;
-			} else if (this.isSpamming(from, message)) { // mute spammers
+			} else if (this.isSpamming(from, message)) {
+				// mute spammers
 				sender._stats.banChat = true;
-				msg.text = 'You have been muted for spamming.',
-				taro.network.send('taroChatMsg', msg);
+				(msg.text = 'You have been muted for spamming.'), taro.network.send('taroChatMsg', msg);
 				taro.workerComponent.banChat({
 					gameId: gameData._id,
-					userId: sender._stats.userId
+					userId: sender._stats.userId,
 				});
 				return;
 			} else if (/(https?:\/\/[^\s]+)/g.test(message)) {
@@ -94,7 +94,7 @@ var TaroChatServer = {
 
 			taro.game.lastChatMessageSentByPlayer = message;
 			taro.queueTrigger('playerSendsChatMessage', {
-				playerId: sender.id()
+				playerId: sender.id(),
 			});
 		}
 
@@ -107,8 +107,6 @@ var TaroChatServer = {
 			var room = self._rooms[roomId];
 
 			if (message !== undefined) {
-
-
 				// if (msg.text && msg.text.length > 80) {
 				// 	msg.text = msg.text.substr(0, 80);
 				// }
@@ -117,7 +115,7 @@ var TaroChatServer = {
 					// Send message to individual user
 					if (room.users.indexOf(to) > -1) {
 						taro.network.send('taroChatMsg', msg, to);
-						
+
 						// console.log('Sending to one user...', msg, to);
 					} else {
 						self.log(`Cannot send to user because specified user is not in room: ${to}`);
@@ -154,7 +152,7 @@ var TaroChatServer = {
 
 		this.sentMessages[from].push({
 			time: new Date(),
-			message: message
+			message: message,
 		});
 		var returnValue = false;
 		if (this.sentMessages[from].length > 4) {
@@ -203,8 +201,7 @@ var TaroChatServer = {
 		}
 		//
 
-		if (msg == undefined || msg.text == undefined)
-			return;
+		if (msg == undefined || msg.text == undefined) return;
 
 		// Emit the event and if it wasn't cancelled (by returning true) then
 		// process this ourselves
@@ -216,11 +213,11 @@ var TaroChatServer = {
 
 				player.lastMessageSent = msg.text;
 				taro.queueTrigger('playerSendsMessage', {
-					playerId: player.id()
+					playerId: player.id(),
 				});
 			}
 
-			if (msg.roomId && typeof msg.roomId == 'string' || typeof msg.roomId == 'number') {
+			if ((msg.roomId && typeof msg.roomId == 'string') || typeof msg.roomId == 'number') {
 				room = self._rooms[msg.roomId];
 				if (room) {
 					if (room.users.indexOf(clientId) > -1) {
@@ -237,11 +234,11 @@ var TaroChatServer = {
 					}
 				} else {
 					// Room id specified does not exist
-					taro.devLog('User tried to send message to room that doesn\'t exist!', msg);
+					taro.devLog("User tried to send message to room that doesn't exist!", msg);
 				}
 			} else {
 				// No room id in the message
-				taro.devLog('User tried to send message to room but didn\'t specify room id!', msg);
+				taro.devLog("User tried to send message to room but didn't specify room id!", msg);
 			}
 		}
 	},
@@ -295,7 +292,9 @@ var TaroChatServer = {
 		if (!self.emit('clientRoomUserListRequest', [roomId, clientId])) {
 			console.log(`Client wants the room user list: (${clientId})`, roomId);
 		}
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroChatServer; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroChatServer;
+}

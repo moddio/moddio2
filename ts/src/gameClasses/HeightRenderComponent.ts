@@ -1,15 +1,12 @@
 class HeightRenderComponent {
-	constructor (
-			public scene: GameScene,
-			public mapHeight: number
+	constructor(
+		public scene: GameScene,
+		public mapHeight: number
 	) {
 		this.scene.heightRenderer = this;
 	}
 
-	adjustDepth (
-		gameObject: TGameObject
-	): void {
-
+	adjustDepth(gameObject: TGameObject): void {
 		const castGameObject = !gameObject.owner ? gameObject : gameObject.owner.gameObject;
 
 		if (castGameObject) {
@@ -25,7 +22,6 @@ class HeightRenderComponent {
 
 			let depth = gameObject.taroDepth + (yPos + halfHeight) / this.mapHeight;
 
-
 			// hack to always paint items on top of units
 			if (castGameObject !== gameObject) {
 				depth += 0.001;
@@ -35,6 +31,5 @@ class HeightRenderComponent {
 
 			gameObject.setDepth(depth);
 		}
-		
 	}
 }

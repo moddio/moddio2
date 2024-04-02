@@ -26,11 +26,11 @@ const planckWrapper: PhysicsDistProps = {
 		};
 
 		/**
-			 * Gets / sets the gravity vector.
-			 * @param x
-			 * @param y
-			 * @return {*}
-			 */
+		 * Gets / sets the gravity vector.
+		 * @param x
+		 * @param y
+		 * @return {*}
+		 */
 		component.gravity = function (x, y) {
 			if (x !== undefined && y !== undefined) {
 				this._gravity = new this.b2Vec2(x, y);
@@ -72,7 +72,7 @@ const planckWrapper: PhysicsDistProps = {
 			self.destroyBody(entity);
 		}
 
-		var tempDef:any = {};
+		var tempDef: any = {};
 		var param;
 		var tempBod;
 		var fixtureDef;
@@ -190,7 +190,7 @@ const planckWrapper: PhysicsDistProps = {
 									}
 
 									if (tempShape && fixtureDef.filter) {
-										var fd:any = {};
+										var fd: any = {};
 
 										fd.friction = fixtureDef.friction;
 										fd.restitution = fixtureDef.restitution;
@@ -206,7 +206,10 @@ const planckWrapper: PhysicsDistProps = {
 								}
 							}
 						} else {
-							PhysicsComponent.prototype.log('Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.', 'warning');
+							PhysicsComponent.prototype.log(
+								'Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.',
+								'warning'
+							);
 						}
 						break;
 				}
@@ -223,7 +226,9 @@ const planckWrapper: PhysicsDistProps = {
 		// rotate body to its previous value
 		entity.rotateTo(0, 0, entity._rotate.z);
 
-		PhysicsComponent.prototype.log(`successfully created body for ${entity.id()} ${entity._category} ${entity._stats.name} ${entity._stats.type}`);
+		PhysicsComponent.prototype.log(
+			`successfully created body for ${entity.id()} ${entity._category} ${entity._stats.name} ${entity._stats.type}`
+		);
 
 		return tempBod;
 	},
@@ -237,7 +242,10 @@ const planckWrapper: PhysicsDistProps = {
 		// create a joint only if there isn't pre-existing joint
 		// console.log("creating joint between "+entityA._stats.name+ " and " + entityB._stats.name)
 		if (
-			entityA && entityA.body && entityB && entityB.body && // make sure both entities have bodies
+			entityA &&
+			entityA.body &&
+			entityB &&
+			entityB.body && // make sure both entities have bodies
 			entityA.id() != entityB.id() // im not creating joint to myself!
 		) {
 			if (aBody.jointType == 'revoluteJoint' && anchorA && anchorB) {
@@ -260,17 +268,17 @@ const planckWrapper: PhysicsDistProps = {
 						// upperAngle: aBody.itemAnchor.upperAngle * 0.0174533, // degree to rad
 						// enableLimit: true,
 						localAnchorA: localAnchorA,
-						localAnchorB: localAnchorB
+						localAnchorB: localAnchorB,
 					},
 					entityA.body,
 					entityB.body
 				);
-			} else // weld joint
-			{
+			} // weld joint
+			else {
 				var joint_def = planck.WeldJoint(
 					{
 						frequencyHz: 0, // The mass-spring-damper frequency in Hertz. Rotation only. Disable softness with a value of 0.
-						dampingRatio: 0 // The damping ratio. 0 = no damping, 1 = critical damping
+						dampingRatio: 0, // The damping ratio. 0 = no damping, 1 = critical damping
 					},
 					entityA.body,
 					entityB.body,
@@ -313,10 +321,9 @@ const planckWrapper: PhysicsDistProps = {
 				postSolve(contact);
 			});
 		}
-	}
+	},
 };
 
-
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = planckWrapper;
 }

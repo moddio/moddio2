@@ -27,7 +27,7 @@ var ItemComponent = TaroEntity.extend({
 		var self = this;
 		// itemSpawnChanceTotal is used to ensure that some item types are more rare to come by than the othr item types
 		self.calculateItemSpawnChanceTotal(options);
-		var randomIndex = Math.random() * (this.itemSpawnChanceTotal);
+		var randomIndex = Math.random() * this.itemSpawnChanceTotal;
 		var randomTotal = 0;
 		// pick a random item type
 
@@ -40,8 +40,8 @@ var ItemComponent = TaroEntity.extend({
 				randomTotal += parseFloat(item.spawnChance);
 			}
 
-			if (randomTotal >= randomIndex) // determine the item Type
-			{
+			if (randomTotal >= randomIndex) {
+				// determine the item Type
 				var itemStats = rfdc()(item);
 				itemStats.itemTypeId = itemTypeId;
 				break;
@@ -79,11 +79,11 @@ var ItemComponent = TaroEntity.extend({
 						if (buffType.unit == 'percentage') {
 							minBuffValue = buffType.minBonus;
 							maxBuffValue = buffType.maxBonus;
-							buffValue = (Math.random() * (maxBuffValue - minBuffValue)) + minBuffValue;
+							buffValue = Math.random() * (maxBuffValue - minBuffValue) + minBuffValue;
 						} else if (buffType.unit == 'integer') {
 							minBuffValue = buffType.minBonus;
 							maxBuffValue = buffType.maxBonus;
-							buffValue = (Math.random() * maxBuffValue - (minBuffValue - 1)) + minBuffValue;
+							buffValue = Math.random() * maxBuffValue - (minBuffValue - 1) + minBuffValue;
 						} else if (buffType.unit == 'boolean') {
 							buffValue = true;
 						}
@@ -94,8 +94,7 @@ var ItemComponent = TaroEntity.extend({
 							availableBuffTypes.splice(i, 1); // so same buff doesn't get applied
 
 							buffCount++;
-							if (buffCount > maxBuffCount)
-								return;
+							if (buffCount > maxBuffCount) return;
 
 							if (itemStats[buffTypeName] == undefined) {
 								itemStats[buffTypeName] = 0;
@@ -103,7 +102,9 @@ var ItemComponent = TaroEntity.extend({
 
 							switch (buffTypeName) {
 								case 'height':
-									itemStats.body.holdingDistance = parseInt(itemStats.body.holdingDistance + (itemStats.body.holdingDistance * buffValue));
+									itemStats.body.holdingDistance = parseInt(
+										itemStats.body.holdingDistance + itemStats.body.holdingDistance * buffValue
+									);
 									itemStats[buffTypeName] = parseInt(itemStats[buffTypeName] * (1 + buffValue));
 									break;
 
@@ -141,8 +142,7 @@ var ItemComponent = TaroEntity.extend({
 					}
 
 					// this means that maxBuffCount was never set, and buffCount will be pretty random (max # of buff will be size of all available buffs)
-					if (maxBuffCount == 99)
-						return itemStats;
+					if (maxBuffCount == 99) return itemStats;
 				}
 			}
 
@@ -153,7 +153,9 @@ var ItemComponent = TaroEntity.extend({
 		// traverse through buff types
 		// there's 25% of adding this buff
 		// determine variance of this buff
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = ItemComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = ItemComponent;
+}

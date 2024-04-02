@@ -1,6 +1,6 @@
 class PhaserAnimatedEntity extends PhaserEntity {
-	protected sprite: Phaser.GameObjects.Sprite & IRenderProps;
 	public attachedParticles: PhaserParticle[] = [];
+	protected sprite: Phaser.GameObjects.Sprite & IRenderProps;
 
 	protected constructor(
 		public scene: GameScene,
@@ -59,7 +59,14 @@ class PhaserAnimatedEntity extends PhaserEntity {
 
 	protected destroy(): void {
 		this.sprite = null;
-		this.attachedParticles.forEach((particle) => particle.stop());
+		this.attachedParticles.forEach((attachedParticle) => {
+			attachedParticle.stop();
+			attachedParticle.scene.particles.splice(
+				attachedParticle.scene.particles.findIndex((particle) => {
+					return particle === attachedParticle;
+				})
+			);
+		});
 		super.destroy();
 	}
 

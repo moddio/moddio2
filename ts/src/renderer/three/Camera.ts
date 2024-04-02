@@ -181,7 +181,11 @@ namespace Renderer {
 			}
 
 			getElevationAngle() {
-				return (Math.PI / 2 - this.controls.getPolarAngle()) * (180 / Math.PI);
+				return Math.PI / 2 - this.controls.getPolarAngle();
+			}
+
+			getAzimuthAngle() {
+				return this.controls.getAzimuthalAngle();
 			}
 
 			setAzimuthAngle(deg: number) {
@@ -237,7 +241,7 @@ namespace Renderer {
 			update() {
 				if (this.controls.enableRotate) {
 					const azimuthAngle = this.controls.getAzimuthalAngle() * (180 / Math.PI);
-					const elevationAngle = (Math.PI / 2 - this.controls.getPolarAngle()) * (180 / Math.PI);
+					const elevationAngle = this.getElevationAngle() * (180 / Math.PI);
 					this.debugInfo.style.display = 'block';
 					this.debugInfo.innerHTML = `lookYaw: ${Utils.round(azimuthAngle, 2)} </br>lookPitch: ${Utils.round(elevationAngle, 2)}</br>`;
 				} else if (this.debugInfo.style.display !== 'none') {

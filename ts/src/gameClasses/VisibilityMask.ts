@@ -110,18 +110,35 @@ class VisibilityMask {
 		const w = entity._bounds2d.x;
 		const h = entity._bounds2d.y;
 
-		rectArray.push(Phaser.Geom.Rectangle.FromXY(x, y, x+w, y+h));
+		rectArray.push(Phaser.Geom.Rectangle.FromXY(x, y, x + w, y + h));
 
 		segArray.push(
-			[[x, y], [x+w, y]],
-			[[x, y+h], [x+w, y+h]],
-			[[x, y], [x, y+h]],
-			[[x+w, y], [x+w, y+h]]
+			[
+				[x, y],
+				[x + w, y],
+			],
+			[
+				[x, y + h],
+				[x + w, y + h],
+			],
+			[
+				[x, y],
+				[x, y + h],
+			],
+			[
+				[x + w, y],
+				[x + w, y + h],
+			]
 		);
 	}
 
-	mapFromTaroCircle(entity: TaroEntity, polygonArray: Phaser.Geom.Polygon[], segArray: number[][][], sides: number): void {
-		const r = entity._bounds2d.x2 * (1 + 1/sides); // x + x*sides^-1 = x * (1 + 1/sides)
+	mapFromTaroCircle(
+		entity: TaroEntity,
+		polygonArray: Phaser.Geom.Polygon[],
+		segArray: number[][][],
+		sides: number
+	): void {
+		const r = entity._bounds2d.x2 * (1 + 1 / sides); // x + x*sides^-1 = x * (1 + 1/sides)
 		const x = entity._translate.x;
 		const y = entity._translate.y;
 
@@ -131,13 +148,18 @@ class VisibilityMask {
 
 		let i = 0;
 
-		while(i < sides) {
-
+		while (i < sides) {
 			if (i + 1 !== sides) {
-				segArray.push([[points[i].x, points[i].y], [points[i+1].x, points[i+1].y]]);
+				segArray.push([
+					[points[i].x, points[i].y],
+					[points[i + 1].x, points[i + 1].y],
+				]);
 			}
 
-			segArray.push([[points[i].x, points[i].y], [points[0].x, points[0].y]]);
+			segArray.push([
+				[points[i].x, points[i].y],
+				[points[0].x, points[0].y],
+			]);
 			i++;
 		}
 	}
@@ -167,15 +189,19 @@ class VisibilityMask {
 
 	visibilityPoly(): void {
 		// console.time('VISIBILITY POLYGON');
-		const data = VisibilityPolygon.computeViewport([this.player.x, this.player.y], this.segments, [this.fov.left, this.fov.top], [this.fov.right, this.fov.bottom]);
+		const data = VisibilityPolygon.computeViewport(
+			[this.player.x, this.player.y],
+			this.segments,
+			[this.fov.left, this.fov.top],
+			[this.fov.right, this.fov.bottom]
+		);
 		const poly: Phaser.Geom.Point[] = [];
 
 		data.forEach((point) => {
 			poly.push(new Phaser.Geom.Point(point[0], point[1]));
 		});
 
-		this.graph.fillStyle(0xFF9999, 0)
-			.fillPoints(poly, true);
+		this.graph.fillStyle(0xff9999, 0).fillPoints(poly, true);
 
 		// if include walls
 		this.walls.forEach((wall) => {
@@ -193,7 +219,6 @@ class VisibilityMask {
 
 		// console.timeEnd('VISIBILITY POLYGON');
 		this.scene.cameras.main.setMask(this.mask, false);
-
 	}
 
 	destroyVisibilityMask(): void {
@@ -209,6 +234,6 @@ class VisibilityMask {
 	}
 }
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = VisibilityMask;
 }

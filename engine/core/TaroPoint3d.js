@@ -76,7 +76,7 @@ var TaroPoint3d = TaroClass.extend({
 	 */
 	toIso: function () {
 		var sx = this.x - this.y;
-		var sy = (-this.z) * 1.2247 + (this.x + this.y) * 0.5;
+		var sy = -this.z * 1.2247 + (this.x + this.y) * 0.5;
 
 		return { x: sx, y: sy };
 	},
@@ -229,9 +229,15 @@ var TaroPoint3d = TaroClass.extend({
 		var newY = this.y;
 		var newZ = this.z;
 
-		if (point.x) { newX = this.x / point.x; }
-		if (point.y) { newY = this.y / point.y; }
-		if (point.z) { newZ = this.z / point.z; }
+		if (point.x) {
+			newX = this.x / point.x;
+		}
+		if (point.y) {
+			newY = this.y / point.y;
+		}
+		if (point.z) {
+			newZ = this.z / point.z;
+		}
 
 		return new TaroPoint3d(newX, newY, newZ);
 	},
@@ -278,7 +284,11 @@ var TaroPoint3d = TaroClass.extend({
 		var deltaTime = totalTime - (currentTime - startTime);
 		var timeRatio = deltaTime / totalTime;
 
-		return new TaroPoint3d(endPoint.x - (totalX * timeRatio), endPoint.y - (totalY * timeRatio), endPoint.z - (totalZ * timeRatio));
+		return new TaroPoint3d(
+			endPoint.x - totalX * timeRatio,
+			endPoint.y - totalY * timeRatio,
+			endPoint.z - totalZ * timeRatio
+		);
 	},
 
 	/**
@@ -331,7 +341,9 @@ var TaroPoint3d = TaroClass.extend({
 		}
 
 		return `${parseFloat(this.x).toFixed(precision)},${parseFloat(this.y).toFixed(precision)},${parseFloat(this.z).toFixed(precision)}`;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroPoint3d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroPoint3d;
+}

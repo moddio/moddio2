@@ -42,7 +42,6 @@ const PhysicsComponent = TaroEventingClass.extend({
 
 		// we should consider moving all of our collision listeners outside of the Component
 		const contactDetails = function (a, b, res, cancel) {
-
 			// since I removed triggerComponent, you'll have to move contact callback function inside crashComponent.
 			// taro.trigger._beginContactCallback({
 			// 	m_fixtureA: {
@@ -69,7 +68,9 @@ const PhysicsComponent = TaroEventingClass.extend({
 		this._world.m_bodies = [];
 		this._world.m_contacts = [];
 		this._world.m_joints = [];
-		this._world.isLocked = function () { return false; };
+		this._world.isLocked = function () {
+			return false;
+		};
 
 		//console.log('map boundaries', taro.map.data.width, taro.map.data.height)
 	},
@@ -91,22 +92,24 @@ const PhysicsComponent = TaroEventingClass.extend({
 			_stats: true,
 			_velocity: {
 				x: 0,
-				y: 0
+				y: 0,
 			},
 			body: {
 				type: 'static',
-				fixtures: [{
-					filter: {
-						// i am
-						filterCategoryBits: 0x0001,
-						// i collide with everything except other walls
-						filterMaskBits: 0x0002 /*| 0x0004*/ | 0x0008 | 0x0010 | 0x0020
+				fixtures: [
+					{
+						filter: {
+							// i am
+							filterCategoryBits: 0x0001,
+							// i collide with everything except other walls
+							filterMaskBits: 0x0002 /*| 0x0004*/ | 0x0008 | 0x0010 | 0x0020,
+						},
 					},
-				}]
+				],
 			},
 			id: function () {
 				return 'border';
-			}
+			},
 		};
 
 		const width = taro.map.data.width * 64 * w + borderWidth;
@@ -145,14 +148,12 @@ const PhysicsComponent = TaroEventingClass.extend({
 			const radius = entity._bounds2d.x / 2;
 			crashBody = new this.crash.Circle(new this.crash.Vector(x, y), radius, false, { entity: entity });
 			// later check if added to .__moved()
-		}
-		else if (entity._category == 'wall' || entity._category == 'region') {
+		} else if (entity._category == 'wall' || entity._category == 'region') {
 			const width = entity._bounds2d.x;
 			const height = entity._bounds2d.y;
 			const pos = new this.crash.Vector(x, y);
 			crashBody = new this.crash.Box(pos, width, height, false, { entity: entity });
-		}
-		else if (shapeType === 'rectangle') {
+		} else if (shapeType === 'rectangle') {
 			const width = entity._bounds2d.x;
 			const height = entity._bounds2d.y;
 
@@ -166,15 +167,14 @@ const PhysicsComponent = TaroEventingClass.extend({
 			// crashBody = new this.crash.Polygon(new this.crash.Vector(x - (width / 2) , y - (height / 2)), points, false, { taroId: taroId, entity: entity, uid: Math.floor(Math.random() * 100) });
 			// crashBody.sat.setAngle(entity._rotate.z);
 			const points = [
-				new this.crash.Vector((width / 2), 0 - (height / 2)),
-				new this.crash.Vector((width / 2), (height / 2)),
-				new this.crash.Vector(0 - (width / 2), (height / 2)),
-				new this.crash.Vector(0 - (width / 2), 0 - (height / 2))
+				new this.crash.Vector(width / 2, 0 - height / 2),
+				new this.crash.Vector(width / 2, height / 2),
+				new this.crash.Vector(0 - width / 2, height / 2),
+				new this.crash.Vector(0 - width / 2, 0 - height / 2),
 			];
 			crashBody = new this.crash.Polygon(new this.crash.Vector(x, y), points, false, { entity: entity });
 			crashBody.sat.setAngle(entity._rotate.z);
-		}
-		else {
+		} else {
 			console.log('body shape is wrong');
 			return;
 		}
@@ -202,7 +202,7 @@ const PhysicsComponent = TaroEventingClass.extend({
 		if (collider) {
 			this.crash.remove(collider);
 		} else {
-			console.log('failed to destroy body - body doesn\'t exist.');
+			console.log("failed to destroy body - body doesn't exist.");
 		}
 	},
 
@@ -237,18 +237,18 @@ const PhysicsComponent = TaroEventingClass.extend({
 			this.lastSecondAt = timeEnd;
 			this.avgPhysicsTickDuration = this.physicsTickDuration / taro._fpsRate;
 			this.totalDisplacement = 0;
-			this.totalTimeElapsed =  0;
+			this.totalTimeElapsed = 0;
 			this.physicsTickDuration = 0;
 		}
-
 	},
 
 	staticsFromMap: function (mapLayer, callback) {
-
 		if (mapLayer.map) {
 			const tileWidth = taro.scaleMapDetails.tileWidth || mapLayer.tileWidth();
 			const tileHeight = taro.scaleMapDetails.tileHeight || mapLayer.tileHeight();
-			let rectArray; let rectCount; let rect;
+			let rectArray;
+			let rectCount;
+			let rect;
 
 			// Get the array of rectangle bounds based on the map's data
 			rectArray = mapLayer.scanRects(callback);
@@ -260,8 +260,8 @@ const PhysicsComponent = TaroEventingClass.extend({
 				const defaultData = {
 					translate: {
 						x: rect.x * tileWidth,
-						y: rect.y * tileHeight
-					}
+						y: rect.y * tileHeight,
+					},
 				};
 
 				// we can chain these methods because they return the entity
@@ -280,20 +280,22 @@ const PhysicsComponent = TaroEventingClass.extend({
 					linearDamping: 0,
 					angularDamping: 0,
 					allowSleep: true,
-					fixtures: [{
-						friction: 0.5,
-						restitution: 0,
-						shape: {
-							type: 'rectangle'
+					fixtures: [
+						{
+							friction: 0.5,
+							restitution: 0,
+							shape: {
+								type: 'rectangle',
+							},
+							filter: {
+								// i am
+								filterCategoryBits: 0x0001,
+								// i collide with everything except other walls
+								filterMaskBits: 0x0002 /*| 0x0004*/ | 0x0008 | 0x0010 | 0x0020,
+							},
+							taroId: wall.id(),
 						},
-						filter: {
-							// i am
-							filterCategoryBits: 0x0001,
-							// i collide with everything except other walls
-							filterMaskBits: 0x0002 /*| 0x0004*/ | 0x0008 | 0x0010 | 0x0020
-						},
-						taroId: wall.id()
-					}]
+					],
 				});
 
 				if (taro.isServer) {
@@ -301,7 +303,10 @@ const PhysicsComponent = TaroEventingClass.extend({
 				}
 			}
 		} else {
-			PhysicsComponent.prototype.log('Cannot extract static bodies from map data because passed map does not have a .map property.', 'error');
+			PhysicsComponent.prototype.log(
+				'Cannot extract static bodies from map data because passed map does not have a .map property.',
+				'error'
+			);
 		}
 	},
 
@@ -316,10 +321,10 @@ const PhysicsComponent = TaroEventingClass.extend({
 	 * @param val
 	 * @return {*}
 	 */
-	 scaleRatio: function (val) {
-		 // we need this method for Item.js to work so
-		 // keeping it as get/set but always 1 for get.
-		 // leaving set functionality for testing
+	scaleRatio: function (val) {
+		// we need this method for Item.js to work so
+		// keeping it as get/set but always 1 for get.
+		// leaving set functionality for testing
 		this._scaleRatio = 1;
 
 		if (val !== undefined) {
@@ -359,4 +364,6 @@ const PhysicsComponent = TaroEventingClass.extend({
 	}*/
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = PhysicsComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = PhysicsComponent;
+}

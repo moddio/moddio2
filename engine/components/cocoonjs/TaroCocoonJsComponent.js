@@ -3,7 +3,7 @@ var TaroCocoonJsComponent = TaroEventingClass.extend({
 	componentId: 'cocoonJs',
 
 	init: function () {
-		this.detected = typeof (ext) !== 'undefined' && typeof (ext.IDTK_APP) !== 'undefined';
+		this.detected = typeof ext !== 'undefined' && typeof ext.IDTK_APP !== 'undefined';
 
 		if (this.detected) {
 			this.log('CocoonJS support enabled!');
@@ -20,15 +20,7 @@ var TaroCocoonJsComponent = TaroEventingClass.extend({
 			cancelText = cancelText || 'Cancel';
 			okText = okText || 'OK';
 
-			ext.IDTK_APP.makeCall(
-				'showTextDialog',
-				title,
-				message,
-				initialValue,
-				type,
-				cancelText,
-				okText
-			);
+			ext.IDTK_APP.makeCall('showTextDialog', title, message, initialValue, type, cancelText, okText);
 		} else {
 			this.log('Cannot open CocoonJS input dialog! CocoonJS is not detected!', 'error');
 		}
@@ -42,7 +34,7 @@ var TaroCocoonJsComponent = TaroEventingClass.extend({
 		if (this.detected) {
 			// Forward a JS call to the webview IDTK API
 			ext.IDTK_APP.makeCall('forward', `ext.IDTK_APP.makeCall('loadPath', '${url}')`);
-			ext.IDTK_APP.makeCall('forward', 'ext.IDTK_APP.makeCall(\'show\');');
+			ext.IDTK_APP.makeCall('forward', "ext.IDTK_APP.makeCall('show');");
 		}
 	},
 
@@ -52,7 +44,7 @@ var TaroCocoonJsComponent = TaroEventingClass.extend({
 	hideWebView: function () {
 		if (this.detected) {
 			// Forward a JS call to the webview IDTK API
-			ext.IDTK_APP.makeCall('forward', 'ext.IDTK_APP.makeCall(\'hide\');');
+			ext.IDTK_APP.makeCall('forward', "ext.IDTK_APP.makeCall('hide');");
 		}
-	}
+	},
 });

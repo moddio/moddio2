@@ -1,3 +1,1 @@
-declare class Server extends TaroEventingClass {
-
-}
+declare class Server extends TaroEventingClass {}

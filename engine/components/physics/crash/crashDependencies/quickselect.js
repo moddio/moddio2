@@ -1,25 +1,26 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-		typeof define === 'function' && define.amd ? define(factory) :
-			(global.quickselect = factory());
-}(this, (function () {
+	typeof exports === 'object' && typeof module !== 'undefined'
+		? (module.exports = factory())
+		: typeof define === 'function' && define.amd
+			? define(factory)
+			: (global.quickselect = factory());
+})(this, function () {
 	'use strict';
 
 	function quickselect(arr, k, left, right, compare) {
-		quickselectStep(arr, k, left || 0, right || (arr.length - 1), compare || defaultCompare);
+		quickselectStep(arr, k, left || 0, right || arr.length - 1, compare || defaultCompare);
 	}
 
 	function quickselectStep(arr, k, left, right, compare) {
-
 		while (right > left) {
 			if (right - left > 600) {
 				var n = right - left + 1;
 				var m = k - left + 1;
 				var z = Math.log(n);
-				var s = 0.5 * Math.exp(2 * z / 3);
-				var sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
-				var newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
-				var newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
+				var s = 0.5 * Math.exp((2 * z) / 3);
+				var sd = 0.5 * Math.sqrt((z * s * (n - s)) / n) * (m - n / 2 < 0 ? -1 : 1);
+				var newLeft = Math.max(left, Math.floor(k - (m * s) / n + sd));
+				var newRight = Math.min(right, Math.floor(k + ((n - m) * s) / n + sd));
 				quickselectStep(arr, k, newLeft, newRight, compare);
 			}
 
@@ -60,5 +61,4 @@
 	}
 
 	return quickselect;
-
-})));
+});

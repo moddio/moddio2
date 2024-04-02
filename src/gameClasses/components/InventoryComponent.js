@@ -17,28 +17,37 @@ var InventoryComponent = TaroEntity.extend({
 		var entity = this._entity;
 		var ownerPlayer = entity.getOwner();
 		var mobileClass = taro.isMobile ? 'inventory-slot-mobile ' : 'inventory-slot ';
-		if (ownerPlayer && taro.isClient && entity._stats.clientId === taro.network.id() && ownerPlayer._stats.selectedUnitId == entity.id()) {
+		if (
+			ownerPlayer &&
+			taro.isClient &&
+			entity._stats.clientId === taro.network.id() &&
+			ownerPlayer._stats.selectedUnitId == entity.id()
+		) {
 			$('#inventory-slots').html('');
 			$('#inventory-slots-key-stroke').html('');
 			for (var i = 0; i < this._entity._stats.inventorySize; i++) {
-				$('#inventory-slots').append($('<div/>', {
-					id: `item-${i}`,
-					name: i,
-					class: `btn inventory-item-button p-0 ${mobileClass}`,
-					style: 'position: relative;',
-					role: 'button'
-				}).on('click', function () {
-					var slotIndex = parseInt($(this).attr('name')) + 1;
-					if (taro.client.myPlayer) {
-						taro.client.myPlayer.control.keyDown('key', slotIndex);
-					}
-				}));
+				$('#inventory-slots').append(
+					$('<div/>', {
+						id: `item-${i}`,
+						name: i,
+						class: `btn inventory-item-button p-0 ${mobileClass}`,
+						style: 'position: relative;',
+						role: 'button',
+					}).on('click', function () {
+						var slotIndex = parseInt($(this).attr('name')) + 1;
+						if (taro.client.myPlayer) {
+							taro.client.myPlayer.control.keyDown('key', slotIndex);
+						}
+					})
+				);
 
-				$('#inventory-slots-key-stroke').append($('<div/>', {
-					id: `item-key-stroke-${i}`,
-					name: `key-${i}`,
-					class: 'item-key-stroke'
-				}));
+				$('#inventory-slots-key-stroke').append(
+					$('<div/>', {
+						id: `item-key-stroke-${i}`,
+						name: `key-${i}`,
+						class: 'item-key-stroke',
+					})
+				);
 
 				var item = this.getItemBySlotNumber(i + 1);
 				if (item) {
@@ -52,7 +61,7 @@ var InventoryComponent = TaroEntity.extend({
 		this.update();
 	},
 
-	createBackpack () {
+	createBackpack() {
 		var entity = this._entity;
 		var backpackSize = entity._stats.backpackSize;
 		var mobileClass = taro.isMobile ? 'inventory-slot-mobile ' : 'inventory-slot ';
@@ -65,13 +74,15 @@ var InventoryComponent = TaroEntity.extend({
 			for (var i = inventorySize; i < backpackSize + inventorySize; i++) {
 				$('#backpack-items-div').append(
 					$('<div/>', {
-						class: 'col-sm-4 margin-top-4'
-					}).append($('<div/>', {
-						id: `item-${i}`,
-						name: i,
-						class: `btn inventory-item-button p-0 ${mobileClass}`,
-						role: 'button'
-					}))
+						class: 'col-sm-4 margin-top-4',
+					}).append(
+						$('<div/>', {
+							id: `item-${i}`,
+							name: i,
+							class: `btn inventory-item-button p-0 ${mobileClass}`,
+							role: 'button',
+						})
+					)
 				);
 
 				var item = this.getItemBySlotNumber(i + 1);
@@ -98,7 +109,7 @@ var InventoryComponent = TaroEntity.extend({
 						id: `item-${i}`,
 						name: i,
 						class: `btn btn-light trade-slot inventory-item-button ${mobileClass}`,
-						role: 'button'
+						role: 'button',
 					})
 				);
 
@@ -112,7 +123,7 @@ var InventoryComponent = TaroEntity.extend({
 			inventoryBtn.show();
 			setTimeout(function () {
 				$('#backpack-wrapper').css({
-					bottom: $('#my-score-div').height() + 40
+					bottom: $('#my-score-div').height() + 40,
 				});
 			}, 1000);
 		} else {
@@ -122,12 +133,16 @@ var InventoryComponent = TaroEntity.extend({
 
 	getSameItemsFromInventory: function (itemTypeId) {
 		var items = this._entity._stats.itemIds;
-		return items && items.filter((id) => {
-			var item = taro.$(id);
-			if (item && item._stats && item._stats.itemTypeId === itemTypeId) {
-				return true;
-			}
-		}) || [];
+		return (
+			(items &&
+				items.filter((id) => {
+					var item = taro.$(id);
+					if (item && item._stats && item._stats.itemTypeId === itemTypeId) {
+						return true;
+					}
+				})) ||
+			[]
+		);
 	},
 
 	hasItem: function (itemTypeId) {
@@ -175,7 +190,10 @@ var InventoryComponent = TaroEntity.extend({
 		var itemTypeId = itemData.itemTypeId;
 
 		// check if we can assign itemData to its assigned designatedSlot.
-		var mappedSlots = (itemData.controls && Array.isArray(itemData.controls.permittedInventorySlots)) ? itemData.controls.permittedInventorySlots : undefined;
+		var mappedSlots =
+			itemData.controls && Array.isArray(itemData.controls.permittedInventorySlots)
+				? itemData.controls.permittedInventorySlots
+				: undefined;
 		var mappedSlot = undefined;
 		if (mappedSlots != undefined && mappedSlots.length > 0) {
 			for (var i = 0; i < mappedSlots.length; i++) {
@@ -194,7 +212,11 @@ var InventoryComponent = TaroEntity.extend({
 						var itemData = taro.shop.getItemById(itemTypeId);
 						var shopData = shopItems[itemTypeId];
 						if (shopData) {
-							if (existingItem && existingItem._stats.removeWhenEmpty && existingItem._stats.quantity == shopData.price.requiredItemTypes[existingItem._stats.itemTypeId]) {
+							if (
+								existingItem &&
+								existingItem._stats.removeWhenEmpty &&
+								existingItem._stats.quantity == shopData.price.requiredItemTypes[existingItem._stats.itemTypeId]
+							) {
 								return mappedSlot;
 							}
 						}
@@ -205,7 +227,8 @@ var InventoryComponent = TaroEntity.extend({
 
 		// check if this item can be merged with an existing item in the inventory
 		var totalInventorySize = this.getTotalInventorySize();
-		if (itemData.controls?.canMerge != false) { // Check if the item can merge
+		if (itemData.controls?.canMerge != false) {
+			// Check if the item can merge
 			var quantity = itemData.quantity;
 			for (var i = 0; i < totalInventorySize; i++) {
 				var itemId = self._entity._stats.itemIds[i];
@@ -224,7 +247,7 @@ var InventoryComponent = TaroEntity.extend({
 						} else {
 							if (item._stats.quantity != undefined) {
 								// new item's quantity isn't enough to fill the existing item's. Deduct new item's quantity. and move on. This isn't done for undefined items
-								quantity -= (item._stats.maxQuantity - item._stats.quantity);
+								quantity -= item._stats.maxQuantity - item._stats.quantity;
 							}
 						}
 					}
@@ -238,16 +261,10 @@ var InventoryComponent = TaroEntity.extend({
 			// if item didn't have mapping, then return the first available slot including both inventory + backpack
 			if (
 				mappedSlot == undefined ||
-				(
-					i >= this._entity._stats.inventorySize &&
-					(
-						itemData.controls == undefined ||
-						(
-							itemData.controls.backpackAllowed == true ||
-							itemData.controls.backpackAllowed == undefined
-						)
-					)
-				)
+				(i >= this._entity._stats.inventorySize &&
+					(itemData.controls == undefined ||
+						itemData.controls.backpackAllowed == true ||
+						itemData.controls.backpackAllowed == undefined))
 			) {
 				var itemId = self._entity._stats.itemIds[i];
 				if (!(itemId && taro.$(itemId))) {
@@ -256,7 +273,8 @@ var InventoryComponent = TaroEntity.extend({
 			}
 		}
 
-		if (mappedSlot && mappedSlots.length == 1) { // give slot-specific message when item had ONE mapped slot. (e.g. glock in slot 2. Not slot 2 AND 3)
+		if (mappedSlot && mappedSlots.length == 1) {
+			// give slot-specific message when item had ONE mapped slot. (e.g. glock in slot 2. Not slot 2 AND 3)
 			self._entity.reasonForFailingToPickUpItem = `slot ${mappedSlot} is occupied`;
 		}
 		return undefined;
@@ -267,8 +285,7 @@ var InventoryComponent = TaroEntity.extend({
 		var self = this;
 		var unit = this._entity;
 
-		if (slotIndex == undefined)
-			slotIndex = self.getFirstAvailableSlotForItem();
+		if (slotIndex == undefined) slotIndex = self.getFirstAvailableSlotForItem();
 
 		if (slotIndex != undefined && item && unit.canCarryItem(item._stats)) {
 			if (taro.isServer) {
@@ -312,10 +329,12 @@ var InventoryComponent = TaroEntity.extend({
 		for (var k = 0; k < self._entity._stats.itemIds.length; k++) {
 			var id = self._entity._stats.itemIds[k];
 			var item = taro.$(id);
-			if (item &&
+			if (
+				item &&
 				item._stats &&
 				item._stats.itemTypeId === itemTypeId &&
-				(item._stats.quantity < item._stats.maxQuantity || item._stats.maxQuantity === undefined)) {
+				(item._stats.quantity < item._stats.maxQuantity || item._stats.maxQuantity === undefined)
+			) {
 				return item;
 			}
 		}
@@ -352,8 +371,7 @@ var InventoryComponent = TaroEntity.extend({
 
 	// get item from inventory slot using slot number (starting from 1)
 	getItemBySlotNumber: function (slotNumber) {
-		if (slotNumber == undefined)
-			return null;
+		if (slotNumber == undefined) return null;
 
 		if (this._entity._stats.itemIds) {
 			var itemId = this._entity._stats.itemIds[slotNumber - 1];
@@ -378,7 +396,8 @@ var InventoryComponent = TaroEntity.extend({
 				// 5 for trading items
 
 				var totalInventorySize = this.getTotalInventorySize();
-				for (var slotIndex = 0; slotIndex < totalInventorySize + 5; slotIndex++) { // +5 for trade slots?
+				for (var slotIndex = 0; slotIndex < totalInventorySize + 5; slotIndex++) {
+					// +5 for trade slots?
 					var itemId = this._entity._stats.itemIds[slotIndex];
 					var item = taro.$(itemId);
 
@@ -405,12 +424,11 @@ var InventoryComponent = TaroEntity.extend({
 	},
 
 	getTotalInventorySize: function () {
-		this._entity._stats.backpackSize = (this._entity._stats.backpackSize > 0) ? this._entity._stats.backpackSize : 0; // backward compatibility incase backpackSize == undefined
+		this._entity._stats.backpackSize = this._entity._stats.backpackSize > 0 ? this._entity._stats.backpackSize : 0; // backward compatibility incase backpackSize == undefined
 		return this._entity._stats.inventorySize + this._entity._stats.backpackSize;
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = InventoryComponent;
 }

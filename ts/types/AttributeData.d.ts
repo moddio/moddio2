@@ -1,5 +1,4 @@
 interface AttributeData {
-
 	color: string;
 	dataType: string;
 	decimalPlaces: number;
@@ -13,6 +12,6 @@ interface AttributeData {
 	showAsHUD: boolean;
 	type?: string;
 	key: string;
-	value: number
+	value: number;
 	showWhen?: string[] | string;
 }

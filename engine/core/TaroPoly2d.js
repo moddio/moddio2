@@ -91,10 +91,13 @@ var TaroPoly2d = TaroClass.extend({
 		var c = 0;
 
 		for (pointIndex = 0; pointIndex < pointCount; oldPointIndex = pointIndex++) {
-			if (((polyPoints[pointIndex].y > point.y) !== (polyPoints[oldPointIndex].y > point.y)) &&
-				(point.x < (polyPoints[oldPointIndex].x - polyPoints[pointIndex].x) *
-					(point.y - polyPoints[pointIndex].y) / (polyPoints[oldPointIndex].y - polyPoints[pointIndex].y) +
-					polyPoints[pointIndex].x)) {
+			if (
+				polyPoints[pointIndex].y > point.y !== polyPoints[oldPointIndex].y > point.y &&
+				point.x <
+					((polyPoints[oldPointIndex].x - polyPoints[pointIndex].x) * (point.y - polyPoints[pointIndex].y)) /
+						(polyPoints[oldPointIndex].y - polyPoints[pointIndex].y) +
+						polyPoints[pointIndex].x
+			) {
 				c = !c;
 			}
 		}
@@ -116,10 +119,13 @@ var TaroPoly2d = TaroClass.extend({
 		var c = 0;
 
 		for (pointIndex = 0; pointIndex < pointCount; oldPointIndex = pointIndex++) {
-			if (((polyPoints[pointIndex].y > y) !== (polyPoints[oldPointIndex].y > y)) &&
-				(x < (polyPoints[oldPointIndex].x - polyPoints[pointIndex].x) *
-					(y - polyPoints[pointIndex].y) / (polyPoints[oldPointIndex].y - polyPoints[pointIndex].y) +
-					polyPoints[pointIndex].x)) {
+			if (
+				polyPoints[pointIndex].y > y !== polyPoints[oldPointIndex].y > y &&
+				x <
+					((polyPoints[oldPointIndex].x - polyPoints[pointIndex].x) * (y - polyPoints[pointIndex].y)) /
+						(polyPoints[oldPointIndex].y - polyPoints[pointIndex].y) +
+						polyPoints[pointIndex].x
+			) {
 				c = !c;
 			}
 		}
@@ -181,13 +187,15 @@ var TaroPoly2d = TaroClass.extend({
 		// Loop the polygon points and determine if they are counter-clockwise
 		var arr = this._poly;
 		var val;
-		var p1; var p2; var p3;
+		var p1;
+		var p2;
+		var p3;
 
 		p1 = arr[0];
 		p2 = arr[1];
 		p3 = arr[2];
 
-		val = (p1.x * p2.y) + (p2.x * p3.y) + (p3.x * p1.y) - (p2.y * p3.x) - (p3.y * p1.x) - (p1.y * p2.x);
+		val = p1.x * p2.y + p2.x * p3.y + p3.x * p1.y - p2.y * p3.x - p3.y * p1.x - p1.y * p2.x;
 
 		return val > 0;
 	},
@@ -250,7 +258,9 @@ var TaroPoly2d = TaroClass.extend({
 		var s;
 		var t;
 
-		if (n < 3) { return indices; }
+		if (n < 3) {
+			return indices;
+		}
 
 		if (this._area() > 0) {
 			for (v = 0; v < n; v++) {
@@ -258,7 +268,7 @@ var TaroPoly2d = TaroClass.extend({
 			}
 		} else {
 			for (v = 0; v < n; v++) {
-				V[v] = (n - 1) - v;
+				V[v] = n - 1 - v;
 			}
 		}
 
@@ -266,8 +276,8 @@ var TaroPoly2d = TaroClass.extend({
 		count = 2 * nv;
 		m = 0;
 
-		for (v = nv - 1; nv > 2;) {
-			if ((count--) <= 0) {
+		for (v = nv - 1; nv > 2; ) {
+			if (count-- <= 0) {
 				return indices;
 			}
 
@@ -326,7 +336,7 @@ var TaroPoly2d = TaroClass.extend({
 			a += pval.x * qval.y - qval.x * pval.y;
 		}
 
-		return (a * 0.5);
+		return a * 0.5;
 	},
 
 	_snip: function (u, v, w, n, V) {
@@ -337,12 +347,12 @@ var TaroPoly2d = TaroClass.extend({
 		var P;
 
 		// Replaced Math.Epsilon with 0.00001
-		if ((((B.x - A.x) * (C.y - A.y)) - ((B.y - A.y) * (C.x - A.x))) < 0.00001) {
+		if ((B.x - A.x) * (C.y - A.y) - (B.y - A.y) * (C.x - A.x) < 0.00001) {
 			return false;
 		}
 
 		for (p = 0; p < n; p++) {
-			if ((p == u) || (p == v) || (p == w)) {
+			if (p == u || p == v || p == w) {
 				continue;
 			}
 
@@ -356,34 +366,26 @@ var TaroPoly2d = TaroClass.extend({
 	},
 
 	_insideTriangle: function (A, B, C, P) {
-		var ax,
-			ay,
-			bx,
-			by,
-			cx,
-			cy,
-			apx,
-			apy,
-			bpx,
-			bpy,
-			cpx,
-			cpy,
-			cCROSSap,
-			bCROSScp,
-			aCROSSbp;
+		var ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy, cCROSSap, bCROSScp, aCROSSbp;
 
-		ax = C.x - B.x; ay = C.y - B.y;
-		bx = A.x - C.x; by = A.y - C.y;
-		cx = B.x - A.x; cy = B.y - A.y;
-		apx = P.x - A.x; apy = P.y - A.y;
-		bpx = P.x - B.x; bpy = P.y - B.y;
-		cpx = P.x - C.x; cpy = P.y - C.y;
+		ax = C.x - B.x;
+		ay = C.y - B.y;
+		bx = A.x - C.x;
+		by = A.y - C.y;
+		cx = B.x - A.x;
+		cy = B.y - A.y;
+		apx = P.x - A.x;
+		apy = P.y - A.y;
+		bpx = P.x - B.x;
+		bpy = P.y - B.y;
+		cpx = P.x - C.x;
+		cpy = P.y - C.y;
 
 		aCROSSbp = ax * bpy - ay * bpx;
 		cCROSSap = cx * apy - cy * apx;
 		bCROSScp = bx * cpy - by * cpx;
 
-		return ((aCROSSbp >= 0.0) && (bCROSScp >= 0.0) && (cCROSSap >= 0.0));
+		return aCROSSbp >= 0.0 && bCROSScp >= 0.0 && cCROSSap >= 0.0;
 	},
 
 	/**
@@ -403,11 +405,15 @@ var TaroPoly2d = TaroClass.extend({
 			ctx.lineTo(polyPoints[i].x * scaleX, polyPoints[i].y * scaleY);
 		}
 		ctx.lineTo(polyPoints[0].x * scaleX, polyPoints[0].y * scaleY);
-		if (fill) { ctx.fill(); }
+		if (fill) {
+			ctx.fill();
+		}
 		ctx.stroke();
 
 		return this;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroPoly2d; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroPoly2d;
+}

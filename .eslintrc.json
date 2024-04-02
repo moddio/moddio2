@@ -95,13 +95,24 @@
         "no-prototype-builtins": 0,
         "no-case-declarations": 0,
         "use-isnan": 0,
+        "no-fallthrough": "off",
+        "no-inner-declarations": "off",
+        "no-constant-condition": ["error", {"checkLoops": false}],
+        "no-debugger": "off",
 
-        "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-namespace": "off",
-        "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/member-ordering": "error",
         "@typescript-eslint/ban-ts-comment": "off",
-        "no-inner-declarations": "off"
+
+        // These we want to enable in the future on by one, and fix them one
+        // by one. For the purpose of formatting everything I disable them for
+        // now.
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/triple-slash-reference": "off",
+        "@typescript-eslint/ban-types": "off",
+        "no-empty": "off"
     }
 }

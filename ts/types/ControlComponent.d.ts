@@ -1,4 +1,3 @@
 declare class ControlComponent extends TaroEntity {
-
-	newMousePosition: number[];
+	newMouseState: number[];
 }

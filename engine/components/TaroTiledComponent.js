@@ -26,7 +26,7 @@ var TaroTiledComponent = TaroClass.extend({
 		var self = this;
 		var scriptElem;
 
-		if (typeof (url) === 'string') {
+		if (typeof url === 'string') {
 			if (taro.isClient) {
 				scriptElem = document.createElement('script');
 				scriptElem.src = url;
@@ -36,7 +36,10 @@ var TaroTiledComponent = TaroClass.extend({
 				};
 				document.getElementsByTagName('head')[0].appendChild(scriptElem);
 			} else {
-				TaroTiledComponent.prototype.log('URL-based Tiled data is only available client-side. If you want to load Tiled map data on the server please include the map file in your ServerConfig.js file and then specify the map\'s data object instead of the URL.', 'error');
+				TaroTiledComponent.prototype.log(
+					"URL-based Tiled data is only available client-side. If you want to load Tiled map data on the server please include the map file in your ServerConfig.js file and then specify the map's data object instead of the URL.",
+					'error'
+				);
 			}
 		} else {
 			self._processData(url, callback);
@@ -45,7 +48,7 @@ var TaroTiledComponent = TaroClass.extend({
 
 	_processData: function (data, callback) {
 		if (taro.isServer && (data == undefined || data.layers == undefined)) {
-			TaroTiledComponent.prototype.log('layer doesn\'t exist. unpublishing...');
+			TaroTiledComponent.prototype.log("layer doesn't exist. unpublishing...");
 			taro.server.unpublish('TaroTiledComponent#51');
 		}
 		var self = this;
@@ -68,11 +71,14 @@ var TaroTiledComponent = TaroClass.extend({
 		var onLoadFunc;
 		var image;
 		var tilesetsLoadedFunc;
-		var i; var k; var x; var y; var z;
+		var i;
+		var k;
+		var x;
+		var y;
+		var z;
 		var maxTilesheetsToLoad = 2;
 
 		taro.layersById = layersById;
-
 
 		// Define the function to call when all tilesets have finished loading
 		tilesetsLoadedFunc = function () {
@@ -94,9 +100,7 @@ var TaroTiledComponent = TaroClass.extend({
 					maps[idx] = new mapClass(data.tilewidth, data.tileheight);
 
 					if (typeof maps[idx].tileWidth == 'function') {
-						maps[idx].tileWidth(data.tilewidth)
-							.tileHeight(data.tilewidth)
-							.depth(idx);
+						maps[idx].tileWidth(data.tilewidth).tileHeight(data.tilewidth).depth(idx);
 					} else {
 						TaroTiledComponent.prototype.log('ERROR while loading map. Chris might have fixed this');
 						taro.server.unpublish('TaroTiledComponent#109');
@@ -119,7 +123,7 @@ var TaroTiledComponent = TaroClass.extend({
 
 					for (y = 0; y < mapHeight; y++) {
 						for (x = 0; x < mapWidth; x++) {
-							z = x + (y * mapWidth);
+							z = x + y * mapWidth;
 
 							if (layerData[z] > 0 && layerData[z] !== 2147483712) {
 								maps[idx].occupyTile(x, y, 1, 1, layerData[z]);
@@ -140,9 +144,7 @@ var TaroTiledComponent = TaroClass.extend({
 		if (taro.isClient) {
 			onLoadFunc = function (tileSetCount, tileSetItem) {
 				return function () {
-
 					var imageUrl = tileSetItem.image;
-
 
 					if (imageUrl.includes('tilesheet') || tileSetCount === 0) {
 						tileSetItem.tilewidth = taro.scaleMapDetails.originalTileWidth;
@@ -174,9 +176,9 @@ var TaroTiledComponent = TaroClass.extend({
 			// We're on the server so no tilesets are actually loaded
 			tilesetsLoadedFunc();
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = TaroTiledComponent;
 }

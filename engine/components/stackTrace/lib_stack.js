@@ -12,19 +12,20 @@
  * @cfg {Boolean} guess If we should try to resolve the names of anonymous functions
  * @return {Array} of Strings with functions, lines, files, and arguments where possible
  */
-function printStackTrace (options) {
+function printStackTrace(options) {
 	options = options || { guess: true };
-	var ex = options.e || null; var guess = !!options.guess;
-	var p = new printStackTrace.implementation(); var result = p.run(ex);
-	var res = (guess) ? p.guessAnonymousFunctions(result) : result;
+	var ex = options.e || null;
+	var guess = !!options.guess;
+	var p = new printStackTrace.implementation();
+	var result = p.run(ex);
+	var res = guess ? p.guessAnonymousFunctions(result) : result;
 	for (var k = 0; k < 4; k++) {
 		res.shift();
 	}
 	return res;
 }
 
-printStackTrace.implementation = function () {
-};
+printStackTrace.implementation = function () {};
 
 printStackTrace.implementation.prototype = {
 	run: function (ex) {
@@ -51,8 +52,8 @@ printStackTrace.implementation.prototype = {
 	},
 
 	/**
-     * @return {String} mode of operation for the environment in question.
-     */
+	 * @return {String} mode of operation for the environment in question.
+	 */
 	mode: function (e) {
 		if (e.arguments && e.stack) {
 			return (this._mode = 'chrome');
@@ -65,17 +66,17 @@ printStackTrace.implementation.prototype = {
 	},
 
 	/**
-     * Given a context, function name, and callback function, overwrite it so that it calls
-     * printStackTrace() first with a callback and then runs the rest of the body.
-     *
-     * @param {Object} context of execution (e.g. window)
-     * @param {String} functionName to instrument
-     * @param {Function} function to call with a stack trace on invocation
-     */
+	 * Given a context, function name, and callback function, overwrite it so that it calls
+	 * printStackTrace() first with a callback and then runs the rest of the body.
+	 *
+	 * @param {Object} context of execution (e.g. window)
+	 * @param {String} functionName to instrument
+	 * @param {Function} function to call with a stack trace on invocation
+	 */
 	instrumentFunction: function (context, functionName, callback) {
 		context = context || window;
 		var original = context[functionName];
-		context[functionName] = function instrumented () {
+		context[functionName] = function instrumented() {
 			callback.call(this, printStackTrace().slice(4));
 			return context[functionName]._instrumented.apply(this, arguments);
 		};
@@ -83,55 +84,68 @@ printStackTrace.implementation.prototype = {
 	},
 
 	/**
-     * Given a context and function name of a function that has been
-     * instrumented, revert the function to it's original (non-instrumented)
-     * state.
-     *
-     * @param {Object} context of execution (e.g. window)
-     * @param {String} functionName to de-instrument
-     */
+	 * Given a context and function name of a function that has been
+	 * instrumented, revert the function to it's original (non-instrumented)
+	 * state.
+	 *
+	 * @param {Object} context of execution (e.g. window)
+	 * @param {String} functionName to de-instrument
+	 */
 	deinstrumentFunction: function (context, functionName) {
-		if (context[functionName].constructor === Function &&
-                context[functionName]._instrumented &&
-                context[functionName]._instrumented.constructor === Function) {
+		if (
+			context[functionName].constructor === Function &&
+			context[functionName]._instrumented &&
+			context[functionName]._instrumented.constructor === Function
+		) {
 			context[functionName] = context[functionName]._instrumented;
 		}
 	},
 
 	/**
-     * Given an Error object, return a formatted Array based on Chrome's stack string.
-     *
-     * @param e - Error object to inspect
-     * @return Array<String> of function calls, files and line numbers
-     */
+	 * Given an Error object, return a formatted Array based on Chrome's stack string.
+	 *
+	 * @param e - Error object to inspect
+	 * @return Array<String> of function calls, files and line numbers
+	 */
 	chrome: function (e) {
-		var stack = (`${e.stack}\n`).replace(/^\S[^\(]+?[\n$]/gm, '')
+		var stack = `${e.stack}\n`
+			.replace(/^\S[^\(]+?[\n$]/gm, '')
 			.replace(/^\s+at\s+/gm, '')
 			.replace(/^([^\(]+?)([\n$])/gm, '{anonymous}()@$1$2')
-			.replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}()@$1').split('\n');
+			.replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}()@$1')
+			.split('\n');
 		stack.pop();
 		return stack;
 	},
 
 	/**
-     * Given an Error object, return a formatted Array based on Firefox's stack string.
-     *
-     * @param e - Error object to inspect
-     * @return Array<String> of function calls, files and line numbers
-     */
+	 * Given an Error object, return a formatted Array based on Firefox's stack string.
+	 *
+	 * @param e - Error object to inspect
+	 * @return Array<String> of function calls, files and line numbers
+	 */
 	firefox: function (e) {
-		return e.stack.replace(/(?:\n@:0)?\s+$/m, '').replace(/^\(/gm, '{anonymous}(').split('\n');
+		return e.stack
+			.replace(/(?:\n@:0)?\s+$/m, '')
+			.replace(/^\(/gm, '{anonymous}(')
+			.split('\n');
 	},
 
 	/**
-     * Given an Error object, return a formatted Array based on Opera 10's stacktrace string.
-     *
-     * @param e - Error object to inspect
-     * @return Array<String> of function calls, files and line numbers
-     */
+	 * Given an Error object, return a formatted Array based on Opera 10's stacktrace string.
+	 *
+	 * @param e - Error object to inspect
+	 * @return Array<String> of function calls, files and line numbers
+	 */
 	opera10: function (e) {
 		var stack = e.stacktrace;
-		var lines = stack.split('\n'); var ANON = '{anonymous}'; var lineRE = /.*line (\d+), column (\d+) in ((<anonymous function\:?\s*(\S+))|([^\(]+)\([^\)]*\))(?: in )?(.*)\s*$/i; var i; var j; var len;
+		var lines = stack.split('\n');
+		var ANON = '{anonymous}';
+		var lineRE =
+			/.*line (\d+), column (\d+) in ((<anonymous function\:?\s*(\S+))|([^\(]+)\([^\)]*\))(?: in )?(.*)\s*$/i;
+		var i;
+		var j;
+		var len;
 		for (i = 2, j = 0, len = lines.length; i < len - 2; i++) {
 			if (lineRE.test(lines[i])) {
 				var location = `${RegExp.$6}:${RegExp.$1}:${RegExp.$2}`;
@@ -147,12 +161,18 @@ printStackTrace.implementation.prototype = {
 
 	// Opera 7.x-9.x only!
 	opera: function (e) {
-		var lines = e.message.split('\n'); var ANON = '{anonymous}'; var lineRE = /Line\s+(\d+).*script\s+(http\S+)(?:.*in\s+function\s+(\S+))?/i; var i; var j; var len;
+		var lines = e.message.split('\n');
+		var ANON = '{anonymous}';
+		var lineRE = /Line\s+(\d+).*script\s+(http\S+)(?:.*in\s+function\s+(\S+))?/i;
+		var i;
+		var j;
+		var len;
 
 		for (i = 4, j = 0, len = lines.length; i < len; i += 2) {
 			// TODO: RegExp.exec() would probably be cleaner here
 			if (lineRE.test(lines[i])) {
-				lines[j++] = `${RegExp.$3 ? `${RegExp.$3}()@${RegExp.$2}${RegExp.$1}` : `${ANON}()@${RegExp.$2}:${RegExp.$1}`} -- ${lines[i + 1].replace(/^\s+/, '')}`;
+				lines[j++] =
+					`${RegExp.$3 ? `${RegExp.$3}()@${RegExp.$2}${RegExp.$1}` : `${ANON}()@${RegExp.$2}:${RegExp.$1}`} -- ${lines[i + 1].replace(/^\s+/, '')}`;
 			}
 		}
 
@@ -162,7 +182,12 @@ printStackTrace.implementation.prototype = {
 
 	// Safari, IE, and others
 	other: function (curr) {
-		var ANON = '{anonymous}'; var fnRE = /function\s*([\w\-$]+)?\s*\(/i; var stack = []; var fn; var args; var maxStackSize = 10;
+		var ANON = '{anonymous}';
+		var fnRE = /function\s*([\w\-$]+)?\s*\(/i;
+		var stack = [];
+		var fn;
+		var args;
+		var maxStackSize = 10;
 		while (curr && stack.length < maxStackSize) {
 			fn = fnRE.test(curr.toString()) ? RegExp.$1 || ANON : ANON;
 			args = Array.prototype.slice.call(curr.arguments || []);
@@ -173,11 +198,11 @@ printStackTrace.implementation.prototype = {
 	},
 
 	/**
-     * Given arguments array as a String, subsituting type names for non-string types.
-     *
-     * @param {Arguments} object
-     * @return {Array} of Strings with stringified arguments
-     */
+	 * Given arguments array as a String, subsituting type names for non-string types.
+	 *
+	 * @param {Arguments} object
+	 * @return {Array} of Strings with stringified arguments
+	 */
 	stringifyArguments: function (args) {
 		var slice = Array.prototype.slice;
 		for (var i = 0; i < args.length; ++i) {
@@ -191,7 +216,8 @@ printStackTrace.implementation.prototype = {
 					if (arg.length < 3) {
 						args[i] = `[${this.stringifyArguments(arg)}]`;
 					} else {
-						args[i] = `[${this.stringifyArguments(slice.call(arg, 0, 1))}...${this.stringifyArguments(slice.call(arg, -1))}]`;
+						args[i] =
+							`[${this.stringifyArguments(slice.call(arg, 0, 1))}...${this.stringifyArguments(slice.call(arg, -1))}]`;
 					}
 				} else if (arg.constructor === Object) {
 					args[i] = '#object';
@@ -208,8 +234,8 @@ printStackTrace.implementation.prototype = {
 	sourceCache: {},
 
 	/**
-     * @return {*} the text from a given URL.
-     */
+	 * @return {*} the text from a given URL.
+	 */
 	ajax: function (url) {
 		var req = this.createXMLHTTPObject();
 		if (!req) {
@@ -222,21 +248,25 @@ printStackTrace.implementation.prototype = {
 	},
 
 	/**
-     * Try XHR methods in order and store XHR factory.
-     *
-     * @return <Function> XHR function or equivalent
-     */
+	 * Try XHR methods in order and store XHR factory.
+	 *
+	 * @return <Function> XHR function or equivalent
+	 */
 	createXMLHTTPObject: function () {
-		var xmlhttp; var XMLHttpFactories = [
+		var xmlhttp;
+		var XMLHttpFactories = [
 			function () {
 				return new XMLHttpRequest();
-			}, function () {
+			},
+			function () {
 				return new ActiveXObject('Msxml2.XMLHTTP');
-			}, function () {
+			},
+			function () {
 				return new ActiveXObject('Msxml3.XMLHTTP');
-			}, function () {
+			},
+			function () {
 				return new ActiveXObject('Microsoft.XMLHTTP');
-			}
+			},
 		];
 		for (var i = 0; i < XMLHttpFactories.length; i++) {
 			try {
@@ -244,28 +274,27 @@ printStackTrace.implementation.prototype = {
 				// Use memoization to cache the factory
 				this.createXMLHTTPObject = XMLHttpFactories[i];
 				return xmlhttp;
-			} catch (e) {
-			}
+			} catch (e) {}
 		}
 	},
 
 	/**
-     * Given a URL, check if it is in the same domain (so we can get the source
-     * via Ajax).
-     *
-     * @param url <String> source url
-     * @return False if we need a cross-domain request
-     */
+	 * Given a URL, check if it is in the same domain (so we can get the source
+	 * via Ajax).
+	 *
+	 * @param url <String> source url
+	 * @return False if we need a cross-domain request
+	 */
 	isSameDomain: function (url) {
 		return url.indexOf(location.hostname) !== -1;
 	},
 
 	/**
-     * Get source code from given URL if in the same domain.
-     *
-     * @param url <String> JS source URL
-     * @return <Array> Array of source code lines
-     */
+	 * Get source code from given URL if in the same domain.
+	 *
+	 * @param url <String> JS source URL
+	 * @return <Array> Array of source code lines
+	 */
 	getSource: function (url) {
 		if (!(url in this.sourceCache)) {
 			this.sourceCache[url] = this.ajax(url).split('\n');
@@ -276,9 +305,12 @@ printStackTrace.implementation.prototype = {
 	guessAnonymousFunctions: function (stack) {
 		for (var i = 0; i < stack.length; ++i) {
 			var reStack = /\{anonymous\}\(.*\)@(\w+:\/\/([\-\w\.]+)+(:\d+)?[^:]+):(\d+):?(\d+)?/;
-			var frame = stack[i]; var m = reStack.exec(frame);
+			var frame = stack[i];
+			var m = reStack.exec(frame);
 			if (m) {
-				var file = m[1]; var lineno = m[4]; var charno = m[7] || 0; // m[7] is character position in Chrome
+				var file = m[1];
+				var lineno = m[4];
+				var charno = m[7] || 0; // m[7] is character position in Chrome
 				if (file && this.isSameDomain(file) && lineno) {
 					var functionName = this.guessAnonymousFunction(file, lineno, charno);
 					stack[i] = frame.replace('{anonymous}', functionName);
@@ -311,7 +343,10 @@ printStackTrace.implementation.prototype = {
 		var reFunctionEvaluation = /['"]?([0-9A-Za-z_]+)['"]?\s*[:=]\s*(?:eval|new Function)\b/;
 		// Walk backwards in the source lines until we find
 		// the line which matches one of the patterns above
-		var code = ''; var line; var maxLines = 10; var m;
+		var code = '';
+		var line;
+		var maxLines = 10;
+		var m;
 		for (var i = 0; i < maxLines; ++i) {
 			// FIXME lineNo is 1-based, source[] is 0-based
 			line = source[lineNo - i];
@@ -334,5 +369,5 @@ printStackTrace.implementation.prototype = {
 			}
 		}
 		return '(?)';
-	}
+	},
 };

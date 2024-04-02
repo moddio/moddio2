@@ -26,20 +26,22 @@ var Region = TaroEntityPhysics.extend({
 				allowSleep: false,
 				bullet: false,
 				fixedRotation: false,
-				fixtures: [{
-					density: 0,
-					friction: 0,
-					restitution: 0,
-					isSensor: true,
-					shape: {
-						type: 'rectangle'
-					}
-				}],
-				collidesWith: { walls: true, units: true, projectiles: true, items: true},
+				fixtures: [
+					{
+						density: 0,
+						friction: 0,
+						restitution: 0,
+						isSensor: true,
+						shape: {
+							type: 'rectangle',
+						},
+					},
+				],
+				collidesWith: { walls: true, units: true, projectiles: true, items: true },
 				// Refactor TODO: width & height should've been assigned into "currentBody". not int "default".
 				// Region is only one doing this (not unit/item/projectile). I shouldn't have to do below:
 				width: self._stats.default.width,
-				height: self._stats.default.height
+				height: self._stats.default.height,
 			};
 
 			var regionDimension = self._stats.default;
@@ -47,14 +49,13 @@ var Region = TaroEntityPhysics.extend({
 			if (taro.physics && taro.physics.engine === 'CRASH') {
 				self._translate.x = regionDimension.x;
 				self._translate.y = regionDimension.y;
-			}
-			else {
-				self._translate.x = regionDimension.x + (regionDimension.width / 2);
-				self._translate.y = regionDimension.y + (regionDimension.height / 2);
+			} else {
+				self._translate.x = regionDimension.x + regionDimension.width / 2;
+				self._translate.y = regionDimension.y + regionDimension.height / 2;
 			}
 
 			self.updateBody({
-				translate: { x: self._translate.x, y: self._translate.y}
+				translate: { x: self._translate.x, y: self._translate.y },
 			});
 
 			if (taro.isServer) {
@@ -70,7 +71,11 @@ var Region = TaroEntityPhysics.extend({
 	},
 	updateDimension: function () {
 		var regionCordinates = this._stats.default;
-		this.translateTo(regionCordinates.x + (regionCordinates.width / 2), regionCordinates.y + (regionCordinates.height / 2), 0);
+		this.translateTo(
+			regionCordinates.x + regionCordinates.width / 2,
+			regionCordinates.y + regionCordinates.height / 2,
+			0
+		);
 		this.width(regionCordinates.width);
 		this.height(regionCordinates.height);
 
@@ -83,8 +88,8 @@ var Region = TaroEntityPhysics.extend({
 			// shapeData.y = regionCordinates.y;
 			this._stats.currentBody.fixtures[0].shape.data = shapeData;
 			this.updateBody(this._stats.currentBody);
-
-		} else { // isClient
+		} else {
+			// isClient
 			this.emit('transform');
 		}
 	},
@@ -104,7 +109,7 @@ var Region = TaroEntityPhysics.extend({
 		this.updateDimension();
 	},
 
-	_behaviour: function(ctx) {
+	_behaviour: function (ctx) {
 		if (this._alive === false) {
 			this.destroy();
 		}
@@ -112,19 +117,19 @@ var Region = TaroEntityPhysics.extend({
 		if (taro.isClient) {
 			var processedUpdates = [];
 			var updateQueue = taro.client.entityUpdateQueue[this.id()];
-			
+
 			if (updateQueue) {
 				for (var key in updateQueue) {
 					var value = updateQueue[key];
 					// ignore update if the value hasn't changed since the last update. this is to prevent unnecessary updates
 					if (this.lastUpdatedData[key] == value) {
-						// console.log("ignoring update", this._stats.name, {[key]: value})										
-						delete taro.client.entityUpdateQueue[this.id()][key]
+						// console.log("ignoring update", this._stats.name, {[key]: value})
+						delete taro.client.entityUpdateQueue[this.id()][key];
 						continue;
 					}
-				
-					processedUpdates.push({[key]: value});
-					delete taro.client.entityUpdateQueue[this.id()][key]
+
+					processedUpdates.push({ [key]: value });
+					delete taro.client.entityUpdateQueue[this.id()][key];
 				}
 
 				if (processedUpdates.length > 0) {
@@ -132,9 +137,11 @@ var Region = TaroEntityPhysics.extend({
 				}
 			}
 		}
-		
+
 		this.processBox2dQueue();
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = Region; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = Region;
+}

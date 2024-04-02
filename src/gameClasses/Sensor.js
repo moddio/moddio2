@@ -27,21 +27,23 @@ var Sensor = TaroEntityPhysics.extend({
 					height: radius * 2,
 					bullet: true,
 					fixedRotation: true,
-					fixtures: [{
-						density: 0,
-						friction: 0,
-						restitution: 0,
-						isSensor: true,
-						shape: {
-							type: 'circle'
-						}
-					}],
+					fixtures: [
+						{
+							density: 0,
+							friction: 0,
+							restitution: 0,
+							isSensor: true,
+							shape: {
+								type: 'circle',
+							},
+						},
+					],
 					collidesWith: {
 						units: true,
 						items: true,
-						projectiles: true
-					}
-				}
+						projectiles: true,
+					},
+				},
 			};
 
 			var ownerUnit = taro.$(this.ownerUnitId);
@@ -49,20 +51,20 @@ var Sensor = TaroEntityPhysics.extend({
 				var defaultData = {
 					translate: {
 						x: ownerUnit._translate.x,
-						y: ownerUnit._translate.y
-					}
+						y: ownerUnit._translate.y,
+					},
 				};
 
 				this.updateBody(defaultData);
 			} else {
-				console.log('ownerUnit doesn\'t exist!!');
+				console.log("ownerUnit doesn't exist!!");
 			}
 		} else {
 			this.destroyBody();
 		}
 	},
 
-	remove: function() {
+	remove: function () {
 		var ownerUnit = this.getOwnerUnit();
 		if (ownerUnit) {
 			ownerUnit.sensor = undefined;
@@ -80,8 +82,7 @@ var Sensor = TaroEntityPhysics.extend({
 			if (this.body) {
 				if (taro.physics.engine === 'CRASH') {
 					this.translateTo(ownerUnit._translate.x, ownerUnit._translate.y);
-				}
-				else this.translateTo(ownerUnit._translate.x, ownerUnit._translate.y); // keep sensor following its owner unit
+				} else this.translateTo(ownerUnit._translate.x, ownerUnit._translate.y); // keep sensor following its owner unit
 			}
 		} else {
 			// destroy ownerless sensors
@@ -90,7 +91,9 @@ var Sensor = TaroEntityPhysics.extend({
 		if (taro.physics && taro.physics.engine != 'CRASH') {
 			this.processBox2dQueue();
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = Sensor; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = Sensor;
+}

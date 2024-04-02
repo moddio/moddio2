@@ -1,17 +1,17 @@
 type bulletReturn = {
 	start: {
-		x: number,
-		y: number
-	},
+		x: number;
+		y: number;
+	};
 
 	point: {
-		x: number,
-		y: number
-	},
+		x: number;
+		y: number;
+	};
 
-	fraction: number,
-	obstructed: boolean
-}
+	fraction: number;
+	obstructed: boolean;
+};
 
 class Raycaster {
 	engine = taro.physics.engine;
@@ -28,37 +28,29 @@ class Raycaster {
 
 	raycastLine(
 		start: {
-			x: number,
-			y: number,
+			x: number;
+			y: number;
 		},
 		end: {
-			x: number,
-			y: number
-		},
+			x: number;
+			y: number;
+		}
 	): void {
 		// reverse
 		const raycast = this.multiple;
 		raycast.reset();
 		const pStart = taro.physics.box2D ? new taro.physics.box2D.b2Vec2(start.x, start.y) : start;
 		const pEnd = taro.physics.box2D ? new taro.physics.box2D.b2Vec2(end.x, end.y) : end;
-		this.world.rayCast(
-			pEnd,
-			pStart,
-			raycast.callback
-		);
+		this.world.rayCast(pEnd, pStart, raycast.callback);
 
 		taro.game.entitiesCollidingWithLastRaycast = _.clone(raycast.entities);
 
 		// forward
 		raycast.reset();
-		this.world.rayCast(
-			pStart,
-			pEnd,
-			raycast.callback
-		);
+		this.world.rayCast(pStart, pEnd, raycast.callback);
 
 		const missedEntities = _.difference(taro.game.entitiesCollidingWithLastRaycast, raycast.entities);
-		missedEntities.forEach(x => x.raycastFraction = 1 - x.raycastFraction);
+		missedEntities.forEach((x) => (x.raycastFraction = 1 - x.raycastFraction));
 
 		taro.game.entitiesCollidingWithLastRaycast = [...raycast.entities, ...missedEntities];
 
@@ -71,12 +63,12 @@ class Raycaster {
 
 	raycastBullet(
 		start: {
-			x: number,
-			y: number,
+			x: number;
+			y: number;
 		},
 		end: {
-			x: number,
-			y: number
+			x: number;
+			y: number;
 		}
 	): bulletReturn {
 		// forward
@@ -100,11 +92,7 @@ class Raycaster {
 		const reverseRaycast = this.any;
 
 		reverseRaycast.reset();
-		this.world.rayCast(
-			pPoint,
-			pStart,
-			reverseRaycast.callback
-		);
+		this.world.rayCast(pPoint, pStart, reverseRaycast.callback);
 
 		if (reverseRaycast.hit) {
 			// we were obstructed when shooting
@@ -116,7 +104,7 @@ class Raycaster {
 			start,
 			point,
 			fraction,
-			obstructed: this.forwardHit === this.reverseHit
+			obstructed: this.forwardHit === this.reverseHit,
 		};
 
 		this.forwardHit = false;
@@ -128,30 +116,29 @@ class Raycaster {
 	}
 
 	sortHits(array: TaroEntity[]): TaroEntity[] {
-		return array = _.orderBy(array, ['raycastFraction'], ['asc']);
+		return (array = _.orderBy(array, ['raycastFraction'], ['asc']));
 	}
 
 	renderBullet(
-		start: { x: number, y: number },
-		end: { x: number, y: number },
-		config: { color: number, projType: string, fraction: number, rotation: number }
-
+		start: { x: number; y: number },
+		end: { x: number; y: number },
+		config: { color: number; projType: string; fraction: number; rotation: number }
 	): void {
 		taro.client.emit('create-ray', {
 			start: {
 				x: start.x * this.scaleRatio,
-				y: start.y * this.scaleRatio
+				y: start.y * this.scaleRatio,
 			},
 			end: {
 				x: end.x * this.scaleRatio,
-				y: end.y * this.scaleRatio
+				y: end.y * this.scaleRatio,
 			},
-			config
+			config,
 		});
 	}
 }
 
-const RayCastClosest = (function () {
+const RayCastClosest = function () {
 	let def: any;
 	def = {};
 	def.reset = function () {
@@ -180,16 +167,10 @@ const RayCastClosest = (function () {
 					const body = taro.physics.recordLeak(fixture.GetBody());
 					const taroId: Box2D.b2Fixture = taro.physics.metaData[taro.physics.getPointer(body)].taroId;
 					const entity = taro.$(taroId);
-					if (
-						entity &&
-						(
-							entity._category === 'unit' ||
-							entity._category === 'wall'
-						)
-					) {
+					if (entity && (entity._category === 'unit' || entity._category === 'wall')) {
 						entity.lastRaycastCollisionPosition = {
 							x: point.x * taro.physics._scaleRatio,
-							y: point.y * taro.physics._scaleRatio
+							y: point.y * taro.physics._scaleRatio,
 						};
 
 						entity.raycastFraction = fraction;
@@ -201,13 +182,12 @@ const RayCastClosest = (function () {
 						def.fraction = fraction;
 
 						return fraction;
-
 					} else if (entity) {
 						return -1.0;
 					}
 
 					return fraction;
-				}
+				},
 			});
 
 			break;
@@ -215,16 +195,10 @@ const RayCastClosest = (function () {
 			def.callback = function (fixture, point, normal, fraction) {
 				var fixtureList = fixture.m_body.m_fixtureList;
 				var entity = fixtureList && fixtureList.taroId && taro.$(fixtureList.taroId);
-				if (
-					entity &&
-					(
-						entity._category === 'unit' ||
-						entity._category === 'wall'
-					)
-				) {
+				if (entity && (entity._category === 'unit' || entity._category === 'wall')) {
 					entity.lastRaycastCollisionPosition = {
 						x: point.x * taro.physics._scaleRatio,
-						y: point.y * taro.physics._scaleRatio
+						y: point.y * taro.physics._scaleRatio,
 					};
 
 					entity.raycastFraction = fraction;
@@ -236,7 +210,6 @@ const RayCastClosest = (function () {
 					def.fraction = fraction;
 
 					return fraction;
-
 				} else if (entity) {
 					return -1.0;
 				}
@@ -246,16 +219,14 @@ const RayCastClosest = (function () {
 				// By returning the current fraction, we instruct the calling code to clip the ray and
 				// continue the ray-cast to the next fixture. WARNING: do not assume that fixtures
 				// are reported in order. However, by clipping, we can always get the closest fixture.
-
 			};
 			break;
 	}
 
-
 	return def;
-});
+};
 
-const RayCastMultiple = (function () {
+const RayCastMultiple = function () {
 	let def: any;
 	def = {};
 
@@ -289,16 +260,10 @@ const RayCastMultiple = (function () {
 					const body = taro.physics.recordLeak(fixture.GetBody());
 					const taroId: Box2D.b2Fixture = taro.physics.metaData[taro.physics.getPointer(body)].taroId;
 					const entity = taro.$(taroId);
-					if (
-						entity &&
-						(
-							entity._category === 'unit' ||
-							entity._category === 'wall'
-						)
-					) {
+					if (entity && (entity._category === 'unit' || entity._category === 'wall')) {
 						entity.lastRaycastCollisionPosition = {
 							x: point.x * taro.physics._scaleRatio,
-							y: point.y * taro.physics._scaleRatio
+							y: point.y * taro.physics._scaleRatio,
 						};
 
 						entity.raycastFraction = fraction;
@@ -310,25 +275,18 @@ const RayCastMultiple = (function () {
 					// By returning 1, we instruct the caller to continue without clipping the
 					// ray.
 					return 1.0;
-				}
+				},
 			});
 
 			break;
 		default:
 			def.callback = function (fixture, point, normal, fraction) {
-
 				var fixtureList = fixture.m_body.m_fixtureList;
 				var entity = fixtureList && fixtureList.taroId && taro.$(fixtureList.taroId);
-				if (
-					entity &&
-					(
-						entity._category === 'unit' ||
-						entity._category === 'wall'
-					)
-				) {
+				if (entity && (entity._category === 'unit' || entity._category === 'wall')) {
 					entity.lastRaycastCollisionPosition = {
 						x: point.x * taro.physics._scaleRatio,
-						y: point.y * taro.physics._scaleRatio
+						y: point.y * taro.physics._scaleRatio,
 					};
 
 					entity.raycastFraction = fraction;
@@ -345,9 +303,9 @@ const RayCastMultiple = (function () {
 	}
 
 	return def;
-});
+};
 
-const RaycastAny = (function () {
+const RaycastAny = function () {
 	let def: any;
 	def = {};
 
@@ -376,57 +334,39 @@ const RaycastAny = (function () {
 					const body = taro.physics.recordLeak(fixture.GetBody());
 					const taroId: Box2D.b2Fixture = taro.physics.metaData[taro.physics.getPointer(body)].taroId;
 					const entity = taro.$(taroId);
-					if (
-						entity &&
-						(
-							entity._category === 'unit' ||
-							entity._category === 'wall'
-						)
-					) {
-
+					if (entity && (entity._category === 'unit' || entity._category === 'wall')) {
 						def.hit = true;
 						def.point = point;
 						def.normal = normal;
 
 						return 0.0;
-
 					} else if (entity) {
 						return -1.0;
 					}
-				}
+				},
 			});
 
 			break;
 		default:
 			def.callback = function (fixture, point, normal) {
-
 				var fixtureList = fixture.m_body.m_fixtureList;
 				var entity = fixtureList && fixtureList.taroId && taro.$(fixtureList.taroId);
-				if (
-					entity &&
-					(
-						entity._category === 'unit' ||
-						entity._category === 'wall'
-					)
-				) {
-
+				if (entity && (entity._category === 'unit' || entity._category === 'wall')) {
 					def.hit = true;
 					def.point = point;
 					def.normal = normal;
 
 					return 0.0;
-
 				} else if (entity) {
 					return -1.0;
 				}
-
 			};
 			break;
 	}
 
 	return def;
-});
+};
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Raycaster;
 }

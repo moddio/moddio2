@@ -6,13 +6,13 @@ var VariableComponent = TaroEntity.extend({
 		var self = this;
 		self._entity = entity;
 
-		for (var variableId in self._entity.variables) {			
+		for (var variableId in self._entity.variables) {
 			var entityVariable = self._entity.variables[variableId];
 			// if the variable is not defined, use the default value
-			
+
 			if (entityVariable?.value == undefined) {
 				// self._entity.variables[variableId].value = entityVariable.default;
-				self.update(variableId, entityVariable.default)
+				self.update(variableId, entityVariable.default);
 			}
 		}
 	},
@@ -23,7 +23,7 @@ var VariableComponent = TaroEntity.extend({
 		if (variableObj !== undefined) {
 			var isDataTypeMatching = false; // flag to check if datatype of value matches datatype of variable
 			var newValue = value;
-			
+
 			// variables can not set to undefined via action
 			switch (variableObj.dataType) {
 				case 'string':
@@ -33,21 +33,19 @@ var VariableComponent = TaroEntity.extend({
 					break;
 				}
 				case 'position': {
-					isDataTypeMatching = typeof value === 'object' &&
-						value.x != undefined &&	value.y != undefined;
+					isDataTypeMatching = typeof value === 'object' && value.x != undefined && value.y != undefined;
 					break;
 				}
 				case 'projectile':
 				case 'item':
 				case 'player':
 				case 'unit': {
-
 					// if value is a string, then it's an id. find the matching entity
 					if (typeof value === 'string') {
 						value = taro.$(value);
 					}
-					
-					isDataTypeMatching = typeof value === 'object' && value._category === variableObj.dataType;					
+
+					isDataTypeMatching = typeof value === 'object' && value._category === variableObj.dataType;
 					// value = value._id;
 					break;
 				}
@@ -62,8 +60,7 @@ var VariableComponent = TaroEntity.extend({
 			// otherwise set value to undefined and throw error
 			if (isDataTypeMatching) {
 				if (variableObj.value !== value) {
-
-					var newValue = value;				
+					var newValue = value;
 					if (['projectile', 'item', 'unit', 'player', 'region'].includes(variableObj.dataType)) {
 						newValue = value._id; // set value to id instead of object, because object causes circular JSON error
 					}
@@ -72,54 +69,65 @@ var VariableComponent = TaroEntity.extend({
 					// console.log('VariableComponent.update', variableObj.dataType, variableId, value, newValue, self._entity.variables[variableId])
 					if (taro.isServer) {
 						if (
-							variableObj.streamMode == null || variableObj.streamMode == 1 ||  // don't stream if streamMode isn't sync'ed (1). Also added != null for legacy support.
+							variableObj.streamMode == null ||
+							variableObj.streamMode == 1 || // don't stream if streamMode isn't sync'ed (1). Also added != null for legacy support.
 							variableObj.streamMode == 4 // streamMode 4 also sends to everyone. the ignoring part is done on client-side.
 						) {
-							self._entity.streamUpdateData([{
-								variables: {
-									[variableId]: newValue
-								}
-							}]);
+							self._entity.streamUpdateData([
+								{
+									variables: {
+										[variableId]: newValue,
+									},
+								},
+							]);
 						}
 					}
 				}
-				
 			} else if (typeof value === 'undefined' || value?.function === 'undefinedValue') {
 				// creator is intentionally setting value as undefined
 				self._entity.variables[variableId].value = undefined;
-					
+
 				if (taro.isServer) {
 					if (
-						variableObj.streamMode == null || variableObj.streamMode == 1 ||  // don't stream if streamMode isn't sync'ed (1). Also added != null for legacy support.
+						variableObj.streamMode == null ||
+						variableObj.streamMode == 1 || // don't stream if streamMode isn't sync'ed (1). Also added != null for legacy support.
 						variableObj.streamMode == 4 // streamMode 4 also sends to everyone. the ignoring part is done on client-side.
-					) {					
-						self._entity.streamUpdateData([{
-							variables: {
-								[variableId]: {function: 'undefinedValue'}
-							}
-						}]);
+					) {
+						self._entity.streamUpdateData([
+							{
+								variables: {
+									[variableId]: { function: 'undefinedValue' },
+								},
+							},
+						]);
 					}
 				}
-
 			} else {
-				console.log('ERROR: datatype of value', typeof value,' does not match datatype of variable', variableObj.dataType);
+				console.log(
+					'ERROR: datatype of value',
+					typeof value,
+					' does not match datatype of variable',
+					variableObj.dataType
+				);
 			}
 		}
 	},
 
-	getValue: function(variableId) {
-		if (variableId) {			
+	getValue: function (variableId) {
+		if (variableId) {
 			var entityVariable = this._entity.variables && this._entity.variables[variableId];
 			if (entityVariable) {
 				returnValue = entityVariable.value;
-				if (['projectile', 'item', 'unit', 'player','region'].includes(entityVariable.dataType)) {
+				if (['projectile', 'item', 'unit', 'player', 'region'].includes(entityVariable.dataType)) {
 					returnValue = taro.$(returnValue);
 				}
-				
+
 				return returnValue;
 			}
 		}
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = VariableComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = VariableComponent;
+}

@@ -295,6 +295,22 @@ namespace Renderer {
 					this.particles.emit(emitter);
 				});
 
+				taro.client.on('start-particle', (data: { particleTypeId: string; entityId: string }) => {
+					const emitter = this.particles.emitters.find(({ particleTypeId, target }) => {
+						return particleTypeId === data.particleTypeId && target.taroId === data.entityId;
+					});
+
+					this.particles.startEmitter(emitter);
+				});
+
+				taro.client.on('stop-particle', (data: { particleTypeId: string; entityId: string }) => {
+					const emitter = this.particles.emitters.find(({ particleTypeId, target }) => {
+						return particleTypeId === data.particleTypeId && target.taroId === data.entityId;
+					});
+
+					this.particles.stopEmitter(emitter);
+				});
+
 				taro.client.on('floating-text', (config: FloatingTextConfig) => {
 					const zOffset = this.camera.target ? this.camera.target.position.y : 0;
 					entitiesLayer.add(FloatingText.create(config, zOffset));
@@ -313,9 +329,11 @@ namespace Renderer {
 
 				if (this.camera.target) {
 					const worldPos = this.camera.getWorldPoint(this.pointer);
-					taro.input.emit('pointermove', [
-						{ x: Utils.worldToPixel(worldPos.x + 0.5), y: Utils.worldToPixel(worldPos.z + 0.5) },
-					]);
+					const x = Utils.worldToPixel(worldPos.x + 0.5);
+					const y = Utils.worldToPixel(worldPos.z + 0.5);
+					const yaw = this.camera.getAzimuthAngle();
+					const pitch = this.camera.getElevationAngle();
+					taro.input.emit('pointermove', [{ x, y, yaw, pitch }]);
 				}
 
 				// TODO: Is this the proper way to get deltaTime or should I get it from the

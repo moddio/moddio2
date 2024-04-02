@@ -1,3 +1,1 @@
-declare class TaroStreamComponent extends TaroEventingClass {
-
-}
+declare class TaroStreamComponent extends TaroEventingClass {}

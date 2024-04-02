@@ -1,7 +1,7 @@
 declare class TaroEntity extends TaroObject {
-	isTransforming (bool?: boolean): boolean;
-    phaserEntity: PhaserEntity;
-    nextKeyFrame: {x: number, y: number, rotation: number};
+	isTransforming(bool?: boolean): boolean;
+	phaserEntity: PhaserEntity;
+	nextKeyFrame: { x: number; y: number; rotation: number };
 	lastUpdatedData: any;
 	script: any;
 	getAnchoredOffset(rotate: number): any;
@@ -26,14 +26,14 @@ declare class TaroEntity extends TaroObject {
 	_behaviour?: () => void;
 	anchoredOffset: any;
 
-	_processTransform (): void
+	_processTransform(): void;
 
-	isHidden (): boolean;
-	getOwnerUnit (): TaroEntity | undefined;
-	streamUpdateData (queuedData: UpdateData[]);
-	transformTexture (x: number, y: number, z: number, type?: boolean);
+	isHidden(): boolean;
+	getOwnerUnit(): TaroEntity | undefined;
+	streamUpdateData(queuedData: UpdateData[]);
+	transformTexture(x: number, y: number, z: number, type?: boolean);
 
-	flip (flip: FlipMode): void;
+	flip(flip: FlipMode): void;
 
 	// raycast
 	point: any;

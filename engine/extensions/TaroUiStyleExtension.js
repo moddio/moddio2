@@ -26,7 +26,9 @@ var TaroUiStyleExtension = {
 	 */
 	backgroundImage: function (texture, repeatType) {
 		if (texture && texture.image) {
-			if (!repeatType) { repeatType = 'no-repeat'; }
+			if (!repeatType) {
+				repeatType = 'no-repeat';
+			}
 
 			// Store the repeatType
 			this._patternRepeat = repeatType;
@@ -83,16 +85,16 @@ var TaroUiStyleExtension = {
 
 	backgroundSize: function (x, y) {
 		if (x !== undefined && y !== undefined) {
-			if (typeof (x) === 'string' && x !== 'auto') {
+			if (typeof x === 'string' && x !== 'auto') {
 				// Work out the actual size in pixels
 				// from the percentage
-				x = this._bounds2d.x / 100 * parseInt(x, 10);
+				x = (this._bounds2d.x / 100) * parseInt(x, 10);
 			}
 
-			if (typeof (y) === 'string' && y !== 'auto') {
+			if (typeof y === 'string' && y !== 'auto') {
 				// Work out the actual size in pixels
 				// from the percentage
-				y = this._bounds2d.y / 100 * parseInt(y, 10);
+				y = (this._bounds2d.y / 100) * parseInt(y, 10);
 			}
 
 			if (x === 'auto' && y === 'auto') {
@@ -340,7 +342,9 @@ var TaroUiStyleExtension = {
 		}
 
 		return this._paddingBottom;
-	}
+	},
 };
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroUiStyleExtension; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroUiStyleExtension;
+}

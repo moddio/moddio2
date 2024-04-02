@@ -76,11 +76,11 @@ const box2dwebWrapper: PhysicsDistProps = {
 		};
 
 		/**
-			 * Gets / sets the gravity vector.
-			 * @param x
-			 * @param y
-			 * @return {*}
-			 */
+		 * Gets / sets the gravity vector.
+		 * @param x
+		 * @param y
+		 * @return {*}
+		 */
 		component.gravity = function (x, y) {
 			if (x !== undefined && y !== undefined) {
 				this._gravity = new this.b2Vec2(x, y);
@@ -237,7 +237,9 @@ const box2dwebWrapper: PhysicsDistProps = {
 												finalX = fixtureDef.shape.data.x ?? 0;
 												finalY = fixtureDef.shape.data.y ?? 0;
 
-												tempShape.SetLocalPosition(new self.b2Vec2(finalX / self._scaleRatio, finalY / self._scaleRatio));
+												tempShape.SetLocalPosition(
+													new self.b2Vec2(finalX / self._scaleRatio, finalY / self._scaleRatio)
+												);
 											}
 											break;
 
@@ -308,7 +310,10 @@ const box2dwebWrapper: PhysicsDistProps = {
 								}
 							}
 						} else {
-							self.log('Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.', 'warning');
+							self.log(
+								'Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.',
+								'warning'
+							);
 						}
 						break;
 				}
@@ -337,19 +342,21 @@ const box2dwebWrapper: PhysicsDistProps = {
 		if (!aBody || aBody.jointType == 'none' || aBody.type == 'none') return;
 
 		// create a joint only if there isn't pre-existing joint
-		PhysicsComponent.prototype.log(`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`);
+		PhysicsComponent.prototype.log(
+			`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`
+		);
 
 		if (
-			entityA && entityA.body && entityB && entityB.body &&
+			entityA &&
+			entityA.body &&
+			entityB &&
+			entityB.body &&
 			entityA.id() != entityB.id() // im not creating joint to myself!
 		) {
 			if (aBody.jointType == 'revoluteJoint') {
 				var joint_def = new box2dweb.Dynamics.Joints.b2RevoluteJointDef();
 
-				joint_def.Initialize(
-					entityA.body,
-					entityB.body,
-					entityB.body.GetWorldCenter());
+				joint_def.Initialize(entityA.body, entityB.body, entityB.body.GetWorldCenter());
 
 				// joint_def.enableLimit = true;
 				// joint_def.lowerAngle = aBody.itemAnchor.lowerAngle * 0.0174533; // degree to rad
@@ -357,15 +364,10 @@ const box2dwebWrapper: PhysicsDistProps = {
 
 				joint_def.localAnchorA.Set(anchorA.x / self._scaleRatio, anchorA.y / self._scaleRatio); // item anchor
 				joint_def.localAnchorB.Set(anchorB.x / self._scaleRatio, -anchorB.y / self._scaleRatio); // unit anchor
-			} else // weld joint
-			{
+			} // weld joint
+			else {
 				var joint_def = new box2dweb.Dynamics.Joints.b2WeldJointDef();
-				joint_def.Initialize(
-					entityA.body,
-					entityB.body,
-					entityA.body.GetWorldCenter(),
-					entityB.body.GetWorldCenter()
-				);
+				joint_def.Initialize(entityA.body, entityB.body, entityA.body.GetWorldCenter(), entityB.body.GetWorldCenter());
 			}
 
 			var joint = self._world.CreateJoint(joint_def); // joint between two pieces
@@ -376,11 +378,9 @@ const box2dwebWrapper: PhysicsDistProps = {
 			entityA.jointsAttached[entityB.id()] = joint;
 			entityB.jointsAttached[entityA.id()] = joint;
 		}
-	}
+	},
+};
 
-}
-
-
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = box2dwebWrapper;
 }

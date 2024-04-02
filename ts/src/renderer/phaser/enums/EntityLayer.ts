@@ -3,5 +3,5 @@ enum EntityLayer {
 	FLOOR_2,
 	WALLS,
 	DEBRIS,
-	TREES
+	TREES,
 }

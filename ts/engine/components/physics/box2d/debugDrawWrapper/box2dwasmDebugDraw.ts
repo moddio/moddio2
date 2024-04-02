@@ -12,8 +12,7 @@ class Box2dDebugDraw {
 		private readonly helpers: Box2dHelpers,
 		private readonly context: Phaser.GameObjects.Graphics,
 		private readonly canvasScaleFactor: number
-	) {
-	}
+	) {}
 
 	static drawAxes(ctx: Phaser.GameObjects.Graphics): void {
 		ctx.lineStyle(1 / 30, 0xff0000, 0.5);
@@ -34,7 +33,7 @@ class Box2dDebugDraw {
 		const red = (col.get_r() * 255) | 0;
 		const green = (col.get_g() * 255) | 0;
 		const blue = (col.get_b() * 255) | 0;
-		const colNum = red << 16 | green << 8 | blue;
+		const colNum = (red << 16) | (green << 8) | blue;
 		this.context.lineStyle(1 / 30, 0x000, 0.5);
 		this.context.fillStyle(colNum, 0.5);
 	};
@@ -61,7 +60,7 @@ class Box2dDebugDraw {
 		const { wrapPointer, b2Vec2 } = this.box2D;
 		this.context.beginPath();
 		for (let tmpI = 0; tmpI < vertexCount; tmpI++) {
-			const vert = wrapPointer(vertices + (tmpI * 8), b2Vec2);
+			const vert = wrapPointer(vertices + tmpI * 8, b2Vec2);
 			if (tmpI === 0) {
 				this.context.moveTo(vert.get_x(), vert.get_y());
 			} else {
@@ -143,13 +142,12 @@ class Box2dDebugDraw {
 			},
 			DrawPoint: (vec_p: number, size: number, color_p: number): void => {
 				this.drawPoint(vec_p, size, color_p);
-			}
+			},
 		});
 		return debugDraw;
 	};
 }
 
-
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = Box2dDebugDraw;
 }

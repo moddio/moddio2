@@ -10,9 +10,9 @@ var Game = TaroClass.extend({
         if (taro.isServer) {
             taro.server = new App(options);
         }
-    }
+    },
 });
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = Game;
 }
 else {

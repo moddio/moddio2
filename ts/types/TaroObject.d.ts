@@ -1,6 +1,5 @@
 declare class TaroObject extends TaroEventingClass {
+	destroy(): void;
 
-	destroy (): void;
-
-	id (id?: string): string;
+	id(id?: string): string;
 }

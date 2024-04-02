@@ -49,9 +49,7 @@ var TaroTimeComponent = TaroEventingClass.extend({
 		var arrCount = arr.length;
 
 		while (arrCount--) {
-			arr[arrCount]
-				.addTime(delta)
-				.update();
+			arr[arrCount].addTime(delta).update();
 		}
 
 		// Process removing any timers that were scheduled for removal
@@ -91,7 +89,9 @@ var TaroTimeComponent = TaroEventingClass.extend({
 		}
 
 		return this;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroTimeComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroTimeComponent;
+}

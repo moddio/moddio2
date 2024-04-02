@@ -99,7 +99,10 @@ var TaroRect = TaroClass.extend({
 	 * @return {Boolean}
 	 */
 	rectIntersect: function (rect) {
-		this.log('rectIntersect has been renamed to "intersects". Please update your code. rectIntersect will be removed in a later version of taro.', 'warning');
+		this.log(
+			'rectIntersect has been renamed to "intersects". Please update your code. rectIntersect will be removed in a later version of taro.',
+			'warning'
+		);
 		return this.intersects(rect);
 	},
 
@@ -183,7 +186,9 @@ var TaroRect = TaroClass.extend({
 	 * @return {String}
 	 */
 	toString: function (precision) {
-		if (precision === undefined) { precision = 2; }
+		if (precision === undefined) {
+			precision = 2;
+		}
 		return `${this.x.toFixed(precision)},${this.y.toFixed(precision)},${this.width.toFixed(precision)},${this.height.toFixed(precision)}`;
 	},
 
@@ -193,11 +198,15 @@ var TaroRect = TaroClass.extend({
 	 */
 	render: function (ctx, fill) {
 		ctx.rect(this.x, this.y, this.width, this.height);
-		if (fill) { ctx.fill(); }
+		if (fill) {
+			ctx.fill();
+		}
 		ctx.stroke();
 
 		return this;
-	}
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = TaroRect; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = TaroRect;
+}

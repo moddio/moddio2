@@ -11,7 +11,7 @@ var UnitAttributeBar = TaroEntity.extend({
 		config = config || {};
 
 		self._stats = {
-			parentId: parentEntityId
+			parentId: parentEntityId,
 		};
 
 		if (typeof attributeData.index !== 'number') {
@@ -28,7 +28,7 @@ var UnitAttributeBar = TaroEntity.extend({
 		self.lastValue = {
 			value: typeof attributeData.value === 'number' ? attributeData.value.toFixed(0) : 0,
 			max: attributeData.max,
-			progressValueInPercent: progressValueInPercent
+			progressValueInPercent: progressValueInPercent,
 		};
 	},
 
@@ -38,7 +38,6 @@ var UnitAttributeBar = TaroEntity.extend({
 		var self = this;
 
 		self.destroyTimeout = setTimeout(function () {
-
 			var parentEntity = self.getOwner();
 
 			if (parentEntity) {
@@ -86,11 +85,11 @@ var UnitAttributeBar = TaroEntity.extend({
 		self.lastValue = {
 			value: newValue,
 			max: max,
-			progressValueInPercent: progressValueInPercent
+			progressValueInPercent: progressValueInPercent,
 		};
 	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 	module.exports = UnitAttributeBar;
 }

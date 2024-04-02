@@ -12,14 +12,15 @@ var ThemeComponent = TaroEntity.extend({
 			$('.game-title').html(
 				$('<img/>', {
 					src: taro.game.data.settings.images.logo,
-					height: '75px'
+					height: '75px',
 				})
 			);
 		} else {
-			$('.game-title').html((server)?server.gameName:"");
+			$('.game-title').html(server ? server.gameName : '');
 		}
-	}
-
+	},
 });
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') { module.exports = ThemeComponent; }
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	module.exports = ThemeComponent;
+}
