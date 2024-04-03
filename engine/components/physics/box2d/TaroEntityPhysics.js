@@ -32,11 +32,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 				this.rotateTo = this._rotateTo;
 				this.rotateBy = this._rotateBy;
 			} else {
-				this._translateToProto = function () {};
-				this._translateByProto = function () {};
+				this._translateToProto = function () { };
+				this._translateByProto = function () { };
 
-				this._rotateToProto = function () {};
-				this._rotateByProto = function () {};
+				this._rotateToProto = function () { };
+				this._rotateByProto = function () { };
 
 				this._updateProto = this.update;
 
@@ -445,11 +445,15 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// taro.devLog("applyForce", x, y)
 
 		try {
-			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				var thrustVector = new taro.physics.b2Vec2(x, y);
-				this.body.applyForce(thrustVector, this.body.getWorldCenter());
-				if (taro.physics.engine === 'BOX2DWASM') {
-					taro.physics.destroyB2dObj(thrustVector);
+			if (taro.physics.engine === 'VOXEL') {
+				this.body.applyForce([x, y, 0])
+			} else {
+				if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
+					var thrustVector = new taro.physics.b2Vec2(x, y);
+					this.body.applyForce(thrustVector, this.body.getWorldCenter());
+					if (taro.physics.engine === 'BOX2DWASM') {
+						taro.physics.destroyB2dObj(thrustVector);
+					}
 				}
 			}
 		} catch (e) {
@@ -477,13 +481,18 @@ var TaroEntityPhysics = TaroEntity.extend({
 	applyImpulseLT: function (x, y) {
 		// taro.devLog("applyForce", x, y)
 		try {
-			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				var thrustVector = new taro.physics.b2Vec2(x, y);
-				this.body.applyLinearImpulse(thrustVector, this.body.getWorldCenter());
-				if (taro.physics.engine === 'BOX2DWASM') {
-					taro.physics.destroyB2dObj(thrustVector);
+			if (taro.physics.engine === 'VOXEL') {
+				this.body.applyImpulse([x, y, 0])
+			} else {
+				if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
+					var thrustVector = new taro.physics.b2Vec2(x, y);
+					this.body.applyLinearImpulse(thrustVector, this.body.getWorldCenter());
+					if (taro.physics.engine === 'BOX2DWASM') {
+						taro.physics.destroyB2dObj(thrustVector);
+					}
 				}
 			}
+
 		} catch (e) {
 			console.log(e);
 			TaroEntityPhysics.prototype.log(`taroEntityBox2d.js: applyForce ${e}`);
