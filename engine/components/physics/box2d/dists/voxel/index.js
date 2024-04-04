@@ -82,7 +82,6 @@ class Voxel {
 		this.fluidDrag = opts.fluidDrag || 0.4
 		this.minBounceImpulse = opts.minBounceImpulse
 		this.bodies = []
-
 		// collision function - TODO: abstract this into a setter?
 		this.testSolid = testSolid
 		this.testFluid = testFluid
@@ -104,10 +103,10 @@ class Voxel {
 	}
 	/** Removes a body, by direct reference */
 	destroyBody(b) {
-		var i = this.bodies.indexOf(b)
-		if (i < 0) return undefined
-		this.bodies.splice(i, 1)
-		b.aabb = b.onCollide = null
+		// var i = this.bodies.indexOf(b)
+		// if (i < 0) return undefined
+		// this.bodies.splice(i, 1)
+		// b.aabb = b.onCollide = null
 	}
 	/* Ticks the simulation forwards in time. */
 	tick(dt) {
@@ -142,7 +141,6 @@ var oldResting = vec3.create()
 
 function iterateBody(self, b, dt, noGravity) {
 	vec3.copy(oldResting, b.resting)
-
 	// treat bodies with <= mass as static
 	if (b.mass <= 0) {
 		vec3.set(b.velocity, 0, 0, 0)
@@ -173,7 +171,6 @@ function iterateBody(self, b, dt, noGravity) {
 
 	// dv = i/m + a*dt
 	// v1 = v0 + dv
-	vec3.scale(dv, b._impulses, 1 / b.mass)
 	vec3.scaleAndAdd(dv, dv, a, dt)
 	vec3.add(b.velocity, b.velocity, dv)
 
@@ -496,7 +493,7 @@ class VoxelPhysics extends Voxel {
 
 
 		var blockGetter = (x, y, z) => {
-			return taro.layersById['walls']?.[x + y * taro.game.taro.map.data.width] !== 0 ?? false;
+			return y < 0;// taro.layersById['walls']?.[x + y * taro.game.taro.map.data.width] !== 0 ?? false;
 		}
 		var isFluidGetter = (x, y, z) => {
 			return false;

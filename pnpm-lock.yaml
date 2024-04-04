@@ -9,8 +9,8 @@ dependencies:
     specifier: ^1.39.6
     version: 1.39.6
   aabb-3d:
-    specifier: ^0.1.0
-    version: 0.1.0
+    specifier: github:fenomas/aabb-3d
+    version: github.com/fenomas/aabb-3d/c5698961161884397c711e8fb533611642a8a487
   cookie-parser:
     specifier: ^1.4.6
     version: 1.4.6
@@ -718,12 +718,6 @@ packages:
       '@typescript-eslint/types': 7.2.0
       eslint-visitor-keys: 3.4.1
     dev: true
-
-  /aabb-3d@0.1.0:
-    resolution: {integrity: sha512-YlFddYOAgQtWC7+LXpEd7Tq9hnE1PRQVvaafWe/UbTh2GLEcAekw3B4zT9jKM4kDLkbsnjXmGYmIxszo+Smipw==}
-    dependencies:
-      gl-matrix: 2.8.1
-    dev: false
 
   /abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -1971,10 +1965,6 @@ packages:
     resolution: {integrity: sha512-0fzj9JxOLfJ+XGLhR8ze3unN0KZCgZwiSSDz168VERjK8Wl8kVSdcu2kspd4s4wtAa1y/qrVRiAA0WclVsu0ng==}
     dependencies:
       assert-plus: 1.0.0
-    dev: false
-
-  /gl-matrix@2.8.1:
-    resolution: {integrity: sha512-0YCjVpE3pS5XWlN3J4X7AiAx65+nqAI54LndtVFnQZB6G/FVLkZH8y8V6R3cIoOQR4pUdfwQGd1iwyoXHJ4Qfw==}
     dev: false
 
   /gl-vec3@1.1.3:
@@ -3700,3 +3690,11 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  github.com/fenomas/aabb-3d/c5698961161884397c711e8fb533611642a8a487:
+    resolution: {tarball: https://codeload.github.com/fenomas/aabb-3d/tar.gz/c5698961161884397c711e8fb533611642a8a487}
+    name: aabb-3d
+    version: 0.2.1
+    dependencies:
+      gl-vec3: 1.1.3
+    dev: false

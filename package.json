@@ -32,7 +32,7 @@
 	"homepage": "https://github.com/moddio/taro#readme",
 	"dependencies": {
 		"@types/emscripten": "^1.39.6",
-		"aabb-3d": "^0.1.0",
+		"aabb-3d": "github:fenomas/aabb-3d",
 		"cookie-parser": "^1.4.6",
 		"currency.js": "^2.0.4",
 		"ejs": "^3.1.8",

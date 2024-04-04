@@ -416,7 +416,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 					this.body.setLinearVelocity(v);
 					taro.physics.destroyB2dObj(v);
 				} else {
-					this.body.setLinearVelocity(new TaroPoint3d(x, y, 0));
+					this.body.setLinearVelocity(new TaroPoint3d(x, 0, y));
 				}
 			}
 		} catch (e) {

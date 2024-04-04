@@ -24,7 +24,7 @@ class RigidBody {
 		this.onStep = null
 
 		// internal state
-		this.velocity = vec3.create()
+		this.velocity = vec3.fromValues(0, 0, 0)
 		this.resting = [0, 0, 0]
 		this.inFluid = false
 
@@ -32,36 +32,22 @@ class RigidBody {
 		/** @internal */
 		this._ratioInFluid = 0
 		/** @internal */
-		this._forces = vec3.create()
+		this._forces = vec3.fromValues(0, 0, 0)
 		/** @internal */
-		this._impulses = vec3.create()
+		this._impulses = vec3.fromValues(0, 0, 0)
 		/** @internal */
 		this._sleepFrameCount = 10 | 0
 	}
 
 	setPosition(p) {
-		let pos = p;
-		if (typeof p === 'object' && !Array.isArray(p)) {
-			pos = vec3.fromValues(p.x, p.y, 0)
-		}
-		sanityCheck(pos)
-
-		let ok = 0;
-		if (this.aabb !== null) {
-			if (!isNaN(this.aabb.base[0])) {
-				ok += 1;
-			}
-			vec3.sub(pos, pos, this.aabb.base)
-			this.aabb.translate(pos)
-			this._markActive()
-			if (isNaN(this.aabb.base[0] && ok === 1)) {
-				console.log(p, pos)
-			}
-		}
-
-		// console.log('after', this.aabb)
-
-
+		// let pos = p;
+		// if (typeof p === 'object' && !Array.isArray(p)) {
+		// 	pos = vec3.fromValues(p.x, 3, p.y)
+		// }
+		// sanityCheck(pos)
+		// vec3.subtract(pos, pos, this.aabb.base)
+		// this.aabb.translate(pos)
+		// this._markActive()
 	}
 
 	getPosition() {
@@ -76,9 +62,10 @@ class RigidBody {
 
 	}
 
-	setLinearVelocity(x, y, z) {
-		vec3.set(this.velocity, x, y, z)
+	setLinearVelocity(v) {
+		vec3.set(this.velocity, v.x, v.y, v.z)
 	}
+
 	applyForce(f) {
 		sanityCheck(f)
 		vec3.add(this._forces, this._forces, f)
