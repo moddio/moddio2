@@ -397,18 +397,19 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// if body doesn't exist yet, queue
 		// console.log("3. locked", taro.physics._world.isLocked(), "body",  this.body != undefined, isLossTolerant);
 		if ((!taro.physics._world.isLocked() && this.body != undefined) || isLossTolerant) {
-			this.setLinearVelocityLT(x, y);
+			this.setLinearVelocityLT(x, y, z);
 		} else {
 			// console.log("4. queue setLinearVelocity", x, y);
 			this.queueAction({
 				type: 'setLinearVelocity',
 				x: x,
 				y: y,
+				z
 			});
 		}
 	},
 
-	setLinearVelocityLT: function (x, y) {
+	setLinearVelocityLT: function (x, y, z) {
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
 				if (taro.physics.engine === 'BOX2DWASM') {
@@ -416,7 +417,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 					this.body.setLinearVelocity(v);
 					taro.physics.destroyB2dObj(v);
 				} else {
-					this.body.setLinearVelocity(new TaroPoint3d(x, 0, y));
+					this.body.setLinearVelocity(new TaroPoint3d(x, z, y));
 				}
 			}
 		} catch (e) {

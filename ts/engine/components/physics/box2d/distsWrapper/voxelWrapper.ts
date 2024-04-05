@@ -28,7 +28,7 @@ const voxelWrapper: PhysicsDistProps = {
 		if (entity.body) {
 			self.voxelPhsics.destroyBody(entity.body);
 		}
-		let nowPoint = [entity._translate.x / self._scaleRatio, 300, entity._translate.y / self._scaleRatio]
+		let nowPoint = [entity._translate.x / self._scaleRatio, 3000, entity._translate.y / self._scaleRatio]
 		entity.body = self._world.createBody({
 			_aabb: undefined, mass: body.density, friction: body.friction,
 			restitution: body.restitution, onCollide: (v) => {

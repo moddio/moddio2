@@ -14,7 +14,7 @@ class DefaultOptions {
 		this.airDrag = 0.1
 		this.fluidDrag = 0.4
 		this.fluidDensity = 2.0
-		this.gravity = [0, -10, 0]
+		this.gravity = [0, -5, 0]
 		this.minBounceImpulse = .5 // lowest collision impulse that bounces
 	}
 }
@@ -497,7 +497,7 @@ class VoxelPhysics extends Voxel {
 
 
 		var blockGetter = (x, y, z) => {
-			return false; // y < 0 || (taro.layersById['walls']?.[x + z * taro.map.data.width] !== undefined && taro.layersById['walls']?.[x + z * taro.map.data.width] !== 0);
+			return y < 0 || (taro.layersById['walls']?.[x + z * taro.map.data.width] !== undefined && taro.layersById['walls']?.[x + z * taro.map.data.width] !== 0);
 		}
 		var isFluidGetter = (x, y, z) => {
 			return false;

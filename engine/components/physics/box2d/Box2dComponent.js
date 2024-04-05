@@ -639,7 +639,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 								entity._stats.controls.movementMethod // velocity-based movement
 								) {
 									case 'velocity':
-										entity.setLinearVelocity(entity.vector.x, entity.vector.y);
+										entity.setLinearVelocity(entity.vector.x , entity.vector.y , 50);
 										break;
 									case 'force':
 										entity.applyForce(entity.vector.x, entity.vector.y);
@@ -651,10 +651,12 @@ var PhysicsComponent = TaroEventingClass.extend({
 								console.log('position = ', body.getPosition())
 							}
 						}
+
 						var mxfp = dists[taro.physics.engine].getmxfp(body, self);
 						var x = mxfp.x * taro.physics._scaleRatio;
 						var y = mxfp.y * taro.physics._scaleRatio;
 						var z = mxfp.z * taro.physics._scaleRatio;
+						entity.streamUpdateData([{ depth: z }]);
 						// make projectile auto-rotate toward its path. ideal for arrows or rockets that should point toward its direction
 						// if (entity._category == 'projectile' &&
 						// 	entity._stats.currentBody && !entity._stats.currentBody.fixedRotation &&
@@ -795,7 +797,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 						}
 
 						if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
-							entity.body.setPosition([x / entity._b2dRef._scaleRatio, y / entity._b2dRef._scaleRatio, z / entity._b2dRef._scaleRatio]);
+							entity.body.setPosition([x / entity._b2dRef._scaleRatio, z / entity._b2dRef._scaleRatio, y / entity._b2dRef._scaleRatio]);
 						}
 
 						if (body.asleep) {
@@ -812,7 +814,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 					}
 				})
-				self._world.step(timeElapsedSinceLastStep / 1000);
+				self._world.step(timeElapsedSinceLastStep);
 			} else {
 				var tempBod =
 					this.engine === 'BOX2DWASM' ? self.recordLeak(self._world.getBodyList()) : self._world.getBodyList();
