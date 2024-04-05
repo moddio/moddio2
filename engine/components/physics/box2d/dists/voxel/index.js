@@ -76,7 +76,7 @@ class Voxel {
 	constructor(opts, testSolid, testFluid) {
 		opts = Object.assign(new DefaultOptions(), opts)
 
-		this._gravity = opts.gravity || [0, -10, 0]
+		this.gravity = opts.gravity || [0, -10, 0]
 		this.airDrag = opts.airDrag || 0.1
 		this.fluidDensity = opts.fluidDensity || 2.0
 		this.fluidDrag = opts.fluidDrag || 0.4
@@ -92,10 +92,10 @@ class Voxel {
 	*/
 	createBody(_aabb, mass, friction,
 		restitution, gravMult, onCollide) {
-		_aabb = _aabb || new aabb([0, 0, 0], [1, 1, 1])
+		_aabb = _aabb || new aabb([0, 0, 0], [0.6, 1.8, 0.6])
 		if (typeof mass == 'undefined') mass = 1
 		if (typeof friction == 'undefined') friction = 1
-		if (typeof restitution == 'undefined') restitution = 0
+		if (typeof restitution == 'undefined') restitution = 2
 		if (typeof gravMult == 'undefined') gravMult = 1
 		var b = new RigidBody(_aabb, mass, friction, restitution, gravMult, onCollide)
 		this.bodies.push(b)
@@ -103,15 +103,18 @@ class Voxel {
 	}
 	/** Removes a body, by direct reference */
 	destroyBody(b) {
-		// var i = this.bodies.indexOf(b)
-		// if (i < 0) return undefined
-		// this.bodies.splice(i, 1)
-		// b.aabb = b.onCollide = null
+		var i = this.bodies.indexOf(b)
+		if (i < 0) return undefined
+		this.bodies.splice(i, 1)
+		b.aabb = b.onCollide = null
 	}
 	/* Ticks the simulation forwards in time. */
 	tick(dt) {
-		var noGravity = equals(0, vec3.squaredLength(this._gravity))
-		this.bodies.forEach(b => iterateBody(this, b, dt, noGravity))
+		if (dt < 1000) {
+			var noGravity = equals(0, vec3.squaredLength(this.gravity))
+			this.bodies.forEach(b => iterateBody(this, b, dt, noGravity))
+		}
+
 	}
 }
 
@@ -142,6 +145,7 @@ var oldResting = vec3.create()
 function iterateBody(self, b, dt, noGravity) {
 	vec3.copy(oldResting, b.resting)
 	// treat bodies with <= mass as static
+
 	if (b.mass <= 0) {
 		vec3.set(b.velocity, 0, 0, 0)
 		vec3.set(b._forces, 0, 0, 0)
@@ -162,13 +166,12 @@ function iterateBody(self, b, dt, noGravity) {
 	sanityCheck(b._impulses)
 	sanityCheck(b.velocity)
 	sanityCheck(b.resting)
-
 	// semi-implicit Euler integration
 
 	// a = f/m + gravity*gravityMultiplier
 	vec3.scale(a, b._forces, 1 / b.mass)
+	// console.log('other', self, self.gravity, b.gravityMultiplier)
 	vec3.scaleAndAdd(a, a, self.gravity, b.gravityMultiplier)
-
 	// dv = i/m + a*dt
 	// v1 = v0 + dv
 	vec3.scaleAndAdd(dv, dv, a, dt)
@@ -183,6 +186,7 @@ function iterateBody(self, b, dt, noGravity) {
 
 	// linear air or fluid friction - effectively v *= drag
 	// body settings override global settings
+
 	var drag = (b.airDrag >= 0) ? b.airDrag : self.airDrag
 	if (b.inFluid) {
 		drag = (b.fluidDrag >= 0) ? b.fluidDrag : self.fluidDrag
@@ -493,7 +497,7 @@ class VoxelPhysics extends Voxel {
 
 
 		var blockGetter = (x, y, z) => {
-			return y < 0;// taro.layersById['walls']?.[x + y * taro.game.taro.map.data.width] !== 0 ?? false;
+			return false; // y < 0 || (taro.layersById['walls']?.[x + z * taro.map.data.width] !== undefined && taro.layersById['walls']?.[x + z * taro.map.data.width] !== 0);
 		}
 		var isFluidGetter = (x, y, z) => {
 			return false;
@@ -503,9 +507,9 @@ class VoxelPhysics extends Voxel {
 		this.world = new VoxelWorld(this)
 	}
 
-	gravity(x, y) {
+	setGravity(x, y) {
 		if (x !== undefined && y !== undefined) {
-			this._gravity = [x, y, this._gravity[2]];
+			this.gravity = [x, -10, y];
 			return this._entity;
 		}
 	}

@@ -624,14 +624,15 @@ var Server = TaroClass.extend({
 					// Add physics and setup physics world
 					// use callback here is bc the box2dwasm needs time to init
 					const loadRest = () => {
-						if (taro.physics.gravity) {
+						if (taro.physics.gravity || taro.physics.setGravity) {
 							taro.physics.sleep(true);
 							taro.physics.tilesizeRatio(tilesizeRatio);
 							if (game.data.settings) {
 								var gravity = game.data.settings.gravity;
 								if (gravity) {
 									// console.log('setting gravity', gravity);
-									taro.physics.gravity(gravity.x, gravity.y);
+									taro.physics.gravity?.(gravity.x, gravity.y);
+									taro.physics.setGravity?.(gravity.x, gravity.y);
 								}
 							}
 							taro.physics.setContinuousPhysics(!!game?.data?.settings?.continuousPhysics);

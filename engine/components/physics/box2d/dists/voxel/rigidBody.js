@@ -24,7 +24,7 @@ class RigidBody {
 		this.onStep = null
 
 		// internal state
-		this.velocity = vec3.fromValues(0, 0, 0)
+		this.velocity = vec3.create()
 		this.resting = [0, 0, 0]
 		this.inFluid = false
 
@@ -32,26 +32,27 @@ class RigidBody {
 		/** @internal */
 		this._ratioInFluid = 0
 		/** @internal */
-		this._forces = vec3.fromValues(0, 0, 0)
+		this._forces = vec3.create()
 		/** @internal */
-		this._impulses = vec3.fromValues(0, 0, 0)
+		this._impulses = vec3.create()
 		/** @internal */
 		this._sleepFrameCount = 10 | 0
 	}
 
 	setPosition(p) {
-		// let pos = p;
-		// if (typeof p === 'object' && !Array.isArray(p)) {
-		// 	pos = vec3.fromValues(p.x, 3, p.y)
-		// }
-		// sanityCheck(pos)
-		// vec3.subtract(pos, pos, this.aabb.base)
-		// this.aabb.translate(pos)
-		// this._markActive()
+		let pos = p;
+		if (typeof p === 'object' && !Array.isArray(p)) {
+			pos = vec3.fromValues(p.x, p.z ?? 300, p.y)
+		}
+		sanityCheck(pos)
+		vec3.subtract(pos, pos, this.aabb.base)
+		this.aabb.translate(pos)
+		this._markActive()
 	}
 
 	getPosition() {
-		return vec3.clone(this.aabb.base)
+		const base = vec3.clone(this.aabb.base)
+		return { x: base[0], y: base[2], z: base[1] }
 	}
 
 	setAngle() {
@@ -64,6 +65,7 @@ class RigidBody {
 
 	setLinearVelocity(v) {
 		vec3.set(this.velocity, v.x, v.y, v.z)
+		this._markActive()
 	}
 
 	applyForce(f) {

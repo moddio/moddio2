@@ -3186,7 +3186,7 @@ var TaroEntity = TaroObject.extend({
 	 *     entity.translateTo(10, 0, 0);
 	 * @return {*}
 	 */
-	translateTo: function (x, y) {
+	translateTo: function (x, y, z) {
 		// console.log('start translate', x, y)
 		if (x !== undefined && y !== undefined && !isNaN(x) && !isNaN(y)) {
 			// console.log('non-crash translate', this._translate)
@@ -3197,6 +3197,7 @@ var TaroEntity = TaroObject.extend({
 			if (this._translate) {
 				this._translate.x = x;
 				this._translate.y = y;
+				this._translate.z = z;
 			}
 
 			// ensure this entity is created at its latest position to the new clients. (instead of spawnPosition)

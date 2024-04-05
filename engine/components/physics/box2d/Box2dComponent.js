@@ -639,8 +639,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 								entity._stats.controls.movementMethod // velocity-based movement
 								) {
 									case 'velocity':
-										console.table(body.aabb)
-										entity.setLinearVelocity(entity.vector.x, 0, entity.vector.y);
+										entity.setLinearVelocity(entity.vector.x, entity.vector.y);
 										break;
 									case 'force':
 										entity.applyForce(entity.vector.x, entity.vector.y);
@@ -649,7 +648,166 @@ var PhysicsComponent = TaroEventingClass.extend({
 										entity.applyImpulse(entity.vector.x, entity.vector.y);
 										break;
 								}
+								console.log('position = ', body.getPosition())
 							}
+						}
+						var mxfp = dists[taro.physics.engine].getmxfp(body, self);
+						var x = mxfp.x * taro.physics._scaleRatio;
+						var y = mxfp.y * taro.physics._scaleRatio;
+						var z = mxfp.z * taro.physics._scaleRatio;
+						// make projectile auto-rotate toward its path. ideal for arrows or rockets that should point toward its direction
+						// if (entity._category == 'projectile' &&
+						// 	entity._stats.currentBody && !entity._stats.currentBody.fixedRotation &&
+						// 	tempBod.m_linearVelocity.y != 0 && tempBod.m_linearVelocity.x != 0
+						// ) {
+						// 	var angle = Math.atan2(tempBod.m_linearVelocity.y, tempBod.m_linearVelocity.x) + Math.PI / 2;
+						// } else {
+						// }
+
+						var tileWidth = taro.scaleMapDetails.tileWidth;
+						var tileHeight = taro.scaleMapDetails.tileHeight;
+
+						var skipBoundaryCheck = entity._stats && entity._stats.confinedWithinMapBoundaries === false;
+						var padding = tileWidth / 2;
+
+						// keep entities within the boundaries
+						if (
+							(entity._category === 'unit' || entity._category === 'item' || entity._category === 'projectile') &&
+							!skipBoundaryCheck &&
+							(x < padding ||
+								x > taro.map.data.width * tileWidth - padding ||
+								y < padding ||
+								y > taro.map.data.height * tileHeight - padding)
+						) {
+							// fire 'touchesWall' trigger when unit goes out of bounds for the first time
+							if (!entity.isOutOfBounds) {
+								if (entity._category === 'unit' || entity._category === 'item' || entity._category === 'projectile') {
+									entity.script.trigger('entityTouchesWall');
+								}
+
+								if (entity._category === 'unit') {
+									// console.log("unitTouchesWall", entity.id());
+									taro.script.trigger('unitTouchesWall', { unitId: entity.id() });
+								} else if (entity._category === 'item') {
+									taro.script.trigger('itemTouchesWall', { itemId: entity.id() });
+								} else if (entity._category === 'projectile') {
+									taro.script.trigger('projectileTouchesWall', { projectileId: entity.id() });
+								}
+
+								entity.isOutOfBounds = true;
+							}
+
+							x = Math.max(Math.min(x, taro.map.data.width * tileWidth - padding), padding);
+							y = Math.max(Math.min(y, taro.map.data.height * tileHeight - padding), padding);
+						} else {
+							if (entity.isOutOfBounds) {
+								entity.isOutOfBounds = false;
+							}
+						}
+
+						// entity just has teleported
+
+						if (entity.teleportDestination != undefined && entity.isTeleporting) {
+							entity.nextKeyFrame[1] = entity.teleportDestination;
+							x = entity.teleportDestination[0];
+							y = entity.teleportDestination[1];
+							entity.teleportDestination = undefined;
+						} else {
+							if (taro.isServer) {
+								entity.translateTo(x, y);
+
+								// if (entity._category == 'unit') {
+								// 	console.log (taro._currentTime, parseFloat(x - entity.lastX).toFixed(2), "/", timeElapsedSinceLastStep, "speed", parseFloat((x - entity.lastX)/timeElapsedSinceLastStep).toFixed(2),
+								// 				x, entity.lastX, taro._currentTime, taro._currentTime - timeElapsedSinceLastStep)
+								// }
+
+								entity.lastX = x;
+							} else if (taro.isClient) {
+								// if CSP is enabled, client-side physics will dictate:
+								// my unit's position and projectiles that are NOT server-streamed.
+								if (
+									(entity == taro.client.selectedUnit && entity._stats.controls?.clientPredictedMovement) ||
+									(entity._category == 'projectile' && !entity._stats.streamMode)
+								) {
+									// CSP reconciliation
+									if (
+										entity == taro.client.selectedUnit &&
+										!entity.isTeleporting &&
+										entity.reconRemaining &&
+										!isNaN(entity.reconRemaining.x) &&
+										!isNaN(entity.reconRemaining.y)
+									) {
+										// if the current reconcilie distance is greater than my unit's body dimention,
+
+										// instantly move unit (teleport) to the last streamed position. Otherwise, gradually reconcile
+										if (
+											Math.abs(entity.reconRemaining.x) > entity._stats.currentBody.width * 1.5 ||
+											Math.abs(entity.reconRemaining.y) > entity._stats.currentBody.height * 1.5
+										) {
+											x = taro.client.myUnitStreamedPosition.x;
+											y = taro.client.myUnitStreamedPosition.y;
+
+											// x += xRemaining;
+											// y += yRemaining;
+											entity.reconRemaining = undefined;
+										} else {
+											entity.reconRemaining.x /= 5;
+											entity.reconRemaining.y /= 5;
+
+											x += entity.reconRemaining.x;
+											y += entity.reconRemaining.y;
+										}
+									}
+
+									entity.prevKeyFrame = entity.nextKeyFrame;
+									entity.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, angle]];
+
+									// keep track of units' position history for CSP reconciliation
+									if (entity == taro.client.selectedUnit) {
+										entity.posHistory.push([taro._currentTime, [x, y, angle]]);
+										if (entity.posHistory.length > taro._physicsTickRate) {
+											entity.posHistory.shift();
+										}
+									}
+								} else {
+									// update server-streamed entities' body position
+									x = entity.nextKeyFrame[1][0];
+									y = entity.nextKeyFrame[1][1];
+									angle = entity.nextKeyFrame[1][2];
+								}
+
+								if (
+									entity.prevKeyFrame &&
+									entity.nextKeyFrame &&
+									entity.prevKeyFrame[1] &&
+									entity.nextKeyFrame[1] &&
+									(parseFloat(entity.prevKeyFrame[1][0]).toFixed(1) !=
+										parseFloat(entity.nextKeyFrame[1][0]).toFixed(1) ||
+										parseFloat(entity.prevKeyFrame[1][1]).toFixed(1) !=
+										parseFloat(entity.nextKeyFrame[1][1]).toFixed(1) ||
+										parseFloat(entity.prevKeyFrame[1][2]).toFixed(2) !=
+										parseFloat(entity.nextKeyFrame[1][2]).toFixed(2))
+								) {
+									// console.log("is moving", entity.prevKeyFrame[1][0], entity.nextKeyFrame[1][0], entity.prevKeyFrame[1][1], entity.nextKeyFrame[1][1], entity.prevKeyFrame[1][2], entity.nextKeyFrame[1][2])
+									entity.isTransforming(true);
+								}
+							}
+						}
+
+						if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+							entity.body.setPosition([x / entity._b2dRef._scaleRatio, y / entity._b2dRef._scaleRatio, z / entity._b2dRef._scaleRatio]);
+						}
+
+						if (body.asleep) {
+							// The body was asleep last frame, fire an awake event
+							body.asleep = false;
+							taro.physics.emit('afterAwake', entity);
+						}
+					} else {
+						if (!body.asleep) {
+							// The body was awake last frame, fire an asleep event
+							body.asleep = true;
+							taro.physics.emit('afterAsleep', entity);
 						}
 
 					}
