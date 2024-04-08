@@ -252,6 +252,8 @@ namespace Renderer {
 							const { min, max } = entity.cameraConfig.pitchRange;
 							this.camera.setElevationRange(min, max);
 						}
+
+						this.camera.setPointerLock(entity.cameraConfig.pointerLock);
 					});
 				};
 
@@ -281,7 +283,7 @@ namespace Renderer {
 					}
 				});
 
-				taro.client.on('create-particle', (particle: Particle) => {
+				taro.client.on('create-particle-emitter', (particle: Particle) => {
 					const emitter = this.particles.createEmitter(particle);
 					emitter.position.y += entitiesLayer.position.y;
 
@@ -295,7 +297,7 @@ namespace Renderer {
 					this.particles.emit(emitter);
 				});
 
-				taro.client.on('start-particle', (data: { particleTypeId: string; entityId: string }) => {
+				taro.client.on('start-emitting-particles', (data: { particleTypeId: string; entityId: string }) => {
 					const emitter = this.particles.emitters.find(({ particleTypeId, target }) => {
 						return particleTypeId === data.particleTypeId && target.taroId === data.entityId;
 					});
@@ -303,7 +305,7 @@ namespace Renderer {
 					this.particles.startEmitter(emitter);
 				});
 
-				taro.client.on('stop-particle', (data: { particleTypeId: string; entityId: string }) => {
+				taro.client.on('stop-emitting-particles', (data: { particleTypeId: string; entityId: string }) => {
 					const emitter = this.particles.emitters.find(({ particleTypeId, target }) => {
 						return particleTypeId === data.particleTypeId && target.taroId === data.entityId;
 					});
@@ -327,7 +329,7 @@ namespace Renderer {
 				requestAnimationFrame(this.render.bind(this));
 				taro.client.emit('tick');
 
-				if (this.camera.target) {
+				if (this.camera.target && !taro.isMobile) {
 					const worldPos = this.camera.getWorldPoint(this.pointer);
 					const x = Utils.worldToPixel(worldPos.x + 0.5);
 					const y = Utils.worldToPixel(worldPos.z + 0.5);

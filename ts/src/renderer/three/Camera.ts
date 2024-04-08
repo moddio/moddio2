@@ -19,7 +19,6 @@ namespace Renderer {
 			private viewportHeightInitial: number;
 
 			private debugInfo: HTMLDivElement;
-
 			private onChangeCbs = [];
 
 			private offset = new THREE.Vector3();
@@ -29,15 +28,22 @@ namespace Renderer {
 			private originalZoom = 1;
 			private elevationAngle = 0;
 			private azimuthAngle = 0;
+			private pointerlockSpeed = 0.35;
+
+			private minElevationAngle = -Math.PI * 0.5;
+			private maxElevationAngle = Math.PI * 0.5;
 
 			private tempVec3 = new THREE.Vector3();
 			private tempVec2 = new THREE.Vector2();
 			private raycaster = new THREE.Raycaster();
+			private euler = new THREE.Euler(0, 0, 0, 'YXZ');
+
+			private isLocked = false;
 
 			constructor(
 				private viewportWidth: number,
 				private viewportHeight: number,
-				canvas: HTMLCanvasElement
+				private canvas: HTMLCanvasElement
 			) {
 				// Public API
 
@@ -49,12 +55,12 @@ namespace Renderer {
 				// camera.setOffset(x, y, z)
 				// camera.setElevationRange(min, max)
 				// camera.setZoom(number)
+				// camera.setPointerLock(bool)
 
 				// TODO
 				// camera.setTarget(object3d | null, moveInstantOrLerp)
-				// camera.setPointerLock(bool)
 				// camera.setFollowSpeed(number)
-				// camera.update(dt <--)
+				// camera.update(dt <-- add dt to func)
 
 				const persCamera = new THREE.PerspectiveCamera(75, viewportWidth / viewportHeight, 0.1, 15000);
 				this.perspectiveCamera = persCamera;
@@ -113,7 +119,11 @@ namespace Renderer {
 				};
 
 				window.addEventListener('keypress', (evt) => {
-					if (evt.key === ',') {
+					if (!this.isDevelopmentMode) return;
+
+					if (evt.key === 'l') {
+						this.isLocked ? this.unlock() : this.lock();
+					} else if (evt.key === ',') {
 						this.isPerspective = false;
 						this.instance = this.orthographicCamera;
 						this.controls.object = this.orthographicCamera;
@@ -133,9 +143,6 @@ namespace Renderer {
 						} else {
 							this.switchToOrthographicCamera();
 						}
-					} else if (evt.key === '/') {
-						this.controls.enableRotate = !this.controls.enableRotate;
-						this.controls.enableZoom = !this.controls.enableZoom;
 					}
 				});
 
@@ -155,6 +162,24 @@ namespace Renderer {
 
 				//@ts-ignore
 				this.raycaster.firstHitOnly = true;
+
+				// Pointerlock
+				canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+				canvas.ownerDocument.addEventListener('mousemove', this.onMouseMove.bind(this));
+				canvas.ownerDocument.addEventListener('pointerlockchange', this.onPointerlockChange.bind(this));
+				canvas.ownerDocument.addEventListener('pointerlockerror', this.onPointerlockError.bind(this));
+			}
+
+			setPointerLock(lock: boolean) {
+				lock ? this.lock() : this.unlock();
+			}
+
+			lock() {
+				this.canvas.requestPointerLock();
+			}
+
+			unlock() {
+				this.canvas.ownerDocument.exitPointerLock();
 			}
 
 			setProjection(projection: typeof taro.game.data.settings.camera.projectionMode) {
@@ -163,6 +188,10 @@ namespace Renderer {
 			}
 
 			setElevationAngle(deg: number) {
+				let degRad = deg * (Math.PI / 180);
+				if (degRad < this.minElevationAngle) degRad = this.minElevationAngle;
+				else if (degRad > this.maxElevationAngle) degRad = this.maxElevationAngle;
+
 				this.elevationAngle = deg;
 
 				const spherical = new THREE.Spherical();
@@ -208,6 +237,8 @@ namespace Renderer {
 				// Make sure the target is up to date
 				this.controls.update();
 
+				if (distance === 0) distance = Number.EPSILON;
+
 				const newPos = new THREE.Vector3()
 					.subVectors(this.controls.object.position, this.controls.target)
 					.normalize()
@@ -233,13 +264,15 @@ namespace Renderer {
 			setElevationRange(min: number, max: number) {
 				const minRad = min * (Math.PI / 180);
 				const maxRad = max * (Math.PI / 180);
+				this.minElevationAngle = minRad;
+				this.maxElevationAngle = maxRad;
 				this.controls.maxPolarAngle = Math.PI * 0.5 - minRad;
 				this.controls.minPolarAngle = Math.PI * 0.5 - maxRad;
 				this.controls.update();
 			}
 
 			update() {
-				if (this.controls.enableRotate) {
+				if (this.isDevelopmentMode) {
 					const azimuthAngle = this.controls.getAzimuthalAngle() * (180 / Math.PI);
 					const elevationAngle = this.getElevationAngle() * (180 / Math.PI);
 					this.debugInfo.style.display = 'block';
@@ -263,7 +296,9 @@ namespace Renderer {
 					this.setPosition(targetWorldPos.x, targetWorldPos.y, targetWorldPos.z, true);
 				}
 
-				this.controls.update();
+				if (!this.isLocked) {
+					this.controls.update();
+				}
 			}
 
 			resize(width: number, height: number) {
@@ -441,6 +476,33 @@ namespace Renderer {
 				this.controls.object = this.perspectiveCamera;
 				this.instance.lookAt(this.controls.target);
 				this.controls.update();
+			}
+
+			private onMouseDown(event: MouseEvent) {
+				if (!this.isLocked && (this.target as Unit)?.cameraConfig?.pointerLock) {
+					this.lock();
+				}
+			}
+
+			private onMouseMove(event: MouseEvent) {
+				if (this.isLocked === false) return;
+
+				const movementX = event.movementX || 0;
+				const movementY = event.movementY || 0;
+
+				this.euler.y = -movementX * 0.2 * this.pointerlockSpeed;
+				this.euler.x = movementY * 0.2 * this.pointerlockSpeed;
+
+				this.setElevationAngle(this.elevationAngle + this.euler.x);
+				this.setAzimuthAngle(this.azimuthAngle + this.euler.y);
+			}
+
+			private onPointerlockChange() {
+				this.isLocked = this.canvas.ownerDocument.pointerLockElement === this.canvas;
+			}
+
+			private onPointerlockError() {
+				console.error('PointerLockControls: Unable to use Pointer Lock API');
 			}
 		}
 	}

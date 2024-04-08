@@ -8,6 +8,7 @@ namespace Renderer {
 			private size = new THREE.Vector2();
 			private textSize = new THREE.Vector2();
 			private center = new THREE.Vector2(0.5, 0.5);
+			private upscaleFactor = 10; // Makes the text more crisp when zoomed in
 
 			constructor(
 				public text = '',
@@ -89,7 +90,7 @@ namespace Renderer {
 				textCanvas.height = 10;
 
 				const ctx = textCanvas.getContext('2d');
-				const font = `${bold ? 'bold' : 'normal'} 16px Verdana`;
+				const font = `${bold ? 'bold' : 'normal'} ${16 * this.upscaleFactor}px Verdana`;
 				ctx.font = font;
 				const metrics = ctx.measureText(text);
 
@@ -97,16 +98,16 @@ namespace Renderer {
 				const textHeight = Math.ceil(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
 				this.textSize.set(textWidth, textHeight);
 
-				const padding = 8;
+				const padding = 10 * this.upscaleFactor;
 				textCanvas.width = textWidth + padding;
 				textCanvas.height = textHeight + padding;
-				this.size.set(textCanvas.width, textCanvas.height);
+				this.size.set(textCanvas.width / this.upscaleFactor, textCanvas.height / this.upscaleFactor);
 
 				const isStroke = taro.game.data.settings.addStrokeToNameAndAttributes;
 				if (isStroke === undefined || isStroke) {
 					ctx.font = font;
 					ctx.strokeStyle = '#000';
-					ctx.lineWidth = 4;
+					ctx.lineWidth = 4 * this.upscaleFactor;
 					ctx.lineJoin = 'miter';
 					ctx.miterLimit = 3;
 					ctx.strokeText(text, padding / 2, textHeight + padding / 2);
@@ -119,7 +120,7 @@ namespace Renderer {
 				ctx.fillText(text, padding / 2, textHeight + padding / 2);
 
 				const spriteMap = new THREE.Texture(ctx.getImageData(0, 0, textCanvas.width, textCanvas.height));
-				spriteMap.magFilter = TextureRepository.instance().filter;
+				spriteMap.magFilter = THREE.LinearFilter;
 				spriteMap.generateMipmaps = false;
 				spriteMap.needsUpdate = true;
 				spriteMap.colorSpace = THREE.SRGBColorSpace;
@@ -133,8 +134,8 @@ namespace Renderer {
 				const sprite = new THREE.Sprite(spriteMaterial);
 				sprite.renderOrder = this.renderOnTop ? 999 : 499;
 				sprite.scale.set(
-					this.scaleScalar * Utils.pixelToWorld(textCanvas.width),
-					this.scaleScalar * Utils.pixelToWorld(textCanvas.height),
+					this.scaleScalar * Utils.pixelToWorld(textCanvas.width / this.upscaleFactor),
+					this.scaleScalar * Utils.pixelToWorld(textCanvas.height / this.upscaleFactor),
 					1
 				);
 

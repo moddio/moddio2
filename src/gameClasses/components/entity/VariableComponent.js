@@ -49,6 +49,9 @@ var VariableComponent = TaroEntity.extend({
 					// value = value._id;
 					break;
 				}
+				case 'particleEmitter':
+					isDataTypeMatching = typeof value === 'string';
+					break;
 				default: {
 					// figure out how to validate for other types like itemType, unitType, ..., etc.
 					isDataTypeMatching = true;

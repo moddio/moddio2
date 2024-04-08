@@ -29,6 +29,7 @@ var Unit = TaroEntityPhysics.extend({
 		self._stats = _.merge(unitData, data);
 
 		self.entityId = entityIdFromServer;
+		self._stats.particleEmitters = {};
 
 		// dont save variables in _stats as _stats is stringified and synced
 		// and some variables of type unit, item, projectile may contain circular json objects
@@ -83,7 +84,6 @@ var Unit = TaroEntityPhysics.extend({
 			}
 		}
 		self._stats.fadingTextQueue = [];
-		self.particleEmitters = {};
 
 		self._stats.buffs = [];
 
@@ -139,8 +139,6 @@ var Unit = TaroEntityPhysics.extend({
 			self._scaleTexture();
 
 			self.flip(self._stats.flip);
-
-			this.createParticleEmitters();
 		}
 		self.playEffect('create');
 		self.addBehaviour('unitBehaviour', self._behaviour);
@@ -2019,13 +2017,19 @@ var Unit = TaroEntityPhysics.extend({
 					var b = this._translate.y - mouse.y;
 					this.distanceToTarget = Math.sqrt(a * a + b * b);
 
-					this.angleToTarget = Math.atan2(mouse.y - this._translate.y, mouse.x - this._translate.x) + Math.radians(90);
-					while (this.angleToTarget <= -Math.PI) this.angleToTarget += Math.PI * 2;
-					while (this.angleToTarget > Math.PI) this.angleToTarget -= Math.PI * 2;
+					if (!this._stats.cameraPointerLock) {
+						this.angleToTarget =
+							Math.atan2(mouse.y - this._translate.y, mouse.x - this._translate.x) + Math.radians(90);
+						while (this.angleToTarget <= -Math.PI) this.angleToTarget += Math.PI * 2;
+						while (this.angleToTarget > Math.PI) this.angleToTarget -= Math.PI * 2;
 
-					this.angleToTargetRelative = this.angleToTarget + mouse.yaw;
-					while (this.angleToTargetRelative <= -Math.PI) this.angleToTargetRelative += Math.PI * 2;
-					while (this.angleToTargetRelative > Math.PI) this.angleToTargetRelative -= Math.PI * 2;
+						this.angleToTargetRelative = this.angleToTarget + mouse.yaw;
+						while (this.angleToTargetRelative <= -Math.PI) this.angleToTargetRelative += Math.PI * 2;
+						while (this.angleToTargetRelative > Math.PI) this.angleToTargetRelative -= Math.PI * 2;
+					} else {
+						this.angleToTarget = -mouse.yaw;
+						this.angleToTargetRelative = 0;
+					}
 				}
 			}
 		}
@@ -2090,8 +2094,7 @@ var Unit = TaroEntityPhysics.extend({
 				} else if (taro.isClient) {
 					// send ping for CSP reconciliation purpose
 					if (taro.now > taro.client.sendNextPingAt) {
-						// using performance.now instead of taro._currentTime as _currentTime updates every frame and ping may respond within a frame
-						taro.network.send('ping', { sentAt: performance.now() });
+						taro.network.send('ping', { sentAt: taro._currentTime });
 
 						// allow up to a 1.5 second before sending another ping. generally we'll not wait 1.5s before sending another ping
 						// because we'll be sending ping immediately after receiving pong from server. this is just a safety measure

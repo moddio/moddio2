@@ -78,6 +78,7 @@ var StatusComponent = TaroEntity.extend({
 				cpu: cpuDelta,
 				lastSnapshotLength: JSON.stringify(taro.server.lastSnapshot).length,
 				top10MostCalledActions: this.getTop10Actions(),
+				tickTime: taro._tickTime,
 			};
 
 			self.bandwidthUsage = {

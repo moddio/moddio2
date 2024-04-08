@@ -125,11 +125,11 @@ class GameScene extends PhaserScene {
 			new PhaserRay(this, data.start, data.end, data.config);
 		});
 
-		taro.client.on('create-particle', (particle: Particle) => {
+		taro.client.on('create-particle-emitter', (particle: Particle) => {
 			this.particles.push(new PhaserParticle(this, particle));
 		});
 
-		taro.client.on('start-particle', ({ particleTypeId, entityId }) => {
+		taro.client.on('start-emitting-particles', ({ particleTypeId, entityId }) => {
 			const emitter = this.particles.find(({ particleId, target }) => {
 				return particleId === particleTypeId && target === entityId;
 			});
@@ -137,7 +137,7 @@ class GameScene extends PhaserScene {
 			emitter.start();
 		});
 
-		taro.client.on('stop-particle', ({ particleTypeId, entityId }) => {
+		taro.client.on('stop-emitting-particles', ({ particleTypeId, entityId }) => {
 			const emitter = this.particles.find(({ particleId, target }) => {
 				return particleId === particleTypeId && target === entityId;
 			});

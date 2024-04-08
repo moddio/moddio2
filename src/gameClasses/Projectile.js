@@ -14,6 +14,7 @@ var Projectile = TaroEntityPhysics.extend({
 
 		self.entityId = this._id;
 		self._stats = { ...projectileData, ...data };
+		self._stats.particleEmitters = {};
 
 		// dont save variables in _stats as _stats is stringified and synced
 		// and some variables of type unit, item, projectile may contain circular json objects
@@ -95,8 +96,6 @@ var Projectile = TaroEntityPhysics.extend({
 
 			self.updateLayer();
 			self.updateTexture();
-
-			this.createParticleEmitters();
 		}
 		this.playEffect('create');
 

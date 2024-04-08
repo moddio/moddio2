@@ -71,7 +71,6 @@ function mergeGameJson(worldJson, gameJson, mergeableKeys) {
 	Object.keys(mergeableKeys).forEach((mergeableKey) => {
 		if (mergeableKeys[mergeableKey]) {
 			if (worldJson.data[mergeableKey]) {
-
 				// cleanup all isWorld properties from gameJson (ideally there won't be any but just in case)
 				if (typeof gameJson.data[mergeableKey] === 'object') {
 					Object.keys(gameJson.data[mergeableKey]).forEach((key) => {
@@ -86,7 +85,11 @@ function mergeGameJson(worldJson, gameJson, mergeableKeys) {
 					gameJson.data[mergeableKey] = worldJson.data[mergeableKey].concat(gameJson.data[mergeableKey] || []);
 				} else if (typeof worldJson.data[mergeableKey] === 'object') {
 					for (let key in worldJson.data[mergeableKey]) {
-						if (worldJson.data[mergeableKey].hasOwnProperty(key) && worldJson.data[mergeableKey][key] && typeof worldJson.data[mergeableKey][key] === 'object') {
+						if (
+							worldJson.data[mergeableKey].hasOwnProperty(key) &&
+							worldJson.data[mergeableKey][key] &&
+							typeof worldJson.data[mergeableKey][key] === 'object'
+						) {
 							if (!gameJson.data[mergeableKey]) {
 								gameJson.data[mergeableKey] = {};
 							}
@@ -103,10 +106,8 @@ function mergeGameJson(worldJson, gameJson, mergeableKeys) {
 		}
 	});
 
-
 	return gameJson;
-};
-
+}
 
 const Client = TaroEventingClass.extend({
 	classId: 'Client',
@@ -237,7 +238,6 @@ const Client = TaroEventingClass.extend({
 		let promise = new Promise((resolve, reject) => {
 			// if the gameJson is available as a global object, use it instead of sending another ajax request
 			if (window.gameDetails.worldId && window.worldJson) {
-				
 				const gameJson = mergeGameJson(window?.worldJson, window?.gameJson, mergeableKeys);
 
 				resolve(gameJson);
@@ -284,7 +284,6 @@ const Client = TaroEventingClass.extend({
 						window.gameJson = { data: taro.game.data };
 					}
 				}
-
 
 				this.initializeConfigurationFields();
 
@@ -386,12 +385,12 @@ const Client = TaroEventingClass.extend({
 		}
 
 		const skyboxDefaultUrls = {
-			left: "",
-			right: "",
-			bottom: "",
-			top: "",
-			front: "",
-			back: ""
+			left: '',
+			right: '',
+			bottom: '',
+			top: '',
+			front: '',
+			back: '',
 		};
 
 		if (!taro.game.data.settings.skybox) {
@@ -422,7 +421,7 @@ const Client = TaroEventingClass.extend({
 
 		const clientPhysicsEngine = taro.game.data.defaultData.clientPhysicsEngine;
 		const serverPhysicsEngine = taro.game.data.defaultData.physicsEngine;
-		const resolveFunc = this.physicsConfigLoaded.resolve.bind(this)
+		const resolveFunc = this.physicsConfigLoaded.resolve.bind(this);
 		if (clientPhysicsEngine) {
 			taro.addComponent(PhysicsComponent, undefined, resolveFunc).physics.sleep(true);
 		} else {
@@ -501,8 +500,8 @@ const Client = TaroEventingClass.extend({
 
 			let zoom = 1000;
 
-			if (gameData.settings.camera && gameData.settings.camera.zoom && gameData.settings.camera.zoom.default) {
-				zoom = gameData.settings.camera.zoom.default;
+			if (gameData.settings.camera && gameData.settings.camera.zoom) {
+				zoom = gameData.settings.camera.zoom.default ?? zoom;
 				this._trackTranslateSmoothing = gameData.settings.camera.trackingDelay || 15;
 			}
 
@@ -795,7 +794,7 @@ const Client = TaroEventingClass.extend({
 		taro.network.define('gameSuggestion', this._onGameSuggestion);
 
 		taro.network.define('createFloatingText', this._onCreateFloatingText);
-    taro.network.define('createDynamicFloatingText', this._onCreateDynamicFloatingText);
+		taro.network.define('createDynamicFloatingText', this._onCreateDynamicFloatingText);
 
 		taro.network.define('openShop', this._onOpenShop);
 		taro.network.define('openDialogue', this._onOpenDialogue);

@@ -362,6 +362,10 @@ namespace Renderer {
 					z: emitter.position.z + (emitter.shape.depth * Math.random() - emitter.shape.depth * 0.5),
 				};
 
+				const angleYAxis = Math.PI * 0.5;
+				position.x = position.x * Math.cos(angleYAxis) - position.y * Math.sin(angleYAxis);
+				position.z = position.z * Math.sin(angleYAxis) + position.z * Math.cos(angleYAxis);
+
 				const lifetime = Utils.lerp(emitter.lifetime.min, emitter.lifetime.max, Math.random());
 
 				this.particles.push({

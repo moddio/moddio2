@@ -181,6 +181,8 @@ var TaroEntity = TaroObject.extend({
 			}
 		}
 
+		this.script?.trigger('entityStateChanged');
+
 		self.previousState = newState;
 		self.updateBody(defaultData);
 	},
@@ -4334,6 +4336,15 @@ var TaroEntity = TaroObject.extend({
 											!(ownerPlayer?._stats?.clientId == taro.network.id() && variableData.streamMode == 4)
 										) {
 											this.variable.update(variableId, data.variables[variableId]);
+
+											if (
+												variableData.dataType === 'particleEmitter' &&
+												!this._stats.particleEmitters[variableId] &&
+												!data.variables[variableId].function
+											) {
+												this._stats.particleEmitters[variableId] = data.variables[variableId];
+												this.createParticleEmitter(data.variables[variableId]);
+											}
 										}
 										// update attribute if entity has such attribute
 									}
@@ -4515,7 +4526,8 @@ var TaroEntity = TaroObject.extend({
 		for (key in data) {
 			value = data[key];
 
-			if (['attributes', 'attributesMin', 'attributesMax', 'attributesRegenerateRate'].includes(key)) {
+			// need to include variables here, otherwise only the latest variable is sent to client streamUpdateData
+			if (['attributes', 'attributesMin', 'attributesMax', 'attributesRegenerateRate', 'variables'].includes(key)) {
 				// some data need to merge instead of overwriting they key. otherwise, we'll only be able to send the last attribute added.
 				// for example, if server calls queueStreamData for Speed and HP attributes, HP will overwrite Speed as they share same key ("attributes")
 				// this._streamDataQueued[key] = {...this._streamDataQueued[key], ...value};
@@ -5504,15 +5516,14 @@ var TaroEntity = TaroObject.extend({
 		return null;
 	},
 
-	createParticleEmitters: function () {
+	createParticleEmitter: function (particleTypeId) {
 		if (!taro.isClient) return;
-		this._stats?.particleEmitters?.forEach((particleType) => {
-			taro.client.emit('create-particle', {
-				particleId: particleType,
-				position: { x: 0, y: 0 },
-				angle: 0,
-				entityId: this.id(),
-			});
+
+		taro.client.emit('create-particle-emitter', {
+			particleId: particleTypeId,
+			position: { x: 0, y: 0 },
+			angle: 0,
+			entityId: this.id(),
 		});
 	},
 });

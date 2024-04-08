@@ -206,6 +206,10 @@ var MobileControlsComponent = TaroEntity.extend({
 						_isRight: false,
 					};
 
+					if (document.getElementById('movementWheel_joystick')) {
+						break;
+					}
+
 					// building joystick zone
 					let joystickZone = document.createElement('div');
 					joystickZone.id = 'movementWheel_joystick';
@@ -221,7 +225,11 @@ var MobileControlsComponent = TaroEntity.extend({
 						joystickZone.style.left = '0';
 						joystickZone.style.top = '0';
 					}
-					document.body.appendChild(joystickZone);
+
+					// append joystick to the gamediv element
+					let gameDiv = document.getElementById('default-ingame-ui-container');
+					// make first child of gameDiv
+					gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
 
 					// calculate joystick position based on x and y coordinates
 					const [xPercentage, yPercentage] = [
@@ -342,7 +350,11 @@ var MobileControlsComponent = TaroEntity.extend({
 						joystickZone.style.left = '0';
 						joystickZone.style.top = '0';
 					}
-					document.body.appendChild(joystickZone);
+
+					// append joystick to the gamediv element
+					let gameDiv = document.getElementById('default-ingame-ui-container');
+					// make first child of gameDiv
+					gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
 
 					// calculate joystick position based on x and y coordinates
 					const [xPercentage, yPercentage] = [
@@ -379,6 +391,10 @@ var MobileControlsComponent = TaroEntity.extend({
 
 			case 'lookAndFireWheel':
 				{
+					if (document.getElementById('lookAndFireWheel_joystick')) {
+						break;
+					}
+
 					// building joystick zone
 					let joystickZone = document.createElement('div');
 					joystickZone.id = 'lookAndFireWheel_joystick';
@@ -394,7 +410,13 @@ var MobileControlsComponent = TaroEntity.extend({
 						joystickZone.style.left = '0';
 						joystickZone.style.top = '0';
 					}
-					document.body.appendChild(joystickZone);
+
+
+					// append joystick to the gamediv element
+					let gameDiv = document.getElementById('default-ingame-ui-container');
+					// make first child of gameDiv
+					gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
+
 					// calculate joystick position based on x and y coordinates
 					const [xPercentage, yPercentage] = [
 						((x / window.innerWidth) * 100).toFixed(2),
@@ -452,6 +474,59 @@ var MobileControlsComponent = TaroEntity.extend({
 
 			default:
 				{
+					if (document.getElementById(key + '_button')) {
+						break;
+					}
+					// create a new button using html
+					const htmlButton = document.createElement('button');
+					htmlButton.id = key + '_button';
+					htmlButton.style.position = 'absolute';
+					htmlButton.style.left = `${x}px`;
+					htmlButton.style.top = `${y}px`;
+					htmlButton.style.width = '64px';
+					htmlButton.style.height = '64px';
+					htmlButton.style.fontSize = '16px';
+					htmlButton.style.color = '#fff';
+
+					const abilityId = keybinding.keyDown?.abilityId || keybinding.keyUp?.abilityId;
+					let ability = null;
+					if (abilityId) {
+						ability = abilities[abilityId];
+					} else {
+					}
+
+					if (ability && ability.iconUrl) {
+						htmlButton.innerHTML = `<img src="${ability.iconUrl}" style="width: 100%; height: 100%; object-fit: contain;"/>`;
+					} else {
+						htmlButton.innerHTML = key;
+					}
+
+					htmlButton.style.background = 'transparent';
+					htmlButton.style.border = '2px solid #fff';
+					htmlButton.style.borderRadius = '50%';
+					htmlButton.style.zIndex = '1000';
+					htmlButton.style.cursor = 'pointer';
+
+					document.body.appendChild(htmlButton);
+
+					htmlButton.addEventListener('touchstart', function () {
+						if (taro.isClient) {
+							taro.network.send('playerKeyDown', {
+								device: 'key',
+								key: key.toLowerCase(),
+							});
+						}
+					});
+
+					htmlButton.addEventListener('touchend', function () {
+						if (taro.isClient) {
+							taro.network.send('playerKeyUp', {
+								device: 'key',
+								key: key.toLowerCase(),
+							});
+						}
+					});
+
 					Object.assign(settings, {
 						onStart: () => {
 							if (key) {
@@ -472,15 +547,6 @@ var MobileControlsComponent = TaroEntity.extend({
 					});
 				}
 				break;
-		}
-
-		const abilityId = keybinding.keyDown?.abilityId || keybinding.keyUp?.abilityId;
-		let ability = null;
-		if (abilityId) {
-			ability = abilities[abilityId];
-			this.emit('add-control', [key, x, y, settings, abilityId, ability]);
-		} else {
-			this.emit('add-control', [key, x, y, settings]);
 		}
 	},
 
