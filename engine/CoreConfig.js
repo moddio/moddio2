@@ -90,6 +90,7 @@ var taroCoreConfig = {
 		['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
 		['csap', 'Box2dHelpers', './components/physics/box2d/debugDrawWrapper/box2dwasmHelper.js'],
 		['csap', 'Box2dDebugDraw', './components/physics/box2d/debugDrawWrapper/box2dwasmDebugDraw.js'],
+		['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
 		...arrays,
 		['csap', 'dists', './components/physics/box2d/dists.js'],
 		['csap', 'planck', './components/physics/box2d/dists/planck/planck.js'],
@@ -98,8 +99,7 @@ var taroCoreConfig = {
 		['csap', 'box2dts', './components/physics/box2d/dists/flyoverbox2dts/bundle.js'],
 		['casp', 'box2dwasm', './components/physics/box2d/dists/box2dwasm/Box2D.simd.js', 'box2dwasm'],
 		['casp', 'voxel', './components/physics/box2d/dists/voxel/voxel.js', 'voxel'],
-
-		['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
+		['casp', 'rapier', './components/physics/box2d/dists/rapier/rapier.cjs.js'],
 	],
 };
 

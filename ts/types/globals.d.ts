@@ -1,7 +1,7 @@
 declare let _: any;
 declare let taro: TaroEngine;
 declare const gameId: string;
-
+declare const rapier: any;
 declare const voxel: any;
 declare const box2dwasm: any;
 declare const box2dweb: any;
