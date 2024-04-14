@@ -42,7 +42,7 @@ class RigidBody {
 	setPosition(p) {
 		let pos = p;
 		if (typeof p === 'object' && !Array.isArray(p)) {
-			pos = vec3.fromValues(p.x, p.z ?? 3000, p.y)
+			pos = vec3.fromValues(p.x, p.z ?? 300, p.y)
 		}
 		sanityCheck(pos)
 		vec3.subtract(pos, pos, this.aabb.base)

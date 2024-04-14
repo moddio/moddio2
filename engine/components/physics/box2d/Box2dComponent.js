@@ -635,11 +635,17 @@ var PhysicsComponent = TaroEventingClass.extend({
 						// apply movement if it's either human-controlled unit, or ai unit that's currently moving
 						if (entity.body && entity.vector && (entity.vector.x != 0 || entity.vector.y != 0)) {
 							if (entity._stats.controls) {
+								// if(entity._jumpTimer === undefined) {
+								// 	entity._jumpTimer = setInterval(()=>{
+								// 		console.log('?')
+								// 		entity.applyForce(0, 3000, 0);
+								// 	}, 8000)
+								// }
 								switch (
 								entity._stats.controls.movementMethod // velocity-based movement
 								) {
 									case 'velocity':
-										entity.setLinearVelocity(entity.vector.x , entity.vector.y , 50);
+										entity.setLinearVelocity(entity.vector.x, entity.vector.y, 300);
 										break;
 									case 'force':
 										entity.applyForce(entity.vector.x, entity.vector.y);
@@ -648,7 +654,6 @@ var PhysicsComponent = TaroEventingClass.extend({
 										entity.applyImpulse(entity.vector.x, entity.vector.y);
 										break;
 								}
-								console.log('position = ', body.getPosition())
 							}
 						}
 
@@ -814,7 +819,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 					}
 				})
-				self._world.step(timeElapsedSinceLastStep);
+				self._world.step(timeElapsedSinceLastStep / 1000);
 			} else {
 				var tempBod =
 					this.engine === 'BOX2DWASM' ? self.recordLeak(self._world.getBodyList()) : self._world.getBodyList();

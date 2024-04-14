@@ -6,15 +6,15 @@ const RigidBody = require('./rigidBody')
 
 
 
-var DEBUG = 0
+var DEBUG = 1
 
 
 class DefaultOptions {
 	constructor() {
-		this.airDrag = 0.1
+		this.airDrag = 4
 		this.fluidDrag = 0.4
 		this.fluidDensity = 2.0
-		this.gravity = [0, -5, 0]
+		this.gravity = [0, -1, 0]
 		this.minBounceImpulse = .5 // lowest collision impulse that bounces
 	}
 }
@@ -77,7 +77,7 @@ class Voxel {
 		opts = Object.assign(new DefaultOptions(), opts)
 
 		this.gravity = opts.gravity || [0, -10, 0]
-		this.airDrag = opts.airDrag || 0.1
+		this.airDrag = opts.airDrag || 0.8
 		this.fluidDensity = opts.fluidDensity || 2.0
 		this.fluidDrag = opts.fluidDrag || 0.4
 		this.minBounceImpulse = opts.minBounceImpulse
@@ -94,8 +94,8 @@ class Voxel {
 		restitution, gravMult, onCollide) {
 		_aabb = _aabb || new aabb([0, 0, 0], [0.6, 1.8, 0.6])
 		if (typeof mass == 'undefined') mass = 1
-		if (typeof friction == 'undefined') friction = 1
-		if (typeof restitution == 'undefined') restitution = 2
+		if (typeof friction == 'undefined') friction = 0
+		if (typeof restitution == 'undefined') restitution = 0
 		if (typeof gravMult == 'undefined') gravMult = 1
 		var b = new RigidBody(_aabb, mass, friction, restitution, gravMult, onCollide)
 		this.bodies.push(b)
@@ -330,6 +330,7 @@ function applyFrictionByAxis(axis, body, dvel) {
 
 	// decrease lateral vel by dvMax (or clamp to zero)
 	var scaler = (vCurr > dvMax) ? (vCurr - dvMax) / vCurr : 0
+	console.log(scaler)
 	body.velocity[(axis + 1) % 3] *= scaler
 	body.velocity[(axis + 2) % 3] *= scaler
 }
@@ -497,7 +498,9 @@ class VoxelPhysics extends Voxel {
 
 
 		var blockGetter = (x, y, z) => {
-			return y < 0 || (taro.layersById['walls']?.[x + z * taro.map.data.width] !== undefined && taro.layersById['walls']?.[x + z * taro.map.data.width] !== 0);
+			let _z = Math.floor(x / 2) - 1
+			let _x = Math.floor(z / 2) - 1
+			return y < 0 || ((y >= 0 && y <= 40) && taro.layersById['walls']?.map._mapData[_x]?.[_z] !== undefined && taro.layersById['walls']?.map._mapData[_x]?.[_z] !== 0);
 		}
 		var isFluidGetter = (x, y, z) => {
 			return false;
@@ -509,17 +512,24 @@ class VoxelPhysics extends Voxel {
 
 	setGravity(x, y) {
 		if (x !== undefined && y !== undefined) {
-			this.gravity = [x, -10, y];
+			this.gravity = [x, -3, y];
 			return this._entity;
 		}
 	}
 }
 
+
 var sanityCheck = function (v) { }
 if (DEBUG) sanityCheck = function (v) {
 	if (isNaN(vec3.length(v))) throw 'Vector with NAN: ' + v
 }
+var voxel = (() => VoxelPhysics)();
 
-if (typeof (module) !== 'undefined' && typeof (module.exports) !== 'undefined') {
-	module.exports = VoxelPhysics;
-}
+if (typeof exports === 'object' && typeof module === 'object')
+	exports.voxel = voxel;
+
+else if (typeof define === 'function' && define['amd'])
+	define([], function () { return voxel; });
+else if (typeof exports === 'object')
+	exports.voxel = voxel;
+

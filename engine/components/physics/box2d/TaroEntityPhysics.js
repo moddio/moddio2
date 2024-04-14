@@ -426,28 +426,29 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	// lossless applyForce
-	applyForce: function (x, y) {
+	applyForce: function (x, y, z) {
 		// if body doesn't exist yet, queue
 		if (!taro.physics) return;
 
 		if (!taro.physics._world.isLocked() && this.body != undefined) {
-			this.applyForceLT(x, y);
+			this.applyForceLT(x, y, z);
 		} else {
 			this.queueAction({
 				type: 'applyForce',
 				x: x,
 				y: y,
+				z,
 			});
 		}
 	},
 
 	// loss tolerant applyForce
-	applyForceLT: function (x, y) {
+	applyForceLT: function (x, y, z) {
 		// taro.devLog("applyForce", x, y)
 
 		try {
 			if (taro.physics.engine === 'VOXEL') {
-				this.body.applyForce([x, y, 0])
+				this.body.applyForce([x, y, z])
 			} else {
 				if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
 					var thrustVector = new taro.physics.b2Vec2(x, y);
