@@ -43,6 +43,7 @@ namespace Renderer {
 						transparent: true,
 					});
 					const mesh = new THREE.Mesh(geometry, material);
+					mesh.renderOrder = 997;
 					gameObject = this.gameObject = mesh;
 				} else {
 					this.devModeOnly = true;
