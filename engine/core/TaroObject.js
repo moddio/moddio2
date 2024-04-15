@@ -1256,7 +1256,6 @@ var TaroObject = TaroEventingClass.extend({
 	depth: function (val) {
 		if (val !== undefined) {
 			this._depth = val;
-
 			if (taro.isClient) {
 				this.emit('depth', [val]);
 			}

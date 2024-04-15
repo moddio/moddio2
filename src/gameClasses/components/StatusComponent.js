@@ -34,7 +34,7 @@ var StatusComponent = TaroEntity.extend({
 			taro._lastCpuUsage = cpuDelta = process.cpuUsage();
 		}
 
-		if (taro.physics && taro.physics.engine != 'CRASH' && taro.physics.engine !== 'VOXEL') {
+		if (taro.physics && taro.physics.engine != 'CRASH' && taro.physics.engine !== 'RAPIER') {
 			// console.log('taro stream',taro.stream);
 
 			var jointCount = 0;

@@ -740,7 +740,7 @@ const Client = TaroEventingClass.extend({
 		const gravity = taro.game.data.settings.gravity;
 
 		if (gravity) {
-			taro.physics.gravity(gravity.x, gravity.y);
+			taro.physics.gravity(gravity.x, gravity.y, gravity.z);
 		}
 		taro.physics.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
 		if (taro.physics.engine == 'CRASH') {

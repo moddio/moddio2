@@ -412,12 +412,21 @@ var TaroEntityPhysics = TaroEntity.extend({
 	setLinearVelocityLT: function (x, y, z) {
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				if (taro.physics.engine === 'BOX2DWASM') {
-					let v = new taro.physics.b2Vec2(x, y);
-					this.body.setLinearVelocity(v);
-					taro.physics.destroyB2dObj(v);
-				} else {
-					this.body.setLinearVelocity(new TaroPoint3d(x, z, y));
+				switch (taro.physics.engine) {
+					case 'BOX2DWASM': {
+						let v = new taro.physics.b2Vec2(x, y);
+						this.body.setLinearVelocity(v);
+						taro.physics.destroyB2dObj(v);
+						break;
+					}
+					case 'RAPIER': {
+						this.body.setLinvel({ x, y, z });
+						break;
+					}
+					default: {
+						this.body.setLinearVelocity(new TaroPoint3d(x, z, y));
+						break;
+					}
 				}
 			}
 		} catch (e) {
@@ -447,8 +456,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// taro.devLog("applyForce", x, y)
 
 		try {
-			if (taro.physics.engine === 'VOXEL') {
-				this.body.applyForce([x, y, z])
+			if (taro.physics.engine === 'RAPIER') {
+				this.body.addForce({ x, y, z })
 			} else {
 				if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
 					var thrustVector = new taro.physics.b2Vec2(x, y);
@@ -465,11 +474,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	// lossless applyForce
-	applyImpulse: function (x, y) {
+	applyImpulse: function (x, y, z) {
 		// if body doesn't exist yet, queue
 
 		if (!taro.physics._world.isLocked() && this.body != undefined) {
-			this.applyImpulseLT(x, y);
+			this.applyImpulseLT(x, y, z);
 		} else {
 			this.queueAction({
 				type: 'applyImpulse',
@@ -480,11 +489,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	// loss tolerant applyForce
-	applyImpulseLT: function (x, y) {
+	applyImpulseLT: function (x, y, z) {
 		// taro.devLog("applyForce", x, y)
 		try {
-			if (taro.physics.engine === 'VOXEL') {
-				this.body.applyImpulse([x, y, 0])
+			if (taro.physics.engine === 'RAPIER') {
+				this.body.applyImpulse({ x, y, z: z ?? 0 })
 			} else {
 				if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
 					var thrustVector = new taro.physics.b2Vec2(x, y);
@@ -580,7 +589,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	 * @return {*}
 	 * @private
 	 */
-	_translateTo: function (x, y) {
+	_translateTo: function (x, y, z) {
 		if (isNaN(x) || isNaN(y)) {
 			return;
 		}
@@ -588,7 +597,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		if (this.body) {
 			if (taro.physics._world && !taro.physics._world.isLocked()) {
-				this.translateToLT(x, y);
+				this.translateToLT(x, y, z);
 			} else {
 				this.queueAction({
 					type: 'translateTo',
@@ -608,22 +617,38 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	// loss tolerent
-	translateToLT: function (x, y) {
+	translateToLT: function (x, y, z) {
 		if (this.body) {
-			if (taro.physics.engine == 'crash') {
-				var position = {
-					x: x,
-					y: y,
-				};
-			} else {
-				var position = {
-					x: x / this._b2dRef._scaleRatio,
-					y: y / this._b2dRef._scaleRatio,
-				};
-			}
+			switch (taro.physics.engine) {
+				case 'crash': {
+					var position = {
+						x: x,
+						y: y,
+					};
+					this.body.setPosition(position);
+					this.body.setAwake(true);
+					break;
+				}
+				case 'RAPIER': {
+					try {
+						this.body.setTranslation({ x: x / this._b2dRef._scaleRatio, y: 300, z: (z ?? 0) / this._b2dRef._scaleRatio });
+						this.body.wakeUp();
+						break;
+					} catch (e) {
 
-			this.body.setPosition(position);
-			this.body.setAwake(true);
+					}
+					break;
+				}
+				default: {
+					var position = {
+						x: x / this._b2dRef._scaleRatio,
+						y: y / this._b2dRef._scaleRatio,
+					};
+					this.body.setPosition(position);
+					this.body.setAwake(true);
+					break;
+				}
+			}
 		}
 	},
 
@@ -676,9 +701,23 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	rotateToLT: function (angle) {
 		if (this.body) {
-			// console.log("this.body", this.body)
-			this.body.setAngle(angle);
-			this.body.setAwake(true);
+			switch (taro.physics.engine) {
+				case 'RAPIER': {
+					try {
+						this.body.setRotation({ w: angle, x: 0.0, y: 0.0, z: 0.0 })
+						this.body.wakeUp();
+						break;
+					} catch (e) {
+
+					}
+				}
+				default: {
+					// console.log("this.body", this.body)
+					this.body.setAngle(angle);
+					this.body.setAwake(true);
+					break;
+				}
+			}
 		}
 	},
 
