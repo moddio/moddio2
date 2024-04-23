@@ -276,6 +276,13 @@ class DeveloperMode {
 			//this.emptyTile();
 			this.activeButton = 'eraser';
 		});
+		taro.client.on('fill', () => {
+			//this.fill();
+			this.activeButton = 'fill';
+		});
+		taro.client.on('setting', () => {
+			inGameEditor.openMapConfiguration();
+		});
 	}
 
 	addInitEntities(): void {
@@ -531,6 +538,7 @@ class DeveloperMode {
 		y: number,
 		limits?: Record<number, Record<number, number>>
 	): void {
+		console.log('floodTiles', layer, oldTile, newTile, x, y, limits);
 		const map = taro.game.data.map;
 		const width = map.width;
 		const openQueue: Vector2D[] = [{ x, y }];
