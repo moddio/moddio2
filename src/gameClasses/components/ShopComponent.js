@@ -1624,28 +1624,17 @@ var ShopComponent = TaroEntity.extend({
 			let image = new Image();
 			let itemId = item._id;
 			image.src = item.image;
+
 			image.onload = function () {
 				let img = document.getElementById(`${itemId}_${selector}`);
-				let originalHeight = `${image.height / itemDetails.cellSheet.rowCount}px`;
-				let originalWidth = `${image.width / itemDetails.cellSheet.columnCount}px`;
 
 				img.name = item.name || item.title;
-				// clipping = "height:" + originalHeight + "px;width:" + originalWidth + "px;background:url('" + item.image + "') 0px 0px no-repeat;";
 
-				img.style = `height:${originalHeight};width:${originalWidth};background:url('${image.src}');src:'';`;
-				// img.style.height = originalHeight;
-				// img.style.width = originalWidth;
-				// img.style.background = `url('${image.src}')`;
-				// img.src = '';
-
-				if (itemDetails.cellSheet.rowCount <= 1 && itemDetails.cellSheet.columnCount <= 1) {
-					img.style.backgroundRepeat = 'no-repeat';
-					img.style.backgroundPosition = 'center center';
-					img.style.backgroundSize = 'contain';
-					img.style.marginBottom = '8px';
-					img.style.height = '64px';
-					img.style.width = '64px';
-				}
+				img.style.height = '100px';
+				img.style.width = '100px';
+				img.style.background = `url('${image.src}')`;
+				img.style.backgroundSize = `${(itemDetails.cellSheet.columnCount || 1) * 100}% ${(itemDetails.cellSheet.rowCount || 1) * 100}%`;
+				img.style.marginBottom = '8px';
 			};
 		}
 	},
