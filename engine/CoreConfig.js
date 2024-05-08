@@ -95,7 +95,10 @@ var taroCoreConfig = {
 		['csap', 'box2dweb', './components/physics/box2d/dists/box2dweb/lib_box2d.js', 'box2dweb'],
 		['csap', 'box2dninja', './components/physics/box2d/dists/box2dweb/box2d_ninja.js', 'box2dninja'],
 		['csap', 'box2dts', './components/physics/box2d/dists/flyoverbox2dts/bundle.js'],
-		['casp', 'box2dwasm', './components/physics/box2d/dists/box2dwasm/Box2D.simd.js', 'box2dwasm'],
+		['csap', 'box2dwasm', './components/physics/box2d/dists/box2dwasm/Box2D.simd.js', 'box2dwasm'],
+		/* 3D Physics */
+		['csap', 'rapier', './components/physics/wasm-build3d/rapier.cjs.js', 'rapier'],
+		['csap', 'Physics3dComponent', './components/physics/rapier3d/Physics3dComponent.js'],
 	],
 };
 

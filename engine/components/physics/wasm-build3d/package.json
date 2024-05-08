@@ -1,0 +1,31 @@
+{
+  "name": "dimforge_rapier3d",
+  "collaborators": [
+    "Sébastien Crozet <developer@crozet.re>"
+  ],
+  "description": "3-dimensional physics engine in Rust - official JS bindings.",
+  "version": "0.13.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dimforge/rapier.js"
+  },
+  "files": [
+    "rapier_wasm3d_bg.wasm",
+    "rapier_wasm3d.js",
+    "rapier_wasm3d.d.ts"
+  ],
+  "module": "rapier_wasm3d.js",
+  "homepage": "https://rapier.rs",
+  "types": "rapier_wasm3d.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ],
+  "keywords": [
+    "physics",
+    "dynamics",
+    "rigid",
+    "real-time",
+    "joints"
+  ]
+}
