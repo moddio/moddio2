@@ -15,7 +15,8 @@ class Physics3dComponent extends TaroEventingClass {
         //
         try {
         }
-        finally {
+        catch (e) {
+            console.error(e);
         }
     }
 }

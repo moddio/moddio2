@@ -19,7 +19,6 @@ class Physics3dComponent extends TaroEventingClass {
 
 		//
 		try {
-			rapier.init();
 		} catch (e) {
 			console.error(e);
 		}
