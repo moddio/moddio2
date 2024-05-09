@@ -88,6 +88,7 @@ const Client = TaroEventingClass.extend({
 
 		this.taroEngineStarted = $.Deferred();
 		this.physicsConfigLoaded = $.Deferred();
+		this.physics3dConfigLoaded = $.Deferred();
 		this.mapLoaded = $.Deferred();
 		this.rendererLoaded = $.Deferred();
 
@@ -342,10 +343,11 @@ const Client = TaroEventingClass.extend({
 
 	loadPhysics: function () {
 		// this will be empty string in data if no client-side physics
-
 		const clientPhysicsEngine = taro.game.data.defaultData.clientPhysicsEngine;
 		const serverPhysicsEngine = taro.game.data.defaultData.physicsEngine;
 		const resolveFunc = this.physicsConfigLoaded.resolve.bind(this);
+		const resolve3dFunc = this.physics3dConfigLoaded.resolve.bind(this);
+		taro.addComponent(Physics3dComponent, {}, resolve3dFunc);
 		if (clientPhysicsEngine) {
 			taro.addComponent(PhysicsComponent, undefined, resolveFunc).physics.sleep(true);
 		} else {
@@ -379,7 +381,7 @@ const Client = TaroEventingClass.extend({
 		this.loadPhysics();
 
 		await new Promise((resolve) => {
-			$.when(this.physicsConfigLoaded).done(() => {
+			$.when(this.physicsConfigLoaded, this.physics3dConfigLoaded).done(() => {
 				this.startTaroEngine();
 				this.loadMap();
 

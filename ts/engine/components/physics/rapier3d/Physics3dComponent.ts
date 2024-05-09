@@ -1,3 +1,5 @@
+type RAPIER_API = typeof RAPIER;
+
 class Physics3dComponent extends TaroEventingClass {
 	// TODO: discern 2d/3d in engine and serve sources dynamically
 	//		 so we can name these physics
@@ -9,6 +11,7 @@ class Physics3dComponent extends TaroEventingClass {
 	_callback: () => Promise<void>;
 	// engine will always be rapier
 	engine = 'RAPIER';
+	world: RAPIER.World;
 	//
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => Promise<void>) {
 		// core functionality / inherited
@@ -17,11 +20,14 @@ class Physics3dComponent extends TaroEventingClass {
 		this._options = options;
 		this._callback = callback;
 
-		//
-		try {
-		} catch (e) {
-			console.error(e);
-		}
+		this._init();
+	}
+
+	private async _init(): Promise<void> {
+		await RAPIER.init();
+		// decide whether to init with Vector3.Zero or default earth gravity
+		this.world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
+		this._callback();
 	}
 }
 
