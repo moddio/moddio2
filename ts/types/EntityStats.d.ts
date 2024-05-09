@@ -13,6 +13,7 @@ declare interface EntityStats {
 		jointType: string;
 		width: number;
 		height: number;
+		type: string;
 	};
 	cellSheet: {
 		columnCount: number;

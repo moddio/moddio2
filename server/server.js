@@ -513,7 +513,7 @@ var Server = TaroClass.extend({
 			}
 
 			promise
-				.then((game) => {
+				.then(async (game) => {
 					if (game?.gameJson && game?.worldJson) {
 						game = taro.mergeGameJson(game?.worldJson, game?.gameJson);
 					} else {
@@ -641,7 +641,8 @@ var Server = TaroClass.extend({
 						}
 					};
 
-					taro.addComponent(PhysicsComponent, undefined, loadRest);
+					taro.addComponent(PhysicsComponent, { engine: taro.game.data.defaultData.physicsEngine }, loadRest);
+					await taro.physics.load();
 				})
 				.catch((err) => {
 					console.log('got error while loading game json', err);

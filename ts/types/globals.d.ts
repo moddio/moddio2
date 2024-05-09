@@ -8,7 +8,7 @@ declare const box2DJS: any;
 declare const box2dts: any;
 declare const planck: any;
 declare const box2dninja: any;
-declare const PhysicsComponent: any;
+
 declare const UIPlugin: any;
 declare const rexvirtualjoystickplugin: any;
 declare const RoundRectanglePlugin: any;

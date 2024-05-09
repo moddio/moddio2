@@ -7,32 +7,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-class Physics3dComponent extends TaroEventingClass {
+class RapierComponent extends TaroEventingClass {
     //
-    constructor(entity, options, callback) {
+    constructor() {
         // core functionality / inherited
         super();
         // TODO: discern 2d/3d in engine and serve sources dynamically
         //		 so we can name these physics
-        this.classId = 'Physics3dComponent';
-        this.componentId = 'physics3d';
+        this.classId = 'RapierComponent';
         // engine will always be rapier
         this.engine = 'RAPIER';
-        this._entity = entity;
-        this._options = options;
-        this._callback = callback;
-        this._init();
+        this.scaleRatio = 30;
     }
-    _init() {
+    load() {
         return __awaiter(this, void 0, void 0, function* () {
             yield RAPIER.init();
             // decide whether to init with Vector3.Zero or default earth gravity
-            this.world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
-            this._callback();
+            this.world3d = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
         });
+    }
+    destroyBody3d(body) {
+        // from docs World.removeRigidBody()
+        // This will remove this rigid-body as well as all its attached colliders
+        // and joints. Every other bodies touching or attached by joints to this
+        // rigid-body will be woken-up.
+        this.world3d.removeRigidBody(body);
     }
 }
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Physics3dComponent;
+    module.exports = RapierComponent;
 }
-//# sourceMappingURL=Physics3dComponent.js.map
+//# sourceMappingURL=RapierComponent.js.map

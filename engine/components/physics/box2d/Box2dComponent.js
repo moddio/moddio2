@@ -2,19 +2,16 @@
  * The engine's box2d component class.
  */
 
-var PhysicsComponent = TaroEventingClass.extend({
-	classId: 'PhysicsComponent',
-	componentId: 'physics',
+var Box2dComponent = TaroEventingClass.extend({
+	classId: 'Box2dComponent',
 
-	init: async function (entity, options, callback) {
+	init: function () {
 		// Check that the engine has not already started
 		// as this will mess everything up if it has
 		if (taro._state != 0) {
 			console.log('Cannot add box2d physics component to the taro instance once the engine has started!', 'error');
 		}
 
-		this._entity = entity;
-		this._options = options;
 		this._mode = 0;
 		this._actionQueue = [];
 		this.physicsTickDuration = 0;
@@ -44,11 +41,13 @@ var PhysicsComponent = TaroEventingClass.extend({
 		this._scaleRatio = 30;
 		// this.engine = 'crash';
 		console.log('Physics engine: ', this.engine);
+		console.log(this.gravity);
+	},
 
+	load: async function () {
 		if (this.engine) {
 			try {
 				await dists[this.engine].init(this);
-				callback();
 			} catch (err) {
 				console.log(err, 'error: ');
 			}
@@ -787,7 +786,6 @@ var PhysicsComponent = TaroEventingClass.extend({
 										x = entity.nextKeyFrame[1][0];
 										y = entity.nextKeyFrame[1][1];
 										angle = entity.nextKeyFrame[1][2];
-
 									}
 
 									if (
@@ -1053,5 +1051,5 @@ var PhysicsComponent = TaroEventingClass.extend({
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports = PhysicsComponent;
+	module.exports = Box2dComponent;
 }

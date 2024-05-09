@@ -9,6 +9,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 		var self = this;
 
 		this._b2dRef = taro.physics;
+		if (this.physics.engine === 'RAPIER') {
+			this.physicsBody = this.physicsBody3d;
+		}
 
 		if (taro.isClient) {
 			self.addComponent(TaroAnimationComponent);
@@ -55,7 +58,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	updateBody: function (defaultData, isLossTolerant) {
 		var self = this;
 
-		// console.log("updatebody", this._stats.name, defaultData, this._stats.currentBody.type)
+		console.log('updatebody', this._stats.name, defaultData, this._stats.currentBody.type);
 		// console.trace()
 
 		body = this._stats.currentBody;

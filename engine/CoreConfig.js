@@ -84,7 +84,9 @@ var taroCoreConfig = {
 		['csap', 'TaroEngine', 'core/TaroEngine.js'],
 
 		/* Physics Libraries */
-		['csap', 'PhysicsComponent', './components/physics/box2d/Box2dComponent.js'],
+		['csap', 'PhysicsComponent', './components/physics/PhysicsComponent.js'],
+		/* 2D Physics */
+		['csap', 'Box2dComponent', './components/physics/box2d/Box2dComponent.js'],
 		['csap', 'TaroEntityPhysics', './components/physics/box2d/TaroEntityPhysics.js'],
 		['csap', 'TaroBox2dWorld', './components/physics/box2d/TaroBox2dDebugPainter.js'],
 		['csap', 'Box2dHelpers', './components/physics/box2d/debugDrawWrapper/box2dwasmHelper.js'],
@@ -98,7 +100,7 @@ var taroCoreConfig = {
 		['csap', 'box2dwasm', './components/physics/box2d/dists/box2dwasm/Box2D.simd.js', 'box2dwasm'],
 		/* 3D Physics */
 		['csap', 'RAPIER', './components/physics/rapier3d-compat/rapier.cjs.js', 'RAPIER'],
-		['csap', 'Physics3dComponent', './components/physics/rapier3d/Physics3dComponent.js'],
+		['csap', 'RapierComponent', './components/physics/rapier3d/RapierComponent.js'],
 	],
 };
 

@@ -21,6 +21,7 @@ var MapComponent = TaroEntity.extend({
 			$.when(taro.client.taroEngineStarted).done(function () {
 				taro.addComponent(TaroTiledComponent).tiled.loadJson(data, function (TaroLayerArray, TaroLayersById) {
 					if (taro.physics && TaroLayersById.walls) {
+						console.log(TaroLayersById.walls);
 						taro.physics.staticsFromMap(TaroLayersById.walls);
 					}
 
