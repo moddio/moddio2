@@ -142,10 +142,11 @@ namespace Renderer {
 					map: this.topTileset.texture,
 					side: THREE.DoubleSide,
 				});
-				const mat1Preview = mat1.clone();
-				mat1Preview.opacity = 0.5;
-				const mat2Preview = mat2.clone();
-				mat2Preview.opacity = 0.5;
+				const [mat1Preview, mat2Preview] = [mat1.clone(), mat2.clone()];
+				[mat1Preview, mat2Preview].forEach((mat) => {
+					mat.opacity = 0.5;
+					mat.transparent = true;
+				});
 				let curLength = 0;
 				geometry.addGroup(0, voxelData.sidesIndices.length, 0);
 				curLength += voxelData.sidesIndices.length;

@@ -68,7 +68,7 @@ namespace Renderer {
 				const selectedTiles = {};
 				const tileId = renderer.tmp_tileId;
 				selectedTiles[_x] = {};
-				selectedTiles[_x][_y] = taro.developerMode.activeButton === 'eraser' ? -1 : tileId;
+				selectedTiles[_x][_y] = tileId;
 				renderer.voxelEditor.putTiles(
 					_x,
 					_y,

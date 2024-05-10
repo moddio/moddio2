@@ -116,46 +116,6 @@ var MobileControlsComponent = TaroEntity.extend({
 		});
 	},
 
-	upPressed: function () {
-		if (this.debug) console.log('UP PRESSED');
-		taro.client.myPlayer.control.keyDown('key', 'w');
-	},
-
-	downPressed: function () {
-		if (this.debug) console.log('DOWN PRESSED');
-		taro.client.myPlayer.control.keyDown('key', 's');
-	},
-
-	leftPressed: function () {
-		if (this.debug) console.log('LEFT PRESSED');
-		taro.client.myPlayer.control.keyDown('key', 'a');
-	},
-
-	rightPressed: function () {
-		if (self.debug) console.log('RIGHT PRESSED');
-		taro.client.myPlayer.control.keyDown('key', 'd');
-	},
-
-	upReleased: function () {
-		if (this.debug) console.log('UP RELEASED');
-		taro.client.myPlayer.control.keyUp('key', 'w');
-	},
-
-	downReleased: function () {
-		if (this.debug) console.log('DOWN RELEASED');
-		taro.client.myPlayer.control.keyUp('key', 's');
-	},
-
-	leftReleased: function () {
-		if (this.debug) console.log('LEFT RELEASED');
-		taro.client.myPlayer.control.keyUp('key', 'a');
-	},
-
-	rightReleased: function () {
-		if (this.debug) console.log('RIGHT RELEASED');
-		taro.client.myPlayer.control.keyUp('key', 'd');
-	},
-
 	// add a button or stick to the virtual controller
 	addControl: function (key, x, y, keybinding, abilities) {
 		var self = this;
@@ -166,238 +126,164 @@ var MobileControlsComponent = TaroEntity.extend({
 
 		switch (key) {
 			case 'movementWheel':
-				{
-					let moveStick = {
-						_isUp: false,
-						_isDown: false,
-						_isLeft: false,
-						_isRight: false,
-					};
-
-					if (document.getElementById('movementWheel_joystick')) {
-						break;
-					}
-
-					// building joystick zone
-					let joystickZone = document.createElement('div');
-					joystickZone.id = 'movementWheel_joystick';
-					joystickZone.style.width = '50vw';
-					joystickZone.style.height = '50vw';
-					joystickZone.style.position = 'fixed';
-
-					// if x is more than 450, then place the joystick on the right side of the screen
-					if (x > 450) {
-						joystickZone.style.right = '0';
-						joystickZone.style.top = '0';
-					} else {
-						joystickZone.style.left = '0';
-						joystickZone.style.top = '0';
-					}
-
-					// append joystick to the gamediv element
-					let gameDiv = document.getElementById('default-ingame-ui-container');
-					// make first child of gameDiv
-					gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
-
-					// calculate joystick position based on x and y coordinates
-					const [xPercentage, yPercentage] = [
-						((x / window.innerWidth) * 100).toFixed(2),
-						((y / window.innerHeight) * 100).toFixed(2),
-					];
-
-					// assign joystick to the zone
-					var manager = window.nipplejs.create({
-						zone: joystickZone,
-						mode: 'dynamic',
-						position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
-						color: 'black',
-					});
-
-					manager.on('move', function (evt, data) {
-						let joystickData = {
-							angle: data.angle.degree,
-							power: data.force,
-						};
-						if (taro.client.myPlayer) {
-							// Endel's joystick angles are in "Maths style" (zero degrees is EAST and positive anticlockwise)
-							// Convert into compass style angle (zero degrees NORTH and positive clockwise)
-							var compassAngle = (360 - (joystickData.angle - 90)) % 360;
-
-							var tolerance = 12;
-
-							var isUp = compassAngle <= 90 - tolerance || compassAngle >= 270 + tolerance;
-							var isDown = compassAngle >= 90 + tolerance && compassAngle <= 270 - tolerance;
-							var isLeft = compassAngle <= 360 - tolerance && compassAngle >= 180 + tolerance;
-							var isRight = compassAngle >= tolerance && compassAngle <= 180 - tolerance;
-
-							if (joystickData.power > 0.5) {
-								if (isUp && moveStick._isUp == false) {
-									self.upPressed();
-								}
-								if (!isUp && moveStick._isUp == true) {
-									self.upReleased();
-								}
-								if (isDown && moveStick._isDown == false) {
-									self.downPressed();
-								}
-								if (!isDown && moveStick._isDown == true) {
-									self.downReleased();
-								}
-								if (isLeft && moveStick._isLeft == false) {
-									self.leftPressed();
-								}
-								if (!isLeft && moveStick._isLeft == true) {
-									self.leftReleased();
-								}
-								if (isRight && moveStick._isRight == false) {
-									self.rightPressed();
-								}
-								if (!isRight && moveStick._isRight == true) {
-									self.rightReleased();
-								}
-								moveStick._isUp = isUp;
-								moveStick._isDown = isDown;
-								moveStick._isLeft = isLeft;
-								moveStick._isRight = isRight;
-							} else {
-								if (moveStick._isUp) {
-									self.upReleased();
-								}
-								if (moveStick._isLeft) {
-									self.leftReleased();
-								}
-								if (moveStick._isDown) {
-									self.downReleased();
-								}
-								if (moveStick._isRight) {
-									self.rightReleased();
-								}
-								moveStick._isUp = false;
-								moveStick._isDown = false;
-								moveStick._isLeft = false;
-								moveStick._isRight = false;
-							}
-						}
-					});
-
-					manager.on('end', function (evt, data) {
-						if (moveStick._isUp) {
-							self.upReleased();
-						}
-						if (moveStick._isLeft) {
-							self.leftReleased();
-						}
-						if (moveStick._isDown) {
-							self.downReleased();
-						}
-						if (moveStick._isRight) {
-							self.rightReleased();
-						}
-						moveStick._isUp = false;
-						moveStick._isDown = false;
-						moveStick._isLeft = false;
-						moveStick._isRight = false;
-					});
-				}
-				break;
-
 			case 'lookWheel':
-				{
-					// building joystick zone
-					let joystickZone = document.createElement('div');
-					joystickZone.id = 'lookWheel_joystick';
-					joystickZone.style.width = '50vw';
-					joystickZone.style.height = '50vw';
-					joystickZone.style.position = 'fixed';
-
-					// if x is more than 450, then place the joystick on the right side of the screen
-					if (x > 450) {
-						joystickZone.style.right = '0';
-						joystickZone.style.top = '0';
-					} else {
-						joystickZone.style.left = '0';
-						joystickZone.style.top = '0';
-					}
-
-					// append joystick to the gamediv element
-					let gameDiv = document.getElementById('default-ingame-ui-container');
-					// make first child of gameDiv
-					gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
-
-					// calculate joystick position based on x and y coordinates
-					const [xPercentage, yPercentage] = [
-						((x / window.innerWidth) * 100).toFixed(2),
-						((y / window.innerHeight) * 100).toFixed(2),
-					];
-
-					// assign joystick to the zone
-					var manager = window.nipplejs.create({
-						zone: joystickZone,
-						mode: 'dynamic',
-						position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
-						color: 'black',
-					});
-
-					// handle look wheel inputs
-					const handleLookWheelInputs = (data) => {
-						let joystickData = {
-							angle: ((data.angle.degree + 180) % 360) - 180,
-							power: data.force,
-						};
-
-						this.mouseMovement(joystickData.power, joystickData.angle);
-					};
-
-					// listen for joystick movement
-					manager.on('move', function (evt, data) {
-						if (taro.client.myPlayer) {
-							handleLookWheelInputs(data);
-						}
-					});
-				}
-				break;
-
 			case 'lookAndFireWheel':
 				{
-					if (document.getElementById('lookAndFireWheel_joystick')) {
-						break;
+					if (document.getElementById(key + '_joystick')) break;
+					this.createJoystick(key, x, y);
+				}
+				break;
+			default:
+				{
+					this.generateHTMLButton(key, x, y, keybinding, abilities);
+				}
+				break;
+		}
+	},
+
+	generateHTMLButton: function (type, x, y, keybinding, abilities) {
+		if (document.getElementById(type + '_button')) {
+			return;
+		}
+
+		// buttons position
+		const [xOnClientScreen, yOnClientScreen] = [(x * window.innerWidth) / 960, (y * window.innerHeight) / 540];
+
+		// create a new button using html
+		const htmlButton = document.createElement('button');
+		htmlButton.id = type + '_button';
+
+		// setting style for button
+		Object.assign(htmlButton.style, {
+			position: 'absolute',
+			left: `${xOnClientScreen}px`,
+			top: `${yOnClientScreen}px`,
+			transform: 'translate(-50%, -50%)',
+			width: '60px',
+			height: '60px',
+			fontSize: '16px',
+			color: '#fff',
+			backgroundColor: '#33333366',
+			border: '2px solid #555',
+			backdropFilter: 'blur(4px)',
+			borderRadius: '8px',
+			zIndex: '1000',
+			cursor: 'pointer',
+		});
+
+		const abilityId = keybinding.keyDown?.abilityId || keybinding.keyUp?.abilityId;
+		let ability = null;
+		if (abilityId) {
+			ability = abilities[abilityId];
+		}
+
+		// check if ability is desktop only
+		if (ability && ability.visibility == 'desktop') {
+			return;
+		}
+
+		if (ability && ability.iconUrl) {
+			htmlButton.innerHTML = `<img src="${ability.iconUrl}" style="width: 100%; height: 100%; object-fit: cover;"/>`;
+		} else {
+			htmlButton.textContent = type;
+		}
+
+		document.body.appendChild(htmlButton);
+
+		htmlButton.addEventListener('touchstart', function () {
+			if (taro.isClient) {
+				let timerElement = document.getElementById(type + '_button_timer');
+				let button = document.getElementById(type + '_button');
+
+				if (timerElement) return;
+				taro.client.emit('key-down', {
+					device: 'key',
+					key: type.toLowerCase(),
+				});
+
+				if (ability && ability.cooldown && !timerElement) {
+					let cooldown = ability.cooldown;
+
+					// cooldown logic
+					let cooldownCount = 0;
+
+					if (!timerElement) {
+						timerElement = document.createElement('h5');
+						timerElement.id = type + '_button_timer';
+						Object.assign(timerElement.style, {
+							right: 0,
+							position: 'absolute',
+							fontSize: '0.8rem',
+						});
+						timerElement.innerHTML = cooldown - cooldownCount;
+						button.append(timerElement);
 					}
 
-					// building joystick zone
-					let joystickZone = document.createElement('div');
-					joystickZone.id = 'lookAndFireWheel_joystick';
-					joystickZone.style.width = '50vw';
-					joystickZone.style.height = '50vw';
-					joystickZone.style.position = 'fixed';
+					cooldownInterval = setInterval(() => {
+						if (cooldownCount >= cooldown) {
+							button.disabled = false;
+							timerElement.parentNode.removeChild(timerElement);
+							clearInterval(cooldownInterval);
+						} else {
+							console.log(cooldown, cooldownCount);
+							button.disabled = true;
+							cooldownCount++;
+							timerElement.innerHTML = cooldown - cooldownCount;
+						}
+					}, 1000);
+				}
+			}
+		});
 
-					// if x is more than 450, then place the joystick on the right side of the screen
-					if (x > 450) {
-						joystickZone.style.right = '0';
-						joystickZone.style.top = '0';
-					} else {
-						joystickZone.style.left = '0';
-						joystickZone.style.top = '0';
-					}
+		htmlButton.addEventListener('touchend', function () {
+			if (taro.isClient) {
+				taro.client.emit('key-up', {
+					device: 'key',
+					key: type.toLowerCase(),
+				});
+			}
+		});
+	},
+	createJoystick: function (type, x, y) {
+		// building joystick zone
+		let joystickZone = document.createElement('div');
+		joystickZone.id = type + '_joystick';
+		joystickZone.style.width = '50vw';
+		joystickZone.style.height = '50vw';
+		joystickZone.style.position = 'fixed';
 
-					// append joystick to the gamediv element
-					let gameDiv = document.getElementById('default-ingame-ui-container');
-					// make first child of gameDiv
-					gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
+		// placing joystick in the correct zone
+		// if x is more than 450, then place the joystick on the right side of the screen
+		if (x > 450) {
+			joystickZone.style.right = '0';
+			joystickZone.style.top = '0';
+		} else {
+			joystickZone.style.left = '0';
+			joystickZone.style.top = '0';
+		}
 
-					// calculate joystick position based on x and y coordinates
-					const [xPercentage, yPercentage] = [
-						((x / window.innerWidth) * 100).toFixed(2),
-						((y / window.innerHeight) * 100).toFixed(2),
-					];
+		// append joystick to the gamediv element
+		let gameDiv = document.getElementById('default-ingame-ui-container');
+		// make first child of gameDiv
+		gameDiv.insertBefore(joystickZone, gameDiv.firstChild);
 
-					// assign joystick to the zone
-					var manager = window.nipplejs.create({
-						zone: joystickZone,
-						mode: 'dynamic',
-						position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
-						color: 'black',
-					});
+		// calculate joystick position based on x and y coordinates
+		const [xPercentage, yPercentage] = [
+			((x / window.innerWidth) * 100).toFixed(2),
+			((y / window.innerHeight) * 100).toFixed(2),
+		];
 
+		// assign joystick to the zone
+		var manager = window.nipplejs.create({
+			zone: joystickZone,
+			mode: 'dynamic',
+			position: { left: `${xPercentage}%`, top: `${yPercentage}%` },
+			color: 'black',
+		});
+
+		switch (type) {
+			case 'lookAndFireWheel':
+				{
 					let usingMouseKeyDown = false;
 					let usingMouseKeyUp = false;
 
@@ -478,66 +364,158 @@ var MobileControlsComponent = TaroEntity.extend({
 					});
 				}
 				break;
-
-			default:
+			case 'movementWheel':
 				{
-					if (document.getElementById(key + '_button')) {
-						break;
-					}
+					let moveStick = {
+						isUp: false,
+						isDown: false,
+						isLeft: false,
+						isRight: false,
 
-					// buttons position
-					const [xOnClientScreen, yOnClientScreen] = [(x * window.innerWidth) / 960, (y * window.innerHeight) / 540];
+						upPressed: function () {
+							if (this.debug) console.log('UP PRESSED');
+							taro.client.myPlayer.control.keyDown('key', 'w');
+						},
 
-					// create a new button using html
-					const htmlButton = document.createElement('button');
-					htmlButton.id = key + '_button';
-					htmlButton.style.position = 'absolute';
-					htmlButton.style.left = `${xOnClientScreen}px`;
+						downPressed: function () {
+							if (this.debug) console.log('DOWN PRESSED');
+							taro.client.myPlayer.control.keyDown('key', 's');
+						},
 
-					htmlButton.style.top = `${yOnClientScreen}px`;
-					htmlButton.style.transform = `translate(-50%, -50%)`;
-					htmlButton.style.width = '60px';
-					htmlButton.style.height = '60px';
-					htmlButton.style.fontSize = '16px';
-					htmlButton.style.color = '#fff';
+						leftPressed: function () {
+							if (this.debug) console.log('LEFT PRESSED');
+							taro.client.myPlayer.control.keyDown('key', 'a');
+						},
 
-					const abilityId = keybinding.keyDown?.abilityId || keybinding.keyUp?.abilityId;
-					let ability = null;
-					if (abilityId) {
-						ability = abilities[abilityId];
-					} else {
-					}
+						rightPressed: function () {
+							if (self.debug) console.log('RIGHT PRESSED');
+							taro.client.myPlayer.control.keyDown('key', 'd');
+						},
 
-					if (ability && ability.iconUrl) {
-						htmlButton.innerHTML = `<img src="${ability.iconUrl}" style="width: 100%; height: 100%; object-fit: cover;"/>`;
-					} else {
-						htmlButton.textContent = key;
-					}
+						upReleased: function () {
+							if (this.debug) console.log('UP RELEASED');
+							taro.client.myPlayer.control.keyUp('key', 'w');
+						},
 
-					htmlButton.style.backgroundColor = '#33333366';
-					htmlButton.style.border = '2px solid #555 ';
-					htmlButton.style.backdropFilter = 'blur(4px)';
-					htmlButton.style.borderRadius = '8px';
-					htmlButton.style.zIndex = '1000';
-					htmlButton.style.cursor = 'pointer';
+						downReleased: function () {
+							if (this.debug) console.log('DOWN RELEASED');
+							taro.client.myPlayer.control.keyUp('key', 's');
+						},
 
-					document.body.appendChild(htmlButton);
+						leftReleased: function () {
+							if (this.debug) console.log('LEFT RELEASED');
+							taro.client.myPlayer.control.keyUp('key', 'a');
+						},
 
-					htmlButton.addEventListener('touchstart', function () {
-						if (taro.isClient) {
-							taro.network.send('playerKeyDown', {
-								device: 'key',
-								key: key.toLowerCase(),
-							});
+						rightReleased: function () {
+							if (this.debug) console.log('RIGHT RELEASED');
+							taro.client.myPlayer.control.keyUp('key', 'd');
+						},
+					};
+
+					manager.on('move', function (evt, data) {
+						let joystickData = {
+							angle: data.angle.degree,
+							power: data.force,
+						};
+						if (taro.client.myPlayer) {
+							// Endel's joystick angles are in "Maths style" (zero degrees is EAST and positive anticlockwise)
+							// Convert into compass style angle (zero degrees NORTH and positive clockwise)
+							var compassAngle = (360 - (joystickData.angle - 90)) % 360;
+
+							var tolerance = 12;
+
+							var isUp = compassAngle <= 90 - tolerance || compassAngle >= 270 + tolerance;
+							var isDown = compassAngle >= 90 + tolerance && compassAngle <= 270 - tolerance;
+							var isLeft = compassAngle <= 360 - tolerance && compassAngle >= 180 + tolerance;
+							var isRight = compassAngle >= tolerance && compassAngle <= 180 - tolerance;
+
+							if (joystickData.power > 0.5) {
+								if (isUp && moveStick._isUp == false) {
+									moveStick.upPressed();
+								}
+								if (!isUp && moveStick._isUp == true) {
+									moveStick.upReleased();
+								}
+								if (isDown && moveStick._isDown == false) {
+									moveStick.downPressed();
+								}
+								if (!isDown && moveStick._isDown == true) {
+									moveStick.downReleased();
+								}
+								if (isLeft && moveStick._isLeft == false) {
+									moveStick.leftPressed();
+								}
+								if (!isLeft && moveStick._isLeft == true) {
+									moveStick.leftReleased();
+								}
+								if (isRight && moveStick._isRight == false) {
+									moveStick.rightPressed();
+								}
+								if (!isRight && moveStick._isRight == true) {
+									moveStick.rightReleased();
+								}
+								moveStick._isUp = isUp;
+								moveStick._isDown = isDown;
+								moveStick._isLeft = isLeft;
+								moveStick._isRight = isRight;
+							} else {
+								if (moveStick._isUp) {
+									moveStick.upReleased();
+								}
+								if (moveStick._isLeft) {
+									moveStick.leftReleased();
+								}
+								if (moveStick._isDown) {
+									moveStick.downReleased();
+								}
+								if (moveStick._isRight) {
+									moveStick.rightReleased();
+								}
+								moveStick._isUp = false;
+								moveStick._isDown = false;
+								moveStick._isLeft = false;
+								moveStick._isRight = false;
+							}
 						}
 					});
+					manager.on('end', function (evt, data) {
+						if (moveStick._isUp) {
+							moveStick.upReleased();
+						}
+						if (moveStick._isLeft) {
+							moveStick.leftReleased();
+						}
+						if (moveStick._isDown) {
+							moveStick.downReleased();
+						}
+						if (moveStick._isRight) {
+							moveStick.rightReleased();
+						}
+						moveStick._isUp = false;
+						moveStick._isDown = false;
+						moveStick._isLeft = false;
+						moveStick._isRight = false;
+					});
+				}
+				break;
 
-					htmlButton.addEventListener('touchend', function () {
-						if (taro.isClient) {
-							taro.network.send('playerKeyUp', {
-								device: 'key',
-								key: key.toLowerCase(),
-							});
+			case 'lookWheel':
+				{
+					// handle look wheel inputs
+					const handleLookWheelInputs = (data) => {
+						let joystickData = {
+							angle: ((data.angle.degree + 180) % 360) - 180,
+							power: data.force,
+						};
+
+						this.mouseMovement(joystickData.power, joystickData.angle);
+					};
+
+					// listen for joystick movement
+					manager.on('move', function (evt, data) {
+						if (taro.client.myPlayer) {
+							handleLookWheelInputs(data);
 						}
 					});
 				}
