@@ -14,6 +14,7 @@ declare interface EntityStats {
 		width: number;
 		height: number;
 		type: string;
+		depth: number;
 	};
 	cellSheet: {
 		columnCount: number;

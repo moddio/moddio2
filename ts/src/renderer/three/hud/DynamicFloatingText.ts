@@ -16,7 +16,9 @@ namespace Renderer {
 				super();
 
 				const label = new Label({ x, y, z, text, color, renderOnTop: true });
-				label.setCenter(offsetX, offsetY);
+				const xOffsetInLabelWidthUnits = offsetX / label.width;
+				const yOffsetInLabelHeightUnits = offsetY / label.height;
+				label.setCenter(xOffsetInLabelWidthUnits, yOffsetInLabelHeightUnits);
 				this.add(label);
 				this.label = label;
 
@@ -91,11 +93,11 @@ namespace Renderer {
 
 			static create(config: DynamicFloatingTextConfig, zOffset = 0) {
 				return new DynamicFloatingText(
-					Utils.pixelToWorld(config.x) - 0.5,
+					Utils.pixelToWorld(config.x),
 					// Will only look good top down orthographic currently; Need to get
 					// correct height from engine when the engine uses 3D coords.
 					zOffset,
-					Utils.pixelToWorld(config.y) - 0.5,
+					Utils.pixelToWorld(config.y),
 					config.text,
 					config.color,
 					config.duration

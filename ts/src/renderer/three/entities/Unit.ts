@@ -39,7 +39,7 @@ namespace Renderer {
 
 				this.label.visible = false;
 
-				this.add(this.hud);
+				this.body.attach(this.hud);
 				this.hud.add(this.label);
 				this.hud.add(this.attributes);
 			}
@@ -98,7 +98,10 @@ namespace Renderer {
 				taroEntity.on(
 					'size',
 					(data: { width: number; height: number }) => {
-						entity.setScale(Utils.pixelToWorld(data.width), Utils.pixelToWorld(data.height));
+						const width = Utils.pixelToWorld(data.width || 0);
+						const height = Utils.pixelToWorld(data.height || 0);
+						const depth = Utils.pixelToWorld(entity.taroEntity._stats?.currentBody?.depth || 0);
+						entity.setScale(width, height, depth);
 					},
 					this
 				);
@@ -121,6 +124,13 @@ namespace Renderer {
 					if (entity.body instanceof AnimatedSprite) {
 						const key = `${taroEntity._stats.cellSheet.url}/${id}/${taroEntity._stats.id}`;
 						entity.body.play(key);
+					} else {
+						const anim = entity.taroEntity._stats.animations[id];
+						if (anim) {
+							const name = anim.name || '';
+							const loopCount = anim.loopCount || 0;
+							entity.body.play(anim.name, loopCount);
+						}
 					}
 				});
 
@@ -135,7 +145,7 @@ namespace Renderer {
 					const replaceTexture = (spriteSheet: TextureSheet) => {
 						(entity.body as AnimatedSprite).setTextureSheet(spriteSheet);
 						const bounds = taroEntity._bounds2d;
-						entity.setScale(Utils.pixelToWorld(bounds.x), Utils.pixelToWorld(bounds.y));
+						entity.setScale(Utils.pixelToWorld(bounds.x), Utils.pixelToWorld(bounds.y), 1);
 					};
 
 					if (tex) {
@@ -171,9 +181,7 @@ namespace Renderer {
 			}
 
 			update(dt: number) {
-				if (this.body instanceof AnimatedSprite) {
-					this.body.update(dt);
-				}
+				this.body.update(dt);
 			}
 
 			renderChat(text: string): void {
@@ -206,11 +214,11 @@ namespace Renderer {
 				this.attributes.position.z = Utils.pixelToWorld(halfHeight);
 			}
 
-			setScale(sx: number, sy: number) {
+			setScale(sx: number, sy: number, sz: number) {
 				if (this.body instanceof AnimatedSprite) {
 					this.body.setScale(sx, sy);
 				} else {
-					this.body.setSize2D(sx, sy);
+					this.body.setSize(sx, sz, sy);
 				}
 
 				let unitHeightPx = 0;

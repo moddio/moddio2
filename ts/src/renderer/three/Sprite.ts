@@ -42,6 +42,10 @@ namespace Renderer {
 				}
 			}
 
+			setOpacity(opacity: number) {
+				(this.sprite.material as THREE.Material).opacity = opacity;
+			}
+
 			setScale(sx: number, sy: number) {
 				this.scaleUnflipped.set(sx, sy);
 				this.sprite.scale.set(this.scaleUnflipped.x * this.flipX, 1, this.scaleUnflipped.y * this.flipY);

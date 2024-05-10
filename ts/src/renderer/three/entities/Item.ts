@@ -89,7 +89,10 @@ namespace Renderer {
 				taroEntity.on(
 					'size',
 					(data: { width: number; height: number }) => {
-						entity.setScale(Utils.pixelToWorld(data.width), Utils.pixelToWorld(data.height));
+						const width = Utils.pixelToWorld(data.width || 0);
+						const height = Utils.pixelToWorld(data.height || 0);
+						const depth = Utils.pixelToWorld(entity.taroEntity._stats?.currentBody?.depth || 0);
+						entity.setScale(width, height, depth);
 					},
 					this
 				);
@@ -112,7 +115,7 @@ namespace Renderer {
 					const replaceTexture = (spriteSheet: TextureSheet) => {
 						(entity.body as AnimatedSprite).setTextureSheet(spriteSheet);
 						const bounds = taroEntity._bounds2d;
-						entity.setScale(Utils.pixelToWorld(bounds.x), Utils.pixelToWorld(bounds.y));
+						entity.setScale(Utils.pixelToWorld(bounds.x), Utils.pixelToWorld(bounds.y), 1);
 					};
 
 					if (tex) {
@@ -145,11 +148,11 @@ namespace Renderer {
 				}
 			}
 
-			setScale(sx: number, sy: number) {
+			setScale(sx: number, sy: number, sz: number) {
 				if (this.body instanceof AnimatedSprite) {
 					this.body.setScale(sx, sy);
 				} else {
-					this.body.setSize2D(sx, sy);
+					this.body.setSize(sx, sz, sy);
 				}
 			}
 		}

@@ -31,9 +31,10 @@ namespace Renderer {
 			private pointer = new THREE.Vector2();
 			private initLoadingManager = new THREE.LoadingManager();
 
-			private entityManager = new EntityManager();
+			public entityManager = new EntityManager();
 			private entitiesLayer = new THREE.Group();
 			private regionsLayer = new THREE.Group();
+			public initEntityLayer = new THREE.Group();
 
 			private sky: Skybox;
 			private voxels: Voxels;
@@ -45,6 +46,8 @@ namespace Renderer {
 			// TODO: decouple this to the voxelEditor
 			public tmp_tileId = 7;
 			public voxelEditor: VoxelEditor;
+			public entityEditor: EntityEditor;
+			private showRepublishWarning: boolean;
 
 			private regionDrawStart: { x: number; y: number } = { x: 0, y: 0 };
 
@@ -122,6 +125,8 @@ namespace Renderer {
 
 				let rightClickPos: { x: number; y: number } = undefined;
 
+				let lastTime = 0;
+
 				renderer.domElement.addEventListener('mousedown', (event: MouseEvent) => {
 					if (this.mode === Mode.Map) {
 						const developerMode = taro.developerMode;
@@ -146,35 +151,71 @@ namespace Renderer {
 									case 'cursor': {
 										const raycaster = new THREE.Raycaster();
 										raycaster.setFromCamera(this.pointer, this.camera.instance);
-										const intersects = raycaster.intersectObjects(this.entityManager.entities);
+
+										let intersects = raycaster.intersectObjects(this.entityManager.initEntities);
 										if (intersects?.length > 0) {
-											let closest: THREE.Mesh;
-											let clickedList: THREE.Mesh[] = [];
-											for (const intersect of intersects) {
-												if ((intersect.object as THREE.Mesh).isMesh) {
-													closest = intersect.object as THREE.Mesh;
-													clickedList.push(closest);
+											const closest = intersects[0].object as THREE.Mesh;
+											let initEntity = this.entityManager.initEntities.find(
+												(initEntity) => (initEntity.body as AnimatedSprite).sprite === closest
+											);
+											if (!initEntity) {
+												let parent = intersects[0].object.parent as any;
+												while (!parent.entity) {
+													parent = parent.parent;
+												}
+												initEntity = (parent as Renderer.Three.Model & { entity: InitEntity }).entity;
+											}
+											if (
+												initEntity &&
+												(this.entityEditor.selectedInitEntity === null ||
+													this.entityEditor.selectedInitEntity === undefined ||
+													this.entityEditor.selectedInitEntity.body.uuid !== initEntity.uuid)
+											) {
+												this.entityEditor.selectInitEntity(initEntity);
+												taro.client.emit('entity-billboard', !!initEntity.isBillboard);
+												//double click
+												let clickDelay = taro._currentTime - lastTime;
+												lastTime = taro._currentTime;
+												if (clickDelay < 350) {
+													if (inGameEditor && inGameEditor.showScriptForEntity) {
+														inGameEditor.showScriptForEntity(initEntity.action.actionId);
+													}
 												}
 											}
-											let regionList: RegionData[] = [];
-											clickedList.forEach((clicked) => {
-												const region = this.entityManager.regions.find((e) => e.mesh === clicked);
-												if (region) {
-													regionList.push({
-														name: region.taroEntity._stats.id,
-														x: region.stats.x,
-														y: region.stats.y,
-														width: region.stats.width,
-														height: region.stats.height,
-														alpha: region.stats.alpha,
-														inside: region.stats.inside,
+										} else {
+											if (!this.entityEditor.gizmo.control.dragging) {
+												this.entityEditor.selectInitEntity(null);
+												intersects = raycaster.intersectObjects(this.entityManager.entities);
+												if (intersects?.length > 0) {
+													let closest: THREE.Mesh;
+													let clickedList: THREE.Mesh[] = [];
+													for (const intersect of intersects) {
+														if ((intersect.object as THREE.Mesh).isMesh) {
+															closest = intersect.object as THREE.Mesh;
+															clickedList.push(closest);
+														}
+													}
+													let regionList: RegionData[] = [];
+													clickedList.forEach((clicked) => {
+														const region = this.entityManager.regions.find((e) => e.mesh === clicked);
+														if (region) {
+															regionList.push({
+																name: region.taroEntity._stats.id,
+																x: region.stats.x,
+																y: region.stats.y,
+																width: region.stats.width,
+																height: region.stats.height,
+																alpha: region.stats.alpha,
+																inside: region.stats.inside,
+															});
+														}
 													});
+													if (regionList.length === 1) {
+														inGameEditor.addNewRegion && inGameEditor.addNewRegion(regionList[0]);
+													} else if (regionList.length > 1) {
+														inGameEditor.showRegionList && inGameEditor.showRegionList(regionList);
+													}
 												}
-											});
-											if (regionList.length === 1) {
-												inGameEditor.addNewRegion && inGameEditor.addNewRegion(regionList[0]);
-											} else if (regionList.length > 1) {
-												inGameEditor.showRegionList && inGameEditor.showRegionList(regionList);
 											}
 										}
 
@@ -187,6 +228,69 @@ namespace Renderer {
 									case 'brush': {
 										this.voxelEditor.handleMapToolEdit();
 										break;
+									}
+									case 'add-entities': {
+										const entityData = this.entityEditor.activeEntity;
+										if (entityData) {
+											const worldPoint = this.raycastFloor(0);
+											const entity =
+												taro.game.data[entityData.entityType] && taro.game.data[entityData.entityType][entityData.id];
+											let actionType: string;
+											let height: number;
+											let width: number;
+											if (entityData.entityType === 'unitTypes') {
+												actionType = 'createEntityForPlayerAtPositionWithDimensions';
+												if (entity.bodies?.default) {
+													height = entity.bodies.default.height;
+													width = entity.bodies.default.width;
+												} else {
+													console.log('no default body for unit', entityData.id);
+													return;
+												}
+											} else if (entityData.entityType === 'itemTypes') {
+												actionType = 'createEntityAtPositionWithDimensions';
+												if (entity.bodies?.dropped) {
+													height = entity.bodies.dropped.height;
+													width = entity.bodies.dropped.width;
+												} else {
+													console.log('no dropped body for item', entityData.id);
+													return;
+												}
+											} else if (entityData.entityType === 'projectileTypes') {
+												actionType = 'createEntityAtPositionWithDimensions';
+												if (entity.bodies?.default) {
+													height = entity.bodies.default.height;
+													width = entity.bodies.default.width;
+												} else {
+													console.log('no default body for projectile', entityData.id);
+													return;
+												}
+											}
+
+											const action: ActionData = {
+												type: actionType,
+												entity: entityData.id,
+												entityType: entityData.entityType,
+												position: {
+													function: 'xyCoordinate',
+													x: Math.floor(Utils.worldToPixel(worldPoint.x)),
+													y: Math.floor(Utils.worldToPixel(worldPoint.z)),
+												},
+												width: width,
+												height: height,
+												angle: 0,
+												actionId: taro.newIdHex(),
+												wasCreated: true,
+											};
+											if (entityData.entityType === 'unitTypes') {
+												action.player = {
+													variableName: entityData.player,
+													function: 'getVariable',
+												};
+											}
+											this.createInitEntity(action);
+											taro.network.send<any>('editInitEntity', action);
+										}
 									}
 								}
 							} else if (
@@ -376,6 +480,53 @@ namespace Renderer {
 				return intersect;
 			}
 
+			createInitEntity(action: ActionData): void {
+				if (
+					!action.disabled &&
+					action.position?.function === 'xyCoordinate' &&
+					!isNaN(action.position?.x) &&
+					!isNaN(action.position?.y)
+				) {
+					if (
+						action.type === 'createEntityForPlayerAtPositionWithDimensions' ||
+						(action.type === 'createEntityAtPositionWithDimensions' &&
+							!isNaN(action.width) &&
+							!isNaN(action.height) &&
+							!isNaN(action.angle))
+					) {
+						if (action.actionId && !action.wasDeleted) new InitEntity(action);
+						else {
+							this.showRepublishWarning = true;
+						}
+					} else if (action.type === 'createUnitAtPosition' && !isNaN(action.angle)) {
+						if (action.actionId && !action.wasDeleted) new InitEntity(action, 'unit');
+						else {
+							this.showRepublishWarning = true;
+						}
+					} else if (
+						action.type === 'createUnitForPlayerAtPosition' &&
+						!isNaN(action.angle) &&
+						!isNaN(action.width) &&
+						!isNaN(action.height)
+					) {
+						if (action.actionId && !action.wasDeleted) new InitEntity(action, 'unit');
+						else {
+							this.showRepublishWarning = true;
+						}
+					} else if (action.type === 'spawnItem' || action.type === 'createItemWithMaxQuantityAtPosition') {
+						if (action.actionId && !action.wasDeleted) new InitEntity(action, 'item');
+						else {
+							this.showRepublishWarning = true;
+						}
+					} else if (action.type === 'createProjectileAtPosition' && !isNaN(action.angle)) {
+						if (action.actionId && !action.wasDeleted) new InitEntity(action, 'projectile');
+						else {
+							this.showRepublishWarning = true;
+						}
+					}
+				}
+			}
+
 			getViewportBounds() {
 				const halfWidth = (window.innerWidth * 0.5) / this.camera.zoom;
 				const halfHeight = (window.innerHeight * 0.5) / this.camera.zoom;
@@ -407,6 +558,29 @@ namespace Renderer {
 			private onEnterMapMode() {
 				this.hideEntities();
 				this.entityManager.regions.forEach((r) => r.setMode(RegionMode.Development));
+				if (this.showRepublishWarning) {
+					inGameEditor.showRepublishToInitEntitiesWarning();
+				}
+				if (this.entityManager.initEntities.length === 0) {
+					// create images for entities created in initialize script
+					Object.values(taro.game.data.scripts).forEach((script) => {
+						if (script.triggers?.[0]?.type === 'gameStart') {
+							Object.values(script.actions).forEach((action) => {
+								this.createInitEntity(action);
+							});
+						}
+					});
+
+					if (this.showRepublishWarning) {
+						inGameEditor.showRepublishToInitEntitiesWarning();
+					}
+				}
+
+				taro.network.send<any>('updateClientInitEntities', true);
+
+				this.entityManager.initEntities.forEach((initEntity) => {
+					initEntity.body.visible = true;
+				});
 			}
 
 			private onExitMapMode() {
@@ -414,6 +588,14 @@ namespace Renderer {
 				this.entityManager.regions.forEach((r) => r.setMode(RegionMode.Normal));
 				this.voxelEditor.voxels.updateLayer(new Map(), this.voxelEditor.currentLayerIndex);
 				this.voxelEditor.showAllLayers();
+
+				if (this.entityEditor.selectedInitEntity) {
+					this.entityEditor.selectInitEntity(null);
+				}
+
+				this.entityManager.initEntities.forEach((initEntity) => {
+					initEntity.body.visible = false;
+				});
 			}
 
 			private onEnterEntitiesMode() {}
@@ -489,6 +671,8 @@ namespace Renderer {
 				this.scene.add(this.voxels);
 				this.scene.add(this.voxelEditor.voxelMarker);
 
+				this.entityEditor = new EntityEditor();
+
 				this.particleSystem = new ParticleSystem();
 				this.scene.add(this.particleSystem);
 
@@ -497,6 +681,9 @@ namespace Renderer {
 
 				this.regionsLayer.position.y = 0.51;
 				this.scene.add(this.regionsLayer);
+
+				this.initEntityLayer.position.y = 0.51;
+				this.scene.add(this.initEntityLayer);
 
 				const createEntity = (taroEntity: TaroEntityPhysics, type: 'unit' | 'item' | 'projectile' | 'region') => {
 					const entity = this.entityManager.create(taroEntity, type);
@@ -601,7 +788,7 @@ namespace Renderer {
 			private render() {
 				requestAnimationFrame(this.render.bind(this));
 				taro.client.emit('tick');
-
+				if (this.entityEditor) this.entityEditor.update();
 				if (this.camera.target && !taro.isMobile) {
 					const worldPos = this.camera.getWorldPoint(this.pointer);
 					const x = Utils.worldToPixel(worldPos.x);

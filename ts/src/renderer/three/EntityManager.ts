@@ -6,6 +6,7 @@ namespace Renderer {
 			items: Item[] = [];
 			projectiles: Unit[] = [];
 			regions: Region[] = [];
+			initEntities: InitEntity[] = [];
 
 			private animatedSprites: AnimatedSprite[] = [];
 			private unownedItems = new Map<string, Item>();
@@ -44,6 +45,14 @@ namespace Renderer {
 				this.entities.push(entity);
 
 				return entity;
+			}
+			destroyInitEntity(initEntity: InitEntity) {
+				initEntity.destroy();
+
+				const idx = this.initEntities.indexOf(initEntity, 0);
+				if (idx === -1) return;
+
+				this.initEntities.splice(idx, 1);
 			}
 
 			destroy(entity: Unit) {
