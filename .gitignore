@@ -128,8 +128,8 @@ engine/components/physics/box2d/distsWrapper/*.js
 engine/components/physics/box2d/distsWrapper/*.js.map
 engine/components/physics/box2d/dists.js
 engine/components/physics/box2d/dists.js.map
-engine/components/physicsPhysicsComponent.js
-engine/components/physicsPhysicsComponent.js.map
+engine/components/physics/PhysicsComponent.js
+engine/components/physics/PhysicsComponent.js.map
 engine/components/physics/rapier3d/RapierComponent.js
 engine/components/physics/rapier3d/RapierComponent.js.map
 
