@@ -11,7 +11,7 @@ class RapierComponent extends TaroEventingClass {
 	// engine will always be rapier
 	engine = 'RAPIER';
 	world3d: RAPIER.World;
-	scaleRatio = 30;
+	// scaleRatio = 30;
 	//
 	constructor() {
 		// core functionality / inherited
@@ -32,6 +32,34 @@ class RapierComponent extends TaroEventingClass {
 		// rigid-body will be woken-up.
 		this.world3d.removeRigidBody(body);
 	}
+	useWorker(...args: any[]): void {}
+	mode(...args: any[]): void {}
+	sleep(...args: any[]): void {}
+	scaleRatio(...args: any[]): void {}
+	tilesizeRatio(...args: any[]): void {}
+	world(...args: any[]): void {}
+	createFixture(...args: any[]): void {}
+	createBody(...args: any[]): void {}
+	destroyBody(...args: any[]): void {}
+	createJoint(...args: any[]): void {}
+	destroyJoint(...args: any[]): void {}
+	getBodiesInRegion(...args: any[]): void {}
+	staticsFromMap(...args: any[]): void {}
+	destroyWalls(...args: any[]): void {}
+	contactListener(...args: any[]): void {}
+	networkDebugMode(...args: any[]): void {}
+	enableDebug(...args: any[]): void {}
+	updateCallback(...args: any[]): void {}
+	start(...args: any[]): void {}
+	stop(...args: any[]): void {}
+	queueAction(...args: any[]): void {}
+	update(...args: any[]): void {}
+	destroy(...args: any[]): void {}
+	_triggerContactEvent(...args: any[]): void {}
+	_triggerLeaveEvent(...args: any[]): void {}
+	_beginContactCallback(...args: any[]): void {}
+	_endContactCallback(...args: any[]): void {}
+	_enableContactListener(...args: any[]): void {}
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

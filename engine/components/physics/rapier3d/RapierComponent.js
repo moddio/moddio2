@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 class RapierComponent extends TaroEventingClass {
+    // scaleRatio = 30;
     //
     constructor() {
         // core functionality / inherited
@@ -17,7 +18,6 @@ class RapierComponent extends TaroEventingClass {
         this.classId = 'RapierComponent';
         // engine will always be rapier
         this.engine = 'RAPIER';
-        this.scaleRatio = 30;
     }
     load() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -33,6 +33,34 @@ class RapierComponent extends TaroEventingClass {
         // rigid-body will be woken-up.
         this.world3d.removeRigidBody(body);
     }
+    useWorker(...args) { }
+    mode(...args) { }
+    sleep(...args) { }
+    scaleRatio(...args) { }
+    tilesizeRatio(...args) { }
+    world(...args) { }
+    createFixture(...args) { }
+    createBody(...args) { }
+    destroyBody(...args) { }
+    createJoint(...args) { }
+    destroyJoint(...args) { }
+    getBodiesInRegion(...args) { }
+    staticsFromMap(...args) { }
+    destroyWalls(...args) { }
+    contactListener(...args) { }
+    networkDebugMode(...args) { }
+    enableDebug(...args) { }
+    updateCallback(...args) { }
+    start(...args) { }
+    stop(...args) { }
+    queueAction(...args) { }
+    update(...args) { }
+    destroy(...args) { }
+    _triggerContactEvent(...args) { }
+    _triggerLeaveEvent(...args) { }
+    _beginContactCallback(...args) { }
+    _endContactCallback(...args) { }
+    _enableContactListener(...args) { }
 }
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = RapierComponent;

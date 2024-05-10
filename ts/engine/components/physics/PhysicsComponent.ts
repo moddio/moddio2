@@ -8,6 +8,8 @@ class PhysicsComponent extends TaroEventingClass {
 	// engine specific
 	engine: string;
 	simulation: Box2dComponent | RapierComponent;
+	// experimental
+	log: (...args: any[]) => string;
 
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => void) {
 		super();
