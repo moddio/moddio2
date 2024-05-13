@@ -13,6 +13,7 @@ class PhysicsComponent extends TaroEventingClass {
 	// avgPhysicsTickDuration = 20.0;
 
 	world: RAPIER.World;
+	rigidBody: RAPIER.RigidBody;
 
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => void) {
 		super();
@@ -29,9 +30,9 @@ class PhysicsComponent extends TaroEventingClass {
 	async load(): Promise<void> {
 		this.simulation = new Box2dComponent(this._entity, this._options);
 		await this.simulation.load();
-		this._callback();
 
 		await RAPIER.init();
+		this._callback();
 
 		let gravity = { x: 0.0, y: -9.81, z: 0.0 };
 		let world = new RAPIER.World(gravity);
@@ -44,26 +45,21 @@ class PhysicsComponent extends TaroEventingClass {
 		// Create a dynamic rigid-body.
 		let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(0.0, 1.0, 0.0);
 		let rigidBody = world.createRigidBody(rigidBodyDesc);
+		this.rigidBody = rigidBody;
 
 		// Create a cuboid collider attached to the dynamic rigidBody.
 		let colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
 		let collider = world.createCollider(colliderDesc, rigidBody);
+	}
 
-		console.log(world);
+	update(dt: number): void {
+		this.simulation.update(dt);
 
-		// Game loop. Replace by your own game loop system.
-		let gameLoop = () => {
-			// Ste the simulation forward.
-			world.step();
+		this.world.step();
 
-			// Get and print the rigid-body's position.
-			let position = rigidBody.translation();
-			console.log('Rigid-body position: ', position.x, position.y, position.z);
-
-			setTimeout(gameLoop, 16);
-		};
-
-		gameLoop();
+		// Get and print the rigid-body's position.
+		let position = this.rigidBody.translation();
+		console.log('Rigid-body position: ', position.x, position.y, position.z);
 	}
 
 	// /* CONVERT TO COMMENT BLOCKS */
@@ -163,9 +159,6 @@ class PhysicsComponent extends TaroEventingClass {
 	// }
 	// // b2d core simulation update method
 	// // stepped by TaroEngine
-	// update(dt: number): void {
-	// 	this.simulation.update(dt);
-	// }
 	// // b2d destroy physics simulation
 	// destroy(): void {
 	// 	this.simulation.destroy();

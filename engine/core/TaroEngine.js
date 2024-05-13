@@ -1722,9 +1722,9 @@ var TaroEngine = TaroEntity.extend({
 						var startTime = performance.now();
 					}
 
-					taro.physics.simulation.update(timeElapsed);
-					taro.physics.simulationTimeElapsed = timeElapsed;
-					taro.physics.simulationLoopTickHasExecuted = true;
+					taro.physics.update(timeElapsed);
+					taro.physicsTimeElapsed = timeElapsed;
+					taro.physicsLoopTickHasExecuted = true;
 
 					// log how long it took to update physics world step
 					if (taro.profiler.isEnabled) {
@@ -1805,7 +1805,7 @@ var TaroEngine = TaroEntity.extend({
 			self.lastTick = self._tickStart;
 			self._dpf = self._drawCount;
 			self._drawCount = 0;
-			if (taro.physics.simulationLoopTickHasExecuted) {
+			if (taro.physicsLoopTickHasExecuted) {
 				if (taro.isServer) {
 					// executes entities' tick() which queues transform streamData to the clients
 					self.renderSceneGraph(ctx);
@@ -1836,7 +1836,7 @@ var TaroEngine = TaroEntity.extend({
 		}
 
 		taro.gameLoopTickHasExecuted = false;
-		taro.physics.simulationLoopTickHasExecuted = false;
+		taro.physicsLoopTickHasExecuted = false;
 
 		et = Date.now();
 		taro._tickTime = et - taro.now;
