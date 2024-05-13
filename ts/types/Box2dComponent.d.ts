@@ -1,4 +1,5 @@
 declare class Box2dComponent extends TaroEventingClass {
+	constructor(entity: TaroEngine, options: PhysicsOptions);
 	engine: string;
 	totalBodiesCreated: number;
 	load(): Promise<void>;

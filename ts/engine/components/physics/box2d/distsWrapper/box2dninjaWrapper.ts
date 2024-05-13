@@ -128,11 +128,11 @@ const box2dninjaWrapper: PhysicsDistProps = {
 
 	createBody: function (self, entity, body) {
 		console.log('createBody', entity._category, body);
-		PhysicsComponent.prototype.log(`createBody of ${entity._stats.name}`);
+		PhysicsComponent.log(`createBody of ${entity._stats.name}`);
 
 		// immediately destroy body if entity already has box2dBody
 		if (!entity) {
-			PhysicsComponent.prototype.log('warning: creating body for non-existent entity');
+			PhysicsComponent.log('warning: creating body for non-existent entity');
 			return;
 		}
 
@@ -352,9 +352,7 @@ const box2dninjaWrapper: PhysicsDistProps = {
 		if (!aBody || aBody.jointType == 'none' || aBody.type == 'none') return;
 
 		// create a joint only if there isn't pre-existing joint
-		PhysicsComponent.prototype.log(
-			`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`
-		);
+		PhysicsComponent.log(`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`);
 
 		if (
 			entityA &&
@@ -379,7 +377,7 @@ const box2dninjaWrapper: PhysicsDistProps = {
 			var joint = self._world.CreateJoint(joint_def); // joint between two pieces
 
 			// var serverStats = taro.status.getSummary()
-			PhysicsComponent.prototype.log('joint created ', aBody.jointType);
+			PhysicsComponent.log('joint created ', aBody.jointType);
 
 			entityA.jointsAttached[entityB.id()] = joint;
 			entityB.jointsAttached[entityA.id()] = joint;

@@ -9,7 +9,9 @@ class PhysicsComponent extends TaroEventingClass {
 	engine: string;
 	simulation: Box2dComponent | RapierComponent;
 	// experimental
-	log: (...args: any[]) => string;
+	_scaleRatio = 30;
+
+	avgPhysicsTickDuration = 20.0;
 
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => void) {
 		super();
@@ -19,13 +21,33 @@ class PhysicsComponent extends TaroEventingClass {
 		this._callback = callback;
 	}
 
+	static log(msg: string, type?: string) {
+		console.log(msg, type);
+	}
+
 	async load(): Promise<void> {
-		this.simulation = this.engine === 'rapier' ? new RapierComponent() : new Box2dComponent();
+		this.simulation =
+			this.engine === 'rapier' ? new RapierComponent() : new Box2dComponent(this._entity, this._options);
 		await this.simulation.load();
 		this._callback();
 	}
 
 	/* CONVERT TO COMMENT BLOCKS */
+
+	createWorld(): void {
+		//@ts-ignore
+		this.simulation.createWorld();
+	}
+
+	gravity(x: number, y: number): void {
+		//@ts-ignore
+		this.simulation.gravity(x, y);
+	}
+
+	setContinuousPhysics(continuousPhysics: boolean) {
+		//@ts-ignore
+		this.simulation.setContinuousPhysics(continuousPhysics);
+	}
 
 	// b2d unused
 	useWorker(): void {}

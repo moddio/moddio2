@@ -9,9 +9,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 		var self = this;
 
 		this._b2dRef = taro.physics;
-		if (this.physics.engine === 'RAPIER') {
-			this.physicsBody = this.physicsBody3d;
-		}
 
 		if (taro.isClient) {
 			self.addComponent(TaroAnimationComponent);

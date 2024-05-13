@@ -58,17 +58,17 @@ const planckWrapper: PhysicsDistProps = {
 	},
 
 	createBody: function (self, entity, body, isLossTolerant) {
-		PhysicsComponent.prototype.log(`createBody of ${entity._stats.name}`);
+		PhysicsComponent.log(`createBody of ${entity._stats.name}`);
 
 		// immediately destroy body if entity already has box2dBody
 		if (!entity) {
-			PhysicsComponent.prototype.log('warning: creating body for non-existent entity');
+			PhysicsComponent.log('warning: creating body for non-existent entity');
 			return;
 		}
 
 		// if there's already a body, destroy it first
 		if (entity.body) {
-			PhysicsComponent.prototype.log('body already exists, destroying body');
+			PhysicsComponent.log('body already exists, destroying body');
 			self.destroyBody(entity);
 		}
 
@@ -206,7 +206,7 @@ const planckWrapper: PhysicsDistProps = {
 								}
 							}
 						} else {
-							PhysicsComponent.prototype.log(
+							PhysicsComponent.log(
 								'Box2D body has no fixtures, have you specified fixtures correctly? They are supposed to be an array of fixture anys.',
 								'warning'
 							);
@@ -226,7 +226,7 @@ const planckWrapper: PhysicsDistProps = {
 		// rotate body to its previous value
 		entity.rotateTo(0, 0, entity._rotate.z);
 
-		PhysicsComponent.prototype.log(
+		PhysicsComponent.log(
 			`successfully created body for ${entity.id()} ${entity._category} ${entity._stats.name} ${entity._stats.type}`
 		);
 

@@ -303,7 +303,7 @@ const PhysicsComponent = TaroEventingClass.extend({
 				}
 			}
 		} else {
-			PhysicsComponent.prototype.log(
+			PhysicsComponent.log(
 				'Cannot extract static bodies from map data because passed map does not have a .map property.',
 				'error'
 			);

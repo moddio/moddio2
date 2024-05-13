@@ -12,19 +12,38 @@ class PhysicsComponent extends TaroEventingClass {
         super();
         this.classId = 'PhysicsComponent';
         this.componentId = 'physics';
+        // experimental
+        this._scaleRatio = 30;
+        this.avgPhysicsTickDuration = 20.0;
         this.engine = options.engine;
         this._entity = entity;
         this._options = options;
         this._callback = callback;
     }
+    static log(msg, type) {
+        console.log(msg, type);
+    }
     load() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.simulation = this.engine === 'rapier' ? new RapierComponent() : new Box2dComponent();
+            this.simulation =
+                this.engine === 'rapier' ? new RapierComponent() : new Box2dComponent(this._entity, this._options);
             yield this.simulation.load();
             this._callback();
         });
     }
     /* CONVERT TO COMMENT BLOCKS */
+    createWorld() {
+        //@ts-ignore
+        this.simulation.createWorld();
+    }
+    gravity(x, y) {
+        //@ts-ignore
+        this.simulation.gravity(x, y);
+    }
+    setContinuousPhysics(continuousPhysics) {
+        //@ts-ignore
+        this.simulation.setContinuousPhysics(continuousPhysics);
+    }
     // b2d unused
     useWorker() { }
     // b2d get/set

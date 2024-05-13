@@ -5,13 +5,15 @@
 var Box2dComponent = TaroEventingClass.extend({
 	classId: 'Box2dComponent',
 
-	init: function () {
+	init: function (entity, options, callback) {
 		// Check that the engine has not already started
 		// as this will mess everything up if it has
 		if (taro._state != 0) {
 			console.log('Cannot add box2d physics component to the taro instance once the engine has started!', 'error');
 		}
 
+		this._entity = entity;
+		this._options = options;
 		this._mode = 0;
 		this._actionQueue = [];
 		this.physicsTickDuration = 0;
@@ -41,7 +43,6 @@ var Box2dComponent = TaroEventingClass.extend({
 		this._scaleRatio = 30;
 		// this.engine = 'crash';
 		console.log('Physics engine: ', this.engine);
-		console.log(this.gravity);
 	},
 
 	load: async function () {
@@ -67,7 +68,7 @@ var Box2dComponent = TaroEventingClass.extend({
 
 			return this._useWorker;
 		} else {
-			PhysicsComponent.prototype.log(
+			PhysicsComponent.log(
 				'Web workers were not detected on this browser. Cannot access useWorker() method.',
 				'warning'
 			);
@@ -184,13 +185,14 @@ var Box2dComponent = TaroEventingClass.extend({
 		if (body || (entity && entity.body)) {
 			body = body || entity.body;
 			if (this.engine === 'BOX2DWASM') {
-				var fixture = taro.physics.recordLeak(body.GetFixtureList());
+				var fixture = taro.physics.simulation.recordLeak(body.GetFixtureList());
 				while (
 					fixture !== undefined &&
-					taro.physics.getPointer(fixture) !== taro.physics.getPointer(taro.physics.nullPtr)
+					taro.physics.simulation.getPointer(fixture) !==
+						taro.physics.simulation.getPointer(taro.physics.simulation.nullPtr)
 				) {
 					body.DestroyFixture(fixture);
-					var fixture = taro.physics.recordLeak(fixture.GetNext());
+					var fixture = taro.physics.simulation.recordLeak(fixture.GetNext());
 				}
 			}
 			destroyBody = this._world.destroyBody;
@@ -229,7 +231,7 @@ var Box2dComponent = TaroEventingClass.extend({
 				entity._box2dTheirContactFixture = null;
 			}
 		} else {
-			PhysicsComponent.prototype.log("failed to destroy body - body doesn't exist.");
+			PhysicsComponent.log("failed to destroy body - body doesn't exist.");
 		}
 	},
 
@@ -252,7 +254,7 @@ var Box2dComponent = TaroEventingClass.extend({
 				delete entityB.jointsAttached[entityA.id()];
 			}
 		} else {
-			PhysicsComponent.prototype.log('joint cannot be destroyed: one or more bodies missing');
+			PhysicsComponent.log('joint cannot be destroyed: one or more bodies missing');
 		}
 	},
 
@@ -399,7 +401,7 @@ var Box2dComponent = TaroEventingClass.extend({
 				}
 			}
 		} else {
-			PhysicsComponent.prototype.log(
+			PhysicsComponent.log(
 				'Cannot extract box2d static bodies from map data because passed map does not have a .map property!',
 				'error'
 			);
@@ -500,7 +502,7 @@ var Box2dComponent = TaroEventingClass.extend({
 				.drawBounds(false)
 				.mount(mountScene);
 		} else {
-			PhysicsComponent.prototype.log(
+			PhysicsComponent.log(
 				'Cannot enable box2d debug drawing because the passed argument is not an object on the scenegraph.',
 				'error'
 			);
@@ -572,7 +574,7 @@ var Box2dComponent = TaroEventingClass.extend({
 	},
 
 	queueAction: function (action) {
-		// PhysicsComponent.prototype.log("queueAction: "+action.type);
+		// PhysicsComponent.log("queueAction: "+action.type);
 		this._actionQueue.push(action);
 	},
 
@@ -659,9 +661,9 @@ var Box2dComponent = TaroEventingClass.extend({
 								}
 							}
 
-							var mxfp = dists[taro.physics.engine].getmxfp(tempBod, self);
-							var x = mxfp.x * taro.physics._scaleRatio;
-							var y = mxfp.y * taro.physics._scaleRatio;
+							var mxfp = dists[this.engine].getmxfp(tempBod, self);
+							var x = mxfp.x * taro.physics.simulation._scaleRatio;
+							var y = mxfp.y * taro.physics.simulation._scaleRatio;
 							// make projectile auto-rotate toward its path. ideal for arrows or rockets that should point toward its direction
 							// if (entity._category == 'projectile' &&
 							// 	entity._stats.currentBody && !entity._stats.currentBody.fixedRotation &&
@@ -814,13 +816,13 @@ var Box2dComponent = TaroEventingClass.extend({
 							if (tempBod.asleep) {
 								// The tempBod was asleep last frame, fire an awake event
 								tempBod.asleep = false;
-								taro.physics.emit('afterAwake', entity);
+								taro.physics.simulation.emit('afterAwake', entity);
 							}
 						} else {
 							if (!tempBod.asleep) {
 								// The tempBod was awake last frame, fire an asleep event
 								tempBod.asleep = true;
-								taro.physics.emit('afterAsleep', entity);
+								taro.physics.simulation.emit('afterAsleep', entity);
 							}
 						}
 					}
@@ -995,51 +997,55 @@ var Box2dComponent = TaroEventingClass.extend({
 	// Listen for when contact's begin
 	_beginContactCallback: function (contact) {
 		if (taro.physics.engine === 'BOX2DWASM') {
-			const nowContact = taro.physics.recordLeak(taro.physics.wrapPointer(contact, taro.physics.b2Contact));
-			const fixtureA = taro.physics.recordLeak(nowContact.GetFixtureA());
-			const bodyA = taro.physics.recordLeak(fixtureA.GetBody());
-			const fixtureB = taro.physics.recordLeak(nowContact.GetFixtureB());
-			const bodyB = taro.physics.recordLeak(fixtureB.GetBody());
-			var entityA = taro.physics.metaData[taro.physics.getPointer(bodyA)]._entity;
-			var entityB = taro.physics.metaData[taro.physics.getPointer(bodyB)]._entity;
+			const nowContact = taro.physics.simulation.recordLeak(
+				taro.physics.simulation.wrapPointer(contact, taro.physics.simulation.b2Contact)
+			);
+			const fixtureA = taro.physics.simulation.recordLeak(nowContact.GetFixtureA());
+			const bodyA = taro.physics.simulation.recordLeak(fixtureA.GetBody());
+			const fixtureB = taro.physics.simulation.recordLeak(nowContact.GetFixtureB());
+			const bodyB = taro.physics.simulation.recordLeak(fixtureB.GetBody());
+			var entityA = taro.physics.simulation.metaData[taro.physics.simulation.getPointer(bodyA)]._entity;
+			var entityB = taro.physics.simulation.metaData[taro.physics.simulation.getPointer(bodyB)]._entity;
 			if (!entityA || !entityB) return;
 
-			taro.physics.freeFromCache(contact);
-			taro.physics._triggerContactEvent(entityA, entityB);
-			taro.physics._triggerContactEvent(entityB, entityA);
+			taro.physics.simulation.freeFromCache(contact);
+			taro.physics.simulation._triggerContactEvent(entityA, entityB);
+			taro.physics.simulation._triggerContactEvent(entityB, entityA);
 		} else {
 			var entityA = contact.m_fixtureA.m_body._entity;
 			var entityB = contact.m_fixtureB.m_body._entity;
 
 			if (!entityA || !entityB) return;
 
-			taro.physics._triggerContactEvent(entityA, entityB);
-			taro.physics._triggerContactEvent(entityB, entityA);
+			taro.physics.simulation._triggerContactEvent(entityA, entityB);
+			taro.physics.simulation._triggerContactEvent(entityB, entityA);
 		}
 	},
 
 	_endContactCallback: function (contact) {
 		if (taro.physics.engine === 'BOX2DWASM') {
-			const nowContact = taro.physics.recordLeak(taro.physics.wrapPointer(contact, taro.physics.b2Contact));
-			const fixtureA = taro.physics.recordLeak(nowContact.GetFixtureA());
-			const bodyA = taro.physics.recordLeak(fixtureA.GetBody());
-			const fixtureB = taro.physics.recordLeak(nowContact.GetFixtureB());
-			const bodyB = taro.physics.recordLeak(fixtureB.GetBody());
-			var entityA = taro.physics.metaData[taro.physics.getPointer(bodyA)]._entity;
-			var entityB = taro.physics.metaData[taro.physics.getPointer(bodyB)]._entity;
+			const nowContact = taro.physics.simulation.recordLeak(
+				taro.physics.simulation.wrapPointer(contact, taro.physics.simulation.b2Contact)
+			);
+			const fixtureA = taro.physics.simulation.recordLeak(nowContact.GetFixtureA());
+			const bodyA = taro.physics.simulation.recordLeak(fixtureA.GetBody());
+			const fixtureB = taro.physics.simulation.recordLeak(nowContact.GetFixtureB());
+			const bodyB = taro.physics.simulation.recordLeak(fixtureB.GetBody());
+			var entityA = taro.physics.simulation.metaData[taro.physics.simulation.getPointer(bodyA)]._entity;
+			var entityB = taro.physics.simulation.metaData[taro.physics.simulation.getPointer(bodyB)]._entity;
 
 			if (!entityA || !entityB) return;
-			taro.physics.freeFromCache(contact);
-			taro.physics._triggerLeaveEvent(entityA, entityB);
-			taro.physics._triggerLeaveEvent(entityB, entityA);
+			taro.physics.simulation.freeFromCache(contact);
+			taro.physics.simulation._triggerLeaveEvent(entityA, entityB);
+			taro.physics.simulation._triggerLeaveEvent(entityB, entityA);
 		} else {
 			var entityA = contact.m_fixtureA.m_body._entity;
 			var entityB = contact.m_fixtureB.m_body._entity;
 
 			if (!entityA || !entityB) return;
 
-			taro.physics._triggerLeaveEvent(entityA, entityB);
-			taro.physics._triggerLeaveEvent(entityB, entityA);
+			taro.physics.simulation._triggerLeaveEvent(entityA, entityB);
+			taro.physics.simulation._triggerLeaveEvent(entityB, entityA);
 		}
 	},
 
