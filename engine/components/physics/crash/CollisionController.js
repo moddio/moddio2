@@ -37,7 +37,7 @@ const dyn_static_exitPosition = function (a, b, overlapV) {
 
 const dyn_static_exitVelocity = function (a_entity, overlapN) {
 	//
-	let aVel = new taro.physics.crash.Vector(a_entity._velocity.x, a_entity._velocity.y);
+	let aVel = new taro.physics.simulation.crash.Vector(a_entity._velocity.x, a_entity._velocity.y);
 	const a_restitution = a_entity.body.fixtures[0].restitution;
 
 	aVel = aVel.clone().sub(aVel.projectN(overlapN).scale(2));
@@ -82,8 +82,8 @@ const dyn_dyn_exitVelocities = function (a_entity, b_entity, overlapN) {
 	const a_restitution = a_entity.body.fixtures[0].restitution;
 	const b_restitution = b_entity.body.fixtures[0].restitution;
 
-	let aVel = new taro.physics.crash.Vector(a_entity._velocity.x, a_entity._velocity.y);
-	let bVel = new taro.physics.crash.Vector(b_entity._velocity.x, b_entity._velocity.y);
+	let aVel = new taro.physics.simulation.crash.Vector(a_entity._velocity.x, a_entity._velocity.y);
+	let bVel = new taro.physics.simulation.crash.Vector(b_entity._velocity.x, b_entity._velocity.y);
 	temp = aVel;
 
 	aVel = bVel.clone().projectN(normal).add(aVel.clone().projectN(tangent));

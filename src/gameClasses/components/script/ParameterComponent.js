@@ -74,7 +74,7 @@ var ParameterComponent = TaroEntity.extend({
 			width: 100,
 		};
 
-		var entities = taro.physics.getBodiesInRegion({
+		var entities = taro.physics.simulation.getBodiesInRegion({
 			x: position.x,
 			y: position.y,
 			width: defaultArea.width,
@@ -322,7 +322,7 @@ var ParameterComponent = TaroEntity.extend({
 								}
 							} else {
 								// region is either dynamic or a variable with {x, y, height, width} properties
-								returnValue = taro.physics.getBodiesInRegion(region).filter(function (entity) {
+								returnValue = taro.physics.simulation.getBodiesInRegion(region).filter(function (entity) {
 									return entity.id() === unit.id();
 								}).length;
 
@@ -369,7 +369,7 @@ var ParameterComponent = TaroEntity.extend({
 								}
 							} else {
 								// region is either dynamic or a variable with {x, y, height, width} properties
-								returnValue = taro.physics.getBodiesInRegion(region).filter(function (entity) {
+								returnValue = taro.physics.simulation.getBodiesInRegion(region).filter(function (entity) {
 									return entity.id() === item.id();
 								}).length;
 
@@ -1078,7 +1078,7 @@ var ParameterComponent = TaroEntity.extend({
 
 					// case 'getUnitInFrontOfUnit':
 					// 	if (entity && entity._category == 'unit') {
-					// 		var entities = taro.physics.getBodiesInRegion({
+					// 		var entities = taro.physics.simulation.getBodiesInRegion({
 					// 			x: entity._translate.x - 7 + (35 * Math.cos(entity._rotate.z + Math.radians(-90))),
 					// 			y: entity._translate.y - 7 + (35 * Math.sin(entity._rotate.z + Math.radians(-90))),
 					// 			width: 14,
@@ -1614,13 +1614,13 @@ var ParameterComponent = TaroEntity.extend({
 
 						if (positionA && positionB) {
 							positionA = {
-								x: positionA.x / taro.physics._scaleRatio,
-								y: positionA.y / taro.physics._scaleRatio,
+								x: positionA.x / taro.physics.simulation._scaleRatio,
+								y: positionA.y / taro.physics.simulation._scaleRatio,
 							};
 
 							positionB = {
-								x: positionB.x / taro.physics._scaleRatio,
-								y: positionB.y / taro.physics._scaleRatio,
+								x: positionB.x / taro.physics.simulation._scaleRatio,
+								y: positionB.y / taro.physics.simulation._scaleRatio,
 							};
 
 							taro.raycaster.raycastLine(positionA, positionB);
@@ -2405,7 +2405,7 @@ var ParameterComponent = TaroEntity.extend({
 								region.height &&
 								!isNaN(region.height)
 							) {
-								returnValue = taro.physics.getBodiesInRegion(region).filter(({ _category }) => {
+								returnValue = taro.physics.simulation.getBodiesInRegion(region).filter(({ _category }) => {
 									return self._entity.script.action.entityCategories.includes(_category) || !_category;
 								});
 							} else {
@@ -2475,11 +2475,13 @@ var ParameterComponent = TaroEntity.extend({
 						if (region) {
 							// region represent some instance of TaroRegion
 							if (region._stats) {
-								returnValue = taro.physics.getBodiesInRegion(region._stats.default).filter(({ _category }) => {
-									return self._entity.script.action.entityCategories.includes(_category) || !_category;
-								});
+								returnValue = taro.physics.simulation
+									.getBodiesInRegion(region._stats.default)
+									.filter(({ _category }) => {
+										return self._entity.script.action.entityCategories.includes(_category) || !_category;
+									});
 							} else {
-								returnValue = taro.physics.getBodiesInRegion(region).filter(({ _category }) => {
+								returnValue = taro.physics.simulation.getBodiesInRegion(region).filter(({ _category }) => {
 									return self._entity.script.action.entityCategories.includes(_category) || !_category;
 								});
 							}
@@ -2756,7 +2758,7 @@ var ParameterComponent = TaroEntity.extend({
 
 				if (region) {
 					var regionBounds = region._stats ? region._stats.default : region;
-					return taro.physics.getBodiesInRegion(regionBounds).filter(({ _category }) => {
+					return taro.physics.simulation.getBodiesInRegion(regionBounds).filter(({ _category }) => {
 						return _category === 'unit';
 					});
 				} else {

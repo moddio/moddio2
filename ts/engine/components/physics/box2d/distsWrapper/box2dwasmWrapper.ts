@@ -109,7 +109,7 @@ const box2dwasmWrapper: PhysicsDistProps = {
 				if (!component.renderer) {
 					const canvas = taro.renderer.scene.getScene('Game');
 					ctx = canvas.add.graphics().setDepth(9999);
-					const scale = taro.physics._scaleRatio;
+					const scale = taro.physics.simulation._scaleRatio;
 					ctx.setScale(scale);
 					const newRenderer = new Box2dDebugDraw(box2D, new Box2dHelpers(box2D), ctx, scale).constructJSDraw();
 					newRenderer.SetFlags(flags);
@@ -186,8 +186,8 @@ const box2dwasmWrapper: PhysicsDistProps = {
 
 	queryAABB: function (self, aabb, callback) {
 		self.world().QueryAABB(callback, aabb);
-		taro.physics.destroyB2dObj?.(callback);
-		taro.physics.destroyB2dObj?.(aabb);
+		taro.physics.simulation.destroyB2dObj?.(callback);
+		taro.physics.simulation.destroyB2dObj?.(aabb);
 	},
 
 	createBody: function (self, entity, body, isLossTolerant) {

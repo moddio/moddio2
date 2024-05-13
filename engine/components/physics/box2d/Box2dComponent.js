@@ -150,7 +150,7 @@ var Box2dComponent = TaroEventingClass.extend({
 		for (param in params) {
 			if (params.hasOwnProperty(param)) {
 				if (param !== 'shape' && param !== 'filter') {
-					if (taro.physics.engine !== 'BOX2DWASM') {
+					if (taro.physics.simulation.engine !== 'BOX2DWASM') {
 						tempDef[param] = params[param];
 					} else {
 						if (tempDef[`set_${param}`]) {
@@ -262,13 +262,13 @@ var Box2dComponent = TaroEventingClass.extend({
 	getBodiesInRegion: function (region) {
 		var self = this;
 
-		if (taro.physics.engine === 'crash') {
+		if (taro.physics.simulation.engine === 'crash') {
 			var collider = new self.crash.Box(
 				new self.crash.Vector(region.x + region.width / 2, region.y + region.height / 2),
 				region.width,
 				region.height
 			);
-			return taro.physics.crash.search(collider);
+			return taro.physics.simulation.crash.search(collider);
 		} else {
 			var aabb = new self.b2AABB();
 
@@ -376,7 +376,7 @@ var Box2dComponent = TaroEventingClass.extend({
 				this.walls.push(wall);
 
 				// walls must be created immediately, because there isn't actionQueue for walls
-				taro.physics.createBody(wall, {
+				taro.physics.simulation.createBody(wall, {
 					type: 'static',
 					linearDamping: 0,
 					angularDamping: 0,
@@ -552,7 +552,7 @@ var Box2dComponent = TaroEventingClass.extend({
 			}
 		}
 
-		if (taro.isServer || (taro.isClient && taro.physics)) {
+		if (taro.isServer || (taro.isClient && taro.physics.simulation)) {
 			self._enableContactListener();
 		}
 	},
@@ -996,7 +996,7 @@ var Box2dComponent = TaroEventingClass.extend({
 
 	// Listen for when contact's begin
 	_beginContactCallback: function (contact) {
-		if (taro.physics.engine === 'BOX2DWASM') {
+		if (taro.physics.simulation.engine === 'BOX2DWASM') {
 			const nowContact = taro.physics.simulation.recordLeak(
 				taro.physics.simulation.wrapPointer(contact, taro.physics.simulation.b2Contact)
 			);
@@ -1023,7 +1023,7 @@ var Box2dComponent = TaroEventingClass.extend({
 	},
 
 	_endContactCallback: function (contact) {
-		if (taro.physics.engine === 'BOX2DWASM') {
+		if (taro.physics.simulation.engine === 'BOX2DWASM') {
 			const nowContact = taro.physics.simulation.recordLeak(
 				taro.physics.simulation.wrapPointer(contact, taro.physics.simulation.b2Contact)
 			);
@@ -1052,7 +1052,7 @@ var Box2dComponent = TaroEventingClass.extend({
 	_enableContactListener: function () {
 		// Set the contact listener methods to detect when
 		// contacts (collisions) begin and end
-		taro.physics.contactListener(this._beginContactCallback, this._endContactCallback);
+		taro.physics.simulation.contactListener(this._beginContactCallback, this._endContactCallback);
 	},
 });
 

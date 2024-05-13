@@ -1701,7 +1701,7 @@ var TaroEngine = TaroEntity.extend({
 			// Update the scenegraph - this is where entity _behaviour() is called which dictates things like attr regen speed also this cache-busts streamDataCache.
 			self.updateSceneGraph(ctx);
 
-			if (taro.physics) {
+			if (taro.physics.simulation) {
 				taro.tickCount = 0;
 				taro.updateTransform = 0;
 				taro.inViewCount = 0;
@@ -1722,9 +1722,9 @@ var TaroEngine = TaroEntity.extend({
 						var startTime = performance.now();
 					}
 
-					taro.physics.update(timeElapsed);
-					taro.physicsTimeElapsed = timeElapsed;
-					taro.physicsLoopTickHasExecuted = true;
+					taro.physics.simulation.update(timeElapsed);
+					taro.physics.simulationTimeElapsed = timeElapsed;
+					taro.physics.simulationLoopTickHasExecuted = true;
 
 					// log how long it took to update physics world step
 					if (taro.profiler.isEnabled) {
@@ -1805,7 +1805,7 @@ var TaroEngine = TaroEntity.extend({
 			self.lastTick = self._tickStart;
 			self._dpf = self._drawCount;
 			self._drawCount = 0;
-			if (taro.physicsLoopTickHasExecuted) {
+			if (taro.physics.simulationLoopTickHasExecuted) {
 				if (taro.isServer) {
 					// executes entities' tick() which queues transform streamData to the clients
 					self.renderSceneGraph(ctx);
@@ -1836,7 +1836,7 @@ var TaroEngine = TaroEntity.extend({
 		}
 
 		taro.gameLoopTickHasExecuted = false;
-		taro.physicsLoopTickHasExecuted = false;
+		taro.physics.simulationLoopTickHasExecuted = false;
 
 		et = Date.now();
 		taro._tickTime = et - taro.now;
@@ -2349,9 +2349,8 @@ var TaroEngine = TaroEntity.extend({
 											gameJson.data[mergeableKey][key].hasOwnProperty(index) &&
 											typeof gameJson.data[mergeableKey][key][index] === 'object' &&
 											Array.isArray(mergeableKeys[mergeableKey]) &&
-											mergeableKeys[mergeableKey].includes(index) 
+											mergeableKeys[mergeableKey].includes(index)
 										) {
-
 											for (let subIndex in gameJson.data[mergeableKey][key][index]) {
 												if (
 													gameJson.data[mergeableKey][key][index].hasOwnProperty(subIndex) &&
@@ -2412,21 +2411,21 @@ var TaroEngine = TaroEntity.extend({
 	},
 
 	escapeHtml(input) {
-		return input.replace(/[&<"'>]/g, function(m) {
+		return input.replace(/[&<"'>]/g, function (m) {
 			switch (m) {
 				case '&':
 					return '&amp;';
 				case '<':
 					return '&lt;';
 				case '>':
-					return '&gt;'
+					return '&gt;';
 				case '"':
 					return '&quot;';
 				default:
 					return '&#039;';
 			}
 		});
-	}
+	},
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

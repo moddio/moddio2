@@ -34,13 +34,13 @@ var StatusComponent = TaroEntity.extend({
 			taro._lastCpuUsage = cpuDelta = process.cpuUsage();
 		}
 
-		if (taro.physics && taro.physics.engine != 'CRASH') {
+		if (taro.physics.simulation && taro.physics.simulation.engine != 'CRASH') {
 			// console.log('taro stream',taro.stream);
 
 			var jointCount = 0;
-			var jointList = taro.physics._world && taro.physics._world.getJointList();
-			let getPointer = taro.physics.getPointer;
-			while (jointList && (!getPointer || getPointer(jointList) !== getPointer(taro.physics.nullPtr))) {
+			var jointList = taro.physics.simulation._world && taro.physics.simulation._world.getJointList();
+			let getPointer = taro.physics.simulation.getPointer;
+			while (jointList && (!getPointer || getPointer(jointList) !== getPointer(taro.physics.simulation.nullPtr))) {
 				jointCount++;
 				jointList = jointList.getNext();
 			}
@@ -60,13 +60,16 @@ var StatusComponent = TaroEntity.extend({
 				heapUsed: process.memoryUsage().heapUsed / 1024 / 1024,
 				currentTime: taro._currentTime,
 				physics: {
-					engine: taro.physics.engine,
-					bodyCount: taro.physics._world?.m_bodyCount || taro.physics._world?.GetBodyCount?.() || 0,
-					contactCount: taro.physics._world?.m_contactCount || taro.physics._world?.GetContactCount?.() || 0,
-					jointCount: taro.physics._world?.m_jointCount || taro.physics._world?.GetJointCount?.() || 0,
-					stepDuration: taro.physics.avgPhysicsTickDuration.toFixed(2),
+					engine: taro.physics.simulation.engine,
+					bodyCount:
+						taro.physics.simulation._world?.m_bodyCount || taro.physics.simulation._world?.GetBodyCount?.() || 0,
+					contactCount:
+						taro.physics.simulation._world?.m_contactCount || taro.physics.simulation._world?.GetContactCount?.() || 0,
+					jointCount:
+						taro.physics.simulation._world?.m_jointCount || taro.physics.simulation._world?.GetJointCount?.() || 0,
+					stepDuration: taro.physics.simulation.avgPhysicsTickDuration.toFixed(2),
 					stepsPerSecond: taro._physicsFPS,
-					totalBodiesCreated: taro.physics.totalBodiesCreated,
+					totalBodiesCreated: taro.physics.simulation.totalBodiesCreated,
 				},
 				etc: {
 					totalPlayersCreated: taro.server.totalPlayersCreated,

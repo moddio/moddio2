@@ -275,7 +275,7 @@ const PhysicsComponent = TaroEventingClass.extend({
 				// {copied comment}
 				// walls must be created immediately because there isn't an actionQueue for walls
 
-				taro.physics.createBody(wall, {
+				taro.physics.simulation.createBody(wall, {
 					type: 'static',
 					linearDamping: 0,
 					angularDamping: 0,

@@ -48,9 +48,9 @@ var GameComponent = TaroEntity.extend({
 
 		taro.script.trigger('gameStart');
 		self.hasStarted = true;
-		self.isWorld = !!(taro.game?.data?.defaultData?.isWorld);
-		self.isWorldMap = !!(taro.game?.data?.defaultData?.worldId);
-		
+		self.isWorld = !!taro.game?.data?.defaultData?.isWorld;
+		self.isWorldMap = !!taro.game?.data?.defaultData?.worldId;
+
 		taro.timer.startGameClock();
 
 		taro._physicsTickRate = Math.max(20, Math.min(60, taro.game?.data?.defaultData?.frameRate || 20));
@@ -313,7 +313,7 @@ var GameComponent = TaroEntity.extend({
 				}
 			}
 
-			if (data.status != {} /*&& taro.physics && taro.physics.engine != 'CRASH'*/) {
+			if (data.status != {} /*&& taro.physics.simulation && taro.physics.simulation.engine != 'CRASH'*/) {
 				// if streaming entity count > 150 warn user
 				if (
 					data.status &&
@@ -377,25 +377,25 @@ var GameComponent = TaroEntity.extend({
 					'<tr>' +
 					'<th colspan= >Physics</th>' +
 					`<th>${data.status.physics.engine}</th>` +
-					`<th>${taro.physics ? taro.physics.engine : 'NONE'}</th>` +
+					`<th>${taro.physics.simulation ? taro.physics.simulation.engine : 'NONE'}</th>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Bodies</td>' +
 					`<td>${data.status.physics.bodyCount}</td>` +
-					`<td>${taro.physics && taro.physics._world ? taro.physics._world.m_bodyCount : ''}</td>` +
+					`<td>${taro.physics.simulation && taro.physics.simulation._world ? taro.physics.simulation._world.m_bodyCount : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Joints</td>' +
 					`<td>${data.status.physics.jointCount}</td>` +
-					`<td>${taro.physics && taro.physics._world ? taro.physics._world.m_jointCount : ''}</td>` +
+					`<td>${taro.physics.simulation && taro.physics.simulation._world ? taro.physics.simulation._world.m_jointCount : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Contacts</td>' +
 					`<td>${data.status.physics.contactCount}</td>` +
-					`<td>${taro.physics && taro.physics._world ? taro.physics._world.m_contactCount : ''}</td>` +
+					`<td>${taro.physics.simulation && taro.physics.simulation._world ? taro.physics.simulation._world.m_contactCount : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
@@ -407,13 +407,13 @@ var GameComponent = TaroEntity.extend({
 					'<tr>' +
 					'<td>Avg Step Duration(ms)</td>' +
 					`<td>${data.status.physics.stepDuration}</td>` +
-					`<td>${taro.physics && taro.physics._world ? taro.physics.avgPhysicsTickDuration.toFixed(2) : ''}</td>` +
+					`<td>${taro.physics.simulation && taro.physics.simulation._world ? taro.physics.simulation.avgPhysicsTickDuration.toFixed(2) : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
 					'<td>Physics FPS</td>' +
 					`<td>${data.status.physics.stepsPerSecond}</td>` +
-					`<td>${taro.physics ? taro._physicsFPS : ''}</td>` +
+					`<td>${taro.physics.simulation ? taro._physicsFPS : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +
@@ -460,7 +460,7 @@ var GameComponent = TaroEntity.extend({
 					'<tr>' +
 					'<td>Total Bodies Created</td>' +
 					`<td>${data.status.physics.totalBodiesCreated}</td>` +
-					`<td>${taro.physics && taro.physics._world ? taro.physics.totalBodiesCreated : ''}</td>` +
+					`<td>${taro.physics.simulation && taro.physics.simulation._world ? taro.physics.simulation.totalBodiesCreated : ''}</td>` +
 					'<td></td>' +
 					'</tr>' +
 					'<tr>' +

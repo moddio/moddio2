@@ -1871,7 +1871,7 @@ var TaroEntity = TaroObject.extend({
 	 * @param {CanvasRenderingContext2D} ctx The canvas context to render to.
 	 */
 	update: function (ctx, tickDelta, isForOrphans) {
-		// if (taro.physics.engine === 'CRASH' && this.body) {
+		// if (taro.physics.simulation.engine === 'CRASH' && this.body) {
 		// 	this._behaviourCrash();
 		// }
 		if (this._deathTime !== undefined && this._deathTime <= taro._tickStart) {
@@ -2078,7 +2078,7 @@ var TaroEntity = TaroObject.extend({
 					if (projectile) {
 						var position =
 							taro.game.lastProjectileHitPosition ||
-							// (this.body && taro.physics.engine === 'BOX2DWASM' ? taro.physics.recordLeak(this.body.getPosition()) : this.body.getPosition()) || // this was causing client to crash
+							// (this.body && taro.physics.simulation.engine === 'BOX2DWASM' ? taro.physics.simulation.recordLeak(this.body.getPosition()) : this.body.getPosition()) || // this was causing client to crash
 							this._translate;
 
 						projectile.defaultData = {
@@ -3177,7 +3177,7 @@ var TaroEntity = TaroObject.extend({
 		// console.log('start translate', x, y)
 		if (x !== undefined && y !== undefined && !isNaN(x) && !isNaN(y)) {
 			// console.log('non-crash translate', this._translate)
-			/* if (taro.physics && taro.physics.engine == 'CRASH') {
+			/* if (taro.physics.simulation && taro.physics.simulation.engine == 'CRASH') {
 				console.log('crash translate');
 				this.translateColliderTo(x, y);
 			} */
@@ -3223,11 +3223,15 @@ var TaroEntity = TaroObject.extend({
 
 		if (taro.isServer) {
 			this.clientStreamedPosition = undefined;
-			if (taro.physics && taro.physics.engine == 'CRASH') {
+			if (taro.physics.simulation && taro.physics.simulation.engine == 'CRASH') {
 				this.translateColliderTo(x, y);
 			}
 		} else if (taro.isClient) {
-			if (this === taro.client.selectedUnit && taro.physics && this._stats.controls?.clientPredictedMovement) {
+			if (
+				this === taro.client.selectedUnit &&
+				taro.physics.simulation &&
+				this._stats.controls?.clientPredictedMovement
+			) {
 				taro.client.myUnitStreamedPosition = {
 					x: x,
 					y: y,

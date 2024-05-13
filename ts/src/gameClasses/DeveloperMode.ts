@@ -172,10 +172,10 @@ const debounceSetWasEdited = debounce(mergeSetWasEdited, 0);
 const debounceEditTileSend = debounce(mergeEditTileActions, 0, mergedTemplate);
 
 function recalcWallsPhysics(gameMap: MapData, forPathFinding: boolean) {
-	taro.physics.destroyWalls();
+	taro.physics.simulation.destroyWalls();
 	let map = taro.scaleMap(rfdc()(gameMap));
 	taro.tiled.loadJson(map, function (layerArray, layersById) {
-		taro.physics.staticsFromMap(layersById.walls);
+		taro.physics.simulation.staticsFromMap(layersById.walls);
 		if (taro.isClient) {
 			// visibility mask
 			taro.client.emit('update-walls');
@@ -1151,12 +1151,12 @@ class DeveloperMode {
 			data.mapData.wasEdited = false;
 			data.mapData.haveUnsavedChanges = true;
 			taro.game.data.map = data.mapData;
-			if (taro.physics) {
+			if (taro.physics.simulation) {
 				//if changes was in 'walls' layer we destroy all old walls and create new staticsFromMap
-				taro.physics.destroyWalls();
+				taro.physics.simulation.destroyWalls();
 				let map = taro.scaleMap(rfdc()(taro.game.data.map));
 				taro.tiled.loadJson(map, function (layerArray, TaroLayersById) {
-					taro.physics.staticsFromMap(TaroLayersById.walls);
+					taro.physics.simulation.staticsFromMap(TaroLayersById.walls);
 					taro.client.emit('update-walls');
 				});
 			}

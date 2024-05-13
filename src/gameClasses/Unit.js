@@ -1474,7 +1474,7 @@ var Unit = TaroEntityPhysics.extend({
 					rotate: item.anchoredOffset.rotate,
 				};
 
-				if (taro.physics.engine === 'CRASH') {
+				if (taro.physics.simulation.engine === 'CRASH') {
 					item.crashBody.pos.x = defaultData.translate.x;
 					item.crashBody.pos.y = defaultData.translate.y;
 					item._translate.x = defaultData.translate.x;
@@ -2251,7 +2251,7 @@ var Unit = TaroEntityPhysics.extend({
 		// if entity (unit/item/player/projectile) has attribute, run regenerate
 		if (
 			taro.isServer ||
-			(taro.physics &&
+			(taro.physics.simulation &&
 				taro.isClient &&
 				taro.client.selectedUnit == this &&
 				this._stats.controls?.clientPredictedMovement)
@@ -2302,7 +2302,7 @@ var Unit = TaroEntityPhysics.extend({
 			taro.client.emit('unit-position', [this._translate.x, this._translate.y]);
 		}
 
-		if (taro.physics && taro.physics.engine != 'CRASH') {
+		if (taro.physics.simulation && taro.physics.simulation.engine != 'CRASH') {
 			this.processBox2dQueue();
 		}
 	},

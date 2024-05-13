@@ -8,7 +8,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 		TaroEntity.prototype.init.call(this, defaultData);
 		const self = this;
 
-		// this._b2dRef = taro.physics;
+		// this._b2dRef = taro.physics.simulation;
 
 		if (taro.isClient) {
 			self.addComponent(TaroAnimationComponent);
@@ -16,7 +16,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 		}
 
 		// Check if crash is enabled in the engine
-		if (taro.isServer && taro.physics) {
+		if (taro.isServer && taro.physics.simulation) {
 			this._translateToProto = this.translateTo;
 			this._translateByProto = this.translateBy;
 			this._rotateToProto = this.rotateTo;
@@ -166,7 +166,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 	 * @return {*}
 	 */
 	crashActive: function (val) {
-		if (taro.physics && this.crashBody) {
+		if (taro.physics.simulation && this.crashBody) {
 			if (val !== undefined) {
 				this.crashBody.awake = val;
 				return this;
@@ -190,8 +190,8 @@ const TaroEntityPhysics = TaroEntity.extend({
 			this.bodyDef = def;
 
 			// Check that the crash component exists
-			if (taro.physics && !this.crashBody) {
-				taro.physics.createBody(this, def);
+			if (taro.physics.simulation && !this.crashBody) {
+				taro.physics.simulation.createBody(this, def);
 			}
 
 			return this;
@@ -212,14 +212,14 @@ const TaroEntityPhysics = TaroEntity.extend({
 			this._translate.x = this.crashBody.pos.x;
 			this._translate.y = this.crashBody.pos.y;
 
-			//taro.physics.crash.cancel();
+			//taro.physics.simulation.crash.cancel();
 			this.crashBody.disable = false;
 		}
 	},
 
 	destroyBody: function () {
-		if (taro.physics) {
-			taro.physics.destroyBody(this.crashBody);
+		if (taro.physics.simulation) {
+			taro.physics.simulation.destroyBody(this.crashBody);
 			this.crashActive(false);
 		}
 	},
@@ -267,7 +267,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 
 	applyTorque: function (torque) {
 		console.log('apply torque is disabled for now');
-		//if (taro.physics._world.isLocked() || this.body == undefined) {
+		//if (taro.physics.simulation._world.isLocked() || this.body == undefined) {
 		/*} else {
 			//this.applyTorqueLT(torque);
 		}*/
@@ -290,9 +290,9 @@ const TaroEntityPhysics = TaroEntity.extend({
 	applyForce: function (x, y) {
 		console.log('apply force is disabled for now');
 		// if body doesn't exist yet, queue
-		/*if (!taro.physics) return;
+		/*if (!taro.physics.simulation) return;
 
-		if (!taro.physics._world.isLocked() && this.body != undefined) {
+		if (!taro.physics.simulation._world.isLocked() && this.body != undefined) {
 			//this.applyForceLT(x, y);
 		} */
 	},
@@ -302,7 +302,7 @@ const TaroEntityPhysics = TaroEntity.extend({
 		console.log('apply impulse is disabled for now');
 		// if body doesn't exist yet, queue
 
-		/*if (!taro.physics._world.isLocked() && this.body != undefined) {
+		/*if (!taro.physics.simulation._world.isLocked() && this.body != undefined) {
 			this.applyImpulseLT(x, y);
 		}*/
 	},

@@ -263,12 +263,12 @@ class AStarPathfindingComponent extends TaroEntity {
 		for (let i = 0; i < 5; i++) {
 			taro.raycaster.raycastLine(
 				{
-					x: (unit._translate.x + maxBodySizeShift * xTune[i]) / taro.physics._scaleRatio,
-					y: (unit._translate.y + maxBodySizeShift * yTune[i]) / taro.physics._scaleRatio,
+					x: (unit._translate.x + maxBodySizeShift * xTune[i]) / taro.physics.simulation._scaleRatio,
+					y: (unit._translate.y + maxBodySizeShift * yTune[i]) / taro.physics.simulation._scaleRatio,
 				},
 				{
-					x: (targetX + (tileWidth / 2) * Math.sqrt(2) * xTune[i]) / taro.physics._scaleRatio,
-					y: (targetY + (tileWidth / 2) * Math.sqrt(2) * yTune[i]) / taro.physics._scaleRatio,
+					x: (targetX + (tileWidth / 2) * Math.sqrt(2) * xTune[i]) / taro.physics.simulation._scaleRatio,
+					y: (targetY + (tileWidth / 2) * Math.sqrt(2) * yTune[i]) / taro.physics.simulation._scaleRatio,
 				}
 			);
 			for (let i = 0; i < taro.game.entitiesCollidingWithLastRaycast.length; i++) {
