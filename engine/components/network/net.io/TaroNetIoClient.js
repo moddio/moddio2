@@ -498,7 +498,7 @@ var TaroNetIoClient = {
 									entity.teleportTo(x, y, rotate, isTeleportingCamera);
 								} else if (
 									entity == taro.client.selectedUnit &&
-									taro.physics &&
+									taro.physics.simulation &&
 									entity._stats.controls?.clientPredictedMovement
 								) {
 									if (taro.env === 'local' || taro.debugCSP) {

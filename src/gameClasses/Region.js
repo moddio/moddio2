@@ -46,7 +46,7 @@ var Region = TaroEntityPhysics.extend({
 
 			var regionDimension = self._stats.default;
 
-			if (taro.physics && taro.physics.engine === 'CRASH') {
+			if (taro.physics.simulation && taro.physics.simulation.engine === 'CRASH') {
 				self._translate.x = regionDimension.x;
 				self._translate.y = regionDimension.y;
 			} else {

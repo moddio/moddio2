@@ -64,20 +64,22 @@ declare class TaroEngine extends TaroClass {
 	engineStep(currentTime: number, ctx: number): void;
 
 	physics: {
-		_box2dDebug: any;
-		staticsFromMap(walls: any): unknown;
-		destroyWalls(): unknown;
-		world(): any;
-		enableDebug(flags: number): void;
-		disableDebug(): void;
-		engine: 'BOX2DWASM' | 'BOX2DWEB' | 'PLANCK';
-		metaData: any;
-		getPointer?: (...args: any) => any;
-		recordLeak?: (...args: any) => any;
-		tryRecordLeak?: (...args: any) => any;
-		destroyB2dObj?: (...args: any) => any;
-		box2D?: typeof Box2D & EmscriptenModule;
-		_scaleRatio: number;
+		simulation: {
+			_box2dDebug: any;
+			staticsFromMap(walls: any): unknown;
+			destroyWalls(): unknown;
+			world(): any;
+			enableDebug(flags: number): void;
+			disableDebug(): void;
+			engine: 'BOX2DWASM' | 'BOX2DWEB' | 'PLANCK';
+			metaData: any;
+			getPointer?: (...args: any) => any;
+			recordLeak?: (...args: any) => any;
+			tryRecordLeak?: (...args: any) => any;
+			destroyB2dObj?: (...args: any) => any;
+			box2D?: typeof Box2D & EmscriptenModule;
+			_scaleRatio: number;
+		};
 	};
 
 	$(item: number | string | object): any;

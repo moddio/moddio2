@@ -156,7 +156,7 @@ var AbilityComponent = TaroEntity.extend({
 				// moved attribute cost processing to its own method
 				this.payCost(ability, player);
 
-				if (taro.isServer || (taro.isClient && taro.physics)) {
+				if (taro.isServer || (taro.isClient && taro.physics.simulation)) {
 					if (ability.scriptName && ability.scriptName != '') {
 						if (taro.game.data.scripts[ability.scriptName]) {
 							AbilityComponent.prototype.log(
@@ -184,7 +184,10 @@ var AbilityComponent = TaroEntity.extend({
 						const triggeredFrom = isWorldEntity ? 'world' : 'map';
 
 						// now both entity and global scripts (removed if/else)
-						self._entity.script.runScript(ability.scriptName, { triggeredBy: { unitId: self._entity.id() }, triggeredFrom });
+						self._entity.script.runScript(ability.scriptName, {
+							triggeredBy: { unitId: self._entity.id() },
+							triggeredFrom,
+						});
 					}
 				}
 			} else {
@@ -277,7 +280,10 @@ var AbilityComponent = TaroEntity.extend({
 		const triggeredFrom = isWorldEntity ? 'world' : 'map';
 
 		// run script associated with this ability
-		this._entity.script.runScript(ability.eventScripts.startCasting, { triggeredBy: { unitId: this._entity.id() }, triggeredFrom });
+		this._entity.script.runScript(ability.eventScripts.startCasting, {
+			triggeredBy: { unitId: this._entity.id() },
+			triggeredFrom,
+		});
 
 		this.activeAbilities[abilityId] = true;
 
@@ -315,7 +321,10 @@ var AbilityComponent = TaroEntity.extend({
 		const triggeredFrom = isWorldEntity ? 'world' : 'map';
 
 		// run script associated with this ability
-		this._entity.script.runScript(ability.eventScripts.stopCasting, { triggeredBy: { unitId: this._entity.id() }, triggeredFrom });
+		this._entity.script.runScript(ability.eventScripts.stopCasting, {
+			triggeredBy: { unitId: this._entity.id() },
+			triggeredFrom,
+		});
 
 		if (taro.isClient && this._entity._stats.clientId === taro.network.id()) {
 			// find key if not provided

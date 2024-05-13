@@ -340,14 +340,14 @@ const Client = TaroEventingClass.extend({
 		});
 	},
 
-	loadPhysics: function () {
+	loadPhysics: async function () {
 		// this will be empty string in data if no client-side physics
-
 		const clientPhysicsEngine = taro.game.data.defaultData.clientPhysicsEngine;
 		const serverPhysicsEngine = taro.game.data.defaultData.physicsEngine;
 		const resolveFunc = this.physicsConfigLoaded.resolve.bind(this);
 		if (clientPhysicsEngine) {
-			taro.addComponent(PhysicsComponent, undefined, resolveFunc).physics.sleep(true);
+			taro.addComponent(PhysicsComponent, { engine: clientPhysicsEngine }, resolveFunc);
+			await taro.physics.load();
 		} else {
 			resolveFunc();
 		}
@@ -383,7 +383,7 @@ const Client = TaroEventingClass.extend({
 				this.startTaroEngine();
 				this.loadMap();
 
-				if (taro.physics) {
+				if (taro.physics.simulation) {
 					// old comment => 'always enable CSP'
 					this.loadCSP();
 				}
@@ -664,14 +664,17 @@ const Client = TaroEventingClass.extend({
 		const gravity = taro.game.data.settings.gravity;
 
 		if (gravity) {
-			taro.physics.gravity(gravity.x, gravity.y);
+			taro.physics.simulation.gravity(gravity.x, gravity.y);
+			console.log(taro.physics.simulation.gravity);
 		}
-		taro.physics.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
-		if (taro.physics.engine == 'CRASH') {
-			taro.physics.addBorders();
+
+		taro.physics.simulation.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
+		if (taro.physics.simulation.engine == 'CRASH') {
+			taro.physics.simulation.addBorders();
 		}
-		taro.physics.createWorld();
-		taro.physics.start();
+
+		taro.physics.simulation.createWorld();
+		taro.physics.simulation.start();
 		taro.raycaster = new Raycaster();
 	},
 

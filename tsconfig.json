@@ -5,6 +5,7 @@
 		"sourceMap": true,
 		"outDir": ".",
 		"rootDir": "ts",
+		"moduleResolution":"node",
 		"typeRoots": [
 			"node_modules/@types",
 			"node_modules/phaser/types",
@@ -14,12 +15,12 @@
 			"node",
 			"jquery",
 			"phaser",
-      "three",
+			"three"
 		]
 	},
 	"include": [
         "**/*",
-        "node_modules/phaser3-rex-plugins-types"
+        "node_modules/phaser3-rex-plugins-types",
     ],
 	"exclude": [
 		"node_modules"

@@ -3824,10 +3824,10 @@ var ActionComponent = TaroEntity.extend({
 							var gameMap = taro.game.data.map;
 							gameMap.wasEdited = true;
 
-							taro.physics.destroyWalls();
+							taro.physics.simulation.destroyWalls();
 							var map = taro.scaleMap(rfdc()(gameMap));
 							taro.tiled.loadJson(map, function (layerArray, layersById) {
-								taro.physics.staticsFromMap(layersById.walls);
+								taro.physics.simulation.staticsFromMap(layersById.walls);
 							});
 						}
 						break;

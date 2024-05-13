@@ -109,7 +109,7 @@ const box2dwasmWrapper: PhysicsDistProps = {
 				if (!component.renderer) {
 					const canvas = taro.renderer.scene.getScene('Game');
 					ctx = canvas.add.graphics().setDepth(9999);
-					const scale = taro.physics._scaleRatio;
+					const scale = taro.physics.simulation._scaleRatio;
 					ctx.setScale(scale);
 					const newRenderer = new Box2dDebugDraw(box2D, new Box2dHelpers(box2D), ctx, scale).constructJSDraw();
 					newRenderer.SetFlags(flags);
@@ -186,16 +186,16 @@ const box2dwasmWrapper: PhysicsDistProps = {
 
 	queryAABB: function (self, aabb, callback) {
 		self.world().QueryAABB(callback, aabb);
-		taro.physics.destroyB2dObj?.(callback);
-		taro.physics.destroyB2dObj?.(aabb);
+		taro.physics.simulation.destroyB2dObj?.(callback);
+		taro.physics.simulation.destroyB2dObj?.(aabb);
 	},
 
 	createBody: function (self, entity, body, isLossTolerant) {
 		const box2D = self.box2D as typeof Box2D & EmscriptenModule;
-		PhysicsComponent.prototype.log(`createBody of ${entity._stats.name}`);
+		PhysicsComponent.log(`createBody of ${entity._stats.name}`);
 		// immediately destroy body if entity already has box2dBody
 		if (!entity) {
-			PhysicsComponent.prototype.log('warning: creating body for non-existent entity');
+			PhysicsComponent.log('warning: creating body for non-existent entity');
 			return;
 		}
 
@@ -352,7 +352,7 @@ const box2dwasmWrapper: PhysicsDistProps = {
 								}
 
 								if (fixtureDef.filter && finalFixture) {
-									tempFilterData = self.recordLeak(new self._entity.physics.b2FilterData());
+									tempFilterData = self.recordLeak(new self.b2FilterData());
 
 									if (fixtureDef.filter.filterCategoryBits !== undefined) {
 										tempFilterData.categoryBits = fixtureDef.filter.filterCategoryBits;
@@ -414,9 +414,7 @@ const box2dwasmWrapper: PhysicsDistProps = {
 		if (!aBody || aBody.jointType == 'none' || aBody.type == 'none') return;
 
 		// create a joint only if there isn't pre-existing joint
-		PhysicsComponent.prototype.log(
-			`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`
-		);
+		PhysicsComponent.log(`creating ${aBody.jointType} joint between ${entityA._stats.name} and ${entityB._stats.name}`);
 
 		if (
 			entityA &&
@@ -450,7 +448,7 @@ const box2dwasmWrapper: PhysicsDistProps = {
 			self.destroyB2dObj(joint_def);
 			self.freeLeaked();
 			// var serverStats = taro.status.getSummary()
-			PhysicsComponent.prototype.log('joint created ', aBody.jointType);
+			PhysicsComponent.log('joint created ', aBody.jointType);
 
 			entityA.jointsAttached[entityB.id()] = joint;
 			entityB.jointsAttached[entityA.id()] = joint;

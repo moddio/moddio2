@@ -513,7 +513,7 @@ var Server = TaroClass.extend({
 			}
 
 			promise
-				.then((game) => {
+				.then(async (game) => {
 					if (game?.gameJson && game?.worldJson) {
 						game = taro.mergeGameJson(game?.worldJson, game?.gameJson);
 					} else {
@@ -566,19 +566,19 @@ var Server = TaroClass.extend({
 					// Add physics and setup physics world
 					// use callback here is bc the box2dwasm needs time to init
 					const loadRest = () => {
-						if (taro.physics.gravity) {
-							taro.physics.sleep(true);
-							taro.physics.tilesizeRatio(tilesizeRatio);
+						if (taro.physics.simulation.gravity) {
+							taro.physics.simulation.sleep(true);
+							taro.physics.simulation.tilesizeRatio(tilesizeRatio);
 							if (game.data.settings) {
 								var gravity = game.data.settings.gravity;
 								if (gravity) {
 									// console.log('setting gravity', gravity);
-									taro.physics.gravity(gravity.x, gravity.y);
+									taro.physics.simulation.gravity(gravity.x, gravity.y);
 								}
 							}
-							taro.physics.setContinuousPhysics(!!game?.data?.settings?.continuousPhysics);
-							taro.physics.createWorld();
-							taro.physics.start();
+							taro.physics.simulation.setContinuousPhysics(!!game?.data?.settings?.continuousPhysics);
+							taro.physics.simulation.createWorld();
+							taro.physics.simulation.start();
 							taro.raycaster = new Raycaster();
 							taro.developerMode = new DeveloperMode();
 
@@ -641,7 +641,8 @@ var Server = TaroClass.extend({
 						}
 					};
 
-					taro.addComponent(PhysicsComponent, undefined, loadRest);
+					taro.addComponent(PhysicsComponent, { engine: taro.game.data.defaultData.physicsEngine }, loadRest);
+					await taro.physics.load();
 				})
 				.catch((err) => {
 					console.log('got error while loading game json', err);

@@ -73,7 +73,7 @@ var Item = TaroEntityPhysics.extend({
 		}
 		self.setState(self._stats.stateId, self._stats.defaultData);
 
-		self.scaleRatio = taro.physics && taro.physics.scaleRatio();
+		self.scaleRatio = taro.physics.simulation && taro.physics.simulation.scaleRatio();
 		if (taro.isServer) {
 			if (self._stats.streamMode == 1 || self._stats.streamMode == undefined) {
 				this.streamMode(1);
@@ -335,7 +335,7 @@ var Item = TaroEntityPhysics.extend({
 				owner.script.trigger('thisUnitUsesItem', triggerParams); // this entity (unit)
 				taro.script.trigger('unitUsesItem', triggerParams); // unit uses item
 
-				if (taro.physics && self._stats.type == 'weapon') {
+				if (taro.physics.simulation && self._stats.type == 'weapon') {
 					if (self._stats.isGun) {
 						if (self._stats.bulletStartPosition) {
 							var rotate = this._rotate.z;
@@ -369,7 +369,7 @@ var Item = TaroEntityPhysics.extend({
 
 							if (
 								this._stats.isGun &&
-								(taro.isServer || (taro.isClient && taro.physics)) // render projectile on clientside if physics is enabled
+								(taro.isServer || (taro.isClient && taro.physics.simulation)) // render projectile on clientside if physics is enabled
 							) {
 								var defaultData = {
 									rotate: rotate,
@@ -576,7 +576,7 @@ var Item = TaroEntityPhysics.extend({
 							};
 							// console.log(owner._translate.x, owner._translate.y, hitbox);                                              //////////Hitbox log
 
-							entities = taro.physics.getBodiesInRegion(hitbox);
+							entities = taro.physics.simulation.getBodiesInRegion(hitbox);
 
 							while (entities.length > 0) {
 								var entity = entities.shift();
@@ -1186,7 +1186,7 @@ var Item = TaroEntityPhysics.extend({
 						// if the item's CSP is enabled, ignore server-stream so my item use won't fire two bullets
 						if (taro.isClient) {
 							// ignore server-stream if client isn't running physics or if projectileStreamMode is 0 (client-side projectile)
-							if (owner == taro.client.selectedUnit && taro.physics && !this._stats.projectileStreamMode) {
+							if (owner == taro.client.selectedUnit && taro.physics.simulation && !this._stats.projectileStreamMode) {
 								break;
 							}
 							this._stats.isBeingUsed = newValue;
@@ -1302,7 +1302,7 @@ var Item = TaroEntityPhysics.extend({
 			}
 		}
 
-		if (taro.physics && taro.physics.engine != 'CRASH') {
+		if (taro.physics.simulation && taro.physics.simulation.engine != 'CRASH') {
 			this.processBox2dQueue();
 		}
 	},

@@ -8,7 +8,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		TaroEntity.prototype.init.call(this, defaultData);
 		var self = this;
 
-		this._b2dRef = taro.physics;
+		this._b2dRef = taro.physics.simulation;
 
 		if (taro.isClient) {
 			self.addComponent(TaroAnimationComponent);
@@ -16,7 +16,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		}
 
 		// Check if box2d is enabled in the engine
-		if (taro.physics) {
+		if (taro.physics.simulation) {
 			if (!this._b2dRef._networkDebugMode) {
 				// Store the existing transform methods
 				this._translateToProto = this.translateTo;
@@ -55,7 +55,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	updateBody: function (defaultData, isLossTolerant) {
 		var self = this;
 
-		// console.log("updatebody", this._stats.name, defaultData, this._stats.currentBody.type)
+		console.log('updatebody', this._stats.name, defaultData, this._stats.currentBody.type);
 		// console.trace()
 
 		body = this._stats.currentBody;
@@ -232,12 +232,12 @@ var TaroEntityPhysics = TaroEntity.extend({
 			// console.trace()
 			// taro.devLog("box2dBody", this._category, this._stats.name)
 			// Check that the box2d component exists
-			if (taro.physics) {
+			if (taro.physics.simulation) {
 				if (isLossTolerant) {
-					taro.physics.createBody(this, def, isLossTolerant);
+					taro.physics.simulation.createBody(this, def, isLossTolerant);
 				} else {
 					this.destroyBody();
-					taro.physics.queueAction({ type: 'createBody', entity: this, def: def });
+					taro.physics.simulation.queueAction({ type: 'createBody', entity: this, def: def });
 				}
 			} else {
 				// TaroEntityPhysics.prototype.log('You are trying to create a box2d entity but you have not added the box2d component to the taro instance!', 'error');
@@ -258,7 +258,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 			}
 		}
 
-		taro.physics && taro.physics.queueAction({ type: 'destroyBody', entity: this, body: this.body });
+		taro.physics.simulation &&
+			taro.physics.simulation.queueAction({ type: 'destroyBody', entity: this, body: this.body });
 	},
 	/**
 	 * Gets / sets the box2d body's gravitic value. If set to false,
@@ -269,7 +270,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	 */
 	gravitic: function (val) {
 		if (this.body) {
-			switch (taro.physics.engine) {
+			switch (taro.physics.simulation.engine) {
 				case 'BOX2DWASM': {
 					this.body.SetGravityScale(!val ? 0 : 1);
 					return !!val;
@@ -362,7 +363,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			this.detachEntity(entityId);
 		}
 		var self = this;
-		taro.physics.queueAction({
+		taro.physics.simulation.queueAction({
 			type: 'createJoint',
 			entityA: self,
 			entityB: entityB,
@@ -376,7 +377,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		if (entityId && attachedEntity) {
 			TaroEntityPhysics.prototype.log(`detachEntity ${this._stats.name} ${attachedEntity._stats.name}`);
 
-			taro.physics.queueAction({
+			taro.physics.simulation.queueAction({
 				type: 'destroyJoint',
 				entityA: this,
 				entityB: attachedEntity,
@@ -384,7 +385,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		}
 	},
 	applyTorque: function (torque) {
-		if (taro.physics._world.isLocked() || this.body == undefined) {
+		if (taro.physics.simulation._world.isLocked() || this.body == undefined) {
 			this.queueAction({
 				type: 'applyTorque',
 				torque: torque,
@@ -396,8 +397,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	setLinearVelocity: function (x, y, z, isLossTolerant) {
 		// if body doesn't exist yet, queue
-		// console.log("3. locked", taro.physics._world.isLocked(), "body",  this.body != undefined, isLossTolerant);
-		if ((!taro.physics._world.isLocked() && this.body != undefined) || isLossTolerant) {
+		// console.log("3. locked", taro.physics.simulation._world.isLocked(), "body",  this.body != undefined, isLossTolerant);
+		if ((!taro.physics.simulation._world.isLocked() && this.body != undefined) || isLossTolerant) {
 			this.setLinearVelocityLT(x, y);
 		} else {
 			// console.log("4. queue setLinearVelocity", x, y);
@@ -412,10 +413,10 @@ var TaroEntityPhysics = TaroEntity.extend({
 	setLinearVelocityLT: function (x, y) {
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				if (taro.physics.engine === 'BOX2DWASM') {
-					let v = new taro.physics.b2Vec2(x, y);
+				if (taro.physics.simulation.engine === 'BOX2DWASM') {
+					let v = new taro.physics.simulation.b2Vec2(x, y);
 					this.body.setLinearVelocity(v);
-					taro.physics.destroyB2dObj(v);
+					taro.physics.simulation.destroyB2dObj(v);
 				} else {
 					this.body.setLinearVelocity(new TaroPoint3d(x, y, 0));
 				}
@@ -428,9 +429,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 	// lossless applyForce
 	applyForce: function (x, y) {
 		// if body doesn't exist yet, queue
-		if (!taro.physics) return;
+		if (!taro.physics.simulation) return;
 
-		if (!taro.physics._world.isLocked() && this.body != undefined) {
+		if (!taro.physics.simulation._world.isLocked() && this.body != undefined) {
 			this.applyForceLT(x, y);
 		} else {
 			this.queueAction({
@@ -447,10 +448,10 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				var thrustVector = new taro.physics.b2Vec2(x, y);
+				var thrustVector = new taro.physics.simulation.b2Vec2(x, y);
 				this.body.applyForce(thrustVector, this.body.getWorldCenter());
-				if (taro.physics.engine === 'BOX2DWASM') {
-					taro.physics.destroyB2dObj(thrustVector);
+				if (taro.physics.simulation.engine === 'BOX2DWASM') {
+					taro.physics.simulation.destroyB2dObj(thrustVector);
 				}
 			}
 		} catch (e) {
@@ -463,7 +464,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	applyImpulse: function (x, y) {
 		// if body doesn't exist yet, queue
 
-		if (!taro.physics._world.isLocked() && this.body != undefined) {
+		if (!taro.physics.simulation._world.isLocked() && this.body != undefined) {
 			this.applyImpulseLT(x, y);
 		} else {
 			this.queueAction({
@@ -479,10 +480,10 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// taro.devLog("applyForce", x, y)
 		try {
 			if (!isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
-				var thrustVector = new taro.physics.b2Vec2(x, y);
+				var thrustVector = new taro.physics.simulation.b2Vec2(x, y);
 				this.body.applyLinearImpulse(thrustVector, this.body.getWorldCenter());
-				if (taro.physics.engine === 'BOX2DWASM') {
-					taro.physics.destroyB2dObj(thrustVector);
+				if (taro.physics.simulation.engine === 'BOX2DWASM') {
+					taro.physics.simulation.destroyB2dObj(thrustVector);
 				}
 			}
 		} catch (e) {
@@ -503,7 +504,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	_setupContactListeners: function () {
 		var self = this;
 
-		taro.physics.contactListener(
+		taro.physics.simulation.contactListener(
 			// Listen for when contact's begin
 			function (contact) {
 				// Loop the collision listeners and check for a match
@@ -577,7 +578,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this._translateToProto(x, y);
 
 		if (this.body) {
-			if (taro.physics._world && !taro.physics._world.isLocked()) {
+			if (taro.physics.simulation._world && !taro.physics.simulation._world.isLocked()) {
 				this.translateToLT(x, y);
 			} else {
 				this.queueAction({
@@ -600,7 +601,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	// loss tolerent
 	translateToLT: function (x, y) {
 		if (this.body) {
-			if (taro.physics.engine == 'crash') {
+			if (taro.physics.simulation.engine == 'crash') {
 				var position = {
 					x: x,
 					y: y,
@@ -651,7 +652,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		if (body && body.type !== 'none' && body.type !== 'spriteOnly') {
 			// Check if the entity has a box2d body attached
 			// and if so, is it updating or not
-			if ((taro.physics._world && taro.physics._world.isLocked()) || this.body == undefined) {
+			if ((taro.physics.simulation._world && taro.physics.simulation._world.isLocked()) || this.body == undefined) {
 				this.queueAction({
 					type: 'rotateTo',
 					angle: z,
@@ -789,7 +790,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	processBox2dQueue: function (ctx) {
 		// process box2d only when box2d world is unlocked
-		if (taro.physics && taro.physics._active && taro.physics._world) {
+		if (taro.physics.simulation && taro.physics.simulation._active && taro.physics.simulation._world) {
 			if (this.body) {
 				var x = 0;
 				// return;

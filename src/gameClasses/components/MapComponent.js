@@ -13,15 +13,16 @@ var MapComponent = TaroEntity.extend({
 
 		if (taro.isServer) {
 			taro.addComponent(TaroTiledComponent).tiled.loadJson(data, function (layerArray, layersById) {
-				if (layersById.walls) taro.physics.staticsFromMap(layersById.walls);
+				if (layersById.walls) taro.physics.simulation.staticsFromMap(layersById.walls);
 
 				self.createRegions();
 			});
 		} else if (taro.isClient) {
 			$.when(taro.client.taroEngineStarted).done(function () {
 				taro.addComponent(TaroTiledComponent).tiled.loadJson(data, function (TaroLayerArray, TaroLayersById) {
-					if (taro.physics && TaroLayersById.walls) {
-						taro.physics.staticsFromMap(TaroLayersById.walls);
+					if (taro.physics.simulation && TaroLayersById.walls) {
+						console.log(TaroLayersById.walls);
+						taro.physics.simulation.staticsFromMap(TaroLayersById.walls);
 					}
 
 					taro.client.mapLoaded.resolve();

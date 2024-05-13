@@ -1701,7 +1701,7 @@ var TaroEngine = TaroEntity.extend({
 			// Update the scenegraph - this is where entity _behaviour() is called which dictates things like attr regen speed also this cache-busts streamDataCache.
 			self.updateSceneGraph(ctx);
 
-			if (taro.physics) {
+			if (taro.physics.simulation) {
 				taro.tickCount = 0;
 				taro.updateTransform = 0;
 				taro.inViewCount = 0;
@@ -2349,9 +2349,8 @@ var TaroEngine = TaroEntity.extend({
 											gameJson.data[mergeableKey][key].hasOwnProperty(index) &&
 											typeof gameJson.data[mergeableKey][key][index] === 'object' &&
 											Array.isArray(mergeableKeys[mergeableKey]) &&
-											mergeableKeys[mergeableKey].includes(index) 
+											mergeableKeys[mergeableKey].includes(index)
 										) {
-
 											for (let subIndex in gameJson.data[mergeableKey][key][index]) {
 												if (
 													gameJson.data[mergeableKey][key][index].hasOwnProperty(subIndex) &&
@@ -2412,21 +2411,21 @@ var TaroEngine = TaroEntity.extend({
 	},
 
 	escapeHtml(input) {
-		return input.replace(/[&<"'>]/g, function(m) {
+		return input.replace(/[&<"'>]/g, function (m) {
 			switch (m) {
 				case '&':
 					return '&amp;';
 				case '<':
 					return '&lt;';
 				case '>':
-					return '&gt;'
+					return '&gt;';
 				case '"':
 					return '&quot;';
 				default:
 					return '&#039;';
 			}
 		});
-	}
+	},
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

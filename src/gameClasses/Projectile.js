@@ -173,7 +173,7 @@ var Projectile = TaroEntityPhysics.extend({
 			}
 		}
 
-		if (taro.physics && taro.physics.engine != 'CRASH') {
+		if (taro.physics.simulation && taro.physics.simulation.engine != 'CRASH') {
 			this.processBox2dQueue();
 		}
 	},
@@ -330,7 +330,7 @@ var Projectile = TaroEntityPhysics.extend({
 		this.script.trigger('initEntityDestroy');
 		this.playEffect('destroy');
 		TaroEntityPhysics.prototype.destroy.call(this);
-		if (taro.physics && taro.physics.engine == 'CRASH') {
+		if (taro.physics.simulation && taro.physics.simulation.engine == 'CRASH') {
 			this.destroyBody();
 		}
 	},
