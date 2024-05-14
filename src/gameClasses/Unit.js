@@ -1296,7 +1296,13 @@ var Unit = TaroEntityPhysics.extend({
 						item.script.trigger('entityCreated');
 					}
 
-					slotIndex = !isNaN(parseFloat(slotIndex)) ? slotIndex : availableSlot - 1;
+					slotIndex =
+						!isNaN(parseFloat(slotIndex)) &&
+						Array.isArray(itemData.controls?.permittedInventorySlots) &&
+						(itemData.controls.permittedInventorySlots.length() === 0 ||
+							itemData.controls.permittedInventorySlots.indexOf(slotIndex + 1) !== -1)
+							? slotIndex
+							: availableSlot - 1;
 
 					// Item
 					item.streamUpdateData([{ ownerUnitId: self.id() }]);
