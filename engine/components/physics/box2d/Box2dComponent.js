@@ -599,7 +599,7 @@ var Box2dComponent = TaroEventingClass.extend({
 					// console.log(action.type, "entity:", action.entity != null, (action.entity != null)?action.entity._category + " " + action.entity._stats.name:"null", " entityA:",  action.entityA != null, (action.entityA != null)?action.entityA._category + " " +action.entityA._stats.name:"null", " entityB:",  action.entityB != null, (action.entityB != null)?action.entityB._category + " " +action.entityB._stats.name:"null")
 					switch (action.type) {
 						case 'createBody':
-							self.createBody(action.entity, action.def);
+							taro.physics.createBody(action.entity, action.def);
 
 							// emit events for updating visibility mask
 							if (taro.isClient && action.entity._category === 'unit' && action.def.type === 'static') {

@@ -15,6 +15,8 @@ class PhysicsComponent extends TaroEventingClass {
 	world: RAPIER.World;
 	rigidBody: RAPIER.RigidBody;
 
+	rigidBodies = new Map<string, number>();
+
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => void) {
 		super();
 		this.engine = options.engine;
@@ -57,9 +59,23 @@ class PhysicsComponent extends TaroEventingClass {
 
 		this.world.step();
 
-		// Get and print the rigid-body's position.
-		let position = this.rigidBody.translation();
-		console.log('Rigid-body position: ', position.x, position.y, position.z);
+		const keys = this.rigidBodies.keys();
+		for (const entityId of keys) {
+			const rigidBodyHandle = this.rigidBodies.get(entityId);
+			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
+			const entity = taro.$(entityId);
+			if (entity && rigidBody) {
+				console.log('Extracting physics info into entity: ', entityId);
+			}
+		}
+	}
+
+	createBody(entity: TaroEntity, body: b2Body): void {
+		this.simulation.createBody(entity, body);
+
+		const rigidBodyDesc = RAPIER.RigidBodyDesc.kinematicVelocityBased();
+		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
+		this.rigidBodies.set(entity.id(), rigidBody.handle);
 	}
 
 	// /* CONVERT TO COMMENT BLOCKS */
@@ -106,9 +122,6 @@ class PhysicsComponent extends TaroEventingClass {
 	// 	return this.simulation.createFixture(params);
 	// }
 	// // b2d create body from definition and assign it to provided entity
-	// createBody(entity: TaroEntity, body: b2Body, isLossTolerant?: boolean): void {
-	// 	this.simulation.createBody(entity, body, isLossTolerant || false);
-	// }
 	// // b2d destroy body and remove it from entity
 	// destroyBody(entity: TaroEntity, body: b2Body): void {
 	// 	this.simulation.destroyBody(entity, body);
@@ -154,9 +167,6 @@ class PhysicsComponent extends TaroEventingClass {
 	// 	this.simulation.stop();
 	// }
 	// // b2d add physics actions to the engine's queue
-	// queueAction(action: { type: string } & Record<string, any>): void {
-	// 	this.simulation.queueAction(action);
-	// }
 	// // b2d core simulation update method
 	// // stepped by TaroEngine
 	// // b2d destroy physics simulation

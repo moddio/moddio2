@@ -234,7 +234,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 			// Check that the box2d component exists
 			if (taro.physics.simulation) {
 				if (isLossTolerant) {
-					taro.physics.simulation.createBody(this, def, isLossTolerant);
+					taro.physics.createBody(this, def, isLossTolerant);
 				} else {
 					this.destroyBody();
 					taro.physics.simulation.queueAction({ type: 'createBody', entity: this, def: def });
