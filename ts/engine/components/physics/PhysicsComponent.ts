@@ -40,22 +40,22 @@ class PhysicsComponent extends TaroEventingClass {
 		let world = new RAPIER.World(gravity);
 		this.world = world;
 
-		// Create the ground
 		let groundColliderDesc = RAPIER.ColliderDesc.cuboid(10.0, 0.1, 10.0);
 		world.createCollider(groundColliderDesc);
-
-		// Create a dynamic rigid-body.
-		let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(0.0, 1.0, 0.0);
-		let rigidBody = world.createRigidBody(rigidBodyDesc);
-		this.rigidBody = rigidBody;
-
-		// Create a cuboid collider attached to the dynamic rigidBody.
-		let colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
-		let collider = world.createCollider(colliderDesc, rigidBody);
 	}
 
 	update(dt: number): void {
 		this.simulation.update(dt);
+
+		for (const entityId of this.rigidBodies.keys()) {
+			const rigidBodyHandle = this.rigidBodies.get(entityId);
+			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
+			const entity = taro.$(entityId);
+			if (entity && rigidBody) {
+				const { y } = rigidBody.linvel();
+				rigidBody.setLinvel({ x: entity.vector.x, y, z: entity.vector.y }, true);
+			}
+		}
 
 		this.world.step();
 
@@ -65,17 +65,28 @@ class PhysicsComponent extends TaroEventingClass {
 			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
 			const entity = taro.$(entityId);
 			if (entity && rigidBody) {
-				console.log('Extracting physics info into entity: ', entityId);
+				const pos = rigidBody.translation();
+				entity._translate.x = pos.x * 64;
+				entity._translate.y = pos.z * 64;
 			}
 		}
 	}
 
 	createBody(entity: TaroEntity, body: b2Body): void {
-		this.simulation.createBody(entity, body);
+		if (entity._category === 'sensor') return;
 
-		const rigidBodyDesc = RAPIER.RigidBodyDesc.kinematicVelocityBased();
+		// this.simulation.createBody(entity, body);
+
+		const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
+
+		const pos = entity._translate;
+		rigidBody.setTranslation({ x: pos.x / 64, y: 5, z: pos.y / 64 }, true);
+
 		this.rigidBodies.set(entity.id(), rigidBody.handle);
+
+		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
+		const collider = this.world.createCollider(colliderDesc, rigidBody);
 	}
 
 	// /* CONVERT TO COMMENT BLOCKS */
