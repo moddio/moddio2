@@ -22,6 +22,9 @@ declare class TaroEntity extends TaroObject {
 	angleToTarget: number;
 	tween: TweenComponent;
 
+	serverPosition: TaroPoint3d;
+	serverRotation: TaroPoint3d;
+
 	_deathCallBack?: () => void;
 	_behaviour?: () => void;
 	anchoredOffset: any;

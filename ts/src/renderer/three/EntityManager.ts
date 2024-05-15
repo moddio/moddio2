@@ -46,6 +46,7 @@ namespace Renderer {
 
 				return entity;
 			}
+
 			destroyInitEntity(initEntity: InitEntity) {
 				initEntity.destroy();
 

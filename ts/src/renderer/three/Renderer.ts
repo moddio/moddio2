@@ -55,6 +55,9 @@ namespace Renderer {
 			private debugMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
 			private debugMesh = new THREE.LineSegments(this.debugGeometry, this.debugMaterial);
 
+			private maxDebugShapes = 500;
+			private debugShapes = new THREE.Group();
+
 			private constructor() {
 				// For JS interop; in case someone uses new Renderer.ThreeRenderer()
 				if (!Renderer._instance) {
@@ -789,6 +792,14 @@ namespace Renderer {
 				});
 
 				this.scene.add(this.debugMesh);
+
+				this.scene.add(this.debugShapes);
+
+				const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1));
+				for (let i = 0; i < this.maxDebugShapes; i++) {
+					const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00ffff }));
+					this.debugShapes.add(line);
+				}
 			}
 
 			private render() {
@@ -832,6 +843,8 @@ namespace Renderer {
 				const { vertices } = taro.physics.world.debugRender();
 				this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
+				this.renderDebugShapes(this.entityManager.entities);
+
 				TWEEN.update();
 				this.renderer.render(this.scene, this.camera.instance);
 			}
@@ -845,6 +858,29 @@ namespace Renderer {
 
 			private isEntityInLineOfSight(unit: Unit) {
 				return this.camera.isVisible(unit, this.voxels);
+			}
+
+			private renderDebugShapes(entities: (Unit | Region | Item)[]) {
+				for (const shape of this.debugShapes.children) {
+					shape.visible = false;
+				}
+
+				for (const [idx, entity] of entities.entries()) {
+					if (entity instanceof Region || idx >= this.maxDebugShapes) continue;
+
+					const shape = this.debugShapes.children[idx];
+
+					const pos = entity.taroEntity.serverPosition;
+					shape.position.set(Utils.pixelToWorld(pos.x), Utils.pixelToWorld(pos.z), Utils.pixelToWorld(pos.y));
+
+					const rot = entity.taroEntity.serverRotation;
+					shape.rotation.set(rot.x, rot.z, rot.y);
+
+					const size = entity.body.scale;
+					shape.scale.copy(size);
+
+					shape.visible = true;
+				}
 			}
 		}
 	}
