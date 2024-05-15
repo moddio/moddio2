@@ -71,6 +71,9 @@ var TaroEntity = TaroObject.extend({
 			[0, 0, this._rotate.z],
 		];
 
+		this.serverPosition = { x: 0, y: 0, z: 0 };
+		this.serverRotation = { x: 0, y: 0, z: 0 };
+
 		this._isTransforming = true;
 		this.lastTransformedAt = 0;
 		this.latestTimeStamp = 0;

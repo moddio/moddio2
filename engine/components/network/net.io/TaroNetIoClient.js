@@ -494,10 +494,17 @@ var TaroNetIoClient = {
 							// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
 							var entity = taro.$(entityId);
 
+							entity.serverPosition.x = x;
+							entity.serverPosition.y = y;
+							entity.serverPosition.z = z;
+							// entity.serverRotation.x = 0;
+							// entity.serverRotation.y = 0;
+							entity.serverRotation.z = rotate;
+
 							// console.log(entity != undefined, isTeleporting)
 							if (entity) {
 								if (isTeleporting) {
-									entity.teleportTo(x, y, rotate, isTeleportingCamera);
+									entity.teleportTo(x, y, z, rotate, isTeleportingCamera);
 								} else if (
 									entity == taro.client.selectedUnit &&
 									taro.physics.simulation &&
