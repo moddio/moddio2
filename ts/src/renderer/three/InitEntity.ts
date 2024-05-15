@@ -52,9 +52,9 @@ namespace Renderer {
 					this.rotation.order = 'YXZ';
 					this.rotation.y = THREE.MathUtils.degToRad(action.angle);
 				}
-
-				if (!isNaN(action.width) && !isNaN(action.height))
-					this.scale.set(action.width / this.defaultWidth, 1, action.height / this.defaultHeight);
+				if (!isNaN(action.width) && !isNaN(action.height)) {
+					this.scale.set(Utils.pixelToWorld(action.width), 1, Utils.pixelToWorld(action.height));
+				}
 				if (taro.developerMode.active && taro.developerMode.activeTab === 'map') {
 					body.visible = true;
 				} else {
@@ -102,11 +102,11 @@ namespace Renderer {
 				}
 				if (!isNaN(this.action.width) && !isNaN(action.width)) {
 					this.action.width = action.width;
-					this.scale.setX(action.width / this.defaultWidth);
+					this.scale.setX(Utils.pixelToWorld(action.width));
 				}
 				if (!isNaN(this.action.height) && !isNaN(action.height)) {
 					this.action.height = action.height;
-					this.scale.setZ(action.height / this.defaultHeight);
+					this.scale.setZ(Utils.pixelToWorld(action.height));
 				}
 				if (action.wasDeleted) {
 					const renderer = Renderer.Three.instance();

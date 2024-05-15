@@ -154,6 +154,7 @@ namespace Renderer {
 					this.preview.setOpacity(0.5);
 					renderer.initEntityLayer.add(this.preview);
 				}
+				this.preview.scale.set(Utils.pixelToWorld(width), 1, Utils.pixelToWorld(height));
 			}
 
 			update(): void {

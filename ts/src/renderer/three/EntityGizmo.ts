@@ -40,8 +40,8 @@ namespace Renderer {
 								editedAction['angle'] = degrees;
 								break;
 							case 'scale':
-								editedAction['width'] = control.object.scale.x * initEntity.defaultWidth;
-								editedAction['height'] = control.object.scale.z * initEntity.defaultHeight;
+								editedAction['width'] = Utils.worldToPixel(control.object.scale.x);
+								editedAction['height'] = Utils.worldToPixel(control.object.scale.z);
 								break;
 						}
 						if (editedAction) {

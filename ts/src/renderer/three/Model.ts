@@ -1,9 +1,10 @@
 namespace Renderer {
 	export namespace Three {
 		export class Model extends Node {
+			size = new THREE.Vector3();
+
 			private scene: THREE.Group;
 			private aabb = new THREE.Box3();
-			private size = new THREE.Vector3();
 			private center = new THREE.Vector3();
 			private originalSize = new THREE.Vector3();
 			private originalScale = new THREE.Vector3();
