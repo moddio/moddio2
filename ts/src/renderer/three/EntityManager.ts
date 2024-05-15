@@ -56,7 +56,7 @@ namespace Renderer {
 				this.initEntities.splice(idx, 1);
 			}
 
-			destroy(entity: Unit) {
+			destroy(entity: Unit | Item | Region) {
 				entity.destroy();
 
 				const idx = this.entities.indexOf(entity, 0);
@@ -64,6 +64,22 @@ namespace Renderer {
 
 				this.entities.splice(idx, 1);
 				this.animatedSprites.splice(this.animatedSprites.indexOf(entity as unknown as AnimatedSprite, 0), 1);
+
+				if (this.units.includes(entity as Unit)) {
+					this.units.splice(this.units.indexOf(entity as Unit, 0), 1);
+				}
+
+				if (this.items.includes(entity as Item)) {
+					this.items.splice(this.items.indexOf(entity as Item, 0), 1);
+				}
+
+				if (this.projectiles.includes(entity as Unit)) {
+					this.projectiles.splice(this.projectiles.indexOf(entity as Unit, 0), 1);
+				}
+
+				if (this.regions.includes(entity as Region)) {
+					this.regions.splice(this.regions.indexOf(entity as Region, 0), 1);
+				}
 			}
 
 			update(dt: number) {
