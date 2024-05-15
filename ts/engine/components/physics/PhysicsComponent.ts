@@ -52,8 +52,10 @@ class PhysicsComponent extends TaroEventingClass {
 			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
 			const entity = taro.$(entityId);
 			if (entity && rigidBody) {
-				const { y } = rigidBody.linvel();
-				rigidBody.setLinvel({ x: entity.vector.x, y, z: entity.vector.y }, true);
+				if (entity.vector) {
+					const { y } = rigidBody.linvel();
+					rigidBody.setLinvel({ x: entity.vector.x, y, z: entity.vector.y }, true);
+				}
 			}
 		}
 
@@ -73,6 +75,7 @@ class PhysicsComponent extends TaroEventingClass {
 	}
 
 	createBody(entity: TaroEntity, body: b2Body): void {
+		this.destroyBody(entity, body);
 		if (entity._category === 'sensor') return;
 
 		// this.simulation.createBody(entity, body);
@@ -87,6 +90,23 @@ class PhysicsComponent extends TaroEventingClass {
 
 		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
 		const collider = this.world.createCollider(colliderDesc, rigidBody);
+	}
+
+	destroyBody(entity: TaroEntity, body: b2Body): void {
+		const entityId = entity.id();
+
+		for (const knownEntityId of this.rigidBodies.keys()) {
+			if (entityId === knownEntityId) {
+				const rigidBodyHandle = this.rigidBodies.get(knownEntityId);
+				if (!isNaN(rigidBodyHandle)) {
+					const rigidBody = this.world.getRigidBody(rigidBodyHandle);
+					if (rigidBody) {
+						this.world.removeRigidBody(rigidBody);
+					}
+				}
+				break;
+			}
+		}
 	}
 
 	// /* CONVERT TO COMMENT BLOCKS */

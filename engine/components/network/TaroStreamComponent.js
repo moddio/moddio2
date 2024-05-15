@@ -189,7 +189,8 @@ var TaroStreamComponent = TaroEventingClass.extend({
 			var ntransdata = [
 				parseInt(transformData[0], 16),
 				parseInt(transformData[1], 16),
-				parseInt(transformData[2], 16) / 1000,
+				parseInt(transformData[2], 16),
+				parseInt(transformData[3], 16) / 1000,
 			]; // x, y, rotation
 		}
 
@@ -204,8 +205,9 @@ var TaroStreamComponent = TaroEventingClass.extend({
 						translate: {
 							x: ntransdata[0],
 							y: ntransdata[1],
+							z: ntransdata[2],
 						},
-						rotate: ntransdata[2],
+						rotate: ntransdata[3],
 					};
 
 					entity = new classConstructor(createData, entityId);

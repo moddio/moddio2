@@ -474,7 +474,6 @@ var TaroNetIoClient = {
 					var commandName = this._networkCommandsIndex[ciDecoded];
 					// console.log("command2", commandName)
 					var entityData = snapshot[i][1];
-
 					switch (commandName) {
 						case '_taroStreamData':
 							var entityData = snapshot[i].slice(1).split('&');
@@ -482,11 +481,14 @@ var TaroNetIoClient = {
 							entityData.shift();
 							var x = parseInt(entityData[0], 16);
 							var y = parseInt(entityData[1], 16);
-							var rotate = parseInt(entityData[2], 16) / 1000;
-							var isTeleporting = Boolean(parseInt(entityData[3], 16)); // teleported boolean
-							var isTeleportingCamera = Boolean(parseInt(entityData[4], 16)); // teleportedCamera boolean
+							var z = parseInt(entityData[2], 16);
+							var rotate = parseInt(entityData[3], 16) / 1000;
+							// console.log(entityId, 'translate:  ', [x, y, z], 'rotate:  ', [0, 0, rotate]);
+							var isTeleporting = Boolean(parseInt(entityData[4], 16)); // teleported boolean
+							var isTeleportingCamera = Boolean(parseInt(entityData[5], 16)); // teleportedCamera boolean
 
-							var newPosition = [x, y, rotate];
+							var newPosition = [x, y, z];
+							var newRotation = [0, 0, rotate];
 
 							// update each entities' final position, so player knows where everything are when returning from a different browser tab
 							// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
@@ -514,6 +516,7 @@ var TaroNetIoClient = {
 									taro.client.myUnitStreamedPosition = {
 										x: x,
 										y: y,
+										z: z,
 										rotation: rotate,
 									};
 								} else {
@@ -521,7 +524,7 @@ var TaroNetIoClient = {
 									// extra 20ms of buffer removes jitter
 									if (newSnapshotTimestamp > this.lastSnapshotTimestamp) {
 										entity.prevKeyFrame = entity.nextKeyFrame;
-										entity.nextKeyFrame = [newSnapshotTimestamp + taro.client.renderBuffer, newPosition];
+										entity.nextKeyFrame = [newSnapshotTimestamp + taro.client.renderBuffer, newPosition, newRotation];
 										// console.log(entity._category, entity._stats.name, newPosition)
 										entity.isTransforming(true);
 									}

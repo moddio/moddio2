@@ -12,6 +12,7 @@ var TaroEntity = TaroObject.extend({
 		// serialise and de-serialise support
 		var translateX = defaultData.translate && defaultData.translate.x ? defaultData.translate.x : 0;
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
+		var translateZ = defaultData.translate && defaultData.translate.z ? defaultData.translate.z : 0;
 		var rotate = defaultData.rotate || 0;
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
@@ -29,7 +30,7 @@ var TaroEntity = TaroObject.extend({
 		this._deathTime = undefined;
 		this._bornTime = taro._currentTime;
 
-		this._translate = new TaroPoint3d(translateX, translateY, rotate);
+		this._translate = new TaroPoint3d(translateX, translateY, translateZ);
 		this._oldTranform = [];
 		this._hasMoved = true;
 
@@ -64,7 +65,11 @@ var TaroEntity = TaroObject.extend({
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.nextKeyFrame = [taro._currentTime + 50, [this._translate.x, this._translate.y, this._rotate.z]];
+		this.nextKeyFrame = [
+			taro._currentTime + 50,
+			[this._translate.x, this._translate.y, this._translate.z],
+			[0, 0, this._rotate.z],
+		];
 
 		this._isTransforming = true;
 		this.lastTransformedAt = 0;
@@ -2003,10 +2008,11 @@ var TaroEntity = TaroObject.extend({
 			if (
 				Math.round(this._translate.x) != Math.round(this._oldTranform[0]) ||
 				Math.round(this._translate.y) != Math.round(this._oldTranform[1]) ||
-				parseFloat(this._rotate.z).toFixed(3) != parseFloat(this._oldTranform[2]).toFixed(3)
+				Math.round(this._translate.z) != Math.round(this._oldTranform[2]) ||
+				parseFloat(this._rotate.z).toFixed(3) != parseFloat(this._oldTranform[3]).toFixed(3)
 			) {
 				this._hasMoved = true;
-				this._oldTranform = [this._translate.x, this._translate.y, this._rotate.z];
+				this._oldTranform = [this._translate.x, this._translate.y, this._translate.z];
 			}
 
 			// Process any automatic-mode stream updating required
@@ -2086,6 +2092,7 @@ var TaroEntity = TaroObject.extend({
 							translate: {
 								x: position.x,
 								y: position.y,
+								z: position.z,
 							},
 							rotate: this._rotate.z,
 						};
@@ -3173,9 +3180,9 @@ var TaroEntity = TaroObject.extend({
 	 *     entity.translateTo(10, 0, 0);
 	 * @return {*}
 	 */
-	translateTo: function (x, y) {
+	translateTo: function (x, y, z) {
 		// console.log('start translate', x, y)
-		if (x !== undefined && y !== undefined && !isNaN(x) && !isNaN(y)) {
+		if (x !== undefined && y !== undefined && z !== undefined && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
 			// console.log('non-crash translate', this._translate)
 			/* if (taro.physics.simulation && taro.physics.simulation.engine == 'CRASH') {
 				console.log('crash translate');
@@ -3184,6 +3191,7 @@ var TaroEntity = TaroObject.extend({
 			if (this._translate) {
 				this._translate.x = x;
 				this._translate.y = y;
+				this._translate.z = z;
 			}
 
 			// ensure this entity is created at its latest position to the new clients. (instead of spawnPosition)
@@ -3207,25 +3215,23 @@ var TaroEntity = TaroObject.extend({
 		return this;
 	},
 
-	teleportTo: function (x, y, rotate, teleportCamera) {
+	teleportTo: function (x, y, z, rotate, teleportCamera) {
 		// console.log("teleportTo", x, y, rotate, this._stats.type)
 		this.isTeleporting = true;
-		this.nextKeyFrame[1] = [x, y, rotate];
+		this.nextKeyFrame[1] = [x, y, z];
+		this.nextKeyFrame[2] = [0, 0, rotate];
 		this.teleportCamera = teleportCamera;
-		this.teleportDestination = [x, y, rotate];
+		// this.teleportDestination = [x, y, z, rotate];
 		this.reconRemaining = undefined; // when a unit is teleported, end reconciliation
 		// this.setLinearVelocityLT(0, 0);
 
-		this.translateTo(x, y);
+		this.translateTo(x, y, z);
 		if (rotate != undefined) {
 			this.rotateTo(0, 0, rotate);
 		}
 
 		if (taro.isServer) {
 			this.clientStreamedPosition = undefined;
-			if (taro.physics.simulation && taro.physics.simulation.engine == 'CRASH') {
-				this.translateColliderTo(x, y);
-			}
 		} else if (taro.isClient) {
 			if (
 				this === taro.client.selectedUnit &&
@@ -3235,6 +3241,7 @@ var TaroEntity = TaroObject.extend({
 				taro.client.myUnitStreamedPosition = {
 					x: x,
 					y: y,
+					z: z,
 					rotation: rotate,
 				};
 			}
@@ -4596,13 +4603,15 @@ var TaroEntity = TaroObject.extend({
 		switch (sectionId) {
 			case 'transform':
 				if (taro.isServer) {
-					var x = this._translate.x.toFixed(0);
-					var y = this._translate.y.toFixed(0);
+					var px = this._translate.x.toFixed(0);
+					var py = this._translate.y.toFixed(0);
+					var pz = this._translate.z.toFixed(0);
 					var angle = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
 
 					if (this._hasMoved) {
 						//console.log("streaming", this._category, this._stats.name, this.id(), x, y, angle)
-						this._oldTranform = [this._translate.x, this._translate.y, this._rotate.z];
+						this._oldTranform = [this._translate.x, this._translate.y, this._translate.z];
+						this._oldRotate = [0, 0, this._rotate.z];
 
 						// var distanceTravelled = x - taro.lastX;
 						// console.log(this.id(), taro._currentTime - taro.lastSnapshotTime, taro._currentTime, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
@@ -4611,9 +4620,13 @@ var TaroEntity = TaroObject.extend({
 
 						let buffArr = [];
 
-						buffArr.push(Number(x));
-						buffArr.push(Number(y));
+						buffArr.push(Number(px));
+						buffArr.push(Number(py));
+						buffArr.push(Number(pz));
 						buffArr.push(Number(angle));
+						// buffArr.push(Number(rx));
+						// buffArr.push(Number(ry));
+						// buffArr.push(Number(rz));
 
 						if (this.isTeleporting) {
 							buffArr.push(Number(this.isTeleporting));
@@ -5429,8 +5442,10 @@ var TaroEntity = TaroObject.extend({
 
 		let x = this._translate.x;
 		let y = this._translate.y;
+		let z = this._translate.z;
 		let rotate = this._rotate.z;
 		let nextTransform = this.nextKeyFrame[1];
+		let nextRotate = this.nextKeyFrame[2];
 		let nextTime = this.nextKeyFrame[0];
 		let timeRemaining = nextTime - now;
 
@@ -5439,11 +5454,12 @@ var TaroEntity = TaroObject.extend({
 			// lerp between current position and nextTransform
 			x = this.interpolateValue(x, nextTransform[0], now - tickDelta, now, nextTime);
 			y = this.interpolateValue(y, nextTransform[1], now - tickDelta, now, nextTime);
+			z = this.interpolateValue(y, nextTransform[2], now - tickDelta, now, nextTime);
 
 			// if (this == taro.client.selectedUnit)
 			// 	console.log(parseFloat(x).toFixed(0), "nextX", parseFloat(nextTransform[0]), "speedReq", parseFloat((nextTransform[0] - x)/timeRemaining).toFixed(2) , "timeRemaining", timeRemaining)
 			rotateStart = rotate;
-			rotateEnd = nextTransform[2];
+			rotateEnd = nextRotate[2];
 
 			// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
 			if (Math.abs(rotateEnd - rotateStart) > Math.PI) {
@@ -5464,7 +5480,8 @@ var TaroEntity = TaroObject.extend({
 		} else {
 			x = nextTransform[0];
 			y = nextTransform[1];
-			rotate = nextTransform[2];
+			z = nextTransform[2];
+			rotate = nextRotate[2];
 		}
 
 		// for my own unit, ignore streamed angle if this unit control is set to face mouse cursor instantly.
@@ -5482,6 +5499,7 @@ var TaroEntity = TaroObject.extend({
 
 		this._translate.x = x;
 		this._translate.y = y;
+		this._translate.z = z;
 		this._rotate.z = rotate;
 
 		this.isTeleporting = false;
@@ -5495,7 +5513,12 @@ var TaroEntity = TaroObject.extend({
 
 			// when set as true, force transformTexture
 			if (bool == true) {
-				this.transformTexture(this.nextKeyFrame[1][0], this.nextKeyFrame[1][1], this.nextKeyFrame[1][2]);
+				this.transformTexture(
+					this.nextKeyFrame[1][0],
+					this.nextKeyFrame[1][1],
+					this.nextKeyFrame[1][2],
+					this.nextKeyFrame[2][2]
+				);
 			}
 		}
 

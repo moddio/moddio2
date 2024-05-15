@@ -176,7 +176,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 			if (defaultData.translate) {
 				var x = defaultData.translate.x;
 				var y = defaultData.translate.y;
-				this.teleportTo(x, y, rotate);
+				var z = defaultData.translate.z;
+				this.teleportTo(x, y, z, rotate);
 			}
 
 			// immediately apply speed if assigned
@@ -257,6 +258,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 				this.detachEntity(entityId);
 			}
 		}
+
+		taro.physics.destroyBody(this, body);
 
 		taro.physics.simulation &&
 			taro.physics.simulation.queueAction({ type: 'destroyBody', entity: this, body: this.body });
