@@ -72,6 +72,7 @@ var taroClientConfig = {
 		'/gameClasses/VisibilityMask.js',
 		/* color helpers */
 		'utils/Colors.js',
+		'utils/Utils.js',
 
 		/* tile calc */
 		'/gameClasses/Combinator.js',

@@ -874,7 +874,7 @@ namespace Renderer {
 					shape.position.set(Utils.pixelToWorld(pos.x), Utils.pixelToWorld(pos.z), Utils.pixelToWorld(pos.y));
 
 					const rot = entity.taroEntity.serverRotation;
-					shape.rotation.set(rot.x, rot.z, rot.y);
+					shape.rotation.set(rot.x, -rot.z, rot.y);
 
 					const size = entity.body.scale;
 					shape.scale.copy(size);

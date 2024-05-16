@@ -63,6 +63,7 @@ var defaultConfig = [
 	{ name: 'DeveloperMode', path: '../src/gameClasses/DeveloperMode' },
 	// Color support
 	{ name: 'Colors', path: '../src/utils/Colors' },
+	{ name: 'Utils', path: '../src/utils/Utils' },
 ];
 
 var config = {

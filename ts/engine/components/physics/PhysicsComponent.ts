@@ -54,6 +54,10 @@ class PhysicsComponent extends TaroEventingClass {
 			if (entity && rigidBody) {
 				if (entity.velocity) {
 					rigidBody.setLinvel({ x: entity.velocity.x, y: entity.velocity.z, z: entity.velocity.y }, true);
+
+					const rot = entity.serverRotation;
+					const q = Utils.quaternionFromEuler(rot.x, -rot.z, rot.y, 'XYZ');
+					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
 				}
 			}
 		}
