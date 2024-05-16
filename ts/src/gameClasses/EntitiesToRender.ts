@@ -96,37 +96,37 @@ class EntitiesToRender {
 					//if (entity._stats.name === 'potato gun small') console.log('owner unit translate',ownerUnit._translate.x, ownerUnit._translate.y, '\nphaser unit pos', ownerUnit.phaserEntity.gameObject.x, ownerUnit.phaserEntity.gameObject.y, '\nitem translate', x, y, '\nphaser item pos', entity.phaserEntity.gameObject.x, entity.phaserEntity.gameObject.y)
 				}
 
-				const is3D = taro.game.data.defaultData.defaultRenderer === '3d';
-				if ((!is3D && entity.tween?.isTweening && phaserGameObject?.visible) || (is3D && entity.tween?.isTweening)) {
-					entity.tween.update();
-					x += entity.tween.offset.x;
-					y += entity.tween.offset.y;
-					rotate += entity.tween.offset.rotate;
-				}
+				// const is3D = taro.game.data.defaultData.defaultRenderer === '3d';
+				// if ((!is3D && entity.tween?.isTweening && phaserGameObject?.visible) || (is3D && entity.tween?.isTweening)) {
+				// 	entity.tween.update();
+				// 	x += entity.tween.offset.x;
+				// 	y += entity.tween.offset.y;
+				// 	rotate += entity.tween.offset.rotate;
+				// }
 
-				if (
-					entity.tween?.isTweening ||
-					entity.isTransforming() ||
-					entity == taro.client.selectedUnit ||
-					entity._category == 'item'
-				) {
-					// var timeStart = performance.now();
-					entity.emitTransformOnClient(x, y, z, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
+				// if (
+				// 	entity.tween?.isTweening ||
+				// 	entity.isTransforming() ||
+				// 	entity == taro.client.selectedUnit ||
+				// 	entity._category == 'item'
+				// ) {
+				// 	// var timeStart = performance.now();
+				// 	entity.emitTransformOnClient(x, y, z, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
 
-					// entity isn't moving anymore. prevent rendering to conserve cpu
-					if (
-						entity.isTransforming() &&
-						entity.nextKeyFrame[1][0] == x &&
-						entity.nextKeyFrame[1][1] == y &&
-						entity.nextKeyFrame[1][2] == z &&
-						entity.nextKeyFrame[2][2] == rotate
-					) {
-						// if (entity != taro.client.selectedUnit) console.log(entity._category, "not moving)")
-						entity.isTransforming(false);
-					}
+				// 	// entity isn't moving anymore. prevent rendering to conserve cpu
+				// 	if (
+				// 		entity.isTransforming() &&
+				// 		entity.nextKeyFrame[1][0] == x &&
+				// 		entity.nextKeyFrame[1][1] == y &&
+				// 		entity.nextKeyFrame[1][2] == z &&
+				// 		entity.nextKeyFrame[2][2] == rotate
+				// 	) {
+				// 		// if (entity != taro.client.selectedUnit) console.log(entity._category, "not moving)")
+				// 		entity.isTransforming(false);
+				// 	}
 
-					// taro.profiler.logTimeElapsed('emitTransformOnClient', timeStart);
-				}
+				// 	// taro.profiler.logTimeElapsed('emitTransformOnClient', timeStart);
+				// }
 			}
 		}
 
