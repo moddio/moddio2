@@ -19,6 +19,10 @@ var AbilityComponent = TaroEntity.extend({
 		this.applyInput();
 	},
 
+	jump() {
+		this._entity.velocity.z = 10;
+	},
+
 	move(left, right, up, down) {
 		this.input.x = (right ? 1 : 0) - (left ? 1 : 0);
 		this.input.y = (up ? 1 : 0) - (down ? 1 : 0);
@@ -61,7 +65,6 @@ var AbilityComponent = TaroEntity.extend({
 		const direction = this.getCurrentDirection();
 		this._entity.direction.x = direction.x;
 		this._entity.direction.y = direction.y;
-		this._entity.direction.z = direction.z;
 	},
 
 	getCurrentDirection() {
@@ -77,18 +80,22 @@ var AbilityComponent = TaroEntity.extend({
 
 		// Can be made faster with pre-computed cos/sin values for each degree if needed
 		const deg90 = Math.PI * 0.5;
+
 		if (this.input.x < 0) {
 			direction.x += Math.cos(angle - deg90);
 			direction.y += Math.sin(angle - deg90);
 		}
+
 		if (this.input.x > 0) {
 			direction.x += Math.cos(angle + deg90);
 			direction.y += Math.sin(angle + deg90);
 		}
+
 		if (this.input.y > 0) {
 			direction.x += Math.cos(angle);
 			direction.y += Math.sin(angle);
 		}
+
 		if (this.input.y < 0) {
 			direction.x += Math.cos(angle + deg90 * 2);
 			direction.y += Math.sin(angle + deg90 * 2);

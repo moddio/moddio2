@@ -2154,7 +2154,6 @@ var Unit = TaroEntityPhysics.extend({
 			var speed = (this._stats.attributes && this._stats.attributes.speed && this._stats.attributes.speed.value) || 0;
 			self.velocity.x = 0;
 			self.velocity.y = 0;
-			self.velocity.z = 0;
 
 			// update rotation on server
 			var ownerPlayer = self.getOwner();

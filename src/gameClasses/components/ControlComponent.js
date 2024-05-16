@@ -181,6 +181,12 @@ var ControlComponent = TaroEntity.extend({
 					const down = canMoveVertical && (this.input.key.s || this.input.key.down);
 					unit.ability.move(left, right, up, down);
 
+					const jump = this.input.key.space;
+					if (jump) {
+						unit.ability.jump();
+						if (taro.input) taro.input.releaseKey('space');
+					}
+
 					if (left && right && !lastLeft) unit.ability.moveLeft();
 					else if (left && right && !lastRight) unit.ability.moveRight();
 

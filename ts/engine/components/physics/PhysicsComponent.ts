@@ -53,8 +53,7 @@ class PhysicsComponent extends TaroEventingClass {
 			const entity = taro.$(entityId);
 			if (entity && rigidBody) {
 				if (entity.velocity) {
-					const { y } = rigidBody.linvel();
-					rigidBody.setLinvel({ x: entity.velocity.x, y, z: entity.velocity.y }, true);
+					rigidBody.setLinvel({ x: entity.velocity.x, y: entity.velocity.z, z: entity.velocity.y }, true);
 				}
 			}
 		}
@@ -70,6 +69,12 @@ class PhysicsComponent extends TaroEventingClass {
 				const pos = rigidBody.translation();
 				entity._translate.x = pos.x * 64;
 				entity._translate.y = pos.z * 64;
+				entity._translate.z = pos.y * 64;
+
+				const vel = rigidBody.linvel();
+				entity.velocity.x = vel.x;
+				entity.velocity.y = vel.z;
+				entity.velocity.z = vel.y;
 			}
 		}
 	}
