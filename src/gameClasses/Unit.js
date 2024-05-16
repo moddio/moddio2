@@ -13,6 +13,13 @@ var Unit = TaroEntityPhysics.extend({
 		self.direction = {
 			x: 0,
 			y: 0,
+			z: 0,
+		};
+
+		self.velocity = {
+			x: 0,
+			y: 0,
+			z: 0,
 		};
 
 		self.isMoving = false;
@@ -2145,7 +2152,9 @@ var Unit = TaroEntityPhysics.extend({
 
 			// translate unit
 			var speed = (this._stats.attributes && this._stats.attributes.speed && this._stats.attributes.speed.value) || 0;
-			self.vector = { x: 0, y: 0 };
+			self.velocity.x = 0;
+			self.velocity.y = 0;
+			self.velocity.z = 0;
 
 			// update rotation on server
 			var ownerPlayer = self.getOwner();
@@ -2191,10 +2200,8 @@ var Unit = TaroEntityPhysics.extend({
 						self.distanceToTarget > this.width() / 3) // if mouse cursor is close to the unit, then don't move
 				) {
 					if (self.angleToTarget != undefined && !isNaN(self.angleToTarget)) {
-						self.vector = {
-							x: speed * Math.sin(self.angleToTarget),
-							y: -(speed * Math.cos(self.angleToTarget)),
-						};
+						self.velocity.x = speed * Math.sin(self.angleToTarget);
+						self.velocity.y = speed * Math.cos(self.angleToTarget);
 					}
 				} else if (self.direction.x != 0 || self.direction.y != 0) {
 					// disengage ai movement if a directional movement key's pressed
@@ -2206,10 +2213,8 @@ var Unit = TaroEntityPhysics.extend({
 						speed = speed / 1.41421356237;
 					}
 
-					self.vector = {
-						x: self.direction.x * speed,
-						y: self.direction.y * speed,
-					};
+					self.velocity.x = self.direction.x * speed;
+					self.velocity.y = self.direction.y * speed;
 				}
 
 				// update AI

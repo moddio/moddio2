@@ -52,9 +52,9 @@ class PhysicsComponent extends TaroEventingClass {
 			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
 			const entity = taro.$(entityId);
 			if (entity && rigidBody) {
-				if (entity.vector) {
+				if (entity.velocity) {
 					const { y } = rigidBody.linvel();
-					rigidBody.setLinvel({ x: entity.vector.x, y, z: entity.vector.y }, true);
+					rigidBody.setLinvel({ x: entity.velocity.x, y, z: entity.velocity.y }, true);
 				}
 			}
 		}

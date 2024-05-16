@@ -643,19 +643,19 @@ var Box2dComponent = TaroEventingClass.extend({
 						entity = self.getPointer !== undefined ? self.metaData[self.getPointer(tempBod)]._entity : tempBod._entity;
 						if (entity && !entity._stats.isHidden) {
 							// apply movement if it's either human-controlled unit, or ai unit that's currently moving
-							if (entity.body && entity.vector && (entity.vector.x != 0 || entity.vector.y != 0)) {
+							if (entity.body && (entity.velocity.x != 0 || entity.velocity.y != 0)) {
 								if (entity._stats.controls) {
 									switch (
 										entity._stats.controls.movementMethod // velocity-based movement
 									) {
 										case 'velocity':
-											entity.setLinearVelocity(entity.vector.x, entity.vector.y);
+											entity.setLinearVelocity(entity.velocity.x, entity.velocity.y);
 											break;
 										case 'force':
-											entity.applyForce(entity.vector.x, entity.vector.y);
+											entity.applyForce(entity.velocity.x, entity.velocity.y);
 											break;
 										case 'impulse':
-											entity.applyImpulse(entity.vector.x, entity.vector.y);
+											entity.applyImpulse(entity.velocity.x, entity.velocity.y);
 											break;
 									}
 								}

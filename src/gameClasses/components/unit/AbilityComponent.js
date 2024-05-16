@@ -61,6 +61,7 @@ var AbilityComponent = TaroEntity.extend({
 		const direction = this.getCurrentDirection();
 		this._entity.direction.x = direction.x;
 		this._entity.direction.y = direction.y;
+		this._entity.direction.z = direction.z;
 	},
 
 	getCurrentDirection() {
