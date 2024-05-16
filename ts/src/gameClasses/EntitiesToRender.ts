@@ -51,12 +51,14 @@ class EntitiesToRender {
 				else if (entity != taro.client.selectedUnit) {
 					entity._translate.x = entity.nextKeyFrame[1][0];
 					entity._translate.y = entity.nextKeyFrame[1][1];
-					entity._rotate.z = entity.nextKeyFrame[1][2];
+					entity._translate.z = entity.nextKeyFrame[1][2];
+					entity._rotate.z = entity.nextKeyFrame[2][2];
 				}
 
 				if (entity._translate) {
 					var x = entity._translate.x;
 					var y = entity._translate.y;
+					var z = entity._translate.z;
 					var rotate = entity._rotate.z;
 				}
 
@@ -109,20 +111,21 @@ class EntitiesToRender {
 					entity._category == 'item'
 				) {
 					// var timeStart = performance.now();
-					entity.transformTexture(x, y, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
+					entity.emitTransformOnClient(x, y, z, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
 
 					// entity isn't moving anymore. prevent rendering to conserve cpu
 					if (
 						entity.isTransforming() &&
 						entity.nextKeyFrame[1][0] == x &&
 						entity.nextKeyFrame[1][1] == y &&
-						entity.nextKeyFrame[1][2] == rotate
+						entity.nextKeyFrame[1][2] == z &&
+						entity.nextKeyFrame[2][2] == rotate
 					) {
 						// if (entity != taro.client.selectedUnit) console.log(entity._category, "not moving)")
 						entity.isTransforming(false);
 					}
 
-					// taro.profiler.logTimeElapsed('transformTexture', timeStart);
+					// taro.profiler.logTimeElapsed('emitTransformOnClient', timeStart);
 				}
 			}
 		}

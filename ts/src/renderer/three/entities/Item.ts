@@ -43,8 +43,9 @@ namespace Renderer {
 
 				taroEntity.on(
 					'transform',
-					(data: { x: number; y: number; rotation: number }) => {
+					(data: { x: number; y: number; z: number; rotation: number }) => {
 						entity.position.x = Utils.pixelToWorld(data.x);
+						entity.position.y = Utils.pixelToWorld(data.z);
 						entity.position.z = Utils.pixelToWorld(data.y);
 
 						if (entity.ownerUnit) {

@@ -69,7 +69,7 @@ var Unit = TaroEntityPhysics.extend({
 		if (taro.isClient) {
 			this.addToRenderer(defaultAnimation && defaultAnimation.frames[0] - 1);
 			taro.client.emit('create-unit', this);
-			this.transformTexture(this._translate.x, this._translate.y, 0);
+			this.emitTransformOnClient(this._translate.x, this._translate.y, this._translate.z, 0);
 
 			if (this._stats.states) {
 				var currentState = this._stats.states[this._stats.stateId];
@@ -2303,6 +2303,7 @@ var Unit = TaroEntityPhysics.extend({
 				this.inventory.update();
 			}
 			// probably don't need to emit this every tick
+			// 2D !
 			taro.client.emit('unit-position', [this._translate.x, this._translate.y]);
 		}
 

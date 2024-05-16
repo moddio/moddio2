@@ -3206,20 +3206,21 @@ var TaroEntity = TaroObject.extend({
 		return this._entity || this;
 	},
 
-	transformTexture: function (x, y, z) {
+	emitTransformOnClient: function (x, y, z, rotate) {
 		if (!taro.isClient) return this;
 
 		this.emit('transform', {
 			x: x,
 			y: y,
-			rotation: z,
+			z: z,
+			rotation: rotate,
 		});
 
 		return this;
 	},
 
 	teleportTo: function (x, y, z, rotate, teleportCamera) {
-		// console.log("teleportTo", x, y, rotate, this._stats.type)
+		// console.log("teleportTo", x, y, z, rotate, this._stats.type)
 		this.isTeleporting = true;
 		this.nextKeyFrame[1] = [x, y, z];
 		this.nextKeyFrame[2] = [0, 0, rotate];
@@ -3429,7 +3430,7 @@ var TaroEntity = TaroObject.extend({
 			this._rotate.x += x;
 			this._rotate.y += y;
 			this._rotate.z += z;
-			this.transformTexture(0, 0, z); // TODO x and y should probably not be 0
+			this.emitTransformOnClient(0, 0, 0, z); // TODO x and y should probably not be 0
 		} else {
 			TaroEntity.prototype.log('rotateBy() called with a missing or undefined x, y or z parameter!', 'error');
 		}
@@ -5514,9 +5515,9 @@ var TaroEntity = TaroObject.extend({
 		if (bool != undefined) {
 			this._isTransforming = bool;
 
-			// when set as true, force transformTexture
+			// when set as true, force emitTransformOnClient
 			if (bool == true) {
-				this.transformTexture(
+				this.emitTransformOnClient(
 					this.nextKeyFrame[1][0],
 					this.nextKeyFrame[1][1],
 					this.nextKeyFrame[1][2],
