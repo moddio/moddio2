@@ -904,11 +904,57 @@ var TaroEngine = TaroEntity.extend({
 		}
 	},
 
+	createMainLoop(update, render, dt) {
+		let elapsed = 0;
+		let currentTime = performance.now();
+		let accumulator = 0;
+
+		function loop() {
+			const newTime = performance.now();
+			let frameTime = (newTime - currentTime) / 1000;
+			if (frameTime > 0.25) {
+				frameTime = 0.25;
+			}
+			currentTime = newTime;
+
+			accumulator += frameTime;
+
+			while (accumulator >= dt) {
+				update(dt, elapsed);
+				elapsed += dt;
+				accumulator -= dt;
+			}
+
+			if (taro.isClient) {
+				requestAnimationFrame(loop);
+
+				const alpha = accumulator / dt;
+				render(frameTime, alpha);
+			}
+		}
+
+		if (taro.isServer) {
+			setInterval(loop, dt * 1000);
+		}
+
+		return loop;
+	},
+
+	fixedUpdate(dt, elapsed) {
+		console.log('fixed', dt);
+	},
+
+	render(dt, alpha) {
+		console.log('render', dt, alpha);
+	},
+
 	/**
 	 * Starts the engine.
 	 * @param callback
 	 */
 	start: function (callback) {
+		this.createMainLoop(this.fixedUpdate, this.render, 1 / 60)();
+
 		if (!taro._state) {
 			// Check if we are able to start based upon any registered dependencies
 			if (taro.dependencyCheck()) {
