@@ -150,5 +150,5 @@ src/gameClasses/VisibilityMask.js.map
 
 src/renderer
 
-src/utils/Colors.js
-src/utils/Colors.js.map
+src/utils/*.js
+src/utils/*.js.map
