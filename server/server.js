@@ -578,7 +578,6 @@ var Server = TaroClass.extend({
 							}
 							taro.physics.simulation.setContinuousPhysics(!!game?.data?.settings?.continuousPhysics);
 							taro.physics.simulation.createWorld();
-							taro.physics.simulation.start();
 							taro.raycaster = new Raycaster();
 							taro.developerMode = new DeveloperMode();
 
@@ -636,6 +635,8 @@ var Server = TaroClass.extend({
 
 										taro.workerComponent && taro.workerComponent.recordSocketConnections(copyCount);
 									}, 900000);
+
+									taro.physics.simulation.start();
 								}
 							});
 						}

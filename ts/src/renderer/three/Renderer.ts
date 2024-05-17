@@ -411,7 +411,6 @@ namespace Renderer {
 					this.init();
 					taro.input.setupListeners(this.renderer.domElement);
 					taro.client.rendererLoaded.resolve();
-					requestAnimationFrame(this.render.bind(this));
 				};
 
 				const isPixelArt = taro.game.data.defaultData.renderingFilter === 'pixelArt';
@@ -802,9 +801,9 @@ namespace Renderer {
 				}
 			}
 
-			private render() {
-				requestAnimationFrame(this.render.bind(this));
-				taro.client.emit('tick');
+			render(dt: number, elapsed: number, alpha: number) {
+				// taro.client.emit('tick');
+
 				if (this.entityEditor) this.entityEditor.update();
 				if (this.camera.target && !taro.isMobile) {
 					const worldPos = this.camera.getWorldPoint(this.pointer);
@@ -815,16 +814,8 @@ namespace Renderer {
 					taro.input.emit('pointermove', [{ x, y, yaw, pitch }]);
 				}
 
-				// TODO: Is this the proper way to get deltaTime or should I get it from the
-				// engine somewhere? Also it feels a little weird that the renderer triggers
-				// the engine update. It should be the other way around.
-				let dt = this.clock.getDelta();
-				const time = this.clock.elapsedTime;
-				if (dt <= 0) dt = 1 / 60;
-				else if (dt >= 0.25) dt = 0.25;
-
 				this.entityManager.update(dt);
-				this.particleSystem.update(dt, time, this.camera.instance);
+				this.particleSystem.update(dt, elapsed, this.camera.instance);
 				this.camera.update();
 				this.voxelEditor.update();
 

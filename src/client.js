@@ -211,9 +211,6 @@ const Client = TaroEventingClass.extend({
 
 				this.initializeConfigurationFields();
 
-				await this.configureEngine();
-				taro.addComponent(TaroInputComponent);
-
 				taro.entitiesToRender = new EntitiesToRender();
 
 				if (taro.game.data.defaultData.defaultRenderer === '3d') {
@@ -223,6 +220,9 @@ const Client = TaroEventingClass.extend({
 				}
 
 				taro.developerMode = new DeveloperMode();
+
+				taro.addComponent(TaroInputComponent);
+				await this.configureEngine();
 
 				if (!window.isStandalone) {
 					this.servers = this.getServersArray();
@@ -380,19 +380,31 @@ const Client = TaroEventingClass.extend({
 
 		await new Promise((resolve) => {
 			$.when(this.physicsConfigLoaded).done(() => {
-				this.startTaroEngine();
 				this.loadMap();
 
 				if (taro.physics.simulation) {
-					// old comment => 'always enable CSP'
-					this.loadCSP();
+					const gravity = taro.game.data.settings.gravity;
+
+					if (gravity) {
+						taro.physics.simulation.gravity(gravity.x, gravity.y);
+						console.log(taro.physics.simulation.gravity);
+					}
+
+					taro.physics.simulation.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
+					taro.physics.simulation.createWorld();
+					taro.raycaster = new Raycaster();
 				}
 
-				if (gameData.isDeveloper) {
-					taro.addComponent(DevConsoleComponent);
-				}
 				resolve();
 			});
+		});
+
+		$.when(this.physicsConfigLoaded, this.rendererLoaded).done(() => {
+			this.startTaroEngine();
+
+			if (gameData.isDeveloper) {
+				taro.addComponent(DevConsoleComponent);
+			}
 		});
 
 		//this doesn't depend on physics config
@@ -482,6 +494,8 @@ const Client = TaroEventingClass.extend({
 
 				// moved this down here
 				taro._selectedViewport = this.vp1;
+
+				taro.physics.simulation?.start();
 
 				this.taroEngineStarted.resolve();
 			}
@@ -656,26 +670,6 @@ const Client = TaroEventingClass.extend({
 				// $(self.getCachedElementById('toggle-dev-panels')).show();
 			}
 		});
-	},
-
-	//This method should be looked at...
-	//
-	loadCSP: function () {
-		const gravity = taro.game.data.settings.gravity;
-
-		if (gravity) {
-			taro.physics.simulation.gravity(gravity.x, gravity.y);
-			console.log(taro.physics.simulation.gravity);
-		}
-
-		taro.physics.simulation.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
-		if (taro.physics.simulation.engine == 'CRASH') {
-			taro.physics.simulation.addBorders();
-		}
-
-		taro.physics.simulation.createWorld();
-		taro.physics.simulation.start();
-		taro.raycaster = new Raycaster();
 	},
 
 	// not much here except definitions
