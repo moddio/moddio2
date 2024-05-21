@@ -148,3 +148,6 @@ src/renderer
 
 src/utils/Colors.js
 src/utils/Colors.js.map
+
+src/helpers/merge-game-json.js
+src/helpers/merge-game-json.js.map

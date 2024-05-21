@@ -158,6 +158,7 @@ const Client = TaroEventingClass.extend({
 		taro.addComponent(GameComponent);
 		taro.addComponent(ProfilerComponent);
 		taro.addComponent(MenuUiComponent);
+		taro.mergeGameJson = mergeGameJson;
 		// we're going to try and insert the fetch here
 		let promise = new Promise((resolve, reject) => {
 			// if the gameJson is available as a global object, use it instead of sending another ajax request

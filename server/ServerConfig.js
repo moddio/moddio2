@@ -61,6 +61,9 @@ var defaultConfig = [
 	{ name: 'StatusComponent', path: '../src/gameClasses/components/StatusComponent' },
 
 	{ name: 'DeveloperMode', path: '../src/gameClasses/DeveloperMode' },
+
+	{ name: 'mergeGameJson', path: '../src/helpers/merge-game-json' },
+
 	// Color support
 	{ name: 'Colors', path: '../src/utils/Colors' },
 ];

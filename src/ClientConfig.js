@@ -73,6 +73,8 @@ var taroClientConfig = {
 		/* color helpers */
 		'utils/Colors.js',
 
+		'/helpers/merge-game-json.js',
+
 		/* tile calc */
 		'/gameClasses/Combinator.js',
 		'/gameClasses/TileShape.js',

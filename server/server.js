@@ -512,6 +512,7 @@ var Server = TaroClass.extend({
 				});
 			}
 
+			taro.mergeGameJson = mergeGameJson;
 			promise
 				.then((game) => {
 					if (game?.gameJson && game?.worldJson) {
