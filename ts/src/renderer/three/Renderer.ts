@@ -892,6 +892,7 @@ namespace Renderer {
 						Utils.pixelToWorld(renderP.z),
 						Utils.pixelToWorld(renderP.y)
 					);
+					//@ts-ignore
 					interpolatedShape.material.color.setHex(0xffff00);
 
 					// const lastP = new THREE.Vector3(
