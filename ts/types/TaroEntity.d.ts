@@ -28,6 +28,9 @@ declare class TaroEntity extends TaroObject {
 	serverPosition: TaroPoint3d;
 	serverRotation: TaroPoint3d;
 
+	lastPhysicsPosition: TaroPoint3d;
+	physicsPosition: TaroPoint3d;
+
 	_deathCallBack?: () => void;
 	_behaviour?: () => void;
 	anchoredOffset: any;
