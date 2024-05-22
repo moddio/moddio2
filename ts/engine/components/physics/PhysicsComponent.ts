@@ -52,13 +52,23 @@ class PhysicsComponent extends TaroEventingClass {
 			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
 			const entity = taro.$(entityId);
 			if (entity && rigidBody) {
-				if (entity.velocity) {
-					rigidBody.setLinvel({ x: entity.velocity.x, y: entity.velocity.z, z: entity.velocity.y }, true);
-
-					const rot = entity.serverRotation;
-					const q = Utils.quaternionFromEuler(rot.x, -rot.z, rot.y, 'XYZ');
-					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
+				if (taro.isServer || (taro.isClient && entity.isClientPredicted())) {
+					if (entity.velocity) {
+						const x = entity.velocity.x;
+						const y = entity.velocity.z;
+						const z = entity.velocity.y;
+						rigidBody.setLinvel({ x, y, z }, true);
+					}
+				} else {
+					const x = entity.serverPosition.x / 64;
+					const y = entity.serverPosition.z / 64;
+					const z = entity.serverPosition.y / 64;
+					rigidBody.setTranslation({ x, y, z }, true);
 				}
+
+				const rot = entity.serverRotation;
+				const q = Utils.quaternionFromEuler(rot.x, -rot.z, rot.y, 'XYZ');
+				rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
 			}
 		}
 
@@ -89,7 +99,11 @@ class PhysicsComponent extends TaroEventingClass {
 
 		// this.simulation.createBody(entity, body);
 
-		const rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic();
+		const rigidBodyDesc = taro.isServer
+			? RAPIER.RigidBodyDesc.dynamic()
+			: entity.isClientPredicted()
+				? RAPIER.RigidBodyDesc.dynamic()
+				: RAPIER.RigidBodyDesc.kinematicPositionBased();
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
 
 		const pos = entity._translate;

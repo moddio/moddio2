@@ -3219,6 +3219,10 @@ var TaroEntity = TaroObject.extend({
 		return this;
 	},
 
+	isClientPredicted: function () {
+		return this._stats.controls?.clientPredictedMovement;
+	},
+
 	teleportTo: function (x, y, z, rotate, teleportCamera) {
 		// console.log("teleportTo", x, y, z, rotate, this._stats.type)
 		this.isTeleporting = true;

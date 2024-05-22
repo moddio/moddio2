@@ -40,4 +40,6 @@ declare class TaroEntity extends TaroObject {
 	// raycast
 	point: any;
 	raycastFraction: number;
+
+	isClientPredicted(): boolean;
 }
