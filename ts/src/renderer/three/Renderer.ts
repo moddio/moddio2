@@ -864,8 +864,15 @@ namespace Renderer {
 				for (const [idx, entity] of entities.entries()) {
 					if (entity instanceof Region || idx >= this.maxDebugShapes) continue;
 
-					const shape = this.debugShapes.children[idx];
+					// Raw server position
+					const serverShape = this.debugShapes.children[idx * 2];
+					serverShape.position.set(
+						Utils.pixelToWorld(entity.taroEntity.serverPosition.x),
+						Utils.pixelToWorld(entity.taroEntity.serverPosition.z),
+						Utils.pixelToWorld(entity.taroEntity.serverPosition.y)
+					);
 
+					// Render interpolated
 					const lastP = new THREE.Vector3(
 						entity.taroEntity.lastPhysicsPosition.x,
 						entity.taroEntity.lastPhysicsPosition.y,
@@ -879,11 +886,13 @@ namespace Renderer {
 					);
 
 					const renderP = currP.multiplyScalar(this.alpha).add(lastP.multiplyScalar(1 - this.alpha));
-					shape.position.set(
+					const interpolatedShape = this.debugShapes.children[idx * 2 + 1];
+					interpolatedShape.position.set(
 						Utils.pixelToWorld(renderP.x),
 						Utils.pixelToWorld(renderP.z),
 						Utils.pixelToWorld(renderP.y)
 					);
+					interpolatedShape.material.color.setHex(0xffff00);
 
 					// const lastP = new THREE.Vector3(
 					// 	entity.taroEntity.lastServerPosition.x,
@@ -919,9 +928,11 @@ namespace Renderer {
 					// shape.rotation.set(rx, -rz, ry);
 
 					const size = entity.body.scale;
-					shape.scale.copy(size);
+					serverShape.scale.copy(size);
+					interpolatedShape.scale.copy(size);
 
-					shape.visible = true;
+					serverShape.visible = true;
+					interpolatedShape.visible = true;
 				}
 			}
 		}
