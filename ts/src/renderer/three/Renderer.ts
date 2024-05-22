@@ -872,61 +872,21 @@ namespace Renderer {
 						Utils.pixelToWorld(entity.taroEntity.serverPosition.y)
 					);
 
-					// Render interpolated
-					const lastP = new THREE.Vector3(
-						entity.taroEntity.lastPhysicsPosition.x,
-						entity.taroEntity.lastPhysicsPosition.y,
-						entity.taroEntity.lastPhysicsPosition.z
-					);
-
-					const currP = new THREE.Vector3(
-						entity.taroEntity.physicsPosition.x,
-						entity.taroEntity.physicsPosition.y,
-						entity.taroEntity.physicsPosition.z
-					);
-
-					const renderP = currP.multiplyScalar(this.alpha).add(lastP.multiplyScalar(1 - this.alpha));
+					// Interpolated
+					const last = entity.taroEntity.lastPhysicsPosition;
+					const curr = entity.taroEntity.physicsPosition;
+					const x = Utils.lerp(last.x, curr.x, this.alpha);
+					const y = Utils.lerp(last.y, curr.y, this.alpha);
+					const z = Utils.lerp(last.z, curr.z, this.alpha);
 					const interpolatedShape = this.debugShapes.children[idx * 2 + 1];
-					interpolatedShape.position.set(
-						Utils.pixelToWorld(renderP.x),
-						Utils.pixelToWorld(renderP.z),
-						Utils.pixelToWorld(renderP.y)
-					);
+					interpolatedShape.position.set(Utils.pixelToWorld(x), Utils.pixelToWorld(z), Utils.pixelToWorld(y));
 					//@ts-ignore
 					interpolatedShape.material.color.setHex(0xffff00);
-
-					// const lastP = new THREE.Vector3(
-					// 	entity.taroEntity.lastServerPosition.x,
-					// 	entity.taroEntity.lastServerPosition.y,
-					// 	entity.taroEntity.lastServerPosition.z
-					// );
-
-					// const currP = new THREE.Vector3(
-					// 	entity.taroEntity.serverPosition.x,
-					// 	entity.taroEntity.serverPosition.y,
-					// 	entity.taroEntity.serverPosition.z
-					// );
-
-					// const alpha = accumulator / entity.taroEntity.serverPosition.dt;
-
-					// const renderP = currP.multiplyScalar(alpha).add(lastP.multiplyScalar(1 - alpha));
-					// shape.position.set(
-					// 	Utils.pixelToWorld(renderP.x),
-					// 	Utils.pixelToWorld(renderP.z),
-					// 	Utils.pixelToWorld(renderP.y)
-					// );
-
-					// console.log(entity.taroEntity.serverPosition.dt);
-
-					// const x = Utils.lerp(entity.taroEntity.lastServerPosition.x, entity.taroEntity.serverPosition.x, this.alpha);
-					// const y = Utils.lerp(entity.taroEntity.lastServerPosition.y, entity.taroEntity.serverPosition.y, this.alpha);
-					// const z = Utils.lerp(entity.taroEntity.lastServerPosition.z, entity.taroEntity.serverPosition.z, this.alpha);
-					// shape.position.set(Utils.pixelToWorld(x), Utils.pixelToWorld(z), Utils.pixelToWorld(y));
 
 					// const rx = Utils.lerp(entity.taroEntity.lastServerRotation.x, entity.taroEntity.serverRotation.x, this.alpha);
 					// const ry = Utils.lerp(entity.taroEntity.lastServerRotation.y, entity.taroEntity.serverRotation.y, this.alpha);
 					// const rz = Utils.lerp(entity.taroEntity.lastServerRotation.z, entity.taroEntity.serverRotation.z, this.alpha);
-					// shape.rotation.set(rx, -rz, ry);
+					// interpolatedShape.rotation.set(rx, -rz, ry);
 
 					const size = entity.body.scale;
 					serverShape.scale.copy(size);
