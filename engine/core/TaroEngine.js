@@ -929,7 +929,7 @@ var TaroEngine = TaroEntity.extend({
 				requestAnimationFrame(loop);
 
 				const alpha = accumulator / dt;
-				render(frameTime, elapsed, alpha);
+				render(frameTime, elapsed, alpha, accumulator);
 			}
 		}
 
@@ -942,19 +942,15 @@ var TaroEngine = TaroEntity.extend({
 
 	fixedUpdate(dt, elapsed) {
 		if (taro.isServer) {
-			taro.engineStep(elapsed * 1000);
+			taro.engineStep(elapsed * 1000, undefined, dt);
+		} else if (taro.isClient) {
+			taro.engineStep(Date.now(), undefined, dt);
 		}
 	},
 
-	render(dt, elapsed, alpha) {
-		if (taro.isClient) {
-			taro.engineStep(Date.now());
-		}
-
+	render(dt, elapsed, alpha, accumulator) {
 		if (taro.renderer) {
-			taro.renderer.render(dt, elapsed, alpha);
-		} else {
-			console.log(taro.renderer);
+			taro.renderer.render(dt, elapsed, alpha, accumulator);
 		}
 	},
 
@@ -963,7 +959,7 @@ var TaroEngine = TaroEntity.extend({
 	 * @param callback
 	 */
 	start: function (callback) {
-		this.createMainLoop(this.fixedUpdate, this.render, 1 / 60)();
+		this.createMainLoop(this.fixedUpdate, this.render, 1 / 20)();
 
 		if (!taro._state) {
 			// Check if we are able to start based upon any registered dependencies
@@ -1678,7 +1674,7 @@ var TaroEngine = TaroEntity.extend({
 	/**
 	 * Called each frame to traverse and render the scenegraph.
 	 */
-	engineStep: function (timeStamp, ctx) {
+	engineStep: function (timeStamp, ctx, dt) {
 		if (taro.isClient) {
 			taro.script?.trigger('renderTick');
 			taro.input.processInputOnEveryFps();
@@ -1729,7 +1725,7 @@ var TaroEngine = TaroEntity.extend({
 			if (!taro._useManualTicks) {
 				// Schedule a new frame
 				if (taro.isServer) {
-					requestAnimFrame(self.engineStep);
+					// requestAnimFrame(self.engineStep);
 				}
 			} else {
 				self._manualFrameAlternator = !self._frameAlternator;
@@ -1784,7 +1780,6 @@ var TaroEngine = TaroEntity.extend({
 						var startTime = performance.now();
 					}
 
-					taro.physics.update(timeElapsed);
 					taro.physicsTimeElapsed = timeElapsed;
 					taro.physicsLoopTickHasExecuted = true;
 
@@ -1793,6 +1788,8 @@ var TaroEngine = TaroEntity.extend({
 						taro.profiler.logTimeElapsed('physicsStep', startTime);
 					}
 				}
+
+				taro.physics.update(dt * 1000);
 			}
 
 			taro.engineLagReported = false;

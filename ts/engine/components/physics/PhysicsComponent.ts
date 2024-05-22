@@ -40,7 +40,7 @@ class PhysicsComponent extends TaroEventingClass {
 		let world = new RAPIER.World(gravity);
 		this.world = world;
 
-		let groundColliderDesc = RAPIER.ColliderDesc.cuboid(10.0, 0.1, 10.0);
+		let groundColliderDesc = RAPIER.ColliderDesc.cuboid(1000.0, 0.1, 1000.0);
 		world.createCollider(groundColliderDesc);
 	}
 
@@ -80,10 +80,18 @@ class PhysicsComponent extends TaroEventingClass {
 			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
 			const entity = taro.$(entityId);
 			if (entity && rigidBody) {
+				entity.lastPhysicsPosition.x = entity.physicsPosition.x;
+				entity.lastPhysicsPosition.y = entity.physicsPosition.y;
+				entity.lastPhysicsPosition.z = entity.physicsPosition.z;
+
 				const pos = rigidBody.translation();
 				entity._translate.x = pos.x * 64;
 				entity._translate.y = pos.z * 64;
 				entity._translate.z = pos.y * 64;
+
+				entity.physicsPosition.x = entity._translate.x;
+				entity.physicsPosition.y = entity._translate.y;
+				entity.physicsPosition.z = entity._translate.z;
 
 				const vel = rigidBody.linvel();
 				entity.velocity.x = vel.x;

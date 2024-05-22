@@ -27,7 +27,8 @@ namespace Renderer {
 			scene: THREE.Scene;
 			mode = Mode.Play;
 
-			private clock = new THREE.Clock();
+			private alpha = 0;
+
 			private pointer = new THREE.Vector2();
 			private initLoadingManager = new THREE.LoadingManager();
 
@@ -801,8 +802,8 @@ namespace Renderer {
 				}
 			}
 
-			render(dt: number, elapsed: number, alpha: number) {
-				// taro.client.emit('tick');
+			render(dt: number, elapsed: number, alpha: number, accumulator: number) {
+				this.alpha = alpha;
 
 				if (this.entityEditor) this.entityEditor.update();
 				if (this.camera.target && !taro.isMobile) {
@@ -829,12 +830,16 @@ namespace Renderer {
 					this.checkForHiddenEntities();
 				}
 
+				for (const entity of this.entityManager.entities) {
+					entity.visible = false;
+				}
+
 				// Visualize the physics world; hardcoded for now
 				//@ts-ignore
-				const { vertices } = taro.physics.world.debugRender();
-				this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+				// const { vertices } = taro.physics.world.debugRender();
+				// this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-				this.renderDebugShapes(this.entityManager.entities);
+				this.renderDebugShapes(this.entityManager.entities, accumulator);
 
 				TWEEN.update();
 				this.renderer.render(this.scene, this.camera.instance);
@@ -851,7 +856,7 @@ namespace Renderer {
 				return this.camera.isVisible(unit, this.voxels);
 			}
 
-			private renderDebugShapes(entities: (Unit | Region | Item)[]) {
+			private renderDebugShapes(entities: (Unit | Region | Item)[], accumulator: number) {
 				for (const shape of this.debugShapes.children) {
 					shape.visible = false;
 				}
@@ -861,11 +866,57 @@ namespace Renderer {
 
 					const shape = this.debugShapes.children[idx];
 
-					const pos = entity.taroEntity.serverPosition;
-					shape.position.set(Utils.pixelToWorld(pos.x), Utils.pixelToWorld(pos.z), Utils.pixelToWorld(pos.y));
+					const lastP = new THREE.Vector3(
+						entity.taroEntity.lastPhysicsPosition.x,
+						entity.taroEntity.lastPhysicsPosition.y,
+						entity.taroEntity.lastPhysicsPosition.z
+					);
 
-					const rot = entity.taroEntity.serverRotation;
-					shape.rotation.set(rot.x, -rot.z, rot.y);
+					const currP = new THREE.Vector3(
+						entity.taroEntity.physicsPosition.x,
+						entity.taroEntity.physicsPosition.y,
+						entity.taroEntity.physicsPosition.z
+					);
+
+					const renderP = currP.multiplyScalar(this.alpha).add(lastP.multiplyScalar(1 - this.alpha));
+					shape.position.set(
+						Utils.pixelToWorld(renderP.x),
+						Utils.pixelToWorld(renderP.z),
+						Utils.pixelToWorld(renderP.y)
+					);
+
+					// const lastP = new THREE.Vector3(
+					// 	entity.taroEntity.lastServerPosition.x,
+					// 	entity.taroEntity.lastServerPosition.y,
+					// 	entity.taroEntity.lastServerPosition.z
+					// );
+
+					// const currP = new THREE.Vector3(
+					// 	entity.taroEntity.serverPosition.x,
+					// 	entity.taroEntity.serverPosition.y,
+					// 	entity.taroEntity.serverPosition.z
+					// );
+
+					// const alpha = accumulator / entity.taroEntity.serverPosition.dt;
+
+					// const renderP = currP.multiplyScalar(alpha).add(lastP.multiplyScalar(1 - alpha));
+					// shape.position.set(
+					// 	Utils.pixelToWorld(renderP.x),
+					// 	Utils.pixelToWorld(renderP.z),
+					// 	Utils.pixelToWorld(renderP.y)
+					// );
+
+					// console.log(entity.taroEntity.serverPosition.dt);
+
+					// const x = Utils.lerp(entity.taroEntity.lastServerPosition.x, entity.taroEntity.serverPosition.x, this.alpha);
+					// const y = Utils.lerp(entity.taroEntity.lastServerPosition.y, entity.taroEntity.serverPosition.y, this.alpha);
+					// const z = Utils.lerp(entity.taroEntity.lastServerPosition.z, entity.taroEntity.serverPosition.z, this.alpha);
+					// shape.position.set(Utils.pixelToWorld(x), Utils.pixelToWorld(z), Utils.pixelToWorld(y));
+
+					// const rx = Utils.lerp(entity.taroEntity.lastServerRotation.x, entity.taroEntity.serverRotation.x, this.alpha);
+					// const ry = Utils.lerp(entity.taroEntity.lastServerRotation.y, entity.taroEntity.serverRotation.y, this.alpha);
+					// const rz = Utils.lerp(entity.taroEntity.lastServerRotation.z, entity.taroEntity.serverRotation.z, this.alpha);
+					// shape.rotation.set(rx, -rz, ry);
 
 					const size = entity.body.scale;
 					shape.scale.copy(size);

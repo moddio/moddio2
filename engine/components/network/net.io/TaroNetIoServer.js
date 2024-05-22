@@ -273,36 +273,31 @@ var TaroNetIoServer = {
 		if (commandIndex !== undefined) {
 			ciEncoded = String.fromCharCode(commandIndex);
 			// console.log("taroNetIoServer send(): ",commandName, ciEncoded, data, clientId)
-			if (!self.sendQueue[clientId])
-				self.sendQueue[clientId] = [];
+			if (!self.sendQueue[clientId]) self.sendQueue[clientId] = [];
 
-			if (!clientId)
-				clientId = 'undefined';
-				
+			if (!clientId) clientId = 'undefined';
+
 			if (skipQueue) {
 				if (global.isDev) {
-					setTimeout(function (data, id, ci) {
-						self._io.send(
-							[ciEncoded, data],
-							clientId === 'undefined' ? undefined : clientId
-						);
-					}, self.artificialDelay, data, clientId, ciEncoded);
+					setTimeout(
+						function (data, id, ci) {
+							self._io.send([ciEncoded, data], clientId === 'undefined' ? undefined : clientId);
+						},
+						self.artificialDelay,
+						data,
+						clientId,
+						ciEncoded
+					);
 				} else {
 					// production we don't simulate lag
-					self._io.send(
-						[ciEncoded, data],
-						clientId === 'undefined' ? undefined : clientId
-					);
+					self._io.send([ciEncoded, data], clientId === 'undefined' ? undefined : clientId);
 				}
-
-				
 			} else {
 				self.sendQueue[clientId].push([ciEncoded, data]);
 			}
 		} else {
 			this.log(
-				`Cannot send network packet with command "${commandName
-				}" because the command has not been defined!`,
+				`Cannot send network packet with command "${commandName}" because the command has not been defined!`,
 				'error'
 			);
 		}

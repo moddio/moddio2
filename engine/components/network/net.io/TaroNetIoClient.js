@@ -494,9 +494,20 @@ var TaroNetIoClient = {
 							// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
 							var entity = taro.$(entityId);
 
+							entity.lastServerPosition.x = entity.serverPosition.x;
+							entity.lastServerPosition.y = entity.serverPosition.y;
+							entity.lastServerPosition.z = entity.serverPosition.z;
+
 							entity.serverPosition.x = x;
 							entity.serverPosition.y = y;
 							entity.serverPosition.z = z;
+
+							entity.serverPosition.last = entity.serverPosition.now;
+							entity.serverPosition.now = performance.now();
+							entity.serverPosition.dt = (entity.serverPosition.now - entity.serverPosition.last) / 1000;
+
+							entity.lastServerRotation.z = entity.serverRotation.z;
+
 							// entity.serverRotation.x = 0;
 							// entity.serverRotation.y = 0;
 							entity.serverRotation.z = rotate;
