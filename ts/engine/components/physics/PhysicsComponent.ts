@@ -1,20 +1,14 @@
 class PhysicsComponent extends TaroEventingClass {
 	classId = 'PhysicsComponent';
 	componentId = 'physics';
-	// core
 	_entity: TaroEngine;
 	_options: PhysicsOptions;
 	_callback: () => void;
-	// engine specific
 	engine: string;
 	simulation: Box2dComponent | RapierComponent;
-	// experimental
-	// _scaleRatio = 30;
-	// avgPhysicsTickDuration = 20.0;
 
 	world: RAPIER.World;
 	rigidBody: RAPIER.RigidBody;
-
 	rigidBodies = new Map<string, number>();
 
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => void) {
@@ -47,31 +41,6 @@ class PhysicsComponent extends TaroEventingClass {
 		const floorLayer = taro.game.data.map.layers.find((l) => l.name === 'floor');
 		const wallsLayer = taro.game.data.map.layers.find((l) => l.name === 'walls');
 		const treesLayer = taro.game.data.map.layers.find((l) => l.name === 'trees');
-		console.log(floorLayer);
-
-		for (let y = 0; y < floorLayer.height; y++) {
-			const row = [];
-			for (let x = 0; x < floorLayer.width; x++) {
-				row.push(floorLayer.data[y * floorLayer.width + x]);
-			}
-			console.log(...row);
-		}
-
-		// const w = floorLayer.width;
-		// const h = floorLayer.height;
-		// let floorDesc = RAPIER.ColliderDesc.cuboid(w * 0.5, 0.5, h * 0.5);
-		// floorDesc.setTranslation(w * 0.5, 0, h * 0.5);
-		// world.createCollider(floorDesc);
-
-		// let numTileLayers = 0;
-		// for (const [idx, layer] of config.entries()) {
-		// 	if (layer.type === 'tilelayer' && layer.data) {
-		// 		const voxelsData = Voxels.generateVoxelsFromLayerData(layer, numTileLayers, false);
-		// 		voxels.updateLayer(voxelsData, idx);
-		// 		voxels.setLayerLookupTable(idx, numTileLayers);
-		// 		numTileLayers++;
-		// 	}
-		// }
 
 		const voxels: Map<string, VoxelCell>[] = [];
 
@@ -350,21 +319,19 @@ function getKeyFromPos(x: number, y: number, z: number) {
 	return `${x}.${y}.${z}`;
 }
 
-function findNeighbors(x: number, y: number, z: number) {
+function getNeighboringKeys(x: number, y: number, z: number) {
 	const k1 = getKeyFromPos(x + 1, y, z);
 	const k2 = getKeyFromPos(x - 1, y, z);
 	const k3 = getKeyFromPos(x, y + 1, z);
 	const k4 = getKeyFromPos(x, y - 1, z);
 	const k5 = getKeyFromPos(x, y, z + 1);
 	const k6 = getKeyFromPos(x, y, z - 1);
-
-	const neighborKeys = [k1, k2, k3, k4, k5, k6];
-	return neighborKeys;
+	return [k1, k2, k3, k4, k5, k6];
 }
 
 function updateCellSides(curCell: VoxelCell, cells: Map<string, VoxelCell>) {
 	let visible = false;
-	const neighborKeys = findNeighbors(curCell.position[0], curCell.position[1], curCell.position[2]);
+	const neighborKeys = getNeighboringKeys(curCell.position[0], curCell.position[1], curCell.position[2]);
 	for (let i = 0; i < 6; ++i) {
 		const hasNeighbor = cells.has(neighborKeys[i]);
 
@@ -413,7 +380,7 @@ function pruneCells(cells: Map<string, VoxelCell>, prevCells?: Map<string, Voxel
 		if (prevCells && curCell.type < 0) {
 			let pos = curCell.position;
 			prevCells.delete(k);
-			findNeighbors(pos[0], pos[1], pos[2]).forEach((neighborKey) => {
+			getNeighboringKeys(pos[0], pos[1], pos[2]).forEach((neighborKey) => {
 				let neighbor = prevCells.get(neighborKey);
 				if (neighbor !== undefined) {
 					updateCellSides(neighbor, prevCells);
@@ -430,51 +397,24 @@ function pruneCells(cells: Map<string, VoxelCell>, prevCells?: Map<string, Voxel
 }
 
 function buildMeshDataFromCells(cells: Map<string, VoxelCell>) {
-	// const xStep = tileset.tileWidth / tileset.width;
-	// const yStep = tileset.tileHeight / tileset.height;
+	const px = [0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5];
+	const nx = [-0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5];
+	const py = [-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5];
+	const ny = [-0.5, -0.5, 0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5];
+	const pz = [-0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5];
+	const nz = [0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, -0.5];
 
-	const pxGeometry = new THREE.PlaneGeometry(1, 1);
-	pxGeometry.rotateY(Math.PI / 2);
-	pxGeometry.translate(0.5, 0, 0);
-
-	const nxGeometry = new THREE.PlaneGeometry(1, 1);
-	nxGeometry.rotateY(-Math.PI / 2);
-	nxGeometry.translate(-0.5, 0, 0);
-
-	const pyGeometry = new THREE.PlaneGeometry(1, 1);
-	pyGeometry.rotateX(-Math.PI / 2);
-	pyGeometry.translate(0, 0.5, 0);
-
-	const nyGeometry = new THREE.PlaneGeometry(1, 1);
-	nyGeometry.rotateX(Math.PI / 2);
-	nyGeometry.translate(0, -0.5, 0);
-
-	const pzGeometry = new THREE.PlaneGeometry(1, 1);
-	pzGeometry.translate(0, 0, 0.5);
-
-	const nzGeometry = new THREE.PlaneGeometry(1, 1);
-	nzGeometry.rotateY(Math.PI);
-	nzGeometry.translate(0, 0, -0.5);
-
-	const invertUvs = [nyGeometry];
-
-	const geometries = [pxGeometry, nxGeometry, pyGeometry, nyGeometry, pzGeometry, nzGeometry];
+	const faceVertices = [px, nx, py, ny, pz, nz];
 
 	const meshes = {
 		positions: [],
-		uvs: [],
-		normals: [],
 		indices: [],
-		topIndices: [],
-		sidesIndices: [],
-		previewTopIndices: [],
-		previewSidesIndices: [],
 	};
 
 	for (let c of cells.keys()) {
 		const curCell = cells.get(c);
 
-		for (let i = 0; i < geometries.length; ++i) {
+		for (let i = 0; i < faceVertices.length; ++i) {
 			if (curCell.hiddenFaces[i]) {
 				continue;
 			}
@@ -482,7 +422,7 @@ function buildMeshDataFromCells(cells: Map<string, VoxelCell>) {
 			const targetData = meshes;
 
 			const bi = targetData.positions.length / 3;
-			const localPositions = [...geometries[i].attributes.position.array];
+			const localPositions = [...faceVertices[i]];
 			for (let j = 0; j < 3; ++j) {
 				for (let v = 0; v < 4; ++v) {
 					localPositions[v * 3 + j] += curCell.position[j];
@@ -490,63 +430,11 @@ function buildMeshDataFromCells(cells: Map<string, VoxelCell>) {
 			}
 			targetData.positions.push(...localPositions);
 
-			// const xIdx = curCell.type % tileset.cols;
-			// const yIdx = Math.floor(curCell.type / tileset.cols);
-
-			// const singlePixelOffset = { x: xStep / tileset.tileWidth, y: yStep / tileset.tileHeight };
-			// const halfPixelOffset = { x: singlePixelOffset.x / 2, y: singlePixelOffset.y / 2 };
-
-			// const xOffset = xStep * xIdx + halfPixelOffset.x;
-			// const yOffset = 1 - yStep * yIdx - yStep - halfPixelOffset.y;
-
-			// if (invertUvs.includes(geometries[i])) {
-			// 	geometries[i].attributes.uv.array[4] = xOffset;
-			// 	geometries[i].attributes.uv.array[5] = yOffset + yStep;
-
-			// 	geometries[i].attributes.uv.array[6] = xOffset + xStep - singlePixelOffset.x;
-			// 	geometries[i].attributes.uv.array[7] = yOffset + yStep;
-
-			// 	geometries[i].attributes.uv.array[0] = xOffset;
-			// 	geometries[i].attributes.uv.array[1] = yOffset + singlePixelOffset.y;
-
-			// 	geometries[i].attributes.uv.array[2] = xOffset + xStep - singlePixelOffset.x;
-			// 	geometries[i].attributes.uv.array[3] = yOffset + singlePixelOffset.y;
-			// } else {
-			// 	geometries[i].attributes.uv.array[0] = xOffset;
-			// 	geometries[i].attributes.uv.array[1] = yOffset + yStep;
-
-			// 	geometries[i].attributes.uv.array[2] = xOffset + xStep - singlePixelOffset.x;
-			// 	geometries[i].attributes.uv.array[3] = yOffset + yStep;
-
-			// 	geometries[i].attributes.uv.array[4] = xOffset;
-			// 	geometries[i].attributes.uv.array[5] = yOffset + singlePixelOffset.y;
-
-			// 	geometries[i].attributes.uv.array[6] = xOffset + xStep - singlePixelOffset.x;
-			// 	geometries[i].attributes.uv.array[7] = yOffset + singlePixelOffset.y;
-			// }
-
-			targetData.uvs.push(...geometries[i].attributes.uv.array);
-			targetData.normals.push(...geometries[i].attributes.normal.array);
-
-			const localIndices = [...geometries[i].index.array];
+			const localIndices = [0, 2, 1, 2, 3, 1];
 			for (let j = 0; j < localIndices.length; ++j) {
 				localIndices[j] += bi;
 			}
-
-			// top and bottom face
-			if (i === 2 || i === 3) {
-				if (curCell.isPreview) {
-					targetData.previewTopIndices.push(...localIndices);
-				} else {
-					targetData.indices.push(...localIndices);
-				}
-			} else {
-				if (curCell.isPreview) {
-					targetData.previewSidesIndices.push(...localIndices);
-				} else {
-					targetData.indices.push(...localIndices);
-				}
-			}
+			targetData.indices.push(...localIndices);
 		}
 	}
 

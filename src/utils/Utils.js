@@ -51,6 +51,40 @@ var Utils;
         return { x, y, z, w };
     }
     Utils.quaternionFromEuler = quaternionFromEuler;
+    function generatePlaneGeometry(w, h) {
+        const hWidth = w / 2;
+        const hHeight = h / 2;
+        const gridX = 1;
+        const gridY = 1;
+        const gridX1 = 2;
+        const gridY1 = 2;
+        const segWidth = w / gridX;
+        const segHeight = h / gridY;
+        const indices = [];
+        const vertices = [];
+        for (let iy = 0; iy < gridY1; iy++) {
+            const y = iy * segHeight - hHeight;
+            for (let ix = 0; ix < gridX1; ix++) {
+                const x = ix * segWidth - hWidth;
+                vertices.push(x, -y, 0);
+            }
+        }
+        for (let iy = 0; iy < gridY; iy++) {
+            for (let ix = 0; ix < gridX; ix++) {
+                const a = ix + gridX1 * iy;
+                const b = ix + gridX1 * (iy + 1);
+                const c = ix + 1 + gridX1 * (iy + 1);
+                const d = ix + 1 + gridX1 * iy;
+                indices.push(a, b, d);
+                indices.push(b, c, d);
+            }
+        }
+        return {
+            vertices: new Float32Array(vertices),
+            indices: new Uint32Array(indices),
+        };
+    }
+    Utils.generatePlaneGeometry = generatePlaneGeometry;
 })(Utils || (Utils = {}));
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = Utils;
