@@ -183,6 +183,25 @@ var Item = TaroEntityPhysics.extend({
 			}
 		}
 	},
+	
+	// method that updates an item state according to its position in the owner's inventory
+	updateState: function () {
+		let owner = this.getOwnerUnit();
+		if (this._stats.slotIndex === owner._stats.currentItemIndex) {
+			this.setState('selected');
+		} else if (this._stats.slotIndex >= owner._stats.inventorySize) {
+			for (let state in this._stats.states) {
+				if (this._stats.states[state]) {
+					if (this._stats.states[state].name === 'backpacked') {
+						this.setState(state);
+					}
+				}
+			}
+		} else {
+			this.setState('unselected');
+		}
+		//this._stats.currentBody ? console.log(this._stats.currentBody.name): console.log('none');
+	},
 
 	// apply texture based on state
 	updateTexture: function () {
@@ -217,9 +236,7 @@ var Item = TaroEntityPhysics.extend({
 		if (newOwner == oldOwner) return;
 		if (newOwner) {
 			if (taro.isClient && newOwner == taro.client.selectedUnit) {
-				if (newOwner._stats.currentItemIndex !== this._stats.slotIndex) {
-					this.setState('unselected');
-				}
+				this.updateState();
 
 				if (newOwner.inventory) {
 					newOwner.inventory.isDirty = true;
@@ -912,11 +929,12 @@ var Item = TaroEntityPhysics.extend({
 			this._stats.slotIndex = index;
 			this.streamUpdateData([{ slotIndex: index }]);
 		}
-		// if item is in its owner's backpack, hide it
 		if (owner) {
 			let triggerParams = { unitId: owner.id(), itemId: self.id() };
 			self.script.trigger('thisItemChangesInventorySlot', triggerParams); // this entity (item) (need to rename rename 'itemIsUsed' -> 'thisItemIsUsed')		
 			owner.script.trigger('thisUnitMovesItemInInventory', triggerParams); // this entity (unit)
+			//when an item changes slot, update its state (needed to make backpacked items hidden by default)
+			this.updateState();
 		}
 	},
 
@@ -1017,7 +1035,7 @@ var Item = TaroEntityPhysics.extend({
 					}
 				}
 			} else {
-				self.setState('unselected');
+				this.updateState();
 			}
 			// adding back passive attributes
 			if (self._stats.bonus && self._stats.bonus.passive) {
@@ -1282,7 +1300,7 @@ var Item = TaroEntityPhysics.extend({
 						// Don't run if we're updating item's state/owner unit, but its owner doesn't exist yet
 						// updating item's owner unit, but the owner hasn't been created yet
 						(key == 'ownerUnitId' && value != 0 && taro.$(value) == undefined) || // changing item's state to selected/unselected, but owner doesn't exist yet
-						(key == 'stateId' && (value == 'selected' || value == 'unselected') && this.getOwnerUnit() == undefined)
+						(key == 'stateId' && (value == 'selected' || value == 'unselected' || value == 'backpacked') && this.getOwnerUnit() == undefined)
 					) {
 						continue;
 					} else {
