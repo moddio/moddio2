@@ -190,12 +190,17 @@ var Item = TaroEntityPhysics.extend({
 		if (this._stats.slotIndex === owner._stats.currentItemIndex) {
 			this.setState('selected');
 		} else if (this._stats.slotIndex >= owner._stats.inventorySize) {
+			let isVisible = false;
 			for (let state in this._stats.states) {
 				if (this._stats.states[state]) {
 					if (this._stats.states[state].name === 'backpacked') {
 						this.setState(state);
+						isVisible = true;
 					}
 				}
+			}
+			if (!isVisible) {
+				this.setState(undefined);
 			}
 		} else {
 			this.setState('unselected');
