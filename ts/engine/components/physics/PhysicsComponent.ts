@@ -83,9 +83,109 @@ class PhysicsComponent extends TaroEventingClass {
 			else if (v === 3) inner.push(x, y);
 		}
 
-		console.log(outer, inner);
+		const orderVertices = (vertices: number[]) => {
+			const xs = vertices.filter((v, i) => i % 2 === 0);
+			const ys = vertices.filter((v, i) => i % 2 === 1);
 
-		console.log(Earcut.triangulate(outer));
+			const ordered = [];
+			let currX = xs[0];
+			let currY = ys[0];
+			ordered.push(currX, currY);
+
+			xs.shift();
+			ys.shift();
+
+			while (xs.length > 0) {
+				const rightVertIndices = xs.map((v, i) => i).filter((i) => xs[i] > currX && ys[i] === currY);
+				if (rightVertIndices.length) {
+					const rightVertIdx = rightVertIndices[0];
+					currX = xs.splice(rightVertIdx, 1)[0];
+					currY = ys.splice(rightVertIdx, 1)[0];
+					ordered.push(currX, currY);
+					continue;
+				}
+
+				const downVertIndices = ys.map((v, i) => i).filter((i) => ys[i] > currY && xs[i] === currX);
+				if (downVertIndices.length) {
+					const downVertIdx = downVertIndices[0];
+					currX = xs.splice(downVertIdx, 1)[0];
+					currY = ys.splice(downVertIdx, 1)[0];
+					ordered.push(currX, currY);
+					continue;
+				}
+
+				const leftVertIndices = xs.map((v, i) => i).filter((i) => xs[i] < currX && ys[i] === currY);
+				if (leftVertIndices.length) {
+					const leftVertIdx = leftVertIndices[0];
+					currX = xs.splice(leftVertIdx, 1)[0];
+					currY = ys.splice(leftVertIdx, 1)[0];
+					ordered.push(currX, currY);
+					continue;
+				}
+
+				const upVertIndices = ys.map((v, i) => i).filter((i) => ys[i] < currY && xs[i] === currX);
+				if (upVertIndices.length) {
+					const upVertIdx = upVertIndices[0];
+					currX = xs.splice(upVertIdx, 1)[0];
+					currY = ys.splice(upVertIdx, 1)[0];
+					ordered.push(currX, currY);
+					continue;
+				}
+
+				// const yIdx = ys.findIndex((v) => v === currY);
+				// if (yIdx !== -1) {
+				// 	currX = xs.splice(yIdx, 1)[0];
+				// 	currY = ys.splice(yIdx, 1)[0];
+				// 	ordered.push(currX, currY);
+				// 	continue;
+				// }
+
+				// const xIdx = xs.findIndex((v) => v === currX);
+				// if (xIdx !== -1) {
+				// 	currX = xs.splice(xIdx, 1)[0];
+				// 	currY = ys.splice(xIdx, 1)[0];
+				// 	ordered.push(currX, currY);
+				// 	continue;
+				// }
+			}
+
+			return ordered;
+		};
+
+		const orderedOuter = orderVertices(outer);
+		const orderedInner = orderVertices(inner);
+
+		const holeIndices = []; // First index of each hole
+		const loops = [...orderedOuter, ...orderedInner];
+		holeIndices.push(orderedOuter.length / 2);
+
+		console.log('INDEX', outer, orderedOuter);
+		console.log('INNER', inner, orderedInner);
+		console.log('LOOPS', loops, holeIndices);
+
+		const triangulatedVertsIndices = Earcut.triangulate(loops, holeIndices);
+
+		console.log(triangulatedVertsIndices);
+
+		const triangulatedVerts3D = [] as number[];
+		// for (let i = 0; i < triangulatedVertsIndices.length; i++) {
+		// 	triangulatedVerts3D.push(loops[triangulatedVertsIndices[i] * 2], 0, loops[triangulatedVertsIndices[i] * 2 + 1]);
+		// }
+
+		for (let i = 0; i < loops.length; i += 2) {
+			triangulatedVerts3D.push(loops[i], 0, loops[i + 1]);
+		}
+
+		// Debug mesh
+		const geometry = new THREE.BufferGeometry();
+		geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(triangulatedVerts3D), 3));
+		geometry.setIndex(triangulatedVertsIndices);
+		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+		const mesh = new THREE.Mesh(geometry, material);
+		mesh.position.set(0, 3, 0);
+		Renderer.Three.instance().scene.add(mesh);
+
+		//
 
 		const voxels: Map<string, VoxelCell>[] = [];
 
