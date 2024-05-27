@@ -56,163 +56,17 @@ class PhysicsComponent extends TaroEventingClass {
 			// data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 		};
 
-		const verts = new Map<string, number>();
-		for (let y = 0; y < map.height; y++) {
-			for (let x = 0; x < map.width; x++) {
-				const tileId = map.data[y * map.width + x];
-				const isSolid = tileId > 0;
+		const mapMesh = generateMeshFromLayer(map as LayerData);
+		const floorMesh = generateMeshFromLayer(floorLayer);
 
-				if (isSolid) {
-					const topLeft = getKeyFromPos(x, y, 0);
-					const topRight = getKeyFromPos(x + 1, y, 0);
-					const bottomLeft = getKeyFromPos(x, y + 1, 0);
-					const bottomRight = getKeyFromPos(x + 1, y + 1, 0);
-
-					verts.set(topLeft, (verts.get(topLeft) ?? 0) + 1);
-					verts.set(topRight, (verts.get(topRight) ?? 0) + 1);
-					verts.set(bottomLeft, (verts.get(bottomLeft) ?? 0) + 1);
-					verts.set(bottomRight, (verts.get(bottomRight) ?? 0) + 1);
-				}
-			}
-		}
-
-		const outer = [];
-		const inner = [];
-		for (const [k, v] of verts.entries()) {
-			const [x, y, z] = k.split('.').map((v) => +v);
-			if (v === 1) outer.push(x, y);
-			else if (v === 3) inner.push(x, y);
-		}
-
-		const orderVertices = (vertices: number[]) => {
-			if (vertices.length < 3) return [];
-
-			const xs = vertices.filter((v, i) => i % 2 === 0);
-			const ys = vertices.filter((v, i) => i % 2 === 1);
-
-			const ordered = [];
-			let currX = xs[0];
-			let currY = ys[0];
-			ordered.push(currX, currY);
-
-			xs.shift();
-			ys.shift();
-
-			while (xs.length > 0) {
-				const rightVertIndices = xs.map((v, i) => i).filter((i) => xs[i] > currX && ys[i] === currY);
-				if (rightVertIndices.length) {
-					const rightVertIdx = rightVertIndices[0];
-					currX = xs.splice(rightVertIdx, 1)[0];
-					currY = ys.splice(rightVertIdx, 1)[0];
-					ordered.push(currX, currY);
-					continue;
-				}
-
-				const downVertIndices = ys.map((v, i) => i).filter((i) => ys[i] > currY && xs[i] === currX);
-				if (downVertIndices.length) {
-					const downVertIdx = downVertIndices[0];
-					currX = xs.splice(downVertIdx, 1)[0];
-					currY = ys.splice(downVertIdx, 1)[0];
-					ordered.push(currX, currY);
-					continue;
-				}
-
-				const leftVertIndices = xs.map((v, i) => i).filter((i) => xs[i] < currX && ys[i] === currY);
-				if (leftVertIndices.length) {
-					const leftVertIdx = leftVertIndices[0];
-					currX = xs.splice(leftVertIdx, 1)[0];
-					currY = ys.splice(leftVertIdx, 1)[0];
-					ordered.push(currX, currY);
-					continue;
-				}
-
-				const upVertIndices = ys.map((v, i) => i).filter((i) => ys[i] < currY && xs[i] === currX);
-				if (upVertIndices.length) {
-					const upVertIdx = upVertIndices[0];
-					currX = xs.splice(upVertIdx, 1)[0];
-					currY = ys.splice(upVertIdx, 1)[0];
-					ordered.push(currX, currY);
-					continue;
-				}
-
-				// const yIdx = ys.findIndex((v) => v === currY);
-				// if (yIdx !== -1) {
-				// 	currX = xs.splice(yIdx, 1)[0];
-				// 	currY = ys.splice(yIdx, 1)[0];
-				// 	ordered.push(currX, currY);
-				// 	continue;
-				// }
-
-				// const xIdx = xs.findIndex((v) => v === currX);
-				// if (xIdx !== -1) {
-				// 	currX = xs.splice(xIdx, 1)[0];
-				// 	currY = ys.splice(xIdx, 1)[0];
-				// 	ordered.push(currX, currY);
-				// 	continue;
-				// }
-			}
-
-			return ordered;
-		};
-
-		const orderedOuter = orderVertices(outer);
-		const orderedInner = orderVertices(inner);
-
-		const holeIndices = []; // First index of each hole
-		const loops = [...orderedOuter, ...orderedInner];
-
-		// TODO: Support multiple holes
-		if (orderedInner.length > 0) {
-			holeIndices.push(orderedOuter.length / 2);
-		}
-
-		console.log('INDEX', outer, orderedOuter);
-		console.log('INNER', inner, orderedInner);
-		console.log('LOOPS', loops, holeIndices);
-
-		const triangulatedVertsIndices = Earcut.triangulate(loops, holeIndices);
-
-		console.log(triangulatedVertsIndices);
-
-		const triangulatedVerts3D = [] as number[];
-		// for (let i = 0; i < triangulatedVertsIndices.length; i++) {
-		// 	triangulatedVerts3D.push(loops[triangulatedVertsIndices[i] * 2], 0, loops[triangulatedVertsIndices[i] * 2 + 1]);
-		// }
-
-		for (let i = 0; i < loops.length; i += 2) {
-			triangulatedVerts3D.push(loops[i], 0.5, loops[i + 1]);
-		}
-
-		// Duplicate top face vertices
-		for (let i = 0; i < loops.length; i += 2) {
-			triangulatedVerts3D.push(loops[i], -0.5, loops[i + 1]);
-		}
-
-		triangulatedVertsIndices.push(...triangulatedVertsIndices.map((v) => v + loops.length / 2));
-
-		// Generate side faces
-		for (let i = 0; i < orderedOuter.length / 2; i++) {
-			const nextIdx = (i + 1) % (orderedOuter.length / 2);
-			const a = i;
-			const b = i + loops.length / 2;
-			const c = nextIdx + loops.length / 2;
-			const d = nextIdx;
-			triangulatedVertsIndices.push(a, b, c, c, d, a);
-		}
-
-		for (let i = orderedOuter.length / 2; i < loops.length / 2; i++) {
-			const nextIdx = orderedOuter.length / 2 + ((i + 1) % (orderedInner.length / 2));
-			const a = i;
-			const b = i + loops.length / 2;
-			const c = nextIdx + loops.length / 2;
-			const d = nextIdx;
-			triangulatedVertsIndices.push(a, b, c, c, d, a);
-		}
+		// TODO: Bugs... fix algortihm
+		// const wallsMesh = generateMeshFromLayer(wallsLayer);
+		// const treesMesh = generateMeshFromLayer(treesLayer);
 
 		// Debug mesh
 		const geometry = new THREE.BufferGeometry();
-		geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(triangulatedVerts3D), 3));
-		geometry.setIndex(triangulatedVertsIndices);
+		geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
+		geometry.setIndex(mapMesh.indices);
 		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
 		const mesh = new THREE.Mesh(geometry, material);
 		mesh.position.set(0, 3, 0);
@@ -227,8 +81,8 @@ class PhysicsComponent extends TaroEventingClass {
 		let prunedVoxels = pruneCells(voxelData, voxels[layerIdx]);
 		let voxelVerts = buildMeshDataFromCells(prunedVoxels);
 		let layerColliderDesc = RAPIER.ColliderDesc.trimesh(
-			Float32Array.from(voxelVerts.positions),
-			Uint32Array.from(voxelVerts.indices)
+			Float32Array.from(floorMesh.vertices),
+			Uint32Array.from(floorMesh.indices)
 		);
 		world.createCollider(layerColliderDesc);
 
@@ -617,4 +471,161 @@ function buildMeshDataFromCells(cells: Map<string, VoxelCell>) {
 	}
 
 	return meshes;
+}
+
+function generateMeshFromLayer(layer: LayerData) {
+	const verts = new Map<string, number>();
+	for (let y = 0; y < layer.height; y++) {
+		for (let x = 0; x < layer.width; x++) {
+			const tileId = layer.data[y * layer.width + x];
+			const isSolid = tileId > 0;
+
+			if (isSolid) {
+				const topLeft = getKeyFromPos(x, y, 0);
+				const topRight = getKeyFromPos(x + 1, y, 0);
+				const bottomLeft = getKeyFromPos(x, y + 1, 0);
+				const bottomRight = getKeyFromPos(x + 1, y + 1, 0);
+
+				verts.set(topLeft, (verts.get(topLeft) ?? 0) + 1);
+				verts.set(topRight, (verts.get(topRight) ?? 0) + 1);
+				verts.set(bottomLeft, (verts.get(bottomLeft) ?? 0) + 1);
+				verts.set(bottomRight, (verts.get(bottomRight) ?? 0) + 1);
+			}
+		}
+	}
+
+	const outer = [];
+	const inner = [];
+	for (const [k, v] of verts.entries()) {
+		const [x, y, z] = k.split('.').map((v) => +v);
+		if (v === 1) outer.push(x, y);
+		else if (v === 3) inner.push(x, y);
+	}
+
+	const orderVertices = (vertices: number[]) => {
+		if (vertices.length < 3) return [];
+
+		const xs = vertices.filter((v, i) => i % 2 === 0);
+		const ys = vertices.filter((v, i) => i % 2 === 1);
+
+		const ordered = [];
+		let currX = xs[0];
+		let currY = ys[0];
+		ordered.push(currX, currY);
+
+		xs.shift();
+		ys.shift();
+
+		while (xs.length > 0) {
+			const rightVertIndices = xs.map((v, i) => i).filter((i) => xs[i] > currX && ys[i] === currY);
+			if (rightVertIndices.length) {
+				const rightVertIdx = rightVertIndices[0];
+				currX = xs.splice(rightVertIdx, 1)[0];
+				currY = ys.splice(rightVertIdx, 1)[0];
+				ordered.push(currX, currY);
+				continue;
+			}
+
+			const downVertIndices = ys.map((v, i) => i).filter((i) => ys[i] > currY && xs[i] === currX);
+			if (downVertIndices.length) {
+				const downVertIdx = downVertIndices[0];
+				currX = xs.splice(downVertIdx, 1)[0];
+				currY = ys.splice(downVertIdx, 1)[0];
+				ordered.push(currX, currY);
+				continue;
+			}
+
+			const leftVertIndices = xs.map((v, i) => i).filter((i) => xs[i] < currX && ys[i] === currY);
+			if (leftVertIndices.length) {
+				const leftVertIdx = leftVertIndices[0];
+				currX = xs.splice(leftVertIdx, 1)[0];
+				currY = ys.splice(leftVertIdx, 1)[0];
+				ordered.push(currX, currY);
+				continue;
+			}
+
+			const upVertIndices = ys.map((v, i) => i).filter((i) => ys[i] < currY && xs[i] === currX);
+			if (upVertIndices.length) {
+				const upVertIdx = upVertIndices[0];
+				currX = xs.splice(upVertIdx, 1)[0];
+				currY = ys.splice(upVertIdx, 1)[0];
+				ordered.push(currX, currY);
+				continue;
+			}
+
+			// const yIdx = ys.findIndex((v) => v === currY);
+			// if (yIdx !== -1) {
+			// 	currX = xs.splice(yIdx, 1)[0];
+			// 	currY = ys.splice(yIdx, 1)[0];
+			// 	ordered.push(currX, currY);
+			// 	continue;
+			// }
+
+			// const xIdx = xs.findIndex((v) => v === currX);
+			// if (xIdx !== -1) {
+			// 	currX = xs.splice(xIdx, 1)[0];
+			// 	currY = ys.splice(xIdx, 1)[0];
+			// 	ordered.push(currX, currY);
+			// 	continue;
+			// }
+		}
+
+		return ordered;
+	};
+
+	const orderedOuter = orderVertices(outer);
+	const orderedInner = orderVertices(inner);
+
+	const holeIndices = []; // First index of each hole
+	const loops = [...orderedOuter, ...orderedInner];
+
+	// TODO: Support multiple holes
+	if (orderedInner.length > 0) {
+		holeIndices.push(orderedOuter.length / 2);
+	}
+
+	console.log('INDEX', outer, orderedOuter);
+	console.log('INNER', inner, orderedInner);
+	console.log('LOOPS', loops, holeIndices);
+
+	const triangulatedVertsIndices = Earcut.triangulate(loops, holeIndices);
+
+	console.log(triangulatedVertsIndices);
+
+	const triangulatedVerts3D = [] as number[];
+	// for (let i = 0; i < triangulatedVertsIndices.length; i++) {
+	// 	triangulatedVerts3D.push(loops[triangulatedVertsIndices[i] * 2], 0, loops[triangulatedVertsIndices[i] * 2 + 1]);
+	// }
+
+	for (let i = 0; i < loops.length; i += 2) {
+		triangulatedVerts3D.push(loops[i], 0.5, loops[i + 1]);
+	}
+
+	// Duplicate top face vertices
+	for (let i = 0; i < loops.length; i += 2) {
+		triangulatedVerts3D.push(loops[i], -0.5, loops[i + 1]);
+	}
+
+	triangulatedVertsIndices.push(...triangulatedVertsIndices.map((v) => v + loops.length / 2));
+
+	// Generate side faces
+	for (let i = 0; i < orderedOuter.length / 2; i++) {
+		const nextIdx = (i + 1) % (orderedOuter.length / 2);
+		const a = i;
+		const b = i + loops.length / 2;
+		const c = nextIdx + loops.length / 2;
+		const d = nextIdx;
+		triangulatedVertsIndices.push(a, b, c, c, d, a);
+	}
+
+	for (let i = orderedOuter.length / 2; i < loops.length / 2; i++) {
+		const nextIdx = orderedOuter.length / 2 + ((i + 1) % (orderedInner.length / 2));
+		const a = i;
+		const b = i + loops.length / 2;
+		const c = nextIdx + loops.length / 2;
+		const d = nextIdx;
+		triangulatedVertsIndices.push(a, b, c, c, d, a);
+	}
+
+	return { vertices: triangulatedVerts3D, indices: triangulatedVertsIndices };
 }
