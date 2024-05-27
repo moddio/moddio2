@@ -53,6 +53,7 @@ class PhysicsComponent extends TaroEventingClass {
 			width: 4,
 			height: 4,
 			data: [1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+			// data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 		};
 
 		const verts = new Map<string, number>();
@@ -84,6 +85,8 @@ class PhysicsComponent extends TaroEventingClass {
 		}
 
 		const orderVertices = (vertices: number[]) => {
+			if (vertices.length < 3) return [];
+
 			const xs = vertices.filter((v, i) => i % 2 === 0);
 			const ys = vertices.filter((v, i) => i % 2 === 1);
 
@@ -157,7 +160,11 @@ class PhysicsComponent extends TaroEventingClass {
 
 		const holeIndices = []; // First index of each hole
 		const loops = [...orderedOuter, ...orderedInner];
-		holeIndices.push(orderedOuter.length / 2);
+
+		// TODO: Support multiple holes
+		if (orderedInner.length > 0) {
+			holeIndices.push(orderedOuter.length / 2);
+		}
 
 		console.log('INDEX', outer, orderedOuter);
 		console.log('INNER', inner, orderedInner);
@@ -173,7 +180,33 @@ class PhysicsComponent extends TaroEventingClass {
 		// }
 
 		for (let i = 0; i < loops.length; i += 2) {
-			triangulatedVerts3D.push(loops[i], 0, loops[i + 1]);
+			triangulatedVerts3D.push(loops[i], 0.5, loops[i + 1]);
+		}
+
+		// Duplicate top face vertices
+		for (let i = 0; i < loops.length; i += 2) {
+			triangulatedVerts3D.push(loops[i], -0.5, loops[i + 1]);
+		}
+
+		triangulatedVertsIndices.push(...triangulatedVertsIndices.map((v) => v + loops.length / 2));
+
+		// Generate side faces
+		for (let i = 0; i < orderedOuter.length / 2; i++) {
+			const nextIdx = (i + 1) % (orderedOuter.length / 2);
+			const a = i;
+			const b = i + loops.length / 2;
+			const c = nextIdx + loops.length / 2;
+			const d = nextIdx;
+			triangulatedVertsIndices.push(a, b, c, c, d, a);
+		}
+
+		for (let i = orderedOuter.length / 2; i < loops.length / 2; i++) {
+			const nextIdx = orderedOuter.length / 2 + ((i + 1) % (orderedInner.length / 2));
+			const a = i;
+			const b = i + loops.length / 2;
+			const c = nextIdx + loops.length / 2;
+			const d = nextIdx;
+			triangulatedVertsIndices.push(a, b, c, c, d, a);
 		}
 
 		// Debug mesh
