@@ -1,3 +1,5 @@
+const path = require('path');
+
 var moddioConfig =
 	process.env.ENV === 'standalone'
 		? process.env.LOAD_CC === 'true'
@@ -64,6 +66,8 @@ var defaultConfig = [
 	// Color support
 	{ name: 'Colors', path: '../src/utils/Colors' },
 	{ name: 'Utils', path: '../src/utils/Utils' },
+
+	{ name: 'Earcut', path: '../src/lib/Earcut' },
 ];
 
 var config = {

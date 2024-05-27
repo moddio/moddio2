@@ -42,6 +42,51 @@ class PhysicsComponent extends TaroEventingClass {
 		const wallsLayer = taro.game.data.map.layers.find((l) => l.name === 'walls');
 		const treesLayer = taro.game.data.map.layers.find((l) => l.name === 'trees');
 
+		// const map = [
+		// 	1, 1, 1, 1,
+		// 	1, 0, 0, 1,
+		// 	1, 0, 0, 1,
+		// 	1, 1, 1, 1,
+		// ];
+
+		const map = {
+			width: 4,
+			height: 4,
+			data: [1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+		};
+
+		const verts = new Map<string, number>();
+		for (let y = 0; y < map.height; y++) {
+			for (let x = 0; x < map.width; x++) {
+				const tileId = map.data[y * map.width + x];
+				const isSolid = tileId > 0;
+
+				if (isSolid) {
+					const topLeft = getKeyFromPos(x, y, 0);
+					const topRight = getKeyFromPos(x + 1, y, 0);
+					const bottomLeft = getKeyFromPos(x, y + 1, 0);
+					const bottomRight = getKeyFromPos(x + 1, y + 1, 0);
+
+					verts.set(topLeft, (verts.get(topLeft) ?? 0) + 1);
+					verts.set(topRight, (verts.get(topRight) ?? 0) + 1);
+					verts.set(bottomLeft, (verts.get(bottomLeft) ?? 0) + 1);
+					verts.set(bottomRight, (verts.get(bottomRight) ?? 0) + 1);
+				}
+			}
+		}
+
+		const outer = [];
+		const inner = [];
+		for (const [k, v] of verts.entries()) {
+			const [x, y, z] = k.split('.').map((v) => +v);
+			if (v === 1) outer.push(x, y);
+			else if (v === 3) inner.push(x, y);
+		}
+
+		console.log(outer, inner);
+
+		console.log(Earcut.triangulate(outer));
+
 		const voxels: Map<string, VoxelCell>[] = [];
 
 		let layerIdx = 0;
