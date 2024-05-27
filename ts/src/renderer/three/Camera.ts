@@ -121,7 +121,7 @@ namespace Renderer {
 				};
 
 				window.addEventListener('keypress', (evt) => {
-					if (evt.key === '~') {
+					if (evt.key === '\\') {
 						this.debugMode = !this.debugMode;
 						this.setEditorMode(this.debugMode);
 					}
