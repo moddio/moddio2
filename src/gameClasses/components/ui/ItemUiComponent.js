@@ -4,6 +4,8 @@ var ItemUiComponent = TaroEntity.extend({
 
 	dragOverTimeout: null,
 
+	DRAG_SCALE: 1.8,
+
 	init: function () {
 		const addPopoverListener = () => {
 			let timeoutForPopover = null;
@@ -161,10 +163,11 @@ var ItemUiComponent = TaroEntity.extend({
 		var equipmentAllowed = owner && owner._stats.equipmentAllowed;
 		// update item info on bottom-right corner if it's currently selected item
 
+		let additionalStyle = '';
 		if (item && item._stats && item._stats.inventorySlotColor) {
-			var color = `background-image: radial-gradient(rgba(0, 0, 0, 0),${item._stats.inventorySlotColor})`;
+			additionalStyle = `background-image: radial-gradient(rgba(0, 0, 0, 0),${item._stats.inventorySlotColor})`;
 		} else {
-			var color = 'background-image: none';
+			additionalStyle = 'background-image: none';
 		}
 
 		var element = $(taro.client.getCachedElementById(`item-${slotIndex}`));
@@ -177,7 +180,7 @@ var ItemUiComponent = TaroEntity.extend({
 						popover: 'top',
 						isDraggable: true,
 						isPurchasable: false,
-						bgColor: color,
+						additionalStyle,
 					},
 					slotIndex
 				)
@@ -237,6 +240,39 @@ var ItemUiComponent = TaroEntity.extend({
 		}
 	},
 
+	updateDroppableActivate: function (event, type) {
+		if (type && event.target.parentElement) {
+			const itemSlot = parseInt(event.target.parentElement.id.substring(5));
+			var selectedUnit = taro.client.myPlayer.getSelectedUnit();
+			var items = selectedUnit._stats.itemIds;
+			const totalInventorySize = selectedUnit.inventory.getTotalInventorySize();
+			if (/*totalInventorySize && itemSlot < totalInventorySize*/ true) {
+				const item = taro.$(items[itemSlot]);
+				if (type === 'activate') {
+					const currentItemSlot = parseInt(event.currentTarget.parentElement.id.substring(5));
+					event.target.parentElement.classList.add('item-drag-active');
+					if (selectedUnit.inventory.isItemDropAllowed(currentItemSlot, itemSlot, taro.$(items[currentItemSlot]), taro.$(items[itemSlot]))) {
+						event.target.parentElement.classList.add('item-drop-allowed');
+
+						if (item && item._stats.inventorySlotColor) {
+							// const computedBackgroundImage = window.getComputedStyle(event.target).backgroundImage;
+							event.target.style.background = item._stats.inventorySlotColor;
+						}
+					} else {
+						event.target.parentElement.classList.add('item-drop-deny');
+					}
+				} else if (type === 'deactivate') {
+					event.target.parentElement.classList.remove('item-drag-active', 'item-drop-allowed', 'item-drop-deny');
+
+					if (item && item._stats.inventorySlotColor) {
+						// const computedBackgroundImage = window.getComputedStyle(event.target).backgroundImage;
+						event.target.style.background = null;
+					}
+				}
+			}
+		}
+	},
+
 	getItemDiv: function (item, options, slotIndex) {
 		var self = this;
 		if (item) {
@@ -255,14 +291,14 @@ var ItemUiComponent = TaroEntity.extend({
 
 				var img = itemStats.inventoryImage || (itemStats.cellSheet ? itemStats.cellSheet.url : '');
 				var mobileClass = taro.isMobile
-					? 'height:17px;max-width:20px;object-fit:contain'
-					: 'height:30px;max-width:27px;object-fit:contain';
+					? 'height:28px;max-width:28px;object-fit:contain'
+					: 'height:35px;max-width:35px;object-fit:contain';
 				var isTrading = options.isTrading;
 				if (img) {
 					var itemDiv = $('<div/>', {
 						id: `slotindex-${slotIndex}`,
 						class: `item-div draggable-item ${options.isActive}`,
-						style: `height:100%; ${options.bgColor}`,
+						style: `height:100%; ${options.additionalStyle}`,
 						role: 'button',
 						html: `<div class='${!isTrading ? 'absolute-center' : ''}'><img src='${img}' style='${mobileClass}'/></div><small class='quantity'>${(!isNaN(parseFloat(itemQuantity)) && parseFloat(itemQuantity)) || ''}</small>`,
 						'data-container': 'body',
@@ -296,8 +332,22 @@ var ItemUiComponent = TaroEntity.extend({
 					tolerance: 'touch',
 					start: function (event, ui) {
 						// when being dragged, disable popover. it doesn't need to be enabled later, because updateInventory overwrites popover div
-						$('.popover').popover('disable');
+						$(this).popover('hide');
+						$(this).popover('disable');
+
+						event.target.parentElement.classList.add('item-drag-active', 'item-drop-main');
 					},
+					stop: function (event) {
+						$(this).popover('enable');
+
+						event.target.parentElement.classList.remove('item-drag-active', 'item-drop-main');
+					},
+					drag: function (event, ui) {
+						const correction = 30;
+						ui.position.left = ui.position.left - ((event.target.clientWidth * self.DRAG_SCALE) - (event.clientX - ui.offset.left)) + correction;
+						ui.position.top = ui.position.top - ((event.target.clientHeight * self.DRAG_SCALE) - (event.clientY - ui.offset.top)) + correction;
+						// console.log("ui.position", ui.position, "clientX: ", event.clientX, "clientY: ", event.clientY, "offset: ", ui.offset);
+					}
 				})
 				.droppable({
 					// over: function (event, ui) {
@@ -309,6 +359,12 @@ var ItemUiComponent = TaroEntity.extend({
 					// 		ui.draggable.removeClass('item-dragged-over');
 					// 	}, 100);
 					// },
+					activate: function (event, ui) {
+						self.updateDroppableActivate(event, 'activate');
+					},
+					deactivate: function (event, ui) {
+						self.updateDroppableActivate(event, 'deactivate');
+					},
 					drop: function (event, ui) {
 						var draggable = ui.draggable;
 						var droppable = $(this);

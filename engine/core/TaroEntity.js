@@ -4430,36 +4430,21 @@ var TaroEntity = TaroObject.extend({
 						switch (attrName) {
 							case 'quests':
 								var gameId = taro.game.data.defaultData._id;
-								if (typeof newValue === 'string') {
-									if (this.quests.active[gameId][newValue] !== undefined) {
-										delete this.quests.active[gameId][newValue];
-									} else {
-										this.quests.completed[gameId] = this.quests.completed[gameId].filter((v) => v !== newValue);
+								Object.entries(newValue).map(([questId, v], idx) => {
+									if (v.completed === true) {
+										delete this.quests.active[gameId][questId];
+										this.quests.completed[gameId].push(questId);
+										return;
 									}
-								} else {
-									if (newValue.complete) {
-										var questsId = newValue.complete;
-										this.quests.completed[gameId].push(questsId);
-										if (this.quests.active[gameId][questsId] !== undefined) {
-											delete this.quests.active[gameId][questsId];
-										}
-									} else {
-										var keys = Object.keys(newValue);
-										if (keys.length === 1) {
-											var questId = keys[0];
-											if (this.quests.active[gameId][questId] === undefined) {
-												this.quests.active[gameId][questId] = newValue[questId];
-											} else {
-												Object.entries(newValue[questId]).map(([k, v]) => {
-													this.quests.active[gameId][questId][k] = v;
-												});
-											}
-										} else {
-											this.quests = newValue;
-										}
+									if (v.name !== undefined) {
+										this.quests.active[gameId][questId] = v;
+										return;
 									}
-								}
-								console.log(this);
+									if (v.progress !== undefined) {
+										this.quests.active[gameId][questId].progress = v.progress;
+										return;
+									}
+								});
 								break;
 							case 'anim':
 								var animationId = newValue;
@@ -4562,7 +4547,11 @@ var TaroEntity = TaroObject.extend({
 			value = data[key];
 
 			// need to include variables here, otherwise only the latest variable is sent to client streamUpdateData
-			if (['attributes', 'attributesMin', 'attributesMax', 'attributesRegenerateRate', 'variables'].includes(key)) {
+			if (
+				['attributes', 'attributesMin', 'attributesMax', 'attributesRegenerateRate', 'variables', 'quests'].includes(
+					key
+				)
+			) {
 				// some data need to merge instead of overwriting they key. otherwise, we'll only be able to send the last attribute added.
 				// for example, if server calls queueStreamData for Speed and HP attributes, HP will overwrite Speed as they share same key ("attributes")
 				// this._streamDataQueued[key] = {...this._streamDataQueued[key], ...value};

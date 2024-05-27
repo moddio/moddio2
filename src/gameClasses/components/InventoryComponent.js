@@ -108,7 +108,7 @@ var InventoryComponent = TaroEntity.extend({
 					$('<div/>', {
 						id: `item-${i}`,
 						name: i,
-						class: `btn btn-light trade-slot inventory-item-button ${mobileClass}`,
+						class: `btn btn-light trade-slot inventory-item-button p-0 ${mobileClass}`,
 						role: 'button',
 					})
 				);
@@ -446,6 +446,29 @@ var InventoryComponent = TaroEntity.extend({
 		this._entity._stats.backpackSize = this._entity._stats.backpackSize > 0 ? this._entity._stats.backpackSize : 0; // backward compatibility incase backpackSize == undefined
 		return this._entity._stats.inventorySize + this._entity._stats.backpackSize;
 	},
+
+	isItemDropAllowed: function (fromSlot, toSlot, fromItem, toItem) {
+		return (toSlot < this.getTotalInventorySize() ||
+			(toSlot >= this.getTotalInventorySize() &&
+				!fromItem._stats.controls.undroppable &&
+				!fromItem._stats.controls.untradable)) && //check if try to trade undroppable item
+			(fromItem._stats.controls == undefined ||
+				fromItem._stats.controls.permittedInventorySlots == undefined ||
+				fromItem._stats.controls.permittedInventorySlots.length == 0 ||
+				fromItem._stats.controls.permittedInventorySlots.includes(toSlot + 1) ||
+				(toSlot + 1 > this._entity._stats.inventorySize &&
+					(fromItem._stats.controls.backpackAllowed == true ||
+						fromItem._stats.controls.backpackAllowed == undefined ||
+						fromItem._stats.controls.backpackAllowed == null))) && // any item can be moved into backpack slots if the backpackAllowed property is true
+			(!toItem || (toItem._stats.controls == undefined ||
+				toItem._stats.controls.permittedInventorySlots == undefined ||
+				toItem._stats.controls.permittedInventorySlots.length == 0 ||
+				toItem._stats.controls.permittedInventorySlots.includes(fromSlot + 1) ||
+				(fromSlot + 1 > this._entity._stats.inventorySize &&
+					(toItem._stats.controls.backpackAllowed == true ||
+						toItem._stats.controls.backpackAllowed == undefined ||
+						toItem._stats.controls.backpackAllowed == null))))
+	}
 });
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

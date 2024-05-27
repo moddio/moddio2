@@ -3205,12 +3205,12 @@ var ActionComponent = TaroEntity.extend({
 									angle = parseFloat(angle);
 								}
 								if (!isNaN(scale?.x)) {
-									width = parseFloat(scale.x);
+									width = parseFloat(scale.x * entityTypeData.bodies.default?.width);
 								} else {
 									width = parseFloat(width);
 								}
 								if (!isNaN(scale?.y)) {
-									height = parseFloat(scale.y);
+									height = parseFloat(scale.y * entityTypeData.bodies.default?.height);
 								} else {
 									height = parseFloat(height);
 								}

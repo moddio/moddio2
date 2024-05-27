@@ -37,7 +37,7 @@ var QuestComponent = TaroEntity.extend({
 					self._entity.streamUpdateData([
 						{
 							quests: {
-								complete: questId,
+								[questId]: { completed: true },
 							},
 						},
 					]);
@@ -57,7 +57,7 @@ var QuestComponent = TaroEntity.extend({
 		}
 		var questObj = self._entity.quests;
 		if (questObj.completed[gameId].includes(questId)) {
-			questObj.completed[gameId] = questObj.completed[gameId].filter(v => v !== questId);
+			questObj.completed[gameId] = questObj.completed[gameId].filter((v) => v !== questId);
 			if (taro.isServer) {
 				self._entity.streamUpdateData([
 					{
