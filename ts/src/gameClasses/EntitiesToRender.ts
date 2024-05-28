@@ -60,6 +60,7 @@ class EntitiesToRender {
 					var rotate = entity._rotate.z;
 				}
 
+				const is3D = taro.game.data.defaultData.defaultRenderer === '3d';
 				// if item is being carried by a unit
 				if (ownerUnit) {
 					// if the ownerUnit is not visible, then hide the item
@@ -90,11 +91,13 @@ class EntitiesToRender {
 						x = ownerUnit._translate.x;
 						y = ownerUnit._translate.y;
 						rotate = entity.anchoredOffset.rotate;
+						if (!is3D) {
+							x += entity.anchoredOffset.x;
+							y += entity.anchoredOffset.y;
+						}
 					}
-					//if (entity._stats.name === 'potato gun small') console.log('owner unit translate',ownerUnit._translate.x, ownerUnit._translate.y, '\nphaser unit pos', ownerUnit.phaserEntity.gameObject.x, ownerUnit.phaserEntity.gameObject.y, '\nitem translate', x, y, '\nphaser item pos', entity.phaserEntity.gameObject.x, entity.phaserEntity.gameObject.y)
 				}
 
-				const is3D = taro.game.data.defaultData.defaultRenderer === '3d';
 				if ((!is3D && entity.tween?.isTweening && phaserGameObject?.visible) || (is3D && entity.tween?.isTweening)) {
 					entity.tween.update();
 					x += entity.tween.offset.x;
