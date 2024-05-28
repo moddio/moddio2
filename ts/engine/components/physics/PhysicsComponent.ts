@@ -428,6 +428,7 @@ class PhysicsComponent extends TaroEventingClass {
 			: entity.isClientPredicted()
 				? RAPIER.RigidBodyDesc.dynamic()
 				: RAPIER.RigidBodyDesc.kinematicPositionBased();
+		rigidBodyDesc.gravityScale = 10.0;
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
 
 		const pos = entity._translate;

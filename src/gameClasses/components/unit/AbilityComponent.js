@@ -20,7 +20,7 @@ var AbilityComponent = TaroEntity.extend({
 	},
 
 	jump() {
-		this._entity.velocity.z = 10;
+		this._entity.velocity.z = 20;
 	},
 
 	move(left, right, up, down) {
