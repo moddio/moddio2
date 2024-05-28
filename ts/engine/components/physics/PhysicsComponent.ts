@@ -65,7 +65,7 @@ class PhysicsComponent extends TaroEventingClass {
 			// data: [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
 		};
 
-		const mapMesh = generateMeshFromLayer(map as LayerData);
+		// const mapMesh = generateMeshFromLayer(map as LayerData);
 		// const floorMesh = generateMeshFromLayer(floorLayer);
 
 		// TODO: Bugs... fix algortihm
@@ -73,13 +73,13 @@ class PhysicsComponent extends TaroEventingClass {
 		// const treesMesh = generateMeshFromLayer(treesLayer);
 
 		// Debug mesh
-		let geometry = new THREE.BufferGeometry();
-		geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
-		geometry.setIndex(mapMesh.indices);
-		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-		let mesh = new THREE.Mesh(geometry, material);
-		mesh.position.set(0, 3, 0);
-		Renderer.Three.instance().scene.add(mesh);
+		// let geometry = new THREE.BufferGeometry();
+		// geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
+		// geometry.setIndex(mapMesh.indices);
+		// const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+		// let mesh = new THREE.Mesh(geometry, material);
+		// mesh.position.set(0, 3, 0);
+		// Renderer.Three.instance().scene.add(mesh);
 
 		// Moore-Neighbor Tracing Algorithm
 
@@ -104,40 +104,189 @@ class PhysicsComponent extends TaroEventingClass {
 		// mesh.position.set(0, 5, 0);
 		// Renderer.Three.instance().scene.add(mesh);
 
+		// Brutce force method
+
+		const generateLayerSegments = (map: LayerData) => {
+			const segments = [];
+			for (let y = 0; y < map.height; y++) {
+				for (let x = 0; x < map.width; x++) {
+					const tileId = map.data[y * map.width + x];
+					const isSolid = tileId > 0;
+
+					const isTopSolid = y > 0 && map.data[(y - 1) * map.width + x] > 0;
+					const isBottomSolid = y < map.height - 1 && map.data[(y + 1) * map.width + x] > 0;
+					const isLeftSolid = x > 0 && map.data[y * map.width + x - 1] > 0;
+					const isRightSolid = x < map.width - 1 && map.data[y * map.width + x + 1] > 0;
+
+					if (isSolid) {
+						// Clockwise order
+
+						if (!isTopSolid) {
+							segments.push([x, y, x + 1, y]);
+						}
+						if (!isBottomSolid) {
+							segments.push([x + 1, y + 1, x, y + 1]);
+						}
+						if (!isLeftSolid) {
+							segments.push([x, y + 1, x, y]);
+						}
+						if (!isRightSolid) {
+							segments.push([x + 1, y, x + 1, y + 1]);
+						}
+					}
+				}
+			}
+
+			const contours = [];
+			while (segments.length) {
+				const contour = [];
+				let start = segments.shift();
+				contour.push(start[0], start[1], start[2], start[3]);
+
+				let last = start;
+				while (segments.length) {
+					let next = segments.find((s) => s[0] === last[2] && s[1] === last[3]);
+					if (next) {
+						const isCollinear =
+							(last[0] === last[2] && last[2] === next[2]) || (last[1] === last[3] && last[3] === next[3]);
+
+						if (isCollinear) {
+							contour[contour.length - 2] = next[2];
+							contour[contour.length - 1] = next[3];
+						} else {
+							contour.push(next[0], next[1], next[2], next[3]);
+						}
+
+						last = next;
+						segments.splice(segments.indexOf(next), 1);
+					} else {
+						break;
+					}
+				}
+
+				contours.push(contour);
+			}
+
+			const outer = [];
+			const inner = [];
+			for (let i = 0; i < contours.length; i++) {
+				const contour = contours[i];
+				const ring = [];
+
+				let sum = 0;
+				for (let j = 0; j < contour.length; j += 2) {
+					ring.push(contour[j], 0, contour[j + 1]);
+
+					const x1 = contour[j];
+					const y1 = contour[j + 1];
+					const x2 = contour[(j + 2) % contour.length];
+					const y2 = contour[(j + 3) % contour.length];
+					sum += (x2 - x1) * (y2 + y1);
+				}
+				let cw = sum < 0;
+
+				cw ? outer.push(ring) : inner.push(ring);
+			}
+
+			// Ignore inner rings (holes) for now
+			// TODO: Hole support
+
+			// for (let i = 0; i < outer.length; i++) {
+			// 	const geometry = new THREE.BufferGeometry();
+			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(outer[i]), 3));
+			// 	let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
+			// 	lineSegments.position.set(0, 5, 0);
+			// 	Renderer.Three.instance().scene.add(lineSegments);
+			// }
+
+			// for (let i = 0; i < inner.length; i++) {
+			// 	const geometry = new THREE.BufferGeometry();
+			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(inner[i]), 3));
+			// 	let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x00ffff }));
+			// 	lineSegments.position.set(0, 5, 0);
+			// 	Renderer.Three.instance().scene.add(lineSegments);
+			// }
+
+			const verts = [];
+			const indices = [];
+
+			if (outer.length) {
+				for (const ring of outer) {
+					const vertices = [];
+
+					for (let i = 0; i < ring.length; i += 6) {
+						vertices.push(ring[i], ring[i + 2]);
+					}
+
+					const triangulatedVertsIndices = Earcut.triangulate(vertices);
+
+					const triangulatedVerts3D = [] as number[];
+
+					for (let i = 0; i < vertices.length; i += 2) {
+						triangulatedVerts3D.push(vertices[i], 0.5, vertices[i + 1]);
+					}
+
+					// Duplicate top face vertices
+					for (let i = 0; i < vertices.length; i += 2) {
+						triangulatedVerts3D.push(vertices[i], -0.5, vertices[i + 1]);
+					}
+
+					triangulatedVertsIndices.push(...triangulatedVertsIndices.map((v) => v + vertices.length / 2));
+
+					// Generate side faces
+					for (let i = 0; i < vertices.length / 2; i++) {
+						const nextIdx = (i + 1) % (vertices.length / 2);
+						const a = i;
+						const b = i + vertices.length / 2;
+						const c = nextIdx + vertices.length / 2;
+						const d = nextIdx;
+						triangulatedVertsIndices.push(a, b, c, c, d, a);
+					}
+
+					indices.push(...triangulatedVertsIndices.map((v) => v + verts.length / 3));
+					verts.push(...triangulatedVerts3D);
+				}
+			}
+
+			return { vertices: verts, indices: indices };
+		};
+
+		console.time('COLLISION MESH GENERATION');
+
+		console.time('FLOOR');
+		const floorMesh = generateLayerSegments(floorLayer);
+		console.timeEnd('FLOOR');
+
+		console.time('WALLS');
+		const wallsMesh = generateLayerSegments(wallsLayer);
+		console.timeEnd('WALLS');
+
+		console.time('TREES');
+		const treesMesh = generateLayerSegments(treesLayer);
+		console.timeEnd('TREES');
+
+		console.timeEnd('COLLISION MESH GENERATION');
+
 		//
 
-		const voxels: Map<string, VoxelCell>[] = [];
-
-		let layerIdx = 0;
-		let voxelData = generateVoxelsFromLayerData(floorLayer, 0);
-		let prunedVoxels = pruneCells(voxelData, voxels[layerIdx]);
-		let voxelVerts = buildMeshDataFromCells(prunedVoxels);
 		let layerColliderDesc = RAPIER.ColliderDesc.trimesh(
 			Float32Array.from(floorMesh.vertices),
 			Uint32Array.from(floorMesh.indices)
 		);
 		world.createCollider(layerColliderDesc);
 
-		layerIdx = 2;
-		voxelData = generateVoxelsFromLayerData(wallsLayer, 0);
-		prunedVoxels = pruneCells(voxelData, voxels[layerIdx]);
-		voxelVerts = buildMeshDataFromCells(prunedVoxels);
 		layerColliderDesc = RAPIER.ColliderDesc.trimesh(
-			Float32Array.from(voxelVerts.positions),
-			Uint32Array.from(voxelVerts.indices)
+			Float32Array.from(wallsMesh.vertices),
+			Uint32Array.from(wallsMesh.indices)
 		);
-		layerColliderDesc.setTranslation(0, layerIdx, 0);
+		layerColliderDesc.setTranslation(0, 2, 0);
 		world.createCollider(layerColliderDesc);
 
-		layerIdx = 3;
-		voxelData = generateVoxelsFromLayerData(treesLayer, 0);
-		prunedVoxels = pruneCells(voxelData, voxels[layerIdx]);
-		voxelVerts = buildMeshDataFromCells(prunedVoxels);
 		layerColliderDesc = RAPIER.ColliderDesc.trimesh(
-			Float32Array.from(voxelVerts.positions),
-			Uint32Array.from(voxelVerts.indices)
+			Float32Array.from(treesMesh.vertices),
+			Uint32Array.from(treesMesh.indices)
 		);
-		layerColliderDesc.setTranslation(0, layerIdx, 0);
+		layerColliderDesc.setTranslation(0, 3, 0);
 		world.createCollider(layerColliderDesc);
 	}
 
