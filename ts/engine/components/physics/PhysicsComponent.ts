@@ -57,12 +57,21 @@ class PhysicsComponent extends TaroEventingClass {
 		// 	1, 1, 0, 1, 1,
 		// ];
 
+		// const map = [
+		// 	1, 1, 1, 1, 1,
+		// 	1, 0, 0, 0, 1,
+		// 	1, 0, 1, 0, 1,
+		// 	1, 0, 0, 0, 1,
+		// 	1, 1, 1, 1, 1,
+		// ];
+
 		const map = {
-			width: 4,
-			height: 4,
-			data: [1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+			width: 5,
+			height: 5,
+			// data: [1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
 			// data: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 			// data: [1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+			data: [1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
 		};
 
 		// const mapMesh = generateMeshFromLayer(map as LayerData);
@@ -164,6 +173,17 @@ class PhysicsComponent extends TaroEventingClass {
 					}
 				}
 
+				// Fix if first and last are collinear
+				const isCollinear =
+					(contour[0] === contour[2] && contour[0] === contour[contour.length - 4]) ||
+					(contour[1] === contour[3] && contour[1] === contour[contour.length - 3]);
+				if (isCollinear) {
+					contour.pop();
+					contour.pop();
+					contour[0] = contour[contour.length - 2];
+					contour[1] = contour[contour.length - 1];
+				}
+
 				contours.push(contour);
 			}
 
@@ -191,65 +211,115 @@ class PhysicsComponent extends TaroEventingClass {
 			// Ignore inner rings (holes) for now
 			// TODO: Hole support
 
-			// for (let i = 0; i < outer.length; i++) {
-			// 	const geometry = new THREE.BufferGeometry();
-			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(outer[i]), 3));
-			// 	let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
-			// 	lineSegments.position.set(0, 5, 0);
-			// 	Renderer.Three.instance().scene.add(lineSegments);
-			// }
+			for (let i = 0; i < outer.length; i++) {
+				const geometry = new THREE.BufferGeometry();
+				geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(outer[i]), 3));
+				let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
+				lineSegments.position.set(0, 5, 0);
+				Renderer.Three.instance().scene.add(lineSegments);
+			}
 
-			// for (let i = 0; i < inner.length; i++) {
-			// 	const geometry = new THREE.BufferGeometry();
-			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(inner[i]), 3));
-			// 	let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x00ffff }));
-			// 	lineSegments.position.set(0, 5, 0);
-			// 	Renderer.Three.instance().scene.add(lineSegments);
-			// }
+			for (let i = 0; i < inner.length; i++) {
+				const geometry = new THREE.BufferGeometry();
+				geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(inner[i]), 3));
+				let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x00ffff }));
+				lineSegments.position.set(0, 5, 0);
+				Renderer.Three.instance().scene.add(lineSegments);
+			}
+
+			const shapes = [];
+
+			for (const outerRing of outer) {
+				const shape = { ring: outerRing, holes: [] };
+
+				for (const innerRing of inner) {
+					const pointX = innerRing[0];
+					const pointY = innerRing[2];
+
+					if (isPointInPolygon(outerRing, pointX, pointY, 3)) {
+						shape.holes.push(innerRing);
+					}
+				}
+
+				shapes.push(shape);
+			}
+
+			console.log(shapes);
 
 			const verts = [];
 			const indices = [];
 
-			if (outer.length) {
-				for (const ring of outer) {
-					const vertices = [];
+			for (const shape of shapes) {
+				const ring = shape.ring;
+				const holes = shape.holes;
 
-					for (let i = 0; i < ring.length; i += 6) {
-						vertices.push(ring[i], ring[i + 2]);
+				const vertices = [];
+				for (let i = 0; i < ring.length; i += 6) {
+					vertices.push(ring[i], ring[i + 2]);
+				}
+
+				const numRingVertices = vertices.length / 2;
+
+				const holeIndices = [];
+				for (const hole of holes) {
+					holeIndices.push(vertices.length / 2);
+					for (let i = 0; i < hole.length; i += 6) {
+						vertices.push(hole[i], hole[i + 2]);
 					}
+				}
 
-					const triangulatedVertsIndices = Earcut.triangulate(vertices);
+				const triangulatedVertsIndices = Earcut.triangulate(vertices, holeIndices);
 
-					const triangulatedVerts3D = [] as number[];
+				const triangulatedVerts3D = [] as number[];
 
-					for (let i = 0; i < vertices.length; i += 2) {
-						triangulatedVerts3D.push(vertices[i], 0.5, vertices[i + 1]);
-					}
+				for (let i = 0; i < vertices.length; i += 2) {
+					triangulatedVerts3D.push(vertices[i], 0.5, vertices[i + 1]);
+				}
 
-					// Duplicate top face vertices
-					for (let i = 0; i < vertices.length; i += 2) {
-						triangulatedVerts3D.push(vertices[i], -0.5, vertices[i + 1]);
-					}
+				// Duplicate top face vertices
+				for (let i = 0; i < vertices.length; i += 2) {
+					triangulatedVerts3D.push(vertices[i], -0.5, vertices[i + 1]);
+				}
 
-					triangulatedVertsIndices.push(...triangulatedVertsIndices.map((v) => v + vertices.length / 2));
+				triangulatedVertsIndices.push(...triangulatedVertsIndices.map((v) => v + vertices.length / 2));
 
-					// Generate side faces
-					for (let i = 0; i < vertices.length / 2; i++) {
-						const nextIdx = (i + 1) % (vertices.length / 2);
+				// Generate side faces
+				for (let i = 0; i < numRingVertices; i++) {
+					const nextIdx = (i + 1) % numRingVertices;
+					const a = i;
+					const b = i + vertices.length / 2;
+					const c = nextIdx + vertices.length / 2;
+					const d = nextIdx;
+					triangulatedVertsIndices.push(a, b, c, c, d, a);
+				}
+
+				for (const holeStartIdx of holeIndices) {
+					for (let i = holeStartIdx; i < holeStartIdx + numRingVertices; i++) {
+						const nextIdx = ((i + 1) % numRingVertices) + holeStartIdx;
 						const a = i;
 						const b = i + vertices.length / 2;
 						const c = nextIdx + vertices.length / 2;
 						const d = nextIdx;
 						triangulatedVertsIndices.push(a, b, c, c, d, a);
 					}
-
-					indices.push(...triangulatedVertsIndices.map((v) => v + verts.length / 3));
-					verts.push(...triangulatedVerts3D);
 				}
+
+				indices.push(...triangulatedVertsIndices.map((v) => v + verts.length / 3));
+				verts.push(...triangulatedVerts3D);
 			}
 
 			return { vertices: verts, indices: indices };
 		};
+
+		// For testing
+		const mapMesh = generateLayerSegments(map as LayerData);
+		let geometry = new THREE.BufferGeometry();
+		geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
+		geometry.setIndex(mapMesh.indices);
+		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+		let mesh = new THREE.Mesh(geometry, material);
+		mesh.position.set(0, 3, 0);
+		Renderer.Three.instance().scene.add(mesh);
 
 		console.time('COLLISION MESH GENERATION');
 
@@ -947,4 +1017,21 @@ function findContour(layer: LayerData) {
 	}
 
 	return b;
+}
+
+function isPointInPolygon(coords: number[], x: number, y: number, stride = 2) {
+	let c = false;
+	for (let i = 0, len = coords.length / stride, j = len - 1; i < coords.length / stride; j = i++) {
+		if (
+			((coords[i * stride + stride - 1] <= y && y < coords[j * stride + stride - 1]) ||
+				(coords[j * stride + stride - 1] <= y && y < coords[i * stride + stride - 1])) &&
+			x <
+				((coords[j * stride] - coords[i * stride]) * (y - coords[i * stride + stride - 1])) /
+					(coords[j * stride + stride - 1] - coords[i * stride + stride - 1]) +
+					coords[i * stride]
+		) {
+			c = !c;
+		}
+	}
+	return c;
 }
