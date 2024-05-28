@@ -211,21 +211,21 @@ class PhysicsComponent extends TaroEventingClass {
 			// Ignore inner rings (holes) for now
 			// TODO: Hole support
 
-			for (let i = 0; i < outer.length; i++) {
-				const geometry = new THREE.BufferGeometry();
-				geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(outer[i]), 3));
-				let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
-				lineSegments.position.set(0, 5, 0);
-				Renderer.Three.instance().scene.add(lineSegments);
-			}
+			// for (let i = 0; i < outer.length; i++) {
+			// 	const geometry = new THREE.BufferGeometry();
+			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(outer[i]), 3));
+			// 	let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xffff00 }));
+			// 	lineSegments.position.set(0, 5, 0);
+			// 	Renderer.Three.instance().scene.add(lineSegments);
+			// }
 
-			for (let i = 0; i < inner.length; i++) {
-				const geometry = new THREE.BufferGeometry();
-				geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(inner[i]), 3));
-				let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x00ffff }));
-				lineSegments.position.set(0, 5, 0);
-				Renderer.Three.instance().scene.add(lineSegments);
-			}
+			// for (let i = 0; i < inner.length; i++) {
+			// 	const geometry = new THREE.BufferGeometry();
+			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(inner[i]), 3));
+			// 	let lineSegments = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x00ffff }));
+			// 	lineSegments.position.set(0, 5, 0);
+			// 	Renderer.Three.instance().scene.add(lineSegments);
+			// }
 
 			const shapes = [];
 
@@ -244,7 +244,7 @@ class PhysicsComponent extends TaroEventingClass {
 				shapes.push(shape);
 			}
 
-			console.log(shapes);
+			// console.log(shapes);
 
 			const verts = [];
 			const indices = [];
@@ -312,14 +312,14 @@ class PhysicsComponent extends TaroEventingClass {
 		};
 
 		// For testing
-		const mapMesh = generateLayerSegments(map as LayerData);
-		let geometry = new THREE.BufferGeometry();
-		geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
-		geometry.setIndex(mapMesh.indices);
-		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-		let mesh = new THREE.Mesh(geometry, material);
-		mesh.position.set(0, 3, 0);
-		Renderer.Three.instance().scene.add(mesh);
+		// const mapMesh = generateLayerSegments(map as LayerData);
+		// let geometry = new THREE.BufferGeometry();
+		// geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
+		// geometry.setIndex(mapMesh.indices);
+		// const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+		// let mesh = new THREE.Mesh(geometry, material);
+		// mesh.position.set(0, 3, 0);
+		// Renderer.Three.instance().scene.add(mesh);
 
 		console.time('COLLISION MESH GENERATION');
 
