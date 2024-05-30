@@ -161,7 +161,7 @@ class PhysicsComponent extends TaroEventingClass {
 					const pointX = innerRing[0];
 					const pointY = innerRing[2];
 
-					if (isPointInPolygon(outerRing, pointX, pointY, 3)) {
+					if (Utils.isPointInPolygon(outerRing, pointX, pointY, 3)) {
 						shape.holes.push(innerRing);
 					}
 				}
@@ -499,20 +499,3 @@ type VoxelCell = {
 	hiddenFaces: boolean[];
 	isPreview: boolean;
 };
-
-function isPointInPolygon(coords: number[], x: number, y: number, stride = 2) {
-	let c = false;
-	for (let i = 0, len = coords.length / stride, j = len - 1; i < coords.length / stride; j = i++) {
-		if (
-			((coords[i * stride + stride - 1] <= y && y < coords[j * stride + stride - 1]) ||
-				(coords[j * stride + stride - 1] <= y && y < coords[i * stride + stride - 1])) &&
-			x <
-				((coords[j * stride] - coords[i * stride]) * (y - coords[i * stride + stride - 1])) /
-					(coords[j * stride + stride - 1] - coords[i * stride + stride - 1]) +
-					coords[i * stride]
-		) {
-			c = !c;
-		}
-	}
-	return c;
-}

@@ -85,6 +85,21 @@ var Utils;
         };
     }
     Utils.generatePlaneGeometry = generatePlaneGeometry;
+    function isPointInPolygon(coords, x, y, stride = 2) {
+        let c = false;
+        for (let i = 0, len = coords.length / stride, j = len - 1; i < coords.length / stride; j = i++) {
+            if (((coords[i * stride + stride - 1] <= y && y < coords[j * stride + stride - 1]) ||
+                (coords[j * stride + stride - 1] <= y && y < coords[i * stride + stride - 1])) &&
+                x <
+                    ((coords[j * stride] - coords[i * stride]) * (y - coords[i * stride + stride - 1])) /
+                        (coords[j * stride + stride - 1] - coords[i * stride + stride - 1]) +
+                        coords[i * stride]) {
+                c = !c;
+            }
+        }
+        return c;
+    }
+    Utils.isPointInPolygon = isPointInPolygon;
 })(Utils || (Utils = {}));
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = Utils;
