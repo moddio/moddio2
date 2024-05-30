@@ -56,9 +56,8 @@ class PhysicsComponent extends TaroEventingClass {
 					const isLeftSolid = x > 0 && map.data[y * map.width + x - 1] > 0;
 					const isRightSolid = x < map.width - 1 && map.data[y * map.width + x + 1] > 0;
 
+					// Clockwise order
 					if (isSolid) {
-						// Clockwise order
-
 						if (!isTopSolid) {
 							segments.push([x, y, x + 1, y]);
 						}
@@ -137,9 +136,6 @@ class PhysicsComponent extends TaroEventingClass {
 				cw ? outer.push(ring) : inner.push(ring);
 			}
 
-			// Ignore inner rings (holes) for now
-			// TODO: Hole support
-
 			// for (let i = 0; i < outer.length; i++) {
 			// 	const geometry = new THREE.BufferGeometry();
 			// 	geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(outer[i]), 3));
@@ -172,8 +168,6 @@ class PhysicsComponent extends TaroEventingClass {
 
 				shapes.push(shape);
 			}
-
-			// console.log(shapes);
 
 			const verts = [];
 			const indices = [];
@@ -240,31 +234,9 @@ class PhysicsComponent extends TaroEventingClass {
 			return { vertices: verts, indices: indices };
 		};
 
-		// For testing
-		// const mapMesh = generateLayerSegments(map as LayerData);
-		// let geometry = new THREE.BufferGeometry();
-		// geometry.setAttribute('position', new THREE.BufferAttribute(Float32Array.from(mapMesh.vertices), 3));
-		// geometry.setIndex(mapMesh.indices);
-		// const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-		// let mesh = new THREE.Mesh(geometry, material);
-		// mesh.position.set(0, 3, 0);
-		// Renderer.Three.instance().scene.add(mesh);
-
-		console.time('COLLISION MESH GENERATION');
-
-		console.time('FLOOR');
 		const floorMesh = generateLayerSegments(floorLayer);
-		console.timeEnd('FLOOR');
-
-		console.time('WALLS');
 		const wallsMesh = generateLayerSegments(wallsLayer);
-		console.timeEnd('WALLS');
-
-		console.time('TREES');
 		const treesMesh = generateLayerSegments(treesLayer);
-		console.timeEnd('TREES');
-
-		console.timeEnd('COLLISION MESH GENERATION');
 
 		//
 
