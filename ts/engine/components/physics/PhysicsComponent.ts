@@ -44,7 +44,7 @@ class PhysicsComponent extends TaroEventingClass {
 
 		// Brutce force method
 
-		const generateLayerSegments = (map: LayerData) => {
+		const generateLayerMesh = (map: LayerData) => {
 			const segments = [];
 			for (let y = 0; y < map.height; y++) {
 				for (let x = 0; x < map.width; x++) {
@@ -234,9 +234,9 @@ class PhysicsComponent extends TaroEventingClass {
 			return { vertices: verts, indices: indices };
 		};
 
-		const floorMesh = generateLayerSegments(floorLayer);
-		const wallsMesh = generateLayerSegments(wallsLayer);
-		const treesMesh = generateLayerSegments(treesLayer);
+		const floorMesh = generateLayerMesh(floorLayer);
+		const wallsMesh = generateLayerMesh(wallsLayer);
+		const treesMesh = generateLayerMesh(treesLayer);
 
 		//
 
