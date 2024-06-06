@@ -128,7 +128,7 @@ class PhysicsComponent extends TaroEventingClass {
 		this.destroyBody(entity, body);
 		if (entity._category === 'sensor') return;
 
-		// this.simulation.createBody(entity, body);
+		this.simulation.createBody(entity, body);
 
 		const rigidBodyDesc = taro.isServer
 			? RAPIER.RigidBodyDesc.dynamic()

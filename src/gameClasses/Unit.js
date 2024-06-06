@@ -16,12 +16,6 @@ var Unit = TaroEntityPhysics.extend({
 			z: 0,
 		};
 
-		self.velocity = {
-			x: 0,
-			y: 0,
-			z: 0,
-		};
-
 		self.isMoving = false;
 		self.angleToTarget = undefined;
 		self.angleToTargetRelative = 0;

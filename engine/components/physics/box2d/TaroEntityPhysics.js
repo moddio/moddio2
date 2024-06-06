@@ -8,6 +8,12 @@ var TaroEntityPhysics = TaroEntity.extend({
 		TaroEntity.prototype.init.call(this, defaultData);
 		var self = this;
 
+		self.velocity = {
+			x: 0,
+			y: 0,
+			z: 0,
+		};
+
 		this._b2dRef = taro.physics.simulation;
 
 		if (taro.isClient) {
