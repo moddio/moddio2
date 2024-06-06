@@ -38,9 +38,12 @@ var StatusComponent = TaroEntity.extend({
 			// console.log('taro stream',taro.stream);
 
 			var jointCount = 0;
-			var jointList = taro.physics.simulation._world && taro.physics.simulation._world.getJointList();
+			var jointList = taro.physics.getJointList();
 			let getPointer = taro.physics.simulation.getPointer;
-			while (jointList && (!getPointer || getPointer(jointList) !== getPointer(taro.physics.simulation.nullPtr))) {
+			while (
+				jointList.length > 0 &&
+				(!getPointer || getPointer(jointList) !== getPointer(taro.physics.simulation.nullPtr))
+			) {
 				jointCount++;
 				jointList = jointList.getNext();
 			}

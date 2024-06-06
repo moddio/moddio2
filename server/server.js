@@ -566,80 +566,78 @@ var Server = TaroClass.extend({
 					// Add physics and setup physics world
 					// use callback here is bc the box2dwasm needs time to init
 					const loadRest = () => {
-						if (taro.physics.simulation.gravity) {
-							taro.physics.simulation.sleep(true);
-							taro.physics.simulation.tilesizeRatio(tilesizeRatio);
-							if (game.data.settings) {
-								var gravity = game.data.settings.gravity;
-								if (gravity) {
-									// console.log('setting gravity', gravity);
-									taro.physics.simulation.gravity(gravity.x, gravity.y);
+						// taro.physics.simulation.sleep(true);
+						// taro.physics.simulation.tilesizeRatio(tilesizeRatio);
+						// if (game.data.settings) {
+						// 	var gravity = game.data.settings.gravity;
+						// 	if (gravity) {
+						// 		// console.log('setting gravity', gravity);
+						// 		taro.physics.simulation.gravity(gravity.x, gravity.y);
+						// 	}
+						// }
+						// taro.physics.simulation.setContinuousPhysics(!!game?.data?.settings?.continuousPhysics);
+						// taro.physics.simulation.createWorld();
+						taro.raycaster = new Raycaster();
+						taro.developerMode = new DeveloperMode();
+
+						// console.log("game data", game)
+						// mapComponent needs to be inside TaroStreamComponent, because debris' are created and streaming is enabled which requires TaroStreamComponent
+						console.log('initializing components');
+
+						taro.network.on('connect', self._onClientConnect);
+						taro.network.on('disconnect', self._onClientDisconnect);
+						// Networking has started so start the game engine
+						taro.start(function (success) {
+							// Check if the engine started successfully
+							if (success) {
+								console.log('TaroNetIoComponent started successfully');
+
+								self.defineNetworkEvents();
+								// console.log("game data", taro.game.data.settings)
+
+								// Add the network stream component
+								taro.network.addComponent(TaroStreamComponent).stream.start(); // Start the stream
+
+								// Accept incoming network connections
+								taro.network.acceptConnections(true);
+
+								taro.addGraph('TaroBaseScene');
+
+								taro.addComponent(MapComponent);
+								taro.addComponent(ShopComponent);
+								taro.addComponent(TaroChatComponent);
+								taro.addComponent(ItemComponent);
+								taro.addComponent(TimerComponent);
+
+								taro.addComponent(AdComponent);
+								taro.addComponent(SoundComponent);
+								taro.addComponent(RegionManager);
+
+								taro.addComponent(StatusComponent);
+
+								if (taro.game.data.defaultData.enableVideoChat) {
+									taro.addComponent(VideoChatComponent);
 								}
+
+								let map = taro.scaleMap(rfdc()(taro.game.data.map));
+								taro.map.load(map);
+
+								taro.game.start();
+
+								setInterval(function () {
+									var copyCount = Object.assign({}, self.socketConnectionCount);
+									self.socketConnectionCount = {
+										connected: 0,
+										disconnected: 0,
+										immediatelyDisconnected: 0,
+									};
+
+									taro.workerComponent && taro.workerComponent.recordSocketConnections(copyCount);
+								}, 900000);
+
+								taro.physics.simulation.start();
 							}
-							taro.physics.simulation.setContinuousPhysics(!!game?.data?.settings?.continuousPhysics);
-							taro.physics.simulation.createWorld();
-							taro.raycaster = new Raycaster();
-							taro.developerMode = new DeveloperMode();
-
-							// console.log("game data", game)
-							// mapComponent needs to be inside TaroStreamComponent, because debris' are created and streaming is enabled which requires TaroStreamComponent
-							console.log('initializing components');
-
-							taro.network.on('connect', self._onClientConnect);
-							taro.network.on('disconnect', self._onClientDisconnect);
-							// Networking has started so start the game engine
-							taro.start(function (success) {
-								// Check if the engine started successfully
-								if (success) {
-									console.log('TaroNetIoComponent started successfully');
-
-									self.defineNetworkEvents();
-									// console.log("game data", taro.game.data.settings)
-
-									// Add the network stream component
-									taro.network.addComponent(TaroStreamComponent).stream.start(); // Start the stream
-
-									// Accept incoming network connections
-									taro.network.acceptConnections(true);
-
-									taro.addGraph('TaroBaseScene');
-
-									taro.addComponent(MapComponent);
-									taro.addComponent(ShopComponent);
-									taro.addComponent(TaroChatComponent);
-									taro.addComponent(ItemComponent);
-									taro.addComponent(TimerComponent);
-
-									taro.addComponent(AdComponent);
-									taro.addComponent(SoundComponent);
-									taro.addComponent(RegionManager);
-
-									taro.addComponent(StatusComponent);
-
-									if (taro.game.data.defaultData.enableVideoChat) {
-										taro.addComponent(VideoChatComponent);
-									}
-
-									let map = taro.scaleMap(rfdc()(taro.game.data.map));
-									taro.map.load(map);
-
-									taro.game.start();
-
-									setInterval(function () {
-										var copyCount = Object.assign({}, self.socketConnectionCount);
-										self.socketConnectionCount = {
-											connected: 0,
-											disconnected: 0,
-											immediatelyDisconnected: 0,
-										};
-
-										taro.workerComponent && taro.workerComponent.recordSocketConnections(copyCount);
-									}, 900000);
-
-									taro.physics.simulation.start();
-								}
-							});
-						}
+						});
 					};
 
 					taro.addComponent(PhysicsComponent, { engine: taro.game.data.defaultData.physicsEngine }, loadRest);

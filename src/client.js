@@ -383,15 +383,15 @@ const Client = TaroEventingClass.extend({
 				this.loadMap();
 
 				if (taro.physics.simulation) {
-					const gravity = taro.game.data.settings.gravity;
+					// const gravity = taro.game.data.settings.gravity;
 
-					if (gravity) {
-						taro.physics.simulation.gravity(gravity.x, gravity.y);
-						console.log(taro.physics.simulation.gravity);
-					}
+					// if (gravity) {
+					// 	taro.physics.simulation.gravity(gravity.x, gravity.y);
+					// 	console.log(taro.physics.simulation.gravity);
+					// }
 
-					taro.physics.simulation.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
-					taro.physics.simulation.createWorld();
+					// taro.physics.simulation.setContinuousPhysics(!!taro?.game?.data?.settings?.continuousPhysics);
+					// taro.physics.simulation.createWorld();
 					taro.raycaster = new Raycaster();
 				}
 

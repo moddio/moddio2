@@ -71,7 +71,7 @@ declare class TaroEngine extends TaroClass {
 			world(): any;
 			enableDebug(flags: number): void;
 			disableDebug(): void;
-			engine: 'BOX2DWASM' | 'BOX2DWEB' | 'PLANCK';
+			engine: 'BOX2DWASM' | 'BOX2DWEB' | 'PLANCK' | 'RAPIER';
 			metaData: any;
 			getPointer?: (...args: any) => any;
 			recordLeak?: (...args: any) => any;

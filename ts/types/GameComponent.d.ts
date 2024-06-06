@@ -106,18 +106,20 @@ interface MapData {
 		tilewidth: number;
 		type?: 'top' | 'side';
 	}[];
-	layers: {
-		y: number;
-		x: number;
-		opacity: number;
-		data: number[];
-		name: string;
-		width: number;
-		height: number;
-		id: number;
-		type: 'tilelayer' | 'objectgroup';
-	}[];
+	layers: LayerData[];
 }
+
+type LayerData = {
+	id: number;
+	name: string;
+	type: 'tilelayer' | 'objectgroup';
+	width: number;
+	height: number;
+	data: number[];
+	y: number;
+	x: number;
+	opacity: number;
+};
 
 declare class GameComponent extends TaroEntity {
 	lastCreatedUnitId: string;

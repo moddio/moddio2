@@ -15,7 +15,7 @@ type bulletReturn = {
 
 class Raycaster {
 	engine = taro.physics.simulation.engine;
-	world = taro.physics.simulation.world();
+	world: any;
 	scaleRatio = taro.physics.simulation._scaleRatio;
 
 	data: any = {};
@@ -25,6 +25,11 @@ class Raycaster {
 
 	forwardHit = false;
 	reverseHit = false;
+
+	constructor() {
+		this.world =
+			taro.physics.simulation.engine === 'RAPIER' ? taro.physics.simulation.world : taro.physics.simulation.world();
+	}
 
 	raycastLine(
 		start: {
