@@ -74,6 +74,9 @@ var TaroEntity = TaroObject.extend({
 		this.lastPhysicsPosition = { x: 0, y: 0, z: 0 };
 		this.physicsPosition = { x: 0, y: 0, z: 0 };
 
+		this.lastPhysicsRotation = { x: 0, y: 0, z: 0, w: 1 };
+		this.physicsRotation = { x: 0, y: 0, z: 0, w: 1 };
+
 		this.serverPosition = { x: 0, y: 0, z: 0 };
 		this.serverRotation = { x: 0, y: 0, z: 0 };
 

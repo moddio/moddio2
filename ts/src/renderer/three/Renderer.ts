@@ -873,8 +873,8 @@ namespace Renderer {
 					);
 
 					// Interpolated
-					const last = entity.taroEntity.lastPhysicsPosition;
-					const curr = entity.taroEntity.physicsPosition;
+					let last = entity.taroEntity.lastPhysicsPosition;
+					let curr = entity.taroEntity.physicsPosition;
 					const x = Utils.lerp(last.x, curr.x, this.alpha);
 					const y = Utils.lerp(last.y, curr.y, this.alpha);
 					const z = Utils.lerp(last.z, curr.z, this.alpha);
@@ -883,10 +883,13 @@ namespace Renderer {
 					//@ts-ignore
 					interpolatedShape.material.color.setHex(0xffff00);
 
-					// const rx = Utils.lerp(entity.taroEntity.lastServerRotation.x, entity.taroEntity.serverRotation.x, this.alpha);
-					// const ry = Utils.lerp(entity.taroEntity.lastServerRotation.y, entity.taroEntity.serverRotation.y, this.alpha);
-					// const rz = Utils.lerp(entity.taroEntity.lastServerRotation.z, entity.taroEntity.serverRotation.z, this.alpha);
-					// interpolatedShape.rotation.set(rx, -rz, ry);
+					const lastRot = entity.taroEntity.lastPhysicsRotation;
+					const currRot = entity.taroEntity.physicsRotation;
+					const renderRotation = new THREE.Quaternion(lastRot.x, lastRot.y, lastRot.z, lastRot.w).slerp(
+						new THREE.Quaternion(currRot.x, currRot.y, currRot.z, currRot.w),
+						this.alpha
+					);
+					interpolatedShape.quaternion.copy(renderRotation);
 
 					const size = entity.body.scale;
 					serverShape.scale.copy(size);

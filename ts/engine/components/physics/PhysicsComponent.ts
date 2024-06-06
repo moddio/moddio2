@@ -96,6 +96,11 @@ class PhysicsComponent extends TaroEventingClass {
 				entity.lastPhysicsPosition.y = entity.physicsPosition.y;
 				entity.lastPhysicsPosition.z = entity.physicsPosition.z;
 
+				entity.lastPhysicsRotation.x = entity.physicsRotation.x;
+				entity.lastPhysicsRotation.y = entity.physicsRotation.y;
+				entity.lastPhysicsRotation.z = entity.physicsRotation.z;
+				entity.lastPhysicsRotation.w = entity.physicsRotation.w;
+
 				const pos = rigidBody.translation();
 				entity._translate.x = pos.x * 64;
 				entity._translate.y = pos.z * 64;
@@ -104,6 +109,12 @@ class PhysicsComponent extends TaroEventingClass {
 				entity.physicsPosition.x = entity._translate.x;
 				entity.physicsPosition.y = entity._translate.y;
 				entity.physicsPosition.z = entity._translate.z;
+
+				const rot = rigidBody.rotation();
+				entity.physicsRotation.x = rot.x;
+				entity.physicsRotation.y = rot.y;
+				entity.physicsRotation.z = rot.z;
+				entity.physicsRotation.w = rot.w;
 
 				const vel = rigidBody.linvel();
 				entity.velocity.x = vel.x;
