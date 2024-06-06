@@ -64,9 +64,11 @@ class PhysicsComponent extends TaroEventingClass {
 					rigidBody.setTranslation({ x, y, z }, true);
 				}
 
-				const rot = entity.serverRotation;
-				const q = Utils.quaternionFromEuler(rot.x, -rot.z, rot.y, 'XYZ');
-				rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
+				if (taro.isClient) {
+					const rot = entity.serverRotation;
+					const q = Utils.quaternionFromEuler(rot.x, -rot.z, rot.y, 'XYZ');
+					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
+				}
 			}
 		}
 
@@ -102,6 +104,23 @@ class PhysicsComponent extends TaroEventingClass {
 				entity.physicsRotation.z = rot.z;
 				entity.physicsRotation.w = rot.w;
 
+				// roll (x-axis rotation)
+				const sinr_cosp = 2 * (rot.w * rot.x + rot.y * rot.z);
+				const cosr_cosp = 1 - 2 * (rot.x * rot.x + rot.y * rot.y);
+				const roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+				// pitch (y-axis rotation)
+				const sinp = Math.sqrt(1 + 2 * (rot.w * rot.y - rot.x * rot.z));
+				const cosp = Math.sqrt(1 - 2 * (rot.w * rot.y - rot.x * rot.z));
+				const pitch = 2 * Math.atan2(sinp, cosp) - Math.PI / 2;
+
+				// yaw (z-axis rotation)
+				const siny_cosp = 2 * (rot.w * rot.z + rot.x * rot.y);
+				const cosy_cosp = 1 - 2 * (rot.y * rot.y + rot.z * rot.z);
+				const yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+				entity._rotate.z = pitch;
+
 				const vel = rigidBody.linvel();
 				entity.velocity.x = vel.x;
 				entity.velocity.y = vel.z;
@@ -121,7 +140,6 @@ class PhysicsComponent extends TaroEventingClass {
 			: entity.isClientPredicted()
 				? RAPIER.RigidBodyDesc.dynamic()
 				: RAPIER.RigidBodyDesc.kinematicPositionBased();
-		rigidBodyDesc.gravityScale = 10.0;
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
 
 		const pos = entity._translate;
