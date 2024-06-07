@@ -3219,6 +3219,11 @@ var TaroEntity = TaroObject.extend({
 	emitTransformOnClient: function (x, y, z, rotate) {
 		if (!taro.isClient) return this;
 
+		if (typeof rotate === 'object') {
+			console.log(rotate);
+			console.trace('lsjdlfkjslkfjsljfljsdjfs');
+		}
+
 		this.emit('transform', {
 			x: x,
 			y: y,
