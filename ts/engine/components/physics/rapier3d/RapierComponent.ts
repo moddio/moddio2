@@ -11,6 +11,8 @@ class RapierComponent extends TaroEventingClass {
 	// engine will always be rapier
 	engine = 'RAPIER';
 	_world: RAPIER.World;
+	rigidBody: RAPIER.RigidBody;
+	rigidBodies = new Map<string, number>();
 	// scaleRatio = 30;
 	avgPhysicsTickDuration = 0;
 	constructor() {
@@ -18,35 +20,67 @@ class RapierComponent extends TaroEventingClass {
 		super();
 	}
 
-	async load(): Promise<void> {
-		await RAPIER.init();
-	}
-
-	destroyBody3d(body: RAPIER.RigidBody): void {
-		// from docs World.removeRigidBody()
-
-		// This will remove this rigid-body as well as all its attached colliders
-		// and joints. Every other bodies touching or attached by joints to this
-		// rigid-body will be woken-up.
-		this.world.removeRigidBody(body);
-	}
-	useWorker(...args: any[]): void {}
-	mode(...args: any[]): void {}
-	sleep(...args: any[]): void {}
-	scaleRatio(...args: any[]): void {}
-	tilesizeRatio(...args: any[]): void {}
 	get world() {
 		return this._world;
 	}
 	set world(val: RAPIER.World) {
 		this._world = val;
 	}
-	createFixture(...args: any[]): void {}
-	createBody(...args: any[]): void {}
-	destroyBody(...args: any[]): void {}
-	createJoint(...args: any[]): void {}
-	destroyJoint(...args: any[]): void {}
-	getBodiesInRegion(...args: any[]): void {}
+
+	async load(): Promise<void> {
+		await RAPIER.init();
+
+		let gravity = { x: 0.0, y: -9.81, z: 0.0 };
+		this.world = new RAPIER.World(gravity);
+
+		// TODO: Environment physics should go elsewhere
+		let groundColliderDesc = RAPIER.ColliderDesc.cuboid(1000.0, 0.1, 1000.0);
+		groundColliderDesc.setTranslation(0.0, -0.5, 0.0);
+		this.world.createCollider(groundColliderDesc);
+	}
+
+	createBody(entity: TaroEntity, body: b2Body): void {
+		this.destroyBody(entity.id());
+		if (entity._category === 'sensor') return;
+
+		const rigidBodyDesc = taro.isServer
+			? RAPIER.RigidBodyDesc.dynamic()
+			: entity.isClientPredicted()
+				? RAPIER.RigidBodyDesc.dynamic()
+				: RAPIER.RigidBodyDesc.kinematicPositionBased();
+		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
+		rigidBody.setGravityScale(10, true);
+
+		const pos = entity._translate;
+		rigidBody.setTranslation({ x: pos.x / 64, y: 5, z: pos.y / 64 }, true);
+
+		this.rigidBodies.set(entity.id(), rigidBody.handle);
+
+		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setActiveEvents(
+			RAPIER.ActiveEvents.COLLISION_EVENTS
+		);
+		this.world.createCollider(colliderDesc, rigidBody);
+	}
+
+	// from docs World.removeRigidBody()
+
+	// This will remove this rigid-body as well as all its attached colliders
+	// and joints. Every other bodies touching or attached by joints to this
+	// rigid-body will be woken-up.
+	destroyBody(entityId: string): void {
+		for (const knownEntityId of this.rigidBodies.keys()) {
+			if (entityId === knownEntityId) {
+				const rigidBodyHandle = this.rigidBodies.get(knownEntityId);
+				if (!isNaN(rigidBodyHandle)) {
+					const rigidBody = this.world.getRigidBody(rigidBodyHandle);
+					if (rigidBody) {
+						this.world.removeRigidBody(rigidBody);
+					}
+				}
+				break;
+			}
+		}
+	}
 
 	staticsFromMap(): void {
 		const floorLayer = taro.game.data.map.layers.find((l) => l.name === 'floor');
@@ -66,6 +100,84 @@ class RapierComponent extends TaroEventingClass {
 		desc.setTranslation(0, 3, 0);
 		this.world.createCollider(desc);
 	}
+
+	update(_dt: number): void {
+		for (const entityId of this.rigidBodies.keys()) {
+			const rigidBodyHandle = this.rigidBodies.get(entityId);
+			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
+			const entity = taro.$(entityId);
+
+			if (entity && rigidBody) {
+				if (taro.isServer || (taro.isClient && entity.isClientPredicted())) {
+					if (entity.velocity) {
+						const x = entity.velocity.x;
+						const y = entity.velocity.z;
+						const z = entity.velocity.y;
+						rigidBody.setLinvel({ x: x, y: y, z: z }, true);
+					}
+				} else {
+					const x = entity.serverPosition.x / 64;
+					const y = entity.serverPosition.z / 64;
+					const z = entity.serverPosition.y / 64;
+					rigidBody.setTranslation({ x, y, z }, true);
+				}
+
+				if (taro.isClient) {
+					const q = entity.serverQuaternion;
+					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
+				}
+			}
+		}
+
+		this.world.step();
+
+		const keys = this.rigidBodies.keys();
+		for (const entityId of keys) {
+			const rigidBodyHandle = this.rigidBodies.get(entityId);
+			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
+			const entity = taro.$(entityId);
+			if (entity && rigidBody) {
+				entity.lastPhysicsPosition.x = entity.physicsPosition.x;
+				entity.lastPhysicsPosition.y = entity.physicsPosition.y;
+				entity.lastPhysicsPosition.z = entity.physicsPosition.z;
+
+				entity.lastPhysicsRotation.x = entity.physicsRotation.x;
+				entity.lastPhysicsRotation.y = entity.physicsRotation.y;
+				entity.lastPhysicsRotation.z = entity.physicsRotation.z;
+				entity.lastPhysicsRotation.w = entity.physicsRotation.w;
+
+				const pos = rigidBody.translation();
+				entity._translate.x = pos.x * 64;
+				entity._translate.y = pos.z * 64;
+				entity._translate.z = pos.y * 64;
+
+				entity.physicsPosition.x = entity._translate.x;
+				entity.physicsPosition.y = entity._translate.y;
+				entity.physicsPosition.z = entity._translate.z;
+
+				const rot = rigidBody.rotation();
+				entity.physicsRotation.x = rot.x;
+				entity.physicsRotation.y = rot.y;
+				entity.physicsRotation.z = rot.z;
+				entity.physicsRotation.w = rot.w;
+
+				const vel = rigidBody.linvel();
+				entity.velocity.x = vel.x;
+				entity.velocity.y = vel.z;
+				entity.velocity.z = vel.y;
+			}
+		}
+	}
+
+	useWorker(...args: any[]): void {}
+	mode(...args: any[]): void {}
+	sleep(...args: any[]): void {}
+	scaleRatio(...args: any[]): void {}
+	tilesizeRatio(...args: any[]): void {}
+	createFixture(...args: any[]): void {}
+	createJoint(...args: any[]): void {}
+	destroyJoint(...args: any[]): void {}
+	getBodiesInRegion(...args: any[]): void {}
 	destroyWalls(...args: any[]): void {}
 	contactListener(...args: any[]): void {}
 	networkDebugMode(...args: any[]): void {}
@@ -74,7 +186,6 @@ class RapierComponent extends TaroEventingClass {
 	start(...args: any[]): void {}
 	stop(...args: any[]): void {}
 	queueAction(...args: any[]): void {}
-	update(...args: any[]): void {}
 	destroy(...args: any[]): void {}
 	_triggerContactEvent(...args: any[]): void {}
 	_triggerLeaveEvent(...args: any[]): void {}

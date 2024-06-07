@@ -7,10 +7,6 @@ class PhysicsComponent extends TaroEventingClass {
 	engine: string;
 	simulation: Box2dComponent | RapierComponent;
 
-	world: RAPIER.World;
-	rigidBody: RAPIER.RigidBody;
-	rigidBodies = new Map<string, number>();
-
 	constructor(entity: TaroEngine, options: PhysicsOptions, callback: () => void) {
 		super();
 		// this.engine = options.engine;
@@ -30,125 +26,31 @@ class PhysicsComponent extends TaroEventingClass {
 		this.simulation = new RapierComponent();
 
 		await this.simulation.load();
-		let gravity = { x: 0.0, y: -9.81, z: 0.0 };
-		let world = new RAPIER.World(gravity);
-		this.world = world;
-		this.simulation.world = world;
-
 		this._callback();
-
-		let groundColliderDesc = RAPIER.ColliderDesc.cuboid(1000.0, 0.1, 1000.0);
-		groundColliderDesc.setTranslation(0.0, -0.5, 0.0);
-		world.createCollider(groundColliderDesc);
 	}
 
-	update(_dt: number): void {
-		for (const entityId of this.rigidBodies.keys()) {
-			const rigidBodyHandle = this.rigidBodies.get(entityId);
-			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
-			const entity = taro.$(entityId);
-
-			if (entity && rigidBody) {
-				if (taro.isServer || (taro.isClient && entity.isClientPredicted())) {
-					if (entity.velocity) {
-						const x = entity.velocity.x;
-						const y = entity.velocity.z;
-						const z = entity.velocity.y;
-						rigidBody.setLinvel({ x: x, y: y, z: z }, true);
-					}
-				} else {
-					const x = entity.serverPosition.x / 64;
-					const y = entity.serverPosition.z / 64;
-					const z = entity.serverPosition.y / 64;
-					rigidBody.setTranslation({ x, y, z }, true);
-				}
-
-				if (taro.isClient) {
-					const q = entity.serverQuaternion;
-					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
-				}
-			}
-		}
-
-		this.world.step();
-
-		const keys = this.rigidBodies.keys();
-		for (const entityId of keys) {
-			const rigidBodyHandle = this.rigidBodies.get(entityId);
-			const rigidBody = this.world.getRigidBody(rigidBodyHandle);
-			const entity = taro.$(entityId);
-			if (entity && rigidBody) {
-				entity.lastPhysicsPosition.x = entity.physicsPosition.x;
-				entity.lastPhysicsPosition.y = entity.physicsPosition.y;
-				entity.lastPhysicsPosition.z = entity.physicsPosition.z;
-
-				entity.lastPhysicsRotation.x = entity.physicsRotation.x;
-				entity.lastPhysicsRotation.y = entity.physicsRotation.y;
-				entity.lastPhysicsRotation.z = entity.physicsRotation.z;
-				entity.lastPhysicsRotation.w = entity.physicsRotation.w;
-
-				const pos = rigidBody.translation();
-				entity._translate.x = pos.x * 64;
-				entity._translate.y = pos.z * 64;
-				entity._translate.z = pos.y * 64;
-
-				entity.physicsPosition.x = entity._translate.x;
-				entity.physicsPosition.y = entity._translate.y;
-				entity.physicsPosition.z = entity._translate.z;
-
-				const rot = rigidBody.rotation();
-				entity.physicsRotation.x = rot.x;
-				entity.physicsRotation.y = rot.y;
-				entity.physicsRotation.z = rot.z;
-				entity.physicsRotation.w = rot.w;
-
-				const vel = rigidBody.linvel();
-				entity.velocity.x = vel.x;
-				entity.velocity.y = vel.z;
-				entity.velocity.z = vel.y;
-			}
-		}
+	update(dt: number): void {
+		this.simulation.update(dt);
 	}
 
 	createBody(entity: TaroEntity, body: b2Body): void {
-		this.destroyBody(entity, body);
-		if (entity._category === 'sensor') return;
-
 		this.simulation.createBody(entity, body);
-
-		const rigidBodyDesc = taro.isServer
-			? RAPIER.RigidBodyDesc.dynamic()
-			: entity.isClientPredicted()
-				? RAPIER.RigidBodyDesc.dynamic()
-				: RAPIER.RigidBodyDesc.kinematicPositionBased();
-		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
-		rigidBody.setGravityScale(10, true);
-
-		const pos = entity._translate;
-		rigidBody.setTranslation({ x: pos.x / 64, y: 5, z: pos.y / 64 }, true);
-
-		this.rigidBodies.set(entity.id(), rigidBody.handle);
-
-		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setActiveEvents(
-			RAPIER.ActiveEvents.COLLISION_EVENTS
-		);
-		this.world.createCollider(colliderDesc, rigidBody);
 	}
 
 	destroyBody(entity: TaroEntity, body: b2Body): void {
-		const entityId = entity.id();
+		if (this.simulation instanceof RapierComponent) {
+			const entityId = entity.id();
+			this.simulation.destroyBody(entityId);
+		} else {
+			this.simulation.destroyBody(entity, body);
+		}
+	}
 
-		for (const knownEntityId of this.rigidBodies.keys()) {
-			if (entityId === knownEntityId) {
-				const rigidBodyHandle = this.rigidBodies.get(knownEntityId);
-				if (!isNaN(rigidBodyHandle)) {
-					const rigidBody = this.world.getRigidBody(rigidBodyHandle);
-					if (rigidBody) {
-						this.world.removeRigidBody(rigidBody);
-					}
-				}
-				break;
-			}
+	world(): b2World | RAPIER.World {
+		if (this.simulation instanceof RapierComponent) {
+			return this.simulation.world;
+		} else {
+			return this.simulation.world();
 		}
 	}
 
@@ -215,10 +117,6 @@ class PhysicsComponent extends TaroEventingClass {
 	// // b2d get/set
 	// tilesizeRatio(val?: number): TaroEngine | number {
 	// 	return !isNaN(val) ? this.simulation.tilesizeRatio(val) : this.simulation.tilesizeRatio();
-	// }
-	// // b2d get
-	// world(): b2World {
-	// 	return this.simulation.world();
 	// }
 	// // b2d create fixture from params and fixture def
 	// createFixture(params: Record<string, any>): Record<string, any> {

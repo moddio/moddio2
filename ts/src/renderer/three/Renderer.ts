@@ -836,7 +836,7 @@ namespace Renderer {
 
 				// Visualize the physics world; hardcoded for now
 				//@ts-ignore
-				const { vertices } = taro.physics.world.debugRender();
+				const { vertices } = taro.physics.world().debugRender();
 				this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
 				this.renderDebugShapes(this.entityManager.entities, accumulator);
