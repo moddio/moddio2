@@ -79,6 +79,7 @@ var TaroEntity = TaroObject.extend({
 
 		this.serverPosition = { x: 0, y: 0, z: 0 };
 		this.serverRotation = { x: 0, y: 0, z: 0 };
+		this.serverQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
 		this._isTransforming = true;
 		this.lastTransformedAt = 0;
@@ -4626,6 +4627,10 @@ var TaroEntity = TaroObject.extend({
 					var rx = ((this._rotate.x % (2 * Math.PI)) * 1000).toFixed(0);
 					var ry = ((this._rotate.y % (2 * Math.PI)) * 1000).toFixed(0);
 					var rz = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
+					var qx = this.physicsRotation.x.toFixed(0);
+					var qy = this.physicsRotation.y.toFixed(0);
+					var qz = this.physicsRotation.z.toFixed(0);
+					var qw = this.physicsRotation.w.toFixed(0);
 
 					if (this._hasMoved) {
 						//console.log("streaming", this._category, this._stats.name, this.id(), x, y, angle)

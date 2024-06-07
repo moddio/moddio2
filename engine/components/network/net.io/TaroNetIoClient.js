@@ -485,9 +485,13 @@ var TaroNetIoClient = {
 							var rx = parseInt(entityData[3], 16) / 1000;
 							var ry = parseInt(entityData[4], 16) / 1000;
 							var rz = parseInt(entityData[5], 16) / 1000;
+							var qx = parseInt(entityData[6], 16);
+							var qy = parseInt(entityData[7], 16);
+							var qz = parseInt(entityData[8], 16);
+							var qw = parseInt(entityData[9], 16);
 							// console.log(entityId, 'translate:  ', [x, y, z], 'rotate:  ', [0, 0, rotate]);
-							var isTeleporting = Boolean(parseInt(entityData[6], 16)); // teleported boolean
-							var isTeleportingCamera = Boolean(parseInt(entityData[7], 16)); // teleportedCamera boolean
+							var isTeleporting = Boolean(parseInt(entityData[10], 16)); // teleported boolean
+							var isTeleportingCamera = Boolean(parseInt(entityData[11], 16)); // teleportedCamera boolean
 
 							var newPosition = [px, py, pz];
 							var newRotation = [rx, ry, rz];
@@ -503,6 +507,11 @@ var TaroNetIoClient = {
 							entity.serverRotation.x = rx;
 							entity.serverRotation.y = ry;
 							entity.serverRotation.z = rz;
+
+							entity.serverQuaternion.x = qx;
+							entity.serverQuaternion.y = qy;
+							entity.serverQuaternion.z = qz;
+							entity.serverQuaternion.w = qw;
 
 							// console.log(entity != undefined, isTeleporting)
 							if (entity) {
