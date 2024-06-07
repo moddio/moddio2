@@ -24,6 +24,7 @@ declare class TaroEntity extends TaroObject {
 
 	serverPosition: TaroPoint3d;
 	serverRotation: TaroPoint3d;
+	serverQuaternion: { x: number; y: number; z: number; w: number };
 
 	lastPhysicsPosition: TaroPoint3d;
 	physicsPosition: TaroPoint3d;

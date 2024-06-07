@@ -485,10 +485,10 @@ var TaroNetIoClient = {
 							var rx = parseInt(entityData[3], 16) / 1000;
 							var ry = parseInt(entityData[4], 16) / 1000;
 							var rz = parseInt(entityData[5], 16) / 1000;
-							var qx = parseInt(entityData[6], 16);
-							var qy = parseInt(entityData[7], 16);
-							var qz = parseInt(entityData[8], 16);
-							var qw = parseInt(entityData[9], 16);
+							var qx = parseInt(entityData[6], 16) / 1000;
+							var qy = parseInt(entityData[7], 16) / 1000;
+							var qz = parseInt(entityData[8], 16) / 1000;
+							var qw = parseInt(entityData[9], 16) / 1000;
 							// console.log(entityId, 'translate:  ', [x, y, z], 'rotate:  ', [0, 0, rotate]);
 							var isTeleporting = Boolean(parseInt(entityData[10], 16)); // teleported boolean
 							var isTeleportingCamera = Boolean(parseInt(entityData[11], 16)); // teleportedCamera boolean

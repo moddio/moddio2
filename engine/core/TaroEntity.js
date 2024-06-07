@@ -4627,10 +4627,10 @@ var TaroEntity = TaroObject.extend({
 					var rx = ((this._rotate.x % (2 * Math.PI)) * 1000).toFixed(0);
 					var ry = ((this._rotate.y % (2 * Math.PI)) * 1000).toFixed(0);
 					var rz = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
-					var qx = this.physicsRotation.x.toFixed(0);
-					var qy = this.physicsRotation.y.toFixed(0);
-					var qz = this.physicsRotation.z.toFixed(0);
-					var qw = this.physicsRotation.w.toFixed(0);
+					var qx = (this.physicsRotation.x * 1000).toFixed(0);
+					var qy = (this.physicsRotation.y * 1000).toFixed(0);
+					var qz = (this.physicsRotation.z * 1000).toFixed(0);
+					var qw = (this.physicsRotation.w * 1000).toFixed(0);
 
 					if (this._hasMoved) {
 						//console.log("streaming", this._category, this._stats.name, this.id(), x, y, angle)
@@ -4650,6 +4650,10 @@ var TaroEntity = TaroObject.extend({
 						buffArr.push(Number(rx));
 						buffArr.push(Number(ry));
 						buffArr.push(Number(rz));
+						buffArr.push(Number(qx));
+						buffArr.push(Number(qy));
+						buffArr.push(Number(qz));
+						buffArr.push(Number(qw));
 
 						if (this.isTeleporting) {
 							buffArr.push(Number(this.isTeleporting));

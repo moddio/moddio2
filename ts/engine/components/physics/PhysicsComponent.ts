@@ -55,10 +55,6 @@ class PhysicsComponent extends TaroEventingClass {
 						const y = entity.velocity.z;
 						const z = entity.velocity.y;
 						rigidBody.setLinvel({ x: x, y: y, z: z }, true);
-
-						if (taro.isClient) {
-							console.log('pos', entity._id, entity.velocity, x, y, z, rigidBody.linvel());
-						}
 					}
 				} else {
 					const x = entity.serverPosition.x / 64;
@@ -68,8 +64,7 @@ class PhysicsComponent extends TaroEventingClass {
 				}
 
 				if (taro.isClient) {
-					const rot = entity.serverRotation;
-					const q = Utils.quaternionFromEuler(rot.x, -rot.z, rot.y, 'XYZ');
+					const q = entity.serverQuaternion;
 					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
 				}
 			}
@@ -107,27 +102,6 @@ class PhysicsComponent extends TaroEventingClass {
 				entity.physicsRotation.z = rot.z;
 				entity.physicsRotation.w = rot.w;
 
-				const eulerFromQuaternion = (x: number, y: number, z: number, w: number) => {
-					const sinr_cosp = 2 * (w * x + y * z);
-					const cosr_cosp = 1 - 2 * (x * x + y * y);
-					const roll = Math.atan2(sinr_cosp, cosr_cosp);
-
-					const sinp = 2 * (w * y - z * x);
-					const pitch = Math.abs(sinp) >= 1 ? (Math.sign(sinp) * Math.PI) / 2 : Math.asin(sinp);
-
-					const siny_cosp = 2 * (w * z + x * y);
-					const cosy_cosp = 1 - 2 * (y * y + z * z);
-					const yaw = Math.atan2(siny_cosp, cosy_cosp);
-
-					return { x: roll, y: pitch, z: yaw };
-				};
-
-				const r = eulerFromQuaternion(rot.x, -rot.z, rot.y, rot.w);
-
-				entity._rotate.z = -r.z;
-				entity._rotate.x = r.x;
-				entity._rotate.y = r.y;
-
 				const vel = rigidBody.linvel();
 				entity.velocity.x = vel.x;
 				entity.velocity.y = vel.z;
@@ -148,6 +122,7 @@ class PhysicsComponent extends TaroEventingClass {
 				? RAPIER.RigidBodyDesc.dynamic()
 				: RAPIER.RigidBodyDesc.kinematicPositionBased();
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
+		rigidBody.setGravityScale(10, true);
 
 		const pos = entity._translate;
 		rigidBody.setTranslation({ x: pos.x / 64, y: 5, z: pos.y / 64 }, true);
