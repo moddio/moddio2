@@ -479,33 +479,35 @@ var TaroNetIoClient = {
 							var entityData = snapshot[i].slice(1).split('&');
 							var entityId = entityData[0];
 							entityData.shift();
-							var x = parseInt(entityData[0], 16);
-							var y = parseInt(entityData[1], 16);
-							var z = parseInt(entityData[2], 16);
-							var rotate = parseInt(entityData[3], 16) / 1000;
+							var px = parseInt(entityData[0], 16);
+							var py = parseInt(entityData[1], 16);
+							var pz = parseInt(entityData[2], 16);
+							var rx = parseInt(entityData[3], 16) / 1000;
+							var ry = parseInt(entityData[4], 16) / 1000;
+							var rz = parseInt(entityData[5], 16) / 1000;
 							// console.log(entityId, 'translate:  ', [x, y, z], 'rotate:  ', [0, 0, rotate]);
 							var isTeleporting = Boolean(parseInt(entityData[4], 16)); // teleported boolean
 							var isTeleportingCamera = Boolean(parseInt(entityData[5], 16)); // teleportedCamera boolean
 
-							var newPosition = [x, y, z];
-							var newRotation = [0, 0, rotate];
+							var newPosition = [px, py, pz];
+							var newRotation = [rx, ry, rz];
 
 							// update each entities' final position, so player knows where everything are when returning from a different browser tab
 							// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
 							var entity = taro.$(entityId);
 
-							entity.serverPosition.x = x;
-							entity.serverPosition.y = y;
-							entity.serverPosition.z = z;
+							entity.serverPosition.x = px;
+							entity.serverPosition.y = py;
+							entity.serverPosition.z = pz;
 
-							// entity.serverRotation.x = 0;
-							// entity.serverRotation.y = 0;
-							entity.serverRotation.z = rotate;
+							entity.serverRotation.x = rx;
+							entity.serverRotation.y = ry;
+							entity.serverRotation.z = rz;
 
 							// console.log(entity != undefined, isTeleporting)
 							if (entity) {
 								if (isTeleporting) {
-									entity.teleportTo(x, y, z, rotate, isTeleportingCamera);
+									entity.teleportTo(px, py, pz, rz, isTeleportingCamera);
 								} else if (
 									entity == taro.client.selectedUnit &&
 									taro.physics.simulation &&
@@ -522,10 +524,10 @@ var TaroNetIoClient = {
 									}
 
 									taro.client.myUnitStreamedPosition = {
-										x: x,
-										y: y,
-										z: z,
-										rotation: rotate,
+										x: px,
+										y: py,
+										z: pz,
+										rotation: rz,
 									};
 								} else {
 									// console.log(entity._category, newPosition)

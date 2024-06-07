@@ -2018,10 +2018,13 @@ var TaroEntity = TaroObject.extend({
 				Math.round(this._translate.x) != Math.round(this._oldTranform[0]) ||
 				Math.round(this._translate.y) != Math.round(this._oldTranform[1]) ||
 				Math.round(this._translate.z) != Math.round(this._oldTranform[2]) ||
-				parseFloat(this._rotate.z).toFixed(3) != parseFloat(this._oldTranform[3]).toFixed(3)
+				parseFloat(this._rotate.z).toFixed(3) != parseFloat(this._oldRotate[0]).toFixed(3) ||
+				parseFloat(this._rotate.z).toFixed(3) != parseFloat(this._oldRotate[1]).toFixed(3) ||
+				parseFloat(this._rotate.z).toFixed(3) != parseFloat(this._oldRotate[2]).toFixed(3)
 			) {
 				this._hasMoved = true;
 				this._oldTranform = [this._translate.x, this._translate.y, this._translate.z];
+				this._oldRotate = [this._rotate.x, this._rotate.y, this._rotate.z];
 			}
 
 			// Process any automatic-mode stream updating required
@@ -4620,12 +4623,14 @@ var TaroEntity = TaroObject.extend({
 					var px = this._translate.x.toFixed(0);
 					var py = this._translate.y.toFixed(0);
 					var pz = this._translate.z.toFixed(0);
-					var angle = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
+					var rx = ((this._rotate.x % (2 * Math.PI)) * 1000).toFixed(0);
+					var ry = ((this._rotate.y % (2 * Math.PI)) * 1000).toFixed(0);
+					var rz = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
 
 					if (this._hasMoved) {
 						//console.log("streaming", this._category, this._stats.name, this.id(), x, y, angle)
 						this._oldTranform = [this._translate.x, this._translate.y, this._translate.z];
-						this._oldRotate = [0, 0, this._rotate.z];
+						this._oldRotate = [this._rotate.x, this._rotate.y, this._rotate.z];
 
 						// var distanceTravelled = x - taro.lastX;
 						// console.log(this.id(), taro._currentTime - taro.lastSnapshotTime, taro._currentTime, x,  distanceTravelled / (taro._currentTime - taro.lastSnapshotTime))
@@ -4637,10 +4642,9 @@ var TaroEntity = TaroObject.extend({
 						buffArr.push(Number(px));
 						buffArr.push(Number(py));
 						buffArr.push(Number(pz));
-						buffArr.push(Number(angle));
-						// buffArr.push(Number(rx));
-						// buffArr.push(Number(ry));
-						// buffArr.push(Number(rz));
+						buffArr.push(Number(rx));
+						buffArr.push(Number(ry));
+						buffArr.push(Number(rz));
 
 						if (this.isTeleporting) {
 							buffArr.push(Number(this.isTeleporting));

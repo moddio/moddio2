@@ -147,7 +147,9 @@ class PhysicsComponent extends TaroEventingClass {
 
 		this.rigidBodies.set(entity.id(), rigidBody.handle);
 
-		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5);
+		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setActiveEvents(
+			RAPIER.ActiveEvents.COLLISION_EVENTS
+		);
 		this.world.createCollider(colliderDesc, rigidBody);
 	}
 
