@@ -100,6 +100,14 @@ var Utils;
         return c;
     }
     Utils.isPointInPolygon = isPointInPolygon;
+    function pixelToWorld(numPixels) {
+        return numPixels / 64;
+    }
+    Utils.pixelToWorld = pixelToWorld;
+    function worldToPixel(units) {
+        return units * 64;
+    }
+    Utils.worldToPixel = worldToPixel;
 })(Utils || (Utils = {}));
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = Utils;

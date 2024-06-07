@@ -123,6 +123,14 @@ namespace Utils {
 		}
 		return c;
 	}
+
+	export function pixelToWorld(numPixels: number) {
+		return numPixels / 64;
+	}
+
+	export function worldToPixel(units: number) {
+		return units * 64;
+	}
 }
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

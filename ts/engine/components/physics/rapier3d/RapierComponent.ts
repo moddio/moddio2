@@ -56,9 +56,20 @@ class RapierComponent extends TaroEventingClass {
 
 		this.rigidBodies.set(entity.id(), rigidBody.handle);
 
-		const colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 0.5).setActiveEvents(
-			RAPIER.ActiveEvents.COLLISION_EVENTS
-		);
+		let hw = 0;
+		let hh = 0;
+		if (body.fixtures?.length) {
+			hw = body.fixtures[0].shape.data.halfWidth ?? entity._bounds2d.x / 2;
+			hh = body.fixtures[0].shape.data.halfHeight ?? entity._bounds2d.y / 2;
+		} else {
+			hw = entity._bounds2d.x / 2;
+			hh = entity._bounds2d.y / 2;
+		}
+
+		hw = Utils.pixelToWorld(hw);
+		hh = Utils.pixelToWorld(hh);
+
+		const colliderDesc = RAPIER.ColliderDesc.cuboid(hw, 0.5, hh).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 		this.world.createCollider(colliderDesc, rigidBody);
 	}
 

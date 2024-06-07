@@ -887,9 +887,11 @@ namespace Renderer {
 					);
 					interpolatedShape.quaternion.copy(renderRotation);
 
-					const size = entity.body.scale;
-					serverShape.scale.copy(size);
-					interpolatedShape.scale.copy(size);
+					const size = entity.body.getSize() as { width: number; height: number };
+					serverShape.scale.x = size.width;
+					serverShape.scale.z = size.height;
+					interpolatedShape.scale.x = size.width;
+					interpolatedShape.scale.z = size.height;
 
 					// serverShape.visible = true;
 					interpolatedShape.visible = true;
