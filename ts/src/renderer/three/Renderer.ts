@@ -830,10 +830,6 @@ namespace Renderer {
 					this.checkForHiddenEntities();
 				}
 
-				for (const entity of this.entityManager.entities) {
-					entity.visible = false;
-				}
-
 				// Visualize the physics world; hardcoded for now
 				//@ts-ignore
 				const { vertices } = taro.physics.world().debugRender();
