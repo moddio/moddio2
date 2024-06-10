@@ -52,7 +52,10 @@ class RapierComponent extends TaroEventingClass {
 		rigidBody.setGravityScale(10, true);
 
 		const pos = entity._translate;
-		rigidBody.setTranslation({ x: pos.x / 64, y: 5, z: pos.y / 64 }, true);
+		rigidBody.setTranslation({ x: pos.x / 64, y: 1, z: pos.y / 64 }, true);
+
+		const { x, y, z } = body.defaultData.rotate;
+		rigidBody.setRotation(Utils.quaternionFromEuler(x, z, y), true);
 
 		this.rigidBodies.set(entity.id(), rigidBody.handle);
 

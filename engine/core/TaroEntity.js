@@ -13,7 +13,7 @@ var TaroEntity = TaroObject.extend({
 		var translateX = defaultData.translate && defaultData.translate.x ? defaultData.translate.x : 0;
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
 		var translateZ = defaultData.translate && defaultData.translate.z ? defaultData.translate.z : 0;
-		var rotate = defaultData.rotate || 0;
+		var rotate = defaultData.rotate && defaultData.rotate.z ? defaultData.rotate.z : 0;
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
 		this._specialProp.push('_aabb');
@@ -34,7 +34,7 @@ var TaroEntity = TaroObject.extend({
 		this._oldTranform = [];
 		this._hasMoved = true;
 
-		this._rotate = new TaroPoint3d(0, 0, rotate);
+		this._rotate = new TaroPoint3d(0, 0, rotate.z);
 
 		this._scale = new TaroPoint3d(1, 1, 1);
 		this._origin = new TaroPoint3d(0.5, 0.5, 0.5);
@@ -3218,11 +3218,6 @@ var TaroEntity = TaroObject.extend({
 
 	emitTransformOnClient: function (x, y, z, rotate) {
 		if (!taro.isClient) return this;
-
-		if (typeof rotate === 'object') {
-			console.log(rotate);
-			console.trace('lsjdlfkjslkfjsljfljsdjfs');
-		}
 
 		this.emit('transform', {
 			x: x,

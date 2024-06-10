@@ -3050,8 +3050,17 @@ var ActionComponent = TaroEntity.extend({
 
 							position.x = parseFloat(position.x);
 							position.y = parseFloat(position.y);
+							// BAD
+							position.z = 0;
 							angle = parseFloat(angle);
 							var angleInRadians = Math.radians(angle);
+							var tempAngle = angleInRadians;
+							angleInRadians = {
+								x: 0,
+								y: 0,
+								z: tempAngle,
+							};
+							//
 							height = parseFloat(height);
 							width = parseFloat(width);
 

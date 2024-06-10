@@ -61,7 +61,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 	updateBody: function (defaultData, isLossTolerant) {
 		var self = this;
 
-		console.log('updatebody', this._stats.name, defaultData, this._stats.currentBody.type);
+		console.log('PRE', this._stats.name, defaultData, this._stats.currentBody.type);
 		// console.trace()
 
 		body = this._stats.currentBody;
@@ -154,7 +154,20 @@ var TaroEntityPhysics = TaroEntity.extend({
 					taroId: this.id(), // in box2dbody, add reference to this entity
 				},
 			],
+			defaultData: {
+				translate: {
+					x: defaultData?.translate?.x ?? 0,
+					y: defaultData?.translate?.y ?? 0,
+					z: defaultData?.translate?.z ?? 0,
+				},
+				rotate: {
+					x: defaultData?.rotate?.x ?? 0,
+					y: defaultData?.rotate?.y ?? 0,
+					z: defaultData?.rotate?.z ?? 0,
+				},
+			},
 		};
+		console.log('POST', body);
 		// console.log("collidesWith", this._category, filterCategoryBits, collidesWith, body)
 		this.physicsBody(body, isLossTolerant);
 		// if (this._category === 'item') {

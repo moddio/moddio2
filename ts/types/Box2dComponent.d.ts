@@ -47,6 +47,18 @@ declare type b2Body = {
 	fixedRotation: boolean;
 	affectedByGravity: boolean;
 	fixtures: b2Fixture[];
+	defaultData: {
+		translate: {
+			x: number;
+			y: number;
+			z: number;
+		};
+		rotate: {
+			x: number;
+			y: number;
+			z: number;
+		};
+	};
 };
 
 declare type b2Fixture = {

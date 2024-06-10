@@ -524,20 +524,20 @@ var TaroNetIoClient = {
 								) {
 									if (taro.env === 'local' || taro.debugCSP) {
 										// emit position for entity debug image
-										entity.emit('transform-debug', {
-											debug: 'green-square',
-											x: x,
-											y: y,
-											rotation: rotate,
-										});
+										// entity.emit('transform-debug', {
+										// 	debug: 'green-square',
+										// 	x: x,
+										// 	y: y,
+										// 	rotation: rotate,
+										// });
 									}
 
-									taro.client.myUnitStreamedPosition = {
-										x: px,
-										y: py,
-										z: pz,
-										rotation: rz,
-									};
+									// taro.client.myUnitStreamedPosition = {
+									// 	x: px,
+									// 	y: py,
+									// 	z: pz,
+									// 	rotation: rz,
+									// };
 								} else {
 									// console.log(entity._category, newPosition)
 									// extra 20ms of buffer removes jitter

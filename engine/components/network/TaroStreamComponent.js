@@ -209,7 +209,11 @@ var TaroStreamComponent = TaroEventingClass.extend({
 							y: ntransdata[1],
 							z: ntransdata[2],
 						},
-						rotate: ntransdata[5],
+						rotate: {
+							x: ntransdata[4],
+							y: ntransdata[5],
+							z: ntransdata[6],
+						},
 					};
 
 					entity = new classConstructor(createData, entityId);
