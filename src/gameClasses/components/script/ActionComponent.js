@@ -3053,13 +3053,19 @@ var ActionComponent = TaroEntity.extend({
 							position.y = parseFloat(position.y);
 							// BAD
 							position.z = 0;
-							// angle = parseFloat(angle);
-							// var angleInRadians = Math.radians(angle);
+
 							let angleInRadians;
 							if (rotation) {
 								angleInRadians = {
 									x: Math.radians(rotation.x),
 									y: Math.radians(rotation.y),
+									z: Math.radians(rotation.z),
+								};
+							} else {
+								angle = parseFloat(angle);
+								angleInRadians = {
+									x: Math.radians(0),
+									y: Math.radians(0),
 									z: Math.radians(rotation.z),
 								};
 							}
