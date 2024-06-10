@@ -3065,8 +3065,8 @@ var ActionComponent = TaroEntity.extend({
 								angle = parseFloat(angle);
 								angleInRadians = {
 									x: Math.radians(0),
-									y: Math.radians(0),
-									z: Math.radians(angle),
+									y: Math.radians(-angle),
+									z: Math.radians(0),
 								};
 							}
 							//
