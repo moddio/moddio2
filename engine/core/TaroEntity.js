@@ -3223,7 +3223,9 @@ var TaroEntity = TaroObject.extend({
 			x: x,
 			y: y,
 			z: z,
-			rotation: rotate,
+			rotation: {
+				...this.physicsRotation,
+			},
 		});
 
 		return this;
