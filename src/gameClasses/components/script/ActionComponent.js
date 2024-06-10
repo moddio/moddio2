@@ -2621,6 +2621,23 @@ var ActionComponent = TaroEntity.extend({
 						}
 						break;
 
+					case 'screenShake':
+						var player = self._script.param.getValue(action.player, vars);
+						var position = self._script.param.getValue(action.position, vars);
+						var duration = self._script.param.getValue(action.duration, vars);
+
+						if (taro.isClient && !isNaN(duration)) {
+							taro.client.emit('screen-shake', { position: position, duration: duration });
+						} else if (taro.isServer && !isNaN(duration) && player && player._stats.clientId) {
+							taro.network.send(
+								'camera',
+								{ cmd: 'screenShake', data: { position: position, duration: duration } },
+								player._stats.clientId
+							);
+							//taro.network.send('screenShake', { position, duration }, player._stats.clientId);
+						}
+						break;
+
 					case 'createItemAtPositionWithQuantity':
 						var itemTypeId = self._script.param.getValue(action.itemType, vars);
 						var position = self._script.param.getValue(action.position, vars);

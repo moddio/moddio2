@@ -388,17 +388,19 @@ var ClientNetworkEvents = {
 	},
 
 	// when client receives a ping response back from the server
-	_onPing: function(data) {
+	_onPing: function (data) {
 		const self = this;
 		const now = taro._currentTime;
 		const latency = now - data.sentAt;
-		
+
 		// console.log("onPing", taro._currentTime, data.sentAt, latency);
-		
+
 		// start reconciliation based on discrepancy between
 		// where my unit when ping was sent and where unit is when ping is received
-		if (taro.client.selectedUnit?.posHistory &&
-			taro.client.myUnitStreamedPosition && !taro.client.selectedUnit.isTeleporting
+		if (
+			taro.client.selectedUnit?.posHistory &&
+			taro.client.myUnitStreamedPosition &&
+			!taro.client.selectedUnit.isTeleporting
 		) {
 			let history = taro.client.selectedUnit.posHistory;
 			while (history.length > 0) {
@@ -408,20 +410,19 @@ var ClientNetworkEvents = {
 					// console.log("found it!")
 					taro.client.myUnitPositionWhenPingSent = {
 						x: historyFrame[1][0],
-						y: historyFrame[1][1]
+						y: historyFrame[1][1],
 					};
 
 					taro.client.selectedUnit.reconRemaining = {
 						x: taro.client.myUnitStreamedPosition.x - taro.client.myUnitPositionWhenPingSent.x,
-						y: taro.client.myUnitStreamedPosition.y - taro.client.myUnitPositionWhenPingSent.y
-					}
+						y: taro.client.myUnitStreamedPosition.y - taro.client.myUnitPositionWhenPingSent.y,
+					};
 
 					// console.log(latency, taro.client.myUnitPositionWhenPingSent.y, taro.client.myUnitStreamedPosition.y, taro.client.selectedUnit.reconRemaining.y);
 
-					taro.client.selectedUnit.posHistory = []
+					taro.client.selectedUnit.posHistory = [];
 
 					if (taro.env === 'local' || taro.debugCSP) {
-
 						taro.client.selectedUnit.emit('transform-debug', {
 							debug: 'red-square',
 							x: taro.client.myUnitPositionWhenPingSent?.x,
@@ -440,17 +441,15 @@ var ClientNetworkEvents = {
 
 					taro.client.sendNextPingAt = taro.now + 100;
 					break;
-
 				}
 			}
 		}
-		
+
 		taro.pingElement = taro.pingElement || document.getElementById('updateping');
 		taro.pingElement.innerHTML = Math.floor(latency);
 		taro.pingLatency = taro.pingLatency || [];
 		taro.pingLatency.push(Math.floor(latency));
 	},
-
 
 	_onPlayAd: function (data) {
 		const runAction = functionalTryCatch(() => {
@@ -810,6 +809,7 @@ var ClientNetworkEvents = {
 	},
 
 	_onCamera: function (data) {
+		console.log('camera', data);
 		const runAction = functionalTryCatch(() => {
 			// camera zoom change
 			if (data.cmd == 'zoom') {
@@ -825,6 +825,9 @@ var ClientNetworkEvents = {
 
 			if (data.cmd === 'positionCamera') {
 				taro.client.positionCamera(data.position.x, data.position.y);
+			}
+			if (data.cmd === 'screenShake') {
+				taro.client.emit('screen-shake', data.data);
 			}
 		});
 		if (runAction[0] !== null) {

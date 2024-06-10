@@ -50,6 +50,17 @@ namespace Renderer {
 			private showRepublishWarning: boolean;
 
 			private regionDrawStart: { x: number; y: number } = { x: 0, y: 0 };
+			screenShake: {
+				enabled: boolean;
+				_timestampStart: any;
+				_timestampEnd: any;
+				_startPoint: any;
+				_endPoint: any;
+				update: (camera: any) => void;
+				shake: (camera: any, vecToAdd: any, milliseconds: any) => void;
+				computePosition: (camera: any, interval: any) => void;
+				getQuadra: (t: any) => number;
+			};
 
 			private constructor() {
 				// For JS interop; in case someone uses new Renderer.ThreeRenderer()
@@ -75,6 +86,8 @@ namespace Renderer {
 				if (taro.game.data.settings.camera.projectionMode !== 'orthographic') {
 					this.camera.setProjection(taro.game.data.settings.camera.projectionMode);
 				}
+
+				this.screenShake = ScreenShake();
 
 				this.scene = new THREE.Scene();
 				this.scene.background = new THREE.Color(taro.game.data.defaultData.mapBackgroundColor);
@@ -177,7 +190,6 @@ namespace Renderer {
 												this.entityEditor.selectEntity(initEntity);
 												taro.client.emit('block-rotation', !!initEntity.isBillboard);
 											} else if (clickDelay < 350) {
-												console.log('showing script for entity', initEntity.action.actionId);
 												if (inGameEditor && inGameEditor.showScriptForEntity) {
 													inGameEditor.showScriptForEntity(initEntity.action.actionId);
 												}
@@ -454,6 +466,15 @@ namespace Renderer {
 						region.name = data.newName;
 						region.updateLabel(data.newName);
 					}
+				});
+
+				taro.client.on('screen-shake', (data: { position: { x: number; y: number; z: number }; duration: number }) => {
+					console.log('screen-shake', data);
+					this.screenShake.shake(
+						this.camera.instance,
+						new THREE.Vector3(data.position.x, data.position.y, data.position.z),
+						data.duration
+					);
 				});
 			}
 
@@ -835,6 +856,7 @@ namespace Renderer {
 
 				TWEEN.update();
 				this.renderer.render(this.scene, this.camera.instance);
+				this.screenShake.update(this.camera.instance);
 			}
 
 			private checkForHiddenEntities() {
