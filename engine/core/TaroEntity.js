@@ -3599,20 +3599,19 @@ var TaroEntity = TaroObject.extend({
 	},
 
 	scaleDimensions: function (width, height) {
-		if (this._stats.scaleDimensions) {
-			var originalWidth = this.width();
-			var originalHeight = this.height();
-			var scaleX = width / originalWidth;
-			var scaleY = height / originalHeight;
-
-			if (taro.isServer) {
-				this.scaleTo(scaleX, scaleY, 0);
-				this.updateBody(undefined, false, true);
-			} else {
-				this.height(height);
-				this.width(width);
-			}
-		}
+		// if (this._stats.scaleDimensions) {
+		// 	var originalWidth = this.width();
+		// 	var originalHeight = this.height();
+		// 	var scaleX = width / originalWidth;
+		// 	var scaleY = height / originalHeight;
+		// 	if (taro.isServer) {
+		// 		this.scaleTo(scaleX, scaleY, 0);
+		// 		this.updateBody(undefined, false, true);
+		// 	} else {
+		// 		this.height(height);
+		// 		this.width(width);
+		// 	}
+		// }
 	},
 
 	/**

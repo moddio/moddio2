@@ -61,9 +61,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 	updateBody: function (defaultData, isLossTolerant) {
 		var self = this;
 
-		console.log('PRE', this._stats.name, defaultData, this._stats.currentBody.type);
-		// console.trace()
-
 		body = this._stats.currentBody;
 		if (!body) {
 			return;
@@ -75,6 +72,12 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		this.width(parseFloat(body.width) * this._scale.x);
 		this.height(parseFloat(body.height) * this._scale.y);
+
+		if (taro.isServer && defaultData?.rotate) {
+			const { x, y, z } = defaultData.rotate;
+			defaultData.rotate = Utils.quaternionFromEuler(x, y, z);
+			console.log('QfE', defaultData);
+		}
 
 		var shapeData =
 			body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data
@@ -164,10 +167,10 @@ var TaroEntityPhysics = TaroEntity.extend({
 					x: defaultData?.rotate?.x ?? 0,
 					y: defaultData?.rotate?.y ?? 0,
 					z: defaultData?.rotate?.z ?? 0,
+					w: defaultData?.rotate?.w ?? 0,
 				},
 			},
 		};
-		console.log('POST', body);
 		// console.log("collidesWith", this._category, filterCategoryBits, collidesWith, body)
 		this.physicsBody(body, isLossTolerant);
 		// if (this._category === 'item') {
@@ -182,14 +185,14 @@ var TaroEntityPhysics = TaroEntity.extend({
 				rotate = 0;
 			}
 
-			// immediately apply rotate.z if facingAngle is assigned
-			if (!isNaN(rotate)) {
-				// console.log("rotate ", defaultData.rotate)
-				// if (isLossTolerant)
-				//     this.rotateToLT(rotate);
-				// else
-				this.rotateTo(0, 0, rotate);
-			}
+			// // immediately apply rotate.z if facingAngle is assigned
+			// if (!isNaN(rotate)) {
+			// 	// console.log("rotate ", defaultData.rotate)
+			// 	// if (isLossTolerant)
+			// 	//     this.rotateToLT(rotate);
+			// 	// else
+			// 	this.rotateTo(0, 0, rotate);
+			// }
 
 			// console.log("defaultData", defaultData)
 			if (defaultData.translate) {

@@ -190,10 +190,15 @@ var TaroStreamComponent = TaroEventingClass.extend({
 				parseInt(transformData[0], 16),
 				parseInt(transformData[1], 16),
 				parseInt(transformData[2], 16),
-				parseInt(transformData[3], 16) / 1000,
-				parseInt(transformData[4], 16) / 1000,
-				parseInt(transformData[5], 16) / 1000,
+				// parseInt(transformData[3], 16) / 1000,
+				// parseInt(transformData[4], 16) / 1000,
+				// parseInt(transformData[5], 16) / 1000,
+				parseInt(transformData[6], 16) / 1000,
+				parseInt(transformData[7], 16) / 1000,
+				parseInt(transformData[8], 16) / 1000,
+				parseInt(transformData[9], 16) / 1000,
 			]; // px, py, pz, rx, ry, rz
+			console.log(ntransdata);
 		}
 
 		// Check the required class exists
@@ -210,9 +215,10 @@ var TaroStreamComponent = TaroEventingClass.extend({
 							z: ntransdata[2],
 						},
 						rotate: {
-							x: ntransdata[4],
-							y: ntransdata[5],
-							z: ntransdata[6],
+							x: ntransdata[3],
+							y: ntransdata[4],
+							z: ntransdata[5],
+							w: ntransdata[6],
 						},
 					};
 
