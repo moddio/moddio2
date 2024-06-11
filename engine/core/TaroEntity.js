@@ -188,6 +188,10 @@ var TaroEntity = TaroObject.extend({
 
 		this.script?.trigger('entityStateChanged');
 
+		if (self.previousState === newState) {
+			return;
+		}
+
 		self.previousState = newState;
 		self.updateBody(defaultData);
 	},
@@ -3246,9 +3250,9 @@ var TaroEntity = TaroObject.extend({
 		// this.setLinearVelocityLT(0, 0);
 
 		this.translateTo(x, y, z);
-		if (rotate != undefined) {
-			this.rotateTo(0, 0, rotate);
-		}
+		// if (rotate != undefined) {
+		// 	this.rotateTo(0, 0, rotate);
+		// }
 
 		if (taro.isServer) {
 			this.clientStreamedPosition = undefined;
@@ -3262,7 +3266,6 @@ var TaroEntity = TaroObject.extend({
 					x: x,
 					y: y,
 					z: z,
-					rotation: rotate,
 				};
 			}
 			this.isTransforming(true);

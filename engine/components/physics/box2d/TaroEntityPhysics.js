@@ -179,46 +179,46 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// }
 
 		// if initialTranform variable's provided, then transform this entity immediately after body creation
-		if (defaultData) {
-			var rotate = defaultData.rotate;
-			if (body.fixedRotation) {
-				rotate = 0;
-			}
+		// if (defaultData) {
+		// 	var rotate = defaultData.rotate;
+		// 	if (body.fixedRotation) {
+		// 		rotate = 0;
+		// 	}
 
-			// // immediately apply rotate.z if facingAngle is assigned
-			// if (!isNaN(rotate)) {
-			// 	// console.log("rotate ", defaultData.rotate)
-			// 	// if (isLossTolerant)
-			// 	//     this.rotateToLT(rotate);
-			// 	// else
-			// 	this.rotateTo(0, 0, rotate);
-			// }
+		// // immediately apply rotate.z if facingAngle is assigned
+		// if (!isNaN(rotate)) {
+		// 	// console.log("rotate ", defaultData.rotate)
+		// 	// if (isLossTolerant)
+		// 	//     this.rotateToLT(rotate);
+		// 	// else
+		// 	this.rotateTo(0, 0, rotate);
+		// }
 
-			// console.log("defaultData", defaultData)
-			if (defaultData.translate) {
-				var x = defaultData.translate.x;
-				var y = defaultData.translate.y;
-				var z = defaultData.translate.z;
-				this.teleportTo(x, y, z, rotate);
-			}
+		// console.log("defaultData", defaultData)
+		// if (defaultData.translate) {
+		// 	var x = defaultData.translate.x;
+		// 	var y = defaultData.translate.y;
+		// 	var z = defaultData.translate.z;
+		// 	this.teleportTo(x, y, z, rotate);
+		// }
 
-			// immediately apply speed if assigned
-			if (defaultData.velocity && !isNaN(defaultData.velocity.x) && !isNaN(defaultData.velocity.y)) {
-				switch (defaultData.velocity.deployMethod) {
-					case 'applyForce':
-						this.applyForce(defaultData.velocity.x, defaultData.velocity.y);
-						break;
-					case 'applyImpulse':
-						this.applyImpulse(defaultData.velocity.x, defaultData.velocity.y);
-						break;
+		// immediately apply speed if assigned
+		// if (defaultData.velocity && !isNaN(defaultData.velocity.x) && !isNaN(defaultData.velocity.y)) {
+		// 	switch (defaultData.velocity.deployMethod) {
+		// 		case 'applyForce':
+		// 			this.applyForce(defaultData.velocity.x, defaultData.velocity.y);
+		// 			break;
+		// 		case 'applyImpulse':
+		// 			this.applyImpulse(defaultData.velocity.x, defaultData.velocity.y);
+		// 			break;
 
-					case 'setVelocity':
-					default:
-						this.setLinearVelocity(defaultData.velocity.x, defaultData.velocity.y, 0, isLossTolerant);
-						break;
-				}
-			}
-		}
+		// 		case 'setVelocity':
+		// 		default:
+		// 			this.setLinearVelocity(defaultData.velocity.x, defaultData.velocity.y, 0, isLossTolerant);
+		// 			break;
+		// 	}
+		// }
+		// }
 	},
 
 	/**
