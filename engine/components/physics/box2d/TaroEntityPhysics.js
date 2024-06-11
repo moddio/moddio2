@@ -655,8 +655,60 @@ var TaroEntityPhysics = TaroEntity.extend({
 		if (isNaN(x) || isNaN(y) || isNaN(z)) {
 			return;
 		}
+
+		// const step = z - this._rotate.z;
+
 		// Call the original method
 		this._rotateToProto(x, y, z);
+
+		const q = Utils.quaternionFromEuler(0, -z, 0);
+		this.physicsRotation.x = q.x;
+		this.physicsRotation.y = q.y;
+		this.physicsRotation.z = q.z;
+		this.physicsRotation.w = q.w;
+
+		// const axis = { x: 0, y: 1, z: 0 };
+		// const q = { x: 0, y: 0, z: 0, w: 1 };
+		// q.x = axis.x * Math.sin(-step / 2);
+		// q.y = axis.y * Math.sin(-step / 2);
+		// q.z = axis.z * Math.sin(-step / 2);
+		// q.w = Math.cos(-step / 2);
+
+		// const mutQ = (a, b) => {
+		// 	return {
+		// 		x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y, // i
+		// 		y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x, // j
+		// 		z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w, // k
+		// 		w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z, // 1
+		// 	};
+		// };
+
+		// const testQ = mutQ(this.physicsRotation, q);
+
+		// this.physicsRotation.x = testQ.x;
+		// this.physicsRotation.y = testQ.y;
+		// this.physicsRotation.z = testQ.z;
+		// this.physicsRotation.w = testQ.w;
+
+		// const eulerToQuat = (roll, pitch, yaw) => {
+		// 	const cr = Math.cos(roll * 0.5);
+		// 	const sr = Math.sin(roll * 0.5);
+		// 	const cp = Math.cos(pitch * 0.5);
+		// 	const sp = Math.sin(pitch * 0.5);
+		// 	const cy = Math.cos(yaw * 0.5);
+		// 	const sy = Math.sin(yaw * 0.5);
+
+		// 	const q = { x: 0, y: 0, z: 0, w: 1 };
+		// 	q.w = cr * cp * cy + sr * sp * sy;
+		// 	q.x = sr * cp * cy - cr * sp * sy;
+		// 	q.y = cr * sp * cy + sr * cp * sy;
+		// 	q.z = cr * cp * sy - sr * sp * cy;
+
+		// 	return q;
+		// };
+
+		// const euler = quatToEuler(this.physicsRotation);
+		// this.physicsRotation = eulerToQuat(euler.x, euler.y, euler.z);
 
 		body = this._stats.currentBody;
 		if (body && body.type !== 'none' && body.type !== 'spriteOnly') {

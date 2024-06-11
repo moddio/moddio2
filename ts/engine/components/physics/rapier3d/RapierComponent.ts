@@ -137,6 +137,11 @@ class RapierComponent extends TaroEventingClass {
 					const q = entity.serverQuaternion;
 					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
 				}
+
+				if (taro.isServer) {
+					const q = entity.physicsRotation;
+					rigidBody.setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }, true);
+				}
 			}
 		}
 
