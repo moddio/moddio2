@@ -68,6 +68,7 @@ class RapierComponent extends TaroEventingClass {
 		let halfHeight = 0;
 		let density = 1.0;
 		let friction = 0.5;
+		let restitution = 0;
 
 		if (body.fixtures?.length) {
 			const fixture = body.fixtures[0];
@@ -77,6 +78,7 @@ class RapierComponent extends TaroEventingClass {
 
 			density = fixture.density ?? density;
 			friction = fixture.friction ?? friction;
+			restitution = fixture.restitution ?? restitution;
 		}
 
 		halfWidth = Utils.pixelToWorld(halfWidth);
@@ -84,7 +86,8 @@ class RapierComponent extends TaroEventingClass {
 
 		const colliderDesc = RAPIER.ColliderDesc.cuboid(halfWidth, 0.5, halfHeight)
 			.setDensity(density)
-			.setFriction(friction);
+			.setFriction(friction)
+			.setRestitution(restitution);
 		this.world.createCollider(colliderDesc, rigidBody);
 	}
 
