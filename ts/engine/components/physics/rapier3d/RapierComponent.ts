@@ -54,8 +54,6 @@ class RapierComponent extends TaroEventingClass {
 		const pos = entity._translate;
 		rigidBody.setTranslation({ x: pos.x / 64, y: 1, z: pos.y / 64 }, true);
 
-		rigidBody.setRotation(body.defaultData.rotate as RAPIER.Rotation, true);
-
 		this.rigidBodies.set(entity.id(), rigidBody.handle);
 
 		let hw = 0;

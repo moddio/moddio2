@@ -3042,7 +3042,6 @@ var ActionComponent = TaroEntity.extend({
 						var height = self._script.param.getValue(action.height, vars) || 100;
 						var width = self._script.param.getValue(action.width, vars) || 100;
 						var angle = self._script.param.getValue(action.angle, vars) || 0;
-						var rotation = self._script.param.getValue(action.rotation, vars) || 0;
 
 						const entityTypeData = taro.game.data[entityType] && taro.game.data[entityType][entityToCreate];
 
@@ -3051,25 +3050,8 @@ var ActionComponent = TaroEntity.extend({
 
 							position.x = parseFloat(position.x);
 							position.y = parseFloat(position.y);
-							// BAD
-							position.z = 0;
-
-							let angleInRadians;
-							if (rotation) {
-								angleInRadians = {
-									x: Math.radians(rotation.x),
-									y: Math.radians(rotation.y),
-									z: Math.radians(rotation.z),
-								};
-							} else {
-								angle = parseFloat(angle);
-								angleInRadians = {
-									x: Math.radians(0),
-									y: Math.radians(-angle),
-									z: Math.radians(0),
-								};
-							}
-							//
+							angle = parseFloat(angle);
+							var angleInRadians = Math.radians(angle);
 							height = parseFloat(height);
 							width = parseFloat(width);
 

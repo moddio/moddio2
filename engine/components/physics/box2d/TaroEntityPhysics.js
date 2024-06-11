@@ -61,6 +61,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 	updateBody: function (defaultData, isLossTolerant) {
 		var self = this;
 
+		console.log('updatebody', this._stats.name, defaultData, this._stats.currentBody.type);
+		// console.trace()
+
 		body = this._stats.currentBody;
 		if (!body) {
 			return;
@@ -72,12 +75,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		this.width(parseFloat(body.width) * this._scale.x);
 		this.height(parseFloat(body.height) * this._scale.y);
-
-		if (taro.isServer && defaultData?.rotate) {
-			const { x, y, z } = defaultData.rotate;
-			defaultData.rotate = Utils.quaternionFromEuler(x, y, z);
-			console.log('QfE', defaultData);
-		}
 
 		var shapeData =
 			body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data
@@ -157,19 +154,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 					taroId: this.id(), // in box2dbody, add reference to this entity
 				},
 			],
-			defaultData: {
-				translate: {
-					x: defaultData?.translate?.x ?? 0,
-					y: defaultData?.translate?.y ?? 0,
-					z: defaultData?.translate?.z ?? 0,
-				},
-				rotate: {
-					x: defaultData?.rotate?.x ?? 0,
-					y: defaultData?.rotate?.y ?? 0,
-					z: defaultData?.rotate?.z ?? 0,
-					w: defaultData?.rotate?.w ?? 0,
-				},
-			},
 		};
 		// console.log("collidesWith", this._category, filterCategoryBits, collidesWith, body)
 		this.physicsBody(body, isLossTolerant);
@@ -179,46 +163,46 @@ var TaroEntityPhysics = TaroEntity.extend({
 		// }
 
 		// if initialTranform variable's provided, then transform this entity immediately after body creation
-		// if (defaultData) {
-		// 	var rotate = defaultData.rotate;
-		// 	if (body.fixedRotation) {
-		// 		rotate = 0;
-		// 	}
+		if (defaultData) {
+			var rotate = defaultData.rotate;
+			if (body.fixedRotation) {
+				rotate = 0;
+			}
 
-		// // immediately apply rotate.z if facingAngle is assigned
-		// if (!isNaN(rotate)) {
-		// 	// console.log("rotate ", defaultData.rotate)
-		// 	// if (isLossTolerant)
-		// 	//     this.rotateToLT(rotate);
-		// 	// else
-		// 	this.rotateTo(0, 0, rotate);
-		// }
+			// immediately apply rotate.z if facingAngle is assigned
+			if (!isNaN(rotate)) {
+				// console.log("rotate ", defaultData.rotate)
+				// if (isLossTolerant)
+				//     this.rotateToLT(rotate);
+				// else
+				this.rotateTo(0, 0, rotate);
+			}
 
-		// console.log("defaultData", defaultData)
-		// if (defaultData.translate) {
-		// 	var x = defaultData.translate.x;
-		// 	var y = defaultData.translate.y;
-		// 	var z = defaultData.translate.z;
-		// 	this.teleportTo(x, y, z, rotate);
-		// }
+			// console.log("defaultData", defaultData)
+			if (defaultData.translate) {
+				var x = defaultData.translate.x;
+				var y = defaultData.translate.y;
+				var z = defaultData.translate.z;
+				this.teleportTo(x, y, z, rotate);
+			}
 
-		// immediately apply speed if assigned
-		// if (defaultData.velocity && !isNaN(defaultData.velocity.x) && !isNaN(defaultData.velocity.y)) {
-		// 	switch (defaultData.velocity.deployMethod) {
-		// 		case 'applyForce':
-		// 			this.applyForce(defaultData.velocity.x, defaultData.velocity.y);
-		// 			break;
-		// 		case 'applyImpulse':
-		// 			this.applyImpulse(defaultData.velocity.x, defaultData.velocity.y);
-		// 			break;
+			// immediately apply speed if assigned
+			if (defaultData.velocity && !isNaN(defaultData.velocity.x) && !isNaN(defaultData.velocity.y)) {
+				switch (defaultData.velocity.deployMethod) {
+					case 'applyForce':
+						this.applyForce(defaultData.velocity.x, defaultData.velocity.y);
+						break;
+					case 'applyImpulse':
+						this.applyImpulse(defaultData.velocity.x, defaultData.velocity.y);
+						break;
 
-		// 		case 'setVelocity':
-		// 		default:
-		// 			this.setLinearVelocity(defaultData.velocity.x, defaultData.velocity.y, 0, isLossTolerant);
-		// 			break;
-		// 	}
-		// }
-		// }
+					case 'setVelocity':
+					default:
+						this.setLinearVelocity(defaultData.velocity.x, defaultData.velocity.y, 0, isLossTolerant);
+						break;
+				}
+			}
+		}
 	},
 
 	/**

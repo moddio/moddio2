@@ -13,7 +13,7 @@ var TaroEntity = TaroObject.extend({
 		var translateX = defaultData.translate && defaultData.translate.x ? defaultData.translate.x : 0;
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
 		var translateZ = defaultData.translate && defaultData.translate.z ? defaultData.translate.z : 0;
-		var rotate = defaultData.rotate && defaultData.rotate.z ? defaultData.rotate.z : 0;
+		var rotate = defaultData.rotate || 0;
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
 		this._specialProp.push('_aabb');
@@ -34,7 +34,7 @@ var TaroEntity = TaroObject.extend({
 		this._oldTranform = [];
 		this._hasMoved = true;
 
-		this._rotate = new TaroPoint3d(0, 0, rotate.z);
+		this._rotate = new TaroPoint3d(0, 0, rotate);
 
 		this._scale = new TaroPoint3d(1, 1, 1);
 		this._origin = new TaroPoint3d(0.5, 0.5, 0.5);
@@ -187,10 +187,6 @@ var TaroEntity = TaroObject.extend({
 		}
 
 		this.script?.trigger('entityStateChanged');
-
-		if (self.previousState === newState) {
-			return;
-		}
 
 		self.previousState = newState;
 		self.updateBody(defaultData);
@@ -3250,9 +3246,9 @@ var TaroEntity = TaroObject.extend({
 		// this.setLinearVelocityLT(0, 0);
 
 		this.translateTo(x, y, z);
-		// if (rotate != undefined) {
-		// 	this.rotateTo(0, 0, rotate);
-		// }
+		if (rotate != undefined) {
+			this.rotateTo(0, 0, rotate);
+		}
 
 		if (taro.isServer) {
 			this.clientStreamedPosition = undefined;
@@ -3266,6 +3262,7 @@ var TaroEntity = TaroObject.extend({
 					x: x,
 					y: y,
 					z: z,
+					rotation: rotate,
 				};
 			}
 			this.isTransforming(true);
@@ -3604,19 +3601,20 @@ var TaroEntity = TaroObject.extend({
 	},
 
 	scaleDimensions: function (width, height) {
-		// if (this._stats.scaleDimensions) {
-		// 	var originalWidth = this.width();
-		// 	var originalHeight = this.height();
-		// 	var scaleX = width / originalWidth;
-		// 	var scaleY = height / originalHeight;
-		// 	if (taro.isServer) {
-		// 		this.scaleTo(scaleX, scaleY, 0);
-		// 		this.updateBody(undefined, false, true);
-		// 	} else {
-		// 		this.height(height);
-		// 		this.width(width);
-		// 	}
-		// }
+		if (this._stats.scaleDimensions) {
+			var originalWidth = this.width();
+			var originalHeight = this.height();
+			var scaleX = width / originalWidth;
+			var scaleY = height / originalHeight;
+
+			if (taro.isServer) {
+				this.scaleTo(scaleX, scaleY, 0);
+				this.updateBody(undefined, false, true);
+			} else {
+				this.height(height);
+				this.width(width);
+			}
+		}
 	},
 
 	/**
