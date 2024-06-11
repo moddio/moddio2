@@ -43,11 +43,19 @@ class RapierComponent extends TaroEventingClass {
 		this.destroyBody(entity.id());
 		if (entity._category === 'sensor') return;
 
+		const linearDamping = body.linearDamping ?? 0;
+		const angularDamping = body.angularDamping ?? 0;
+
+		const createDynamicRigidBodyDesc = () => {
+			return RAPIER.RigidBodyDesc.dynamic().setLinearDamping(linearDamping).setAngularDamping(angularDamping);
+		};
+
 		const rigidBodyDesc = taro.isServer
-			? RAPIER.RigidBodyDesc.dynamic()
+			? createDynamicRigidBodyDesc()
 			: entity.isClientPredicted()
-				? RAPIER.RigidBodyDesc.dynamic()
+				? createDynamicRigidBodyDesc()
 				: RAPIER.RigidBodyDesc.kinematicPositionBased();
+
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
 		rigidBody.setGravityScale(10, true);
 
@@ -56,20 +64,27 @@ class RapierComponent extends TaroEventingClass {
 
 		this.rigidBodies.set(entity.id(), rigidBody.handle);
 
-		let hw = 0;
-		let hh = 0;
+		let halfWidth = 0;
+		let halfHeight = 0;
+		let density = 1.0;
+		let friction = 0.5;
+
 		if (body.fixtures?.length) {
-			hw = body.fixtures[0].shape.data.halfWidth ?? entity._bounds2d.x / 2;
-			hh = body.fixtures[0].shape.data.halfHeight ?? entity._bounds2d.y / 2;
-		} else {
-			hw = entity._bounds2d.x / 2;
-			hh = entity._bounds2d.y / 2;
+			const fixture = body.fixtures[0];
+
+			halfWidth = fixture.shape.data.halfWidth ?? entity._bounds2d.x / 2;
+			halfHeight = fixture.shape.data.halfHeight ?? entity._bounds2d.y / 2;
+
+			density = fixture.density ?? density;
+			friction = fixture.friction ?? friction;
 		}
 
-		hw = Utils.pixelToWorld(hw);
-		hh = Utils.pixelToWorld(hh);
+		halfWidth = Utils.pixelToWorld(halfWidth);
+		halfHeight = Utils.pixelToWorld(halfHeight);
 
-		const colliderDesc = RAPIER.ColliderDesc.cuboid(hw, 0.5, hh).setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
+		const colliderDesc = RAPIER.ColliderDesc.cuboid(halfWidth, 0.5, halfHeight)
+			.setDensity(density)
+			.setFriction(friction);
 		this.world.createCollider(colliderDesc, rigidBody);
 	}
 
