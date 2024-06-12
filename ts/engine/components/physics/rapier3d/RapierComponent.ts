@@ -32,11 +32,6 @@ class RapierComponent extends TaroEventingClass {
 
 		let gravity = { x: 0.0, y: -9.81, z: 0.0 };
 		this.world = new RAPIER.World(gravity);
-
-		// TODO: Environment physics should go elsewhere
-		let groundColliderDesc = RAPIER.ColliderDesc.cuboid(1000.0, 0.1, 1000.0);
-		groundColliderDesc.setTranslation(0.0, -0.5, 0.0);
-		this.world.createCollider(groundColliderDesc);
 	}
 
 	createBody(entity: TaroEntity, body: b2Body): void {
