@@ -73,8 +73,10 @@ class RapierComponent extends TaroEventingClass {
 		if (body.fixtures?.length) {
 			const fixture = body.fixtures[0];
 
-			halfWidth = ((entity._stats?.width ?? 0) / 2 || fixture.shape?.data?.halfWidth) ?? entity._bounds2d.x / 2;
-			halfHeight = ((entity._stats?.height ?? 0) / 2 || fixture.shape?.data?.halfHeight) ?? entity._bounds2d.y / 2;
+			halfWidth =
+				((entity._stats?.width ?? 0) / 2 || fixture.shape?.data?.halfWidth) ?? entity._stats.currentBody.width / 2;
+			halfHeight =
+				((entity._stats?.height ?? 0) / 2 || fixture.shape?.data?.halfHeight) ?? entity._stats.currentBody.height / 2;
 
 			density = fixture.density ?? density;
 			friction = fixture.friction ?? friction;
