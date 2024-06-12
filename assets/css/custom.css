@@ -956,8 +956,8 @@ div#dev-console-table {
 }
 
 #game-div > #stats {
-  right: 15px !important;
-  top: 10px;
+  right: 60px !important;
+  top: 35px;
 }
 
 :where(#custom-ingame-ui-container) > * {

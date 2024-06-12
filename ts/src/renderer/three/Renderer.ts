@@ -47,6 +47,10 @@ namespace Renderer {
 			public tmp_tileId = 7;
 			public voxelEditor: VoxelEditor;
 			public entityEditor: EntityEditor;
+			public instancedMeshesData: Record<
+				string,
+				{ positions: number[]; rotations: number[]; scales: number[]; mesh: THREE.InstancedMesh }
+			> = {};
 			private showRepublishWarning: boolean;
 
 			private regionDrawStart: { x: number; y: number } = { x: 0, y: 0 };

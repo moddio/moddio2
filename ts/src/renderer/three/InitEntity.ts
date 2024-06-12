@@ -47,7 +47,7 @@ namespace Renderer {
 					body = this.body = new Renderer.Three.AnimatedSprite(texture) as Renderer.Three.AnimatedSprite & {
 						entity: InitEntity;
 					};
-					(body.sprite as THREE.Mesh & { entity: InitEntity }).entity = this;
+					(body.sprite as THREE.InstancedMesh & { entity: InitEntity }).entity = this;
 					body.setBillboard(entityTypeData.isBillboard, renderer.camera);
 				}
 				body.entity = this;

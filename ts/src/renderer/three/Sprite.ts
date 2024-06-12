@@ -1,7 +1,9 @@
 namespace Renderer {
 	export namespace Three {
 		export class Sprite extends Node {
-			sprite: THREE.Mesh;
+			sprite: THREE.InstancedMesh;
+			
+			tex_source_uuid: string;
 			billboard = false;
 			scaleUnflipped = new THREE.Vector2(1, 1);
 
@@ -12,16 +14,28 @@ namespace Renderer {
 
 			constructor(protected tex: THREE.Texture) {
 				super();
+				const instancedMeshesData = Renderer.Three.instance().instancedMeshesData;
+				this.tex_source_uuid = tex.source.uuid;
+				if (instancedMeshesData[tex.source.uuid] === undefined) {
+					const geometry = new THREE.PlaneGeometry(1, 1);
+					geometry.rotateX(-Math.PI / 2);
+					const material = new THREE.MeshBasicMaterial({
+						map: tex,
+						transparent: true,
+						alphaTest: 0.3,
+					});
+					this.sprite = new THREE.InstancedMesh(geometry, material, 6000);
+					instancedMeshesData[tex.source.uuid] = {
+						positions: [],
+						rotations: [],
+						scales: [],
+						mesh: this.sprite,
+					};
+					this.sprite.count = 1;
+					this.add(this.sprite);
+				} else {
 
-				const geometry = new THREE.PlaneGeometry(1, 1);
-				geometry.rotateX(-Math.PI / 2);
-				const material = new THREE.MeshBasicMaterial({
-					map: tex,
-					transparent: true,
-					alphaTest: 0.3,
-				});
-				this.sprite = new THREE.Mesh(geometry, material);
-				this.add(this.sprite);
+				}
 			}
 
 			setBillboard(billboard: boolean, camera: Camera) {
@@ -66,8 +80,12 @@ namespace Renderer {
 			}*/
 
 			setScale(sx: number, sy: number) {
-				this.scaleUnflipped.set(sx, sy);
-				this.sprite.scale.set(this.scaleUnflipped.x * this.flipX, 1, this.scaleUnflipped.y * this.flipY);
+				if (this.sprite === undefined) {
+					const renderer = Renderer.Three.instance();
+				} else {
+					this.scaleUnflipped.set(sx, sy);
+					this.sprite.scale.set(this.scaleUnflipped.x * this.flipX, 1, this.scaleUnflipped.y * this.flipY);
+				}
 			}
 
 			setRotationY(rad: number) {

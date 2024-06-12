@@ -787,8 +787,9 @@ NetIo.Server = NetIo.EventingClass.extend({
 	},
 
 	parseCookie: function (str) {
-		return str?.split(';')
-			.map(v => v.split('='))
+		return str
+			?.split(';')
+			.map((v) => v.split('='))
 			.reduce((acc, v) => {
 				acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
 				return acc;
@@ -809,7 +810,7 @@ NetIo.Server = NetIo.EventingClass.extend({
 		const reqUrl = new URL(`https://www.modd.io${request.url}`);
 		const searchParams = reqUrl.searchParams;
 		const token = searchParams.get('token');
-		
+
 		if (taro.workerComponent && !taro.workerComponent.acceptingPlayers) {
 			socket.close('Server not accepting players, please try again later.');
 			console.log('Server not accepting players', token);
@@ -917,12 +918,13 @@ NetIo.Server = NetIo.EventingClass.extend({
 			try {
 				const cookies = self.parseCookie(request.headers?.cookie);
 				const guestUserToken = cookies?.modd_guest_token;
-				const decodedGuestUserToken = taro.workerComponent && guestUserToken ? await taro.workerComponent.verifyToken(guestUserToken) : {};
+				const decodedGuestUserToken =
+					taro.workerComponent && guestUserToken ? await taro.workerComponent.verifyToken(guestUserToken) : {};
 				guestUserId = decodedGuestUserToken?.guestUserId;
 			} catch (e) {
 				console.log('Error getting guestUserId', e);
 			}
-			
+
 			console.log('guestUser joining', guestUserId);
 
 			socket._guestUserId = guestUserId;

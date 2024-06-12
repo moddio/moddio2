@@ -3206,7 +3206,6 @@ var TaroEntity = TaroObject.extend({
 
 	transformTexture: function (x, y, z) {
 		if (!taro.isClient) return this;
-
 		this.emit('transform', {
 			x: x,
 			y: y,
@@ -5557,7 +5556,6 @@ var TaroEntity = TaroObject.extend({
 				this.transformTexture(this.nextKeyFrame[1][0], this.nextKeyFrame[1][1], this.nextKeyFrame[1][2]);
 			}
 		}
-
 		return this._isTransforming;
 	},
 

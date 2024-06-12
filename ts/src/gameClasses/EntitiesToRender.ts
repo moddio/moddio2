@@ -110,7 +110,7 @@ class EntitiesToRender {
 					entity.tween?.isTweening ||
 					entity.isTransforming() ||
 					entity == taro.client.selectedUnit ||
-					entity._category == 'item'
+					((entity.isTransforming() || entity.getOwnerUnit?.()) && entity._category == 'item')
 				) {
 					// var timeStart = performance.now();
 					entity.transformTexture(x, y, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
