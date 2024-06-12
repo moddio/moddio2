@@ -7,6 +7,9 @@ declare interface EntityStats {
 	defaultData: any;
 	isMobile: boolean;
 
+	width?: number;
+	height?: number;
+
 	name: string;
 	nameLabelColor?: string;
 	currentBody: {
