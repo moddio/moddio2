@@ -11,10 +11,15 @@ class RapierComponent extends TaroEventingClass {
 	// engine will always be rapier
 	engine = 'RAPIER';
 	_world: RAPIER.World;
+	eventQueue: RAPIER.EventQueue;
 	rigidBody: RAPIER.RigidBody;
 	rigidBodies = new Map<string, number>();
 	// scaleRatio = 30;
 	avgPhysicsTickDuration = 0;
+
+	_beginContactCallbacks = [];
+	_endContactCallbacks = [];
+
 	constructor() {
 		// core functionality / inherited
 		super();
@@ -32,6 +37,8 @@ class RapierComponent extends TaroEventingClass {
 
 		let gravity = { x: 0.0, y: -9.81, z: 0.0 };
 		this.world = new RAPIER.World(gravity);
+
+		this.eventQueue = new RAPIER.EventQueue(true);
 	}
 
 	createBody(entity: TaroEntity, body: b2Body): void {
@@ -84,7 +91,8 @@ class RapierComponent extends TaroEventingClass {
 		const colliderDesc = RAPIER.ColliderDesc.cuboid(halfWidth, 0.5, halfHeight)
 			.setDensity(density)
 			.setFriction(friction)
-			.setRestitution(restitution);
+			.setRestitution(restitution)
+			.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS);
 		this.world.createCollider(colliderDesc, rigidBody);
 	}
 
@@ -109,22 +117,26 @@ class RapierComponent extends TaroEventingClass {
 	}
 
 	staticsFromMap(): void {
+		const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed();
+		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
+		this.rigidBodies.set('statics', rigidBody.handle);
+
 		const floorLayer = taro.game.data.map.layers.find((l) => l.name === 'floor');
 		const floorMesh = generateLayerMesh(floorLayer);
 		let desc = RAPIER.ColliderDesc.trimesh(Float32Array.from(floorMesh.vertices), Uint32Array.from(floorMesh.indices));
-		this.world.createCollider(desc);
+		this.world.createCollider(desc, rigidBody);
 
 		const wallsLayer = taro.game.data.map.layers.find((l) => l.name === 'walls');
 		const wallsMesh = generateLayerMesh(wallsLayer);
 		desc = RAPIER.ColliderDesc.trimesh(Float32Array.from(wallsMesh.vertices), Uint32Array.from(wallsMesh.indices));
 		desc.setTranslation(0, 2, 0);
-		this.world.createCollider(desc);
+		this.world.createCollider(desc, rigidBody);
 
 		const treesLayer = taro.game.data.map.layers.find((l) => l.name === 'trees');
 		const treesMesh = generateLayerMesh(treesLayer);
 		desc = RAPIER.ColliderDesc.trimesh(Float32Array.from(treesMesh.vertices), Uint32Array.from(treesMesh.indices));
 		desc.setTranslation(0, 3, 0);
-		this.world.createCollider(desc);
+		this.world.createCollider(desc, rigidBody);
 	}
 
 	update(_dt: number): void {
@@ -160,7 +172,7 @@ class RapierComponent extends TaroEventingClass {
 			}
 		}
 
-		this.world.step();
+		this.world.step(this.eventQueue);
 
 		const keys = this.rigidBodies.keys();
 		for (const entityId of keys) {
@@ -198,6 +210,50 @@ class RapierComponent extends TaroEventingClass {
 				entity.velocity.z = vel.y;
 			}
 		}
+
+		this.eventQueue.drainCollisionEvents((handle1, handle2, started) => {
+			const collider1 = this.world.getCollider(handle1);
+			const collider2 = this.world.getCollider(handle2);
+
+			if (collider1 && collider2) {
+				const parent1 = collider1.parent();
+				const parent2 = collider2.parent();
+
+				if (parent1 && parent2) {
+					let entityId1 = '';
+					let entityId2 = '';
+
+					// TODO: Optimize this (maybe add another map for colliders to entities)
+					for (const [entityId, rigidBodyHandle] of this.rigidBodies.entries()) {
+						if (rigidBodyHandle === parent1.handle) {
+							entityId1 = entityId;
+						} else if (rigidBodyHandle === parent2.handle) {
+							entityId2 = entityId;
+						}
+					}
+
+					if (entityId1 && entityId2) {
+						if (started) {
+							for (const callback of this._beginContactCallbacks) {
+								callback(entityId1, entityId2);
+							}
+						} else {
+							for (const callback of this._endContactCallbacks) {
+								callback(entityId1, entityId2);
+							}
+						}
+					}
+				}
+			}
+		});
+	}
+
+	addBeginContactCallback(callback: (entityId1: string, entityId2: string) => void) {
+		this._beginContactCallbacks.push(callback);
+	}
+
+	addEndContactCallback(callback: (entityId1: string, entityId2: string) => void) {
+		this._endContactCallbacks.push(callback);
 	}
 
 	useWorker(...args: any[]): void {}
@@ -220,8 +276,6 @@ class RapierComponent extends TaroEventingClass {
 	destroy(...args: any[]): void {}
 	_triggerContactEvent(...args: any[]): void {}
 	_triggerLeaveEvent(...args: any[]): void {}
-	_beginContactCallback(...args: any[]): void {}
-	_endContactCallback(...args: any[]): void {}
 	_enableContactListener(...args: any[]): void {}
 }
 
