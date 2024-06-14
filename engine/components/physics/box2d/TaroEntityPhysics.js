@@ -658,6 +658,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		// const step = z - this._rotate.z;
 
+		// console.log(THREE.Vector3);
+
 		// Call the original method
 		this._rotateToProto(x, y, z);
 
@@ -666,6 +668,25 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this.physicsRotation.y = q.y;
 		this.physicsRotation.z = q.z;
 		this.physicsRotation.w = q.w;
+
+		// const q = new THREE.Quaternion(
+		// 	this.physicsRotation.x,
+		// 	this.physicsRotation.y,
+		// 	this.physicsRotation.z,
+		// 	this.physicsRotation.w
+		// );
+
+		// const obj = new THREE.Object3D();
+		// obj.quaternion.copy(q);
+		// obj.rotation.y = -z;
+		// q.copy(obj.quaternion);
+
+		// console.log(obj.rotation);
+
+		// this.physicsRotation.x = q.x;
+		// this.physicsRotation.y = q.y;
+		// this.physicsRotation.z = q.z;
+		// this.physicsRotation.w = q.w;
 
 		// const axis = { x: 0, y: 1, z: 0 };
 		// const q = { x: 0, y: 0, z: 0, w: 1 };
