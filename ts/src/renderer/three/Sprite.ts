@@ -2,7 +2,7 @@ namespace Renderer {
 	export namespace Three {
 		export class Sprite extends Node {
 			sprite: THREE.InstancedMesh;
-			
+			idx: number;
 			tex_source_uuid: string;
 			billboard = false;
 			scaleUnflipped = new THREE.Vector2(1, 1);
@@ -26,15 +26,19 @@ namespace Renderer {
 					});
 					this.sprite = new THREE.InstancedMesh(geometry, material, 6000);
 					instancedMeshesData[tex.source.uuid] = {
-						positions: [],
-						rotations: [],
-						scales: [],
+						positions: [[0, 0]],
+						rotations: [[0, 0]],
+						scales: [[0, 0]],
 						mesh: this.sprite,
 					};
+
 					this.sprite.count = 1;
+					this.idx = 0;
 					this.add(this.sprite);
 				} else {
-
+					instancedMeshesData[tex.source.uuid].positions.push([0, 0]);
+					this.idx = instancedMeshesData[tex.source.uuid].positions.length - 1;
+					instancedMeshesData[tex.source.uuid].mesh.count += 1;
 				}
 			}
 
@@ -82,6 +86,14 @@ namespace Renderer {
 			setScale(sx: number, sy: number) {
 				if (this.sprite === undefined) {
 					const renderer = Renderer.Three.instance();
+					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
+					const dummy = new THREE.Object3D();
+					dummy.scale.set(sx * this.flipX, 1, sy * this.flipY);
+					dummy.updateMatrix();
+					if (mesh.count < this.idx) {
+						mesh.count = this.idx;
+					}
+					mesh.setMatrixAt(this.idx, dummy.matrix);
 				} else {
 					this.scaleUnflipped.set(sx, sy);
 					this.sprite.scale.set(this.scaleUnflipped.x * this.flipX, 1, this.scaleUnflipped.y * this.flipY);
@@ -89,7 +101,19 @@ namespace Renderer {
 			}
 
 			setRotationY(rad: number) {
-				this.sprite.rotation.y = rad;
+				if (this.sprite === undefined) {
+					const renderer = Renderer.Three.instance();
+					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
+					const dummy = new THREE.Object3D();
+					dummy.rotation.y = rad;
+					dummy.updateMatrix();
+					if (mesh.count < this.idx) {
+						mesh.count = this.idx;
+					}
+					mesh.setMatrixAt(this.idx, dummy.matrix);
+				} else {
+					this.sprite.rotation.y = rad;
+				}
 			}
 
 			setDepth(depth: number) {
@@ -98,7 +122,14 @@ namespace Renderer {
 			}
 
 			setTexture(tex: THREE.Texture) {
-				(this.sprite.material as THREE.MeshBasicMaterial).map = tex;
+				//|| (this.sprite.count !== 1 && this.idx === 0)
+				if (this.sprite === undefined) {
+					const renderer = Renderer.Three.instance();
+					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
+					(mesh.material as THREE.MeshBasicMaterial).map = tex;
+				} else {
+					(this.sprite.material as THREE.MeshBasicMaterial).map = tex;
+				}
 			}
 
 			setFlip(x: boolean, y: boolean) {
@@ -129,7 +160,19 @@ namespace Renderer {
 			}
 
 			private calcRenderOrder() {
-				this.sprite.position.y = Utils.getDepthZOffset(this.depth);
+				if (this.sprite === undefined) {
+					const renderer = Renderer.Three.instance();
+					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
+					const dummy = new THREE.Object3D();
+					dummy.position.y = Utils.getDepthZOffset(this.depth);
+					dummy.updateMatrix();
+					if (mesh.count < this.idx) {
+						mesh.count = this.idx;
+					}
+					mesh.setMatrixAt(this.idx, dummy.matrix);
+				} else {
+					this.sprite.position.y = Utils.getDepthZOffset(this.depth);
+				}
 			}
 
 			private faceCamera(camera: Camera) {

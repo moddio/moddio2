@@ -49,7 +49,12 @@ namespace Renderer {
 			public entityEditor: EntityEditor;
 			public instancedMeshesData: Record<
 				string,
-				{ positions: number[]; rotations: number[]; scales: number[]; mesh: THREE.InstancedMesh }
+				{
+					positions: [number, number][];
+					rotations: [number, number][];
+					scales: [number, number][];
+					mesh: THREE.InstancedMesh;
+				}
 			> = {};
 			private showRepublishWarning: boolean;
 

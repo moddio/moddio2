@@ -44,43 +44,70 @@ namespace Renderer {
 				taroEntity.on(
 					'transform',
 					(data: { x: number; y: number; rotation: number }) => {
-						entity.position.x = Utils.pixelToWorld(data.x);
-						entity.position.z = Utils.pixelToWorld(data.y);
+						const renderer = Renderer.Three.instance();
+						if (entity.body instanceof AnimatedSprite && entity.body.sprite === undefined) {
+							const mesh = renderer.instancedMeshesData[entity.body.tex_source_uuid].mesh;
+							// if (
+							// 	JSON.stringify(renderer.instancedMeshesData[entity.body.tex_source_uuid].positions[entity.body.idx]) !==
+							// 	JSON.stringify([Utils.pixelToWorld(data.x), Utils.pixelToWorld(data.y)])
+							// ) {
+							renderer.instancedMeshesData[entity.body.tex_source_uuid].positions[entity.body.idx] = [
+								Utils.pixelToWorld(data.x),
+								Utils.pixelToWorld(data.y),
+							];
+							const dummy = new THREE.Object3D();
+							dummy.position.x = Utils.pixelToWorld(data.x);
+							dummy.position.z = Utils.pixelToWorld(data.y);
+							dummy.updateMatrix();
+							if (entity.body.idx > mesh.count) {
+								mesh.count = entity.body.idx;
+							}
+							mesh.setMatrixAt(entity.body.idx, dummy.matrix);
+							mesh.position.set(0, 0, 0);
+							mesh.parent.position.set(0, 0, 0);
+							mesh.parent.parent.position.set(0, 0, 0);
+							// }
+						} else {
+							entity.position.x = Utils.pixelToWorld(data.x);
+							entity.position.z = Utils.pixelToWorld(data.y);
+							if (entity.ownerUnit) {
+								const parent = entity.ownerUnit;
+								entity.position.y = parent.position.y;
 
-						if (entity.ownerUnit) {
-							const parent = entity.ownerUnit;
-							entity.position.y = parent.position.y;
+								const anchoredOffset = entity.taroEntity?.anchoredOffset;
+								if (anchoredOffset) {
+									let x = Utils.pixelToWorld(anchoredOffset.x);
+									let y = Utils.pixelToWorld(anchoredOffset.y);
 
-							const anchoredOffset = entity.taroEntity?.anchoredOffset;
-							if (anchoredOffset) {
-								let x = Utils.pixelToWorld(anchoredOffset.x);
-								let y = Utils.pixelToWorld(anchoredOffset.y);
-
-								// This should be a local/world coordinates flag on the entity body.
-								if (entity.taroEntity?._stats.type == 'weapon') {
-									entity.position.x += x;
-									entity.position.z += y;
-								} else {
-									if (entity.body instanceof AnimatedSprite) {
-										entity.body.sprite.position.x = x;
-										entity.body.sprite.position.z = y;
+									// This should be a local/world coordinates flag on the entity body.
+									if (entity.taroEntity?._stats.type == 'weapon') {
+										entity.position.x += x;
+										entity.position.z += y;
+									} else {
+										if (entity.body instanceof AnimatedSprite) {
+											if (entity.body.sprite !== undefined) {
+												entity.body.sprite.position.x = x;
+												entity.body.sprite.position.z = y;
+											}
+										}
 									}
 								}
+							} else if (
+								entity.body instanceof AnimatedSprite &&
+								entity.body.sprite &&
+								(entity.body.sprite.position.x != 0 || entity.body.sprite.position.z != 0)
+							) {
+								entity.body.sprite.position.x = 0;
+								entity.body.sprite.position.z = 0;
 							}
-						} else if (
-							entity.body instanceof AnimatedSprite &&
-							(entity.body.sprite.position.x != 0 || entity.body.sprite.position.z != 0)
-						) {
-							entity.body.sprite.position.x = 0;
-							entity.body.sprite.position.z = 0;
-						}
 
-						if (entity.body instanceof AnimatedSprite) {
-							entity.body.setRotationY(-data.rotation);
-							const flip = taroEntity._stats.flip;
-							entity.body.setFlip(flip % 2 === 1, flip > 1);
-						} else {
-							entity.body.rotation.y = -data.rotation;
+							if (entity.body instanceof AnimatedSprite) {
+								entity.body.setRotationY(-data.rotation);
+								const flip = taroEntity._stats.flip;
+								entity.body.setFlip(flip % 2 === 1, flip > 1);
+							} else {
+								entity.body.rotation.y = -data.rotation;
+							}
 						}
 					},
 					this
