@@ -6,7 +6,7 @@ declare interface EntityStats {
 	userId: string;
 	defaultData: any;
 	isMobile: boolean;
-
+	isInstanced: boolean;
 	name: string;
 	nameLabelColor?: string;
 	currentBody: {

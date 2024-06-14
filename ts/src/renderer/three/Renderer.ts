@@ -20,6 +20,18 @@ namespace Renderer {
 			return Renderer.getVoxels();
 		}
 
+		export function editInstanceMesh(
+			editData: {
+				position?: [number, number, number];
+				rotation?: [number, number, number];
+				scale?: [number, number, number];
+			},
+			mesh: THREE.InstancedMesh,
+			idx: number
+		) {
+			return Renderer.editInstanceMesh(editData, mesh, idx);
+		}
+
 		class Renderer {
 			private static _instance: Renderer;
 			renderer: THREE.WebGLRenderer;
@@ -487,6 +499,28 @@ namespace Renderer {
 				}
 
 				return this._instance;
+			}
+
+			static editInstanceMesh(
+				editData: {
+					position?: [number, number, number];
+					rotation?: [number, number, number];
+					scale?: [number, number, number];
+				},
+				mesh: THREE.InstancedMesh,
+				idx: number
+			) {
+				const dummy = new THREE.Object3D();
+				Object.keys(editData).forEach((k) => {
+					dummy[k].set(editData[k][0], editData[k][1], editData[k][2]);
+				});
+				dummy.updateMatrix();
+				if (mesh.count < idx) {
+					mesh.count = idx;
+				}
+				mesh.setMatrixAt(idx, dummy.matrix);
+				mesh.instanceMatrix.needsUpdate = true;
+				mesh.computeBoundingBox();
 			}
 
 			static getPointer() {

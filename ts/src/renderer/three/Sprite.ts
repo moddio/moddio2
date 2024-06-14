@@ -1,9 +1,11 @@
 namespace Renderer {
 	export namespace Three {
 		export class Sprite extends Node {
-			sprite: THREE.InstancedMesh;
+			sprite: THREE.Mesh;
+			instancedSprite: THREE.InstancedMesh;
 			idx: number;
 			tex_source_uuid: string;
+			texture: THREE.Texture;
 			billboard = false;
 			scaleUnflipped = new THREE.Vector2(1, 1);
 
@@ -12,33 +14,91 @@ namespace Renderer {
 			private flipY = 1;
 			private angleOffset = 0;
 
-			constructor(protected tex: THREE.Texture) {
+			constructor(
+				protected tex: THREE.Texture,
+				instanced = false
+			) {
 				super();
 				const instancedMeshesData = Renderer.Three.instance().instancedMeshesData;
 				this.tex_source_uuid = tex.source.uuid;
-				if (instancedMeshesData[tex.source.uuid] === undefined) {
-					const geometry = new THREE.PlaneGeometry(1, 1);
-					geometry.rotateX(-Math.PI / 2);
-					const material = new THREE.MeshBasicMaterial({
-						map: tex,
-						transparent: true,
-						alphaTest: 0.3,
-					});
-					this.sprite = new THREE.InstancedMesh(geometry, material, 6000);
-					instancedMeshesData[tex.source.uuid] = {
-						positions: [[0, 0]],
-						rotations: [[0, 0]],
-						scales: [[0, 0]],
-						mesh: this.sprite,
+				this.texture = tex;
+				if (instanced) {
+					if (instancedMeshesData[tex.source.uuid] === undefined) {
+						const geometry = new THREE.PlaneGeometry(0.625, 0.625);
+						geometry.rotateX(-Math.PI / 2);
+						const material = new THREE.MeshBasicMaterial({
+							map: tex,
+							transparent: true,
+							alphaTest: 0.3,
+						});
+						this.instancedSprite = new THREE.InstancedMesh(geometry, material, 6000);
+						instancedMeshesData[tex.source.uuid] = {
+							positions: [[0, 0]],
+							rotations: [[0, 0]],
+							scales: [[0, 0]],
+							mesh: this.instancedSprite,
+						};
+
+						this.instancedSprite.count = 1;
+						this.idx = 0;
+						this.add(this.instancedSprite);
+					} else {
+						instancedMeshesData[tex.source.uuid].positions.push([0, 0]);
+						this.idx = instancedMeshesData[tex.source.uuid].positions.length - 1;
+						instancedMeshesData[tex.source.uuid].mesh.count += 1;
+					}
+				} else {
+					this.initSprite();
+				}
+			}
+
+			initSprite() {
+				const geometry = new THREE.PlaneGeometry(1, 1);
+				geometry.rotateX(-Math.PI / 2);
+				const material = new THREE.MeshBasicMaterial({
+					map: this.texture,
+					transparent: true,
+					alphaTest: 0.3,
+				});
+				this.sprite = new THREE.Mesh(geometry, material);
+				this.add(this.sprite);
+			}
+
+			removeSprite() {
+				if (this.sprite) {
+					this.sprite.removeFromParent();
+
+					const cleanMaterial = (material) => {
+						material.dispose();
+						for (const key of Object.keys(material)) {
+							const value = material[key];
+							if (value && typeof value.dispose === 'function') {
+								value.dispose();
+							}
+						}
 					};
 
-					this.sprite.count = 1;
-					this.idx = 0;
-					this.add(this.sprite);
-				} else {
-					instancedMeshesData[tex.source.uuid].positions.push([0, 0]);
-					this.idx = instancedMeshesData[tex.source.uuid].positions.length - 1;
-					instancedMeshesData[tex.source.uuid].mesh.count += 1;
+					this.sprite.traverse((object) => {
+						if (!(object as THREE.Mesh).isMesh && !(object as THREE.Sprite).isSprite) return;
+
+						const obj = object as THREE.Mesh | THREE.Sprite;
+
+						if ((obj as THREE.Mesh).isMesh) {
+							obj.geometry.dispose();
+						}
+
+						const material = obj.material as THREE.Material;
+
+						if (material.isMaterial) {
+							cleanMaterial(obj.material);
+						} else {
+							for (const material of obj.material as THREE.Material[]) {
+								cleanMaterial(material);
+							}
+						}
+					});
+
+					this.sprite = undefined;
 				}
 			}
 
@@ -87,13 +147,13 @@ namespace Renderer {
 				if (this.sprite === undefined) {
 					const renderer = Renderer.Three.instance();
 					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
-					const dummy = new THREE.Object3D();
-					dummy.scale.set(sx * this.flipX, 1, sy * this.flipY);
-					dummy.updateMatrix();
-					if (mesh.count < this.idx) {
-						mesh.count = this.idx;
-					}
-					mesh.setMatrixAt(this.idx, dummy.matrix);
+					Renderer.Three.editInstanceMesh(
+						{
+							scale: [sx * this.flipX, 1, sy * this.flipY],
+						},
+						mesh,
+						this.idx
+					);
 				} else {
 					this.scaleUnflipped.set(sx, sy);
 					this.sprite.scale.set(this.scaleUnflipped.x * this.flipX, 1, this.scaleUnflipped.y * this.flipY);
@@ -104,13 +164,13 @@ namespace Renderer {
 				if (this.sprite === undefined) {
 					const renderer = Renderer.Three.instance();
 					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
-					const dummy = new THREE.Object3D();
-					dummy.rotation.y = rad;
-					dummy.updateMatrix();
-					if (mesh.count < this.idx) {
-						mesh.count = this.idx;
-					}
-					mesh.setMatrixAt(this.idx, dummy.matrix);
+					Renderer.Three.editInstanceMesh(
+						{
+							rotation: [0, rad, 0],
+						},
+						mesh,
+						this.idx
+					);
 				} else {
 					this.sprite.rotation.y = rad;
 				}
@@ -163,13 +223,13 @@ namespace Renderer {
 				if (this.sprite === undefined) {
 					const renderer = Renderer.Three.instance();
 					const mesh = renderer.instancedMeshesData[this.tex_source_uuid].mesh;
-					const dummy = new THREE.Object3D();
-					dummy.position.y = Utils.getDepthZOffset(this.depth);
-					dummy.updateMatrix();
-					if (mesh.count < this.idx) {
-						mesh.count = this.idx;
-					}
-					mesh.setMatrixAt(this.idx, dummy.matrix);
+					Renderer.Three.editInstanceMesh(
+						{
+							position: [0, Utils.getDepthZOffset(this.depth), 0],
+						},
+						mesh,
+						this.idx
+					);
 				} else {
 					this.sprite.position.y = Utils.getDepthZOffset(this.depth);
 				}

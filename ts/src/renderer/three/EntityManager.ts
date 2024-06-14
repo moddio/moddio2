@@ -111,7 +111,6 @@ namespace Renderer {
 					item.taroEntity.on('setOwnerUnit', (unitId: string) => {
 						item.ownerUnitId = unitId;
 						item.ownerUnit = this.units.find((unit) => unit.taroId === unitId);
-
 						if (item.ownerUnit && this.unownedItems.has(item.taroId)) {
 							this.unownedItems.delete(item.taroId);
 						}

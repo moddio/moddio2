@@ -23,7 +23,7 @@ namespace Renderer {
 					const frameWidth = tex.image.width / cols;
 					const frameHeight = tex.image.height / rows;
 					const spriteSheet = new TextureSheet(key, tex, frameWidth, frameHeight);
-					this.body = new AnimatedSprite(spriteSheet);
+					this.body = new AnimatedSprite(spriteSheet, taroEntity._stats.isInstanced);
 				}
 				this.add(this.body);
 
@@ -32,7 +32,6 @@ namespace Renderer {
 
 			static create(taroEntity: TaroEntityPhysics) {
 				const entity = new Item(taroEntity._id, taroEntity._stats.ownerId, taroEntity);
-
 				if (entity.body instanceof AnimatedSprite) {
 					taroEntity.on('depth', (depth) => (entity.body as AnimatedSprite).setDepth(depth));
 					taroEntity.on('flip', (flip) => (entity.body as AnimatedSprite).setFlip(flip % 2 === 1, flip > 1));
@@ -45,32 +44,52 @@ namespace Renderer {
 					'transform',
 					(data: { x: number; y: number; rotation: number }) => {
 						const renderer = Renderer.Three.instance();
-						if (entity.body instanceof AnimatedSprite && entity.body.sprite === undefined) {
+
+						if (
+							entity.body instanceof AnimatedSprite &&
+							renderer.instancedMeshesData[entity.body.tex_source_uuid] !== undefined &&
+							!entity.ownerUnit
+						) {
 							const mesh = renderer.instancedMeshesData[entity.body.tex_source_uuid].mesh;
-							// if (
-							// 	JSON.stringify(renderer.instancedMeshesData[entity.body.tex_source_uuid].positions[entity.body.idx]) !==
-							// 	JSON.stringify([Utils.pixelToWorld(data.x), Utils.pixelToWorld(data.y)])
-							// ) {
 							renderer.instancedMeshesData[entity.body.tex_source_uuid].positions[entity.body.idx] = [
 								Utils.pixelToWorld(data.x),
 								Utils.pixelToWorld(data.y),
 							];
-							const dummy = new THREE.Object3D();
-							dummy.position.x = Utils.pixelToWorld(data.x) * 1.6;
-							dummy.position.z = Utils.pixelToWorld(data.y) * 1.6;
-							dummy.updateMatrix();
-							if (entity.body.idx > mesh.count) {
-								mesh.count = entity.body.idx;
-							}
-							mesh.setMatrixAt(entity.body.idx, dummy.matrix);
+							Renderer.Three.editInstanceMesh(
+								{
+									position: [Utils.pixelToWorld(data.x), 1, Utils.pixelToWorld(data.y)],
+								},
+								mesh,
+								entity.body.idx
+							);
 							mesh.position.set(0, 0, 0);
 							mesh.parent.position.set(0, 0, 0);
 							mesh.parent.parent.position.set(0, 0, 0);
-							// }
+							if (entity.body.sprite) {
+								Renderer.Three.editInstanceMesh(
+									{
+										scale: [entity.body.sprite.scale.x, 1, entity.body.sprite.scale.z],
+									},
+									mesh,
+									entity.body.idx
+								);
+								entity.body.removeSprite();
+							}
 						} else {
 							entity.position.x = Utils.pixelToWorld(data.x);
 							entity.position.z = Utils.pixelToWorld(data.y);
 							if (entity.ownerUnit) {
+								if (entity.body instanceof AnimatedSprite && entity.body.sprite === undefined) {
+									const mesh = renderer.instancedMeshesData[entity.body.tex_source_uuid].mesh;
+									Renderer.Three.editInstanceMesh(
+										{
+											scale: [0, 0, 0],
+										},
+										mesh,
+										entity.body.idx
+									);
+									entity.body.initSprite();
+								}
 								const parent = entity.ownerUnit;
 								entity.position.y = parent.position.y;
 

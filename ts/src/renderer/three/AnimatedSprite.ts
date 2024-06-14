@@ -13,8 +13,11 @@ namespace Renderer {
 			private repeat = 0;
 			private cycle = 0;
 
-			constructor(private spriteSheet: TextureSheet) {
-				super(spriteSheet.texture);
+			constructor(
+				private spriteSheet: TextureSheet,
+				instanced = false
+			) {
+				super(spriteSheet.texture, instanced);
 
 				this.tileH = 1 / (spriteSheet.width / spriteSheet.tileWidth);
 				this.tileV = 1 / (spriteSheet.height / spriteSheet.tileHeight);
