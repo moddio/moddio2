@@ -68,6 +68,7 @@ var defaultConfig = [
 	{ name: 'Utils', path: '../src/utils/Utils' },
 
 	{ name: 'Earcut', path: '../src/lib/Earcut' },
+	{ name: 'THREE', path: '../src/lib/three.min' },
 ];
 
 var config = {
