@@ -56,8 +56,8 @@ namespace Renderer {
 								Utils.pixelToWorld(data.y),
 							];
 							const dummy = new THREE.Object3D();
-							dummy.position.x = Utils.pixelToWorld(data.x);
-							dummy.position.z = Utils.pixelToWorld(data.y);
+							dummy.position.x = Utils.pixelToWorld(data.x) * 1.6;
+							dummy.position.z = Utils.pixelToWorld(data.y) * 1.6;
 							dummy.updateMatrix();
 							if (entity.body.idx > mesh.count) {
 								mesh.count = entity.body.idx;
