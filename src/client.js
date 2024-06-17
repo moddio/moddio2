@@ -268,7 +268,7 @@ const Client = TaroEventingClass.extend({
 					this.servers = this.getServersArray();
 				}
 				// undefined if our params did not have a serverId
-				this.preSelectedServerId = params.serverId;
+				this.preSelectedServerId = window.preSelectedServerId || params.serverId;
 
 				if (this.preSelectedServerId) {
 					//

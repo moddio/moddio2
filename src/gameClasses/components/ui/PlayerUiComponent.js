@@ -228,7 +228,7 @@ var PlayerUiComponent = TaroEntity.extend({
 	},
 
 	showFriendsModal: function (config) {
-		$('#invite-friends-modal').modal('show');
+		window.reactApp?.openShareModal?.();
 	},
 
 	// open a modal to ask for input

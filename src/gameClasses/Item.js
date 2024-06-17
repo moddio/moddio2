@@ -70,6 +70,14 @@ var Item = TaroEntityPhysics.extend({
 			// must create Phaser item before emitting init events
 			taro.client.emit('create-item', this);
 			this.initParticleEmitters();
+
+			if (this._stats.ownerUnitId) {
+				const ownerUnit = taro.$(this._stats.ownerUnitId);
+				if (ownerUnit) {
+					ownerUnit.ownedItems[this.id()] = this;
+				}
+				//this.setOwnerUnit(taro.$(this._stats.ownerUnitId));
+			}
 		}
 		self.setState(self._stats.stateId, self._stats.defaultData);
 
@@ -216,13 +224,19 @@ var Item = TaroEntityPhysics.extend({
 
 		if (newOwner == oldOwner) return;
 		if (newOwner) {
-			if (taro.isClient && newOwner == taro.client.selectedUnit) {
-				if (newOwner._stats.currentItemIndex !== this._stats.slotIndex) {
-					this.setState('unselected');
+			if (taro.isClient) {
+				if (oldOwner) {
+					delete oldOwner.ownedItems[this.id()];
 				}
+				newOwner.ownedItems[this.id()] = this;
+				if (newOwner == taro.client.selectedUnit) {
+					if (newOwner._stats.currentItemIndex !== this._stats.slotIndex) {
+						this.setState('unselected');
+					}
 
-				if (newOwner.inventory) {
-					newOwner.inventory.isDirty = true;
+					if (newOwner.inventory) {
+						newOwner.inventory.isDirty = true;
+					}
 				}
 			}
 
@@ -239,6 +253,12 @@ var Item = TaroEntityPhysics.extend({
 
 			if (this._stats.oldOwnerUnitId) {
 				this._stats.oldOwnerUnitId = null;
+			}
+
+			if (taro.isClient) {
+				if (oldOwner) {
+					delete oldOwner.ownedItems[this.id()];
+				}
 			}
 
 			if (taro.isServer) {

@@ -159,6 +159,7 @@ var ActionComponent = TaroEntity.extend({
 											{
 												type: 'sendPlayerToMap',
 												gameSlug: res.gameSlug,
+												gameId: res.gameId,
 												autoJoinToken: res.autoJoinTokens[player._stats.userId || 'guest'],
 											},
 											player._stats.clientId
@@ -198,6 +199,7 @@ var ActionComponent = TaroEntity.extend({
 											{
 												type: 'sendPlayerToMap',
 												gameSlug: res.gameSlug,
+												gameId: res.gameId,
 												autoJoinToken: res.autoJoinTokens[player._stats.userId || 'guest'],
 												serverId: res.serverId,
 											},
@@ -224,6 +226,7 @@ var ActionComponent = TaroEntity.extend({
 											{
 												type: 'sendPlayerToMap',
 												gameSlug: res.gameSlug,
+												gameId: res.gameId,
 												autoJoinToken: res.autoJoinTokens[player._stats.userId || 'guest'],
 											},
 											player._stats.clientId

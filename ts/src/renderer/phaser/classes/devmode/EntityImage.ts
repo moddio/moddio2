@@ -204,7 +204,7 @@ class EntityImage {
 
 	update(action: ActionData): void {
 		//update action in editor
-		if (inGameEditor && inGameEditor.updateAction) {
+		if (inGameEditor && inGameEditor.updateAction && !window.isStandalone) {
 			inGameEditor.updateAction(action);
 		}
 		if (action.wasEdited) this.action.wasEdited = true;

@@ -91,6 +91,8 @@ var Unit = TaroEntityPhysics.extend({
 
 		self._stats.buffs = [];
 
+		self.ownedItems = {};
+
 		if (taro.isServer) {
 			// store mapping between clientIds (to whom minimap unit of this unit is visible)
 			// and their respective color because sometimes it may happen that unit is not yet created on client

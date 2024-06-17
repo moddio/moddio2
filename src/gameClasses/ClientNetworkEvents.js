@@ -851,8 +851,13 @@ var ClientNetworkEvents = {
 
 	_onSendPlayerToMap: function (data) {
 		if (data && data.type == 'sendPlayerToMap') {
-			const mapUrl = `${window.location.origin}/play/${data.gameSlug}?autojoin=true&autoJoinToken=${data.autoJoinToken}${data.serverId ? '&serverId=' + data.serverId : ''}`;
-			window.location.href = mapUrl;
+			if (window.STATIC_EXPORT_ENABLED) {
+				window.sessionStorage.setItem('redirectToGameData', JSON.stringify(data));
+				window.location.reload();
+			} else {
+				const mapUrl = `${window.location.origin}/play/${data.gameSlug}?autojoin=true&autoJoinToken=${data.autoJoinToken}${data.serverId ? '&serverId=' + data.serverId : ''}`;
+				window.location.href = mapUrl;
+			}
 		}
 	},
 };

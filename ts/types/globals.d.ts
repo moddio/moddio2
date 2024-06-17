@@ -16,6 +16,7 @@ declare const RoundRectanglePlugin: any;
 interface Window {
 	taro: TaroEngine;
 	toastErrorMessage: Function;
+	isStandalone: Boolean;
 }
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[]
 	? ElementType

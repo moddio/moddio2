@@ -2138,6 +2138,15 @@ var TaroEntity = TaroObject.extend({
 				}
 
 				this.tween.start(effect.tween, angle);
+
+				// run tween for all items carried by this unit
+				if (this._category === 'unit' && this.ownedItems) {
+					Object.values(this.ownedItems).forEach((item) => {
+						if (item) {
+							item.tween.start(effect.tween, angle);
+						}
+					});
+				}
 			}
 		}
 	},
