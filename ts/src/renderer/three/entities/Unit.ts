@@ -80,21 +80,16 @@ namespace Renderer {
 
 				taroEntity.on(
 					'transform',
-					(data: {
-						x: number;
-						y: number;
-						z: number;
-						rotation: { x: number; y: number; z: number; w: number };
-						oldRot: number;
-					}) => {
+					(data: { x: number; y: number; rotation: number }) => {
 						entity.position.x = Utils.pixelToWorld(data.x);
-						entity.position.y = Utils.pixelToWorld(data.z);
+						// entity.position.y = Utils.pixelToWorld(data.z);
 						entity.position.z = Utils.pixelToWorld(data.y);
 
-						const q = data.rotation;
+						// const q = data.rotation;
 
 						if (entity.body instanceof AnimatedSprite) {
-							entity.body.sprite.quaternion.set(q.x, q.y, q.z, q.w);
+							// entity.body.sprite.quaternion.set(q.x, q.y, q.z, q.w);
+							entity.body.setRotationY(-data.rotation);
 
 							// Maybe use this later, first fix correct init physics body rotation
 							// entity.body.sprite.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI);
@@ -102,7 +97,8 @@ namespace Renderer {
 							const flip = taroEntity._stats.flip;
 							entity.body.setFlip(flip % 2 === 1, flip > 1);
 						} else {
-							entity.body.quaternion.set(q.x, q.y, q.z, q.w);
+							// entity.body.quaternion.set(q.x, q.y, q.z, q.w);
+							entity.body.rotation.y = -data.rotation;
 						}
 					},
 					this

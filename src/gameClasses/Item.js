@@ -1236,15 +1236,14 @@ var Item = TaroEntityPhysics.extend({
 			self.anchoredOffset = self.getAnchoredOffset(rotate);
 			var x = ownerUnit._translate.x + self.anchoredOffset.x;
 			var y = ownerUnit._translate.y + self.anchoredOffset.y;
-			var z = ownerUnit._translate.z;
 
 			if (taro.isServer) {
 				// for client-side, translate+rotate is handled in entitiesToRender.ts
-				self.translateTo(x, y, z);
+				self.translateTo(x, y);
 				self.rotateTo(0, 0, rotate);
 			} else {
 				// for updating physics body of this item
-				self.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, z], [0, 0, rotate]];
+				self.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, rotate]];
 			}
 
 			if (taro.isServer || (taro.isClient && taro.client.selectedUnit == ownerUnit)) {

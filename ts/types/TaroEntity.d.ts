@@ -40,7 +40,7 @@ declare class TaroEntity extends TaroObject {
 
 	getOwnerUnit(): TaroEntity | undefined;
 	streamUpdateData(queuedData: UpdateData[]);
-	emitTransformOnClient(x: number, y: number, z: number, rotate: number, type?: boolean);
+	emitTransformOnClient(x: number, y: number, rotate: number, type?: boolean);
 
 	flip(flip: FlipMode): void;
 

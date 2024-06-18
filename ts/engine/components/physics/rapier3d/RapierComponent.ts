@@ -154,9 +154,13 @@ class RapierComponent extends TaroEventingClass {
 						rigidBody.setLinvel({ x: x, y: y, z: z }, true);
 					}
 				} else {
-					const x = entity.serverPosition.x / 64;
-					const y = entity.serverPosition.z / 64;
-					const z = entity.serverPosition.y / 64;
+					// const x = entity.serverPosition.x / 64;
+					// const y = entity.serverPosition.z / 64;
+					// const z = entity.serverPosition.y / 64;
+
+					const x = entity.nextKeyFrame[1][0] / 64;
+					const y = 1;
+					const z = entity.nextKeyFrame[1][1] / 64;
 					rigidBody.setTranslation({ x, y, z }, true);
 				}
 
@@ -192,7 +196,7 @@ class RapierComponent extends TaroEventingClass {
 				const pos = rigidBody.translation();
 				entity._translate.x = pos.x * 64;
 				entity._translate.y = pos.z * 64;
-				entity._translate.z = pos.y * 64;
+				// entity._translate.z = pos.y * 64;
 
 				entity.physicsPosition.x = entity._translate.x;
 				entity.physicsPosition.y = entity._translate.y;

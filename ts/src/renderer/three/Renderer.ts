@@ -835,7 +835,7 @@ namespace Renderer {
 				const { vertices } = taro.physics.world().debugRender();
 				this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-				this.renderDebugShapes(this.entityManager.entities, accumulator);
+				// this.renderDebugShapes(this.entityManager.entities, accumulator);
 
 				TWEEN.update();
 				this.renderer.render(this.scene, this.camera.instance);

@@ -182,8 +182,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 			if (defaultData.translate) {
 				var x = defaultData.translate.x;
 				var y = defaultData.translate.y;
-				var z = defaultData.translate.z;
-				this.teleportTo(x, y, z, rotate);
+				// var z = defaultData.translate.z;
+				this.teleportTo(x, y, rotate);
 			}
 
 			// immediately apply speed if assigned

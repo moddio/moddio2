@@ -479,44 +479,52 @@ var TaroNetIoClient = {
 							var entityData = snapshot[i].slice(1).split('&');
 							var entityId = entityData[0];
 							entityData.shift();
-							var px = parseInt(entityData[0], 16);
-							var py = parseInt(entityData[1], 16);
-							var pz = parseInt(entityData[2], 16);
-							var rx = parseInt(entityData[3], 16) / 1000;
-							var ry = parseInt(entityData[4], 16) / 1000;
-							var rz = parseInt(entityData[5], 16) / 1000;
-							var qx = parseInt(entityData[6], 16) / 1000;
-							var qy = parseInt(entityData[7], 16) / 1000;
-							var qz = parseInt(entityData[8], 16) / 1000;
-							var qw = parseInt(entityData[9], 16) / 1000;
-							// console.log(entityId, 'translate:  ', [x, y, z], 'rotate:  ', [0, 0, rotate]);
-							var isTeleporting = Boolean(parseInt(entityData[10], 16)); // teleported boolean
-							var isTeleportingCamera = Boolean(parseInt(entityData[11], 16)); // teleportedCamera boolean
+							var x = parseInt(entityData[0], 16);
+							var y = parseInt(entityData[1], 16);
+							var rotate = parseInt(entityData[2], 16) / 1000;
+							var isTeleporting = Boolean(parseInt(entityData[3], 16)); // teleported boolean
+							var isTeleportingCamera = Boolean(parseInt(entityData[4], 16)); // teleportedCamera boolean
 
-							var newPosition = [px, py, pz];
-							var newRotation = [rx, ry, rz];
+							var newPosition = [x, y, rotate];
+
+							// var px = parseInt(entityData[0], 16);
+							// var py = parseInt(entityData[1], 16);
+							// var pz = parseInt(entityData[2], 16);
+							// var rx = parseInt(entityData[3], 16) / 1000;
+							// var ry = parseInt(entityData[4], 16) / 1000;
+							// var rz = parseInt(entityData[5], 16) / 1000;
+							// var qx = parseInt(entityData[6], 16) / 1000;
+							// var qy = parseInt(entityData[7], 16) / 1000;
+							// var qz = parseInt(entityData[8], 16) / 1000;
+							// var qw = parseInt(entityData[9], 16) / 1000;
+							// // console.log(entityId, 'translate:  ', [x, y, z], 'rotate:  ', [0, 0, rotate]);
+							// var isTeleporting = Boolean(parseInt(entityData[10], 16)); // teleported boolean
+							// var isTeleportingCamera = Boolean(parseInt(entityData[11], 16)); // teleportedCamera boolean
+
+							// var newPosition = [px, py, pz];
+							// var newRotation = [rx, ry, rz];
 
 							// update each entities' final position, so player knows where everything are when returning from a different browser tab
 							// we are not executing this in taroEngine or taroEntity, becuase they don't execute when browser tab is inactive
 							var entity = taro.$(entityId);
 
-							entity.serverPosition.x = px;
-							entity.serverPosition.y = py;
-							entity.serverPosition.z = pz;
+							// entity.serverPosition.x = px;
+							// entity.serverPosition.y = py;
+							// entity.serverPosition.z = pz;
 
-							entity.serverRotation.x = rx;
-							entity.serverRotation.y = ry;
-							entity.serverRotation.z = rz;
+							// entity.serverRotation.x = rx;
+							// entity.serverRotation.y = ry;
+							// entity.serverRotation.z = rz;
 
-							entity.serverQuaternion.x = qx;
-							entity.serverQuaternion.y = qy;
-							entity.serverQuaternion.z = qz;
-							entity.serverQuaternion.w = qw;
+							// entity.serverQuaternion.x = qx;
+							// entity.serverQuaternion.y = qy;
+							// entity.serverQuaternion.z = qz;
+							// entity.serverQuaternion.w = qw;
 
 							// console.log(entity != undefined, isTeleporting)
 							if (entity) {
 								if (isTeleporting) {
-									entity.teleportTo(px, py, pz, rz, isTeleportingCamera);
+									entity.teleportTo(x, y, rotate, isTeleportingCamera);
 								} else if (
 									entity == taro.client.selectedUnit &&
 									taro.physics.simulation &&
@@ -533,17 +541,16 @@ var TaroNetIoClient = {
 									}
 
 									taro.client.myUnitStreamedPosition = {
-										x: px,
-										y: py,
-										z: pz,
-										rotation: rz,
+										x: x,
+										y: y,
+										rotation: rotate,
 									};
 								} else {
 									// console.log(entity._category, newPosition)
 									// extra 20ms of buffer removes jitter
 									if (newSnapshotTimestamp > this.lastSnapshotTimestamp) {
 										entity.prevKeyFrame = entity.nextKeyFrame;
-										entity.nextKeyFrame = [newSnapshotTimestamp + taro.client.renderBuffer, newPosition, newRotation];
+										entity.nextKeyFrame = [newSnapshotTimestamp + taro.client.renderBuffer, newPosition];
 										// console.log(entity._category, entity._stats.name, newPosition)
 										entity.isTransforming(true);
 									}
