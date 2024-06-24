@@ -121,22 +121,21 @@ class RapierComponent extends TaroEventingClass {
 		const rigidBody = this.world.createRigidBody(rigidBodyDesc);
 		this.rigidBodies.set('statics', rigidBody.handle);
 
-		const floorLayer = taro.game.data.map.layers.find((l) => l.name === 'floor');
-		const floorMesh = generateLayerMesh(floorLayer);
-		let desc = RAPIER.ColliderDesc.trimesh(Float32Array.from(floorMesh.vertices), Uint32Array.from(floorMesh.indices));
-		this.world.createCollider(desc, rigidBody);
-
-		const wallsLayer = taro.game.data.map.layers.find((l) => l.name === 'walls');
-		const wallsMesh = generateLayerMesh(wallsLayer);
-		desc = RAPIER.ColliderDesc.trimesh(Float32Array.from(wallsMesh.vertices), Uint32Array.from(wallsMesh.indices));
-		desc.setTranslation(0, 2, 0);
-		this.world.createCollider(desc, rigidBody);
-
-		const treesLayer = taro.game.data.map.layers.find((l) => l.name === 'trees');
-		const treesMesh = generateLayerMesh(treesLayer);
-		desc = RAPIER.ColliderDesc.trimesh(Float32Array.from(treesMesh.vertices), Uint32Array.from(treesMesh.indices));
-		desc.setTranslation(0, 3, 0);
-		this.world.createCollider(desc, rigidBody);
+		const layers = taro.game.data.map.layers;
+		if (layers) {
+			let numTileLayers = 0;
+			for (const [_, layer] of layers.entries()) {
+				if (layer.type === 'tilelayer' && layer.data) {
+					const mesh = generateLayerMesh(layer);
+					const desc = RAPIER.ColliderDesc.trimesh(
+						Float32Array.from(mesh.vertices),
+						Uint32Array.from(mesh.indices)
+					).setTranslation(0, numTileLayers, 0);
+					this.world.createCollider(desc, rigidBody);
+					numTileLayers++;
+				}
+			}
+		}
 	}
 
 	update(_dt: number): void {
