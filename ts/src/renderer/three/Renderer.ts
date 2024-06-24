@@ -52,10 +52,11 @@ namespace Renderer {
 
 			private regionDrawStart: { x: number; y: number } = { x: 0, y: 0 };
 
+			// Physics debug shapes / wireframe
+			private renderPhysicsDebugShapes = false;
 			private debugGeometry = new THREE.BufferGeometry();
 			private debugMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
 			private debugMesh = new THREE.LineSegments(this.debugGeometry, this.debugMaterial);
-
 			private maxDebugShapes = 500;
 			private debugShapes = new THREE.Group();
 
@@ -791,14 +792,15 @@ namespace Renderer {
 					this.entitiesLayer.add(dynamicText);
 				});
 
-				this.scene.add(this.debugMesh);
+				if (this.renderPhysicsDebugShapes) {
+					this.scene.add(this.debugMesh);
+					this.scene.add(this.debugShapes);
 
-				this.scene.add(this.debugShapes);
-
-				const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1));
-				for (let i = 0; i < this.maxDebugShapes; i++) {
-					const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00ffff }));
-					this.debugShapes.add(line);
+					const edges = new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1));
+					for (let i = 0; i < this.maxDebugShapes; i++) {
+						const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00ffff }));
+						this.debugShapes.add(line);
+					}
 				}
 			}
 
@@ -830,12 +832,12 @@ namespace Renderer {
 					this.checkForHiddenEntities();
 				}
 
-				// Visualize the physics world; hardcoded for now
-				//@ts-ignore
-				const { vertices } = taro.physics.world().debugRender();
-				this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-
-				// this.renderDebugShapes(this.entityManager.entities, accumulator);
+				if (this.renderPhysicsDebugShapes) {
+					//@ts-ignore
+					const { vertices } = taro.physics.world().debugRender();
+					this.debugGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+					this.renderDebugShapes(this.entityManager.entities, accumulator);
+				}
 
 				TWEEN.update();
 				this.renderer.render(this.scene, this.camera.instance);
