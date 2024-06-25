@@ -2761,6 +2761,12 @@ var ParameterComponent = TaroEntity.extend({
 				}
 			},
 
+			localPlayer: function (text, vars) {
+				if (taro.isClient) {
+					return taro.client.myPlayer;
+				}
+			},
+
 			playerIsControlledByHuman: function (text, vars) {
 				var player = self.getValue(text.player, vars);
 				return player && player._stats.controlledBy == 'human';
