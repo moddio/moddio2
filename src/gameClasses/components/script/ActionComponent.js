@@ -2577,7 +2577,7 @@ var ActionComponent = TaroEntity.extend({
 
 								var projectile = new Projectile(data);
 								taro.game.lastCreatedProjectileId = projectile._id;
-								projectile.script.trigger('entityCreated');
+								projectile.script.trigger('thisEntityIsCreated');
 							} else {
 								if (!projectileData) {
 									throw new Error('invalid projectile data');
@@ -2704,7 +2704,7 @@ var ActionComponent = TaroEntity.extend({
 							};
 							var item = new Item(itemData);
 							taro.game.lastCreatedItemId = item._id;
-							item.script.trigger('entityCreated');
+							item.script.trigger('thisEntityIsCreated');
 						} else {
 							throw new Error('invalid item type data');
 						}
@@ -2765,7 +2765,7 @@ var ActionComponent = TaroEntity.extend({
 							};
 							var item = new Item(itemData);
 							taro.game.lastCreatedItemId = item._id;
-							item.script.trigger('entityCreated');
+							item.script.trigger('thisEntityIsCreated');
 						} else {
 							throw new Error('invalid item type data');
 						}
@@ -2819,7 +2819,7 @@ var ActionComponent = TaroEntity.extend({
 							};
 							var item = new Item(itemData);
 							taro.game.lastCreatedItemId = item._id;
-							item.script.trigger('entityCreated');
+							item.script.trigger('thisEntityIsCreated');
 						} else {
 							throw new Error('invalid item type data');
 						}

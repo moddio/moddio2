@@ -154,7 +154,7 @@ var Unit = TaroEntityPhysics.extend({
 		self.scaleDimensions(self._stats.width, self._stats.height);
 
 		if (taro.isClient) {
-			this.script.trigger('entityCreated');
+			this.script.trigger('thisEntityIsCreated');
 		}
 	},
 
@@ -1237,7 +1237,7 @@ var Unit = TaroEntityPhysics.extend({
 					item = new Item(itemData);
 					// don't trigger entityCreated if item is loaded from persisted data
 					if (!persistedItem) {
-						item.script.trigger('entityCreated');
+						item.script.trigger('thisEntityIsCreated');
 					}
 				}
 				taro.devLog('using item immediately');
@@ -1338,7 +1338,7 @@ var Unit = TaroEntityPhysics.extend({
 						// itemData.stateId = (availableSlot-1 == this._stats.currentItemIndex) ? 'selected' : 'unselected';
 						item = new Item(itemData);
 						taro.game.lastCreatedItemId = item._id;
-						item.script.trigger('entityCreated');
+						item.script.trigger('thisEntityIsCreated');
 					}
 
 					slotIndex = !isNaN(parseFloat(slotIndex)) ? slotIndex : availableSlot - 1;
@@ -1988,7 +1988,7 @@ var Unit = TaroEntityPhysics.extend({
 							var givenItem = taro.$(taro.game.lastCreatedItemId);
 							if (givenItem && givenItem.getOwnerUnit() == this) {
 								givenItem.loadPersistentData(persistedItem);
-								givenItem.script.trigger('entityCreated');
+								givenItem.script.trigger('thisEntityIsCreated');
 							}
 						}
 					}
