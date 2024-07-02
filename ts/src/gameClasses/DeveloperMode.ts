@@ -962,7 +962,7 @@ class DeveloperMode {
 			};
 			var item = new Item(itemData);
 			taro.game.lastCreatedUnitId = item._id;
-			item.script.trigger('entityCreated');
+			item.script.trigger('thisEntityIsCreated');
 		}
 	}
 

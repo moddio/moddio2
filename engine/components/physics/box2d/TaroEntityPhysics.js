@@ -50,6 +50,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 		this._actionQueue = [];
 		this.posHistory = [];
+
+		let entityTypesThatTrigger = ['unit', 'item', 'projectile'];
+		if (entityTypesThatTrigger.includes(this._category)) {
+			taro.script.trigger('entityIsCreated', { entityId: this.id() });
+		}
 	},
 
 	updateBody: function (defaultData, isLossTolerant) {

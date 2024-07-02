@@ -170,7 +170,7 @@ var Player = TaroEntity.extend({
 			var unit = new Unit(data);
 			unit.setOwnerPlayer(self.id());
 
-			unit.script.trigger('entityCreated');
+			unit.script.trigger('thisEntityIsCreated');
 
 			// setOwner will add unitId to unitIds
 			// self._stats.unitIds.push(unit.id())

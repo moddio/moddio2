@@ -110,7 +110,7 @@ var Projectile = TaroEntityPhysics.extend({
 		this.scaleDimensions(this._stats.width, this._stats.height);
 
 		if (taro.isClient) {
-			this.script.trigger('entityCreated');
+			this.script.trigger('thisEntityIsCreated');
 		}
 	},
 
