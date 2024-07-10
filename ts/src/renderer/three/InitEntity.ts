@@ -153,6 +153,9 @@ namespace Renderer {
 				if (inGameEditor && inGameEditor.updateAction && !window.isStandalone) {
 					inGameEditor.updateAction(action);
 				}
+				if (action.wasCreated) {
+					return;
+				}
 				if (action.wasEdited) this.action.wasEdited = true;
 				if (
 					this.action.position &&

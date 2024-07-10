@@ -81,12 +81,13 @@ var PlayerUiComponent = TaroEntity.extend({
 			$('#player-input-modal').modal('hide');
 		});
 
-		$(document).on('click', '.trigger', function () {
-			taro.network.send('htmlUiClick', { id: $(this).attr('id') });
-			//support for local htmlUiClick trigger
-			taro.client.myPlayer.lastHtmlUiClickData = { id: $(this).attr('id') };
-			taro.script.trigger('htmlUiClick', { playerId: taro.client.myPlayer.id() });
-		});
+		// replaced using pointer down
+		// $(document).on('click', '.trigger', function () {
+		// 	taro.network.send('htmlUiClick', { id: $(this).attr('id') });
+		// 	//support for local htmlUiClick trigger
+		// 	taro.client.myPlayer.lastHtmlUiClickData = { id: $(this).attr('id') };
+		// 	taro.script.trigger('htmlUiClick', { playerId: taro.client.myPlayer.id() });
+		// });
 
 		$(document).on('pointerdown', '.trigger', function () {
 			taro.network.send('htmlUiClick', { id: $(this).attr('id') });

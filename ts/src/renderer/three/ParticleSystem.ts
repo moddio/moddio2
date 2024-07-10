@@ -46,6 +46,7 @@ namespace Renderer {
 						vertexShader: vs,
 						fragmentShader: fs,
 						transparent: true,
+						depthWrite: false,
 						blending: THREE.CustomBlending,
 						blendEquation: THREE.AddEquation,
 						blendSrc: THREE.OneFactor,
@@ -72,12 +73,18 @@ namespace Renderer {
 						);
 					};
 
+					const createInstancedAttributeInt = (size: number, step: number) => {
+						return new THREE.InstancedBufferAttribute(new Int32Array(size * step), step).setUsage(
+							THREE.DynamicDrawUsage
+						);
+					};
+
 					geometry.setAttribute('offset', createInstancedAttribute(maxParticlesPerGroup, 3));
 					geometry.setAttribute('scale', createInstancedAttribute(maxParticlesPerGroup, 2));
 					geometry.setAttribute('rotation', createInstancedAttribute(maxParticlesPerGroup, 1));
 					geometry.setAttribute('color', createInstancedAttribute(maxParticlesPerGroup, 4));
 					geometry.setAttribute('blend', createInstancedAttribute(maxParticlesPerGroup, 1));
-					geometry.setAttribute('texture', createInstancedAttribute(maxParticlesPerGroup, 1));
+					geometry.setAttribute('texture', createInstancedAttributeInt(maxParticlesPerGroup, 1));
 
 					this.geometries.push(geometry);
 
@@ -101,58 +108,88 @@ namespace Renderer {
 				if (particleData['z-index'].depth) zPosition += Utils.getDepthZOffset(particleData['z-index'].depth);
 				if (particleData['z-index'].offset) zPosition += Utils.pixelToWorld(particleData['z-index'].offset);
 
-				const angle = particleData.fixedRotation ? 0 : config.angle * (Math.PI / 180);
-				const direction = { x: 0, y: 0, z: 1 }; // Phaser particle system starts in this direction
-				const cos = Math.cos(angle);
-				const sin = Math.sin(angle);
-				direction.x = direction.x * cos - direction.z * sin;
-				direction.z = direction.x * sin + direction.z * cos;
+				const xAngle = Utils.deg2rad(+particleData.direction?.x ?? 0);
+				const yAngle = Utils.deg2rad(+particleData.direction?.z ?? 0);
+				const zAngle = Utils.deg2rad(+particleData.direction?.y ?? 0);
+				const direction = new THREE.Euler(xAngle, yAngle, zAngle, 'XYZ');
+				const dirVec = new THREE.Vector3(1, 0, 0);
+				dirVec.applyEuler(direction);
+				direction.x = dirVec.x;
+				direction.y = dirVec.y;
+				direction.z = dirVec.z;
 
-				const angleMin = (particleData.angle.min - 180) * (Math.PI / 180);
-				const angleMax = (particleData.angle.max - 180) * (Math.PI / 180);
+				const azimuthMin = Utils.deg2rad(+particleData.azimuth?.min ?? 0);
+				const azimuthMax = Utils.deg2rad(+particleData.azimuth?.max ?? 0);
 
-				const speedMin = Utils.pixelToWorld(particleData.speed.min);
-				const speedMax = Utils.pixelToWorld(particleData.speed.max);
+				const elevationMin = Utils.deg2rad(+particleData.elevation?.min ?? 0);
+				const elevationMax = Utils.deg2rad(+particleData.elevation?.max ?? 0);
 
-				const lifetimeFrom = particleData.lifeBase * 0.001;
-				const lifetimeTo = particleData.lifeBase * 0.001;
-
-				const opacityFrom = 1;
-				const opacityTo = particleData.deathOpacityBase;
+				const lifetimeFrom = (+particleData.lifetime?.min || 1000) / 1000 ?? 1;
+				const lifetimeTo = (+particleData.lifetime?.max || 1000) / 1000 ?? 1;
 
 				const emitting = false;
 
-				const duration = particleData.duration * 0.001;
+				const frequency = 1 / +particleData.emitFrequency ?? 10;
 
-				const frequency = particleData.emitFrequency * 0.001;
+				const shape = {
+					width: particleData.emitZone?.x ?? 0,
+					height: particleData.emitZone?.z ?? 0,
+					depth: particleData.emitZone?.y ?? 0,
+				};
 
-				const width = Utils.pixelToWorld(particleData.dimensions.width);
-				const height = Utils.pixelToWorld(particleData.dimensions.height);
+				const rotation = {
+					min: Utils.deg2rad(+particleData.rotation?.min ?? 0),
+					max: Utils.deg2rad(+particleData.rotation?.max ?? 0),
+				};
 
-				let emitWidth = 0;
-				let emitDepth = 0;
-				if (particleData.emitZone) {
-					if (particleData.emitZone.x) emitWidth = Utils.pixelToWorld(particleData.emitZone.x);
-					if (particleData.emitZone.y) emitDepth = Utils.pixelToWorld(particleData.emitZone.y);
-				}
+				const speed = {
+					min: +particleData.speed?.min ?? 0,
+					max: +particleData.speed?.max ?? 0,
+				};
+
+				const scale = {
+					x: +particleData.scale?.x ?? 1,
+					y: +particleData.scale?.y ?? 1,
+					start: 1,
+					step: +particleData.scale?.step ?? 0,
+				};
+
+				const startColor = Utils.hexToRgb(particleData.colorStart);
+				const endColor = Utils.hexToRgb(particleData.colorEnd);
+				const colorSpeed = {
+					min: +particleData.colorSpeed?.min ?? 1,
+					max: +particleData.colorSpeed?.max ?? 1,
+				};
+
+				const brightness = {
+					min: +particleData.brightness?.min ?? 1,
+					max: +particleData.brightness?.max ?? 1,
+				};
+
+				const opacity = {
+					start: +particleData.opacity?.start ?? 1,
+					end: +particleData.opacity?.end ?? 1,
+				};
+
+				const duration = +particleData.duration / 1000 ?? 1;
 
 				return {
 					particleTypeId: config.particleId,
 					position: { x: config.position.x, y: zPosition, z: config.position.y },
 					target: undefined,
-					direction,
-					azimuth: { min: angleMin, max: angleMax },
-					elevation: { min: 0, max: 0 },
-					shape: { width: emitWidth, height: 0, depth: emitDepth },
+					direction: { x: direction.x, y: direction.y, z: direction.z },
+					azimuth: { min: azimuthMin, max: azimuthMax },
+					elevation: { min: elevationMin, max: elevationMax },
+					shape,
 					addInterval: frequency,
 					lifetime: { min: lifetimeFrom, max: lifetimeTo },
-					rotation: { min: 0.5, max: 1 },
-					speed: { min: speedMin, max: speedMax },
-					scale: { x: width, y: height, start: 1, step: 0 },
-					color: { start: [1, 1, 1], end: [1, 1, 1] },
-					color_speed: { min: 1, max: 1 },
-					brightness: { min: 1, max: 1 },
-					opacity: { start: opacityFrom, end: opacityTo },
+					rotation,
+					speed,
+					scale,
+					color: { start: [startColor.r, startColor.g, startColor.b], end: [endColor.r, endColor.g, endColor.b] },
+					color_speed: colorSpeed,
+					brightness: brightness,
+					opacity: opacity,
 					blend: 1,
 					texture: tex,
 					emitting,
@@ -302,9 +339,7 @@ namespace Renderer {
 						// it currently works in the Phaser renderer. We might want to add more
 						// control to this in the future and give users more emitter settings to
 						// play with in the editor.
-						let t = 1 - particle.live / particle.lifetime;
-						if (t < 0) t = 0;
-						else if (t > 1) t = 1;
+						let t = (particle.lifetime - particle.live) / particle.lifetime;
 						particle.color[3] = Utils.lerp(particle.opacity_from, particle.opacity_to, t);
 
 						if (particle.color_t < 1) {
@@ -339,7 +374,7 @@ namespace Renderer {
 				this.forward.set(emitter.direction.x, emitter.direction.y, emitter.direction.z).normalize();
 				this.right.crossVectors({ x: 0, y: 1, z: 0 } as THREE.Vector3, this.forward).normalize();
 				if (this.forward.x <= Number.EPSILON && this.forward.z <= Number.EPSILON) {
-					this.right.set(0, 0, 1);
+					this.right.set(0, 0, -1);
 				}
 				this._up.crossVectors(this.forward, this.right).normalize();
 				this.basis.makeBasis(this.right, this._up, this.forward);
@@ -350,7 +385,7 @@ namespace Renderer {
 				const speed = Utils.lerp(emitter.speed.min, emitter.speed.max, Math.random()) * dt;
 
 				this.velocity
-					.set(Math.cos(randAzimuth + angleOffset), Math.sin(randElevation), Math.sin(randAzimuth + angleOffset))
+					.setFromSphericalCoords(1, angleOffset - randElevation, -randAzimuth)
 					.normalize()
 					.applyMatrix4(this.basis)
 					.multiplyScalar(speed);
@@ -440,14 +475,14 @@ namespace Renderer {
   attribute float rotation;
   attribute vec4 color;
   attribute float blend;
-  attribute float texture;
+  attribute int texture;
 
   uniform float time;
 
   varying vec2 vUv;
   varying vec4 vColor;
   varying float vBlend;
-  varying float vTexture;
+  flat varying int vTexture;
 
   void main() {
     vUv = uv;
@@ -473,28 +508,28 @@ namespace Renderer {
   varying vec2 vUv;
   varying vec4 vColor;
   varying float vBlend;
-  varying float vTexture;
+  flat varying int vTexture;
 
   void main() {
-    if (vTexture == 0.0) gl_FragColor = texture2D(textures[0], vUv) * vColor;
-    else if (vTexture == 1.0) gl_FragColor = texture2D(textures[1], vUv) * vColor;
-    else if (vTexture == 2.0) gl_FragColor = texture2D(textures[2], vUv) * vColor;
-    else if (vTexture == 3.0) gl_FragColor = texture2D(textures[3], vUv) * vColor;
-    else if (vTexture == 4.0) gl_FragColor = texture2D(textures[4], vUv) * vColor;
-    else if (vTexture == 5.0) gl_FragColor = texture2D(textures[5], vUv) * vColor;
-    else if (vTexture == 6.0) gl_FragColor = texture2D(textures[6], vUv) * vColor;
-    else if (vTexture == 7.0) gl_FragColor = texture2D(textures[7], vUv) * vColor;
-    else if (vTexture == 8.0) gl_FragColor = texture2D(textures[8], vUv) * vColor;
-    else if (vTexture == 9.0) gl_FragColor = texture2D(textures[9], vUv) * vColor;
-    else if (vTexture == 10.0) gl_FragColor = texture2D(textures[10], vUv) * vColor;
-    else if (vTexture == 11.0) gl_FragColor = texture2D(textures[11], vUv) * vColor;
-    else if (vTexture == 12.0) gl_FragColor = texture2D(textures[12], vUv) * vColor;
-    else if (vTexture == 13.0) gl_FragColor = texture2D(textures[13], vUv) * vColor;
-    else if (vTexture == 14.0) gl_FragColor = texture2D(textures[14], vUv) * vColor;
-    else if (vTexture == 15.0) gl_FragColor = texture2D(textures[15], vUv) * vColor;
+    if (vTexture == 0) gl_FragColor = texture2D(textures[0], vUv) * vColor;
+    else if (vTexture == 1) gl_FragColor = texture2D(textures[1], vUv) * vColor;
+    else if (vTexture == 2) gl_FragColor = texture2D(textures[2], vUv) * vColor;
+    else if (vTexture == 3) gl_FragColor = texture2D(textures[3], vUv) * vColor;
+    else if (vTexture == 4) gl_FragColor = texture2D(textures[4], vUv) * vColor;
+    else if (vTexture == 5) gl_FragColor = texture2D(textures[5], vUv) * vColor;
+    else if (vTexture == 6) gl_FragColor = texture2D(textures[6], vUv) * vColor;
+    else if (vTexture == 7) gl_FragColor = texture2D(textures[7], vUv) * vColor;
+    else if (vTexture == 8) gl_FragColor = texture2D(textures[8], vUv) * vColor;
+    else if (vTexture == 9) gl_FragColor = texture2D(textures[9], vUv) * vColor;
+    else if (vTexture == 10) gl_FragColor = texture2D(textures[10], vUv) * vColor;
+    else if (vTexture == 11) gl_FragColor = texture2D(textures[11], vUv) * vColor;
+    else if (vTexture == 12) gl_FragColor = texture2D(textures[12], vUv) * vColor;
+    else if (vTexture == 13) gl_FragColor = texture2D(textures[13], vUv) * vColor;
+    else if (vTexture == 14) gl_FragColor = texture2D(textures[14], vUv) * vColor;
+    else if (vTexture == 15) gl_FragColor = texture2D(textures[15], vUv) * vColor;
 
     gl_FragColor.rgb *= gl_FragColor.a;
-		gl_FragColor.a *= vBlend;
+	gl_FragColor.a *= vBlend;
 
     #include <tonemapping_fragment>
     #include <colorspace_fragment>

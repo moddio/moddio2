@@ -175,8 +175,8 @@ var ControlComponent = TaroEntity.extend({
 						unit._stats.controls.movementControlScheme
 					);
 					const canMoveVertical = ['wasd', 'wasdRelativeToUnit'].includes(unit._stats.controls.movementControlScheme);
-					const left = (canMoveHorizontal && this.input.key.a) || this.input.key.left;
-					const right = (canMoveHorizontal && this.input.key.d) || this.input.key.right;
+					const left = canMoveHorizontal && (this.input.key.a || this.input.key.left);
+					const right = canMoveHorizontal && (this.input.key.d || this.input.key.right);
 					const up = canMoveVertical && (this.input.key.w || this.input.key.up);
 					const down = canMoveVertical && (this.input.key.s || this.input.key.down);
 					unit.ability.move(left, right, up, down);
@@ -281,8 +281,8 @@ var ControlComponent = TaroEntity.extend({
 				unit._stats.controls.movementControlScheme
 			);
 			const canMoveVertical = ['wasd', 'wasdRelativeToUnit'].includes(unit._stats.controls.movementControlScheme);
-			const left = (canMoveHorizontal && this.input.key.a) || this.input.key.left;
-			const right = (canMoveHorizontal && this.input.key.d) || this.input.key.right;
+			const left = canMoveHorizontal && (this.input.key.a || this.input.key.left);
+			const right = canMoveHorizontal && (this.input.key.d || this.input.key.right);
 			const up = canMoveVertical && (this.input.key.w || this.input.key.up);
 			const down = canMoveVertical && (this.input.key.s || this.input.key.down);
 			unit.ability.move(left, right, up, down);

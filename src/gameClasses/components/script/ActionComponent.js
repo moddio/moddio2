@@ -2577,6 +2577,7 @@ var ActionComponent = TaroEntity.extend({
 
 								var projectile = new Projectile(data);
 								taro.game.lastCreatedProjectileId = projectile._id;
+								taro.script.trigger('entityCreatedGlobal', { entityId: projectile.id() });
 								projectile.script.trigger('entityCreated');
 							} else {
 								if (!projectileData) {
@@ -2704,6 +2705,7 @@ var ActionComponent = TaroEntity.extend({
 							};
 							var item = new Item(itemData);
 							taro.game.lastCreatedItemId = item._id;
+							taro.script.trigger('entityCreatedGlobal', { entityId: item.id() });
 							item.script.trigger('entityCreated');
 						} else {
 							throw new Error('invalid item type data');
@@ -2765,6 +2767,7 @@ var ActionComponent = TaroEntity.extend({
 							};
 							var item = new Item(itemData);
 							taro.game.lastCreatedItemId = item._id;
+							taro.script.trigger('entityCreatedGlobal', { entityId: item.id() });
 							item.script.trigger('entityCreated');
 						} else {
 							throw new Error('invalid item type data');
@@ -2819,6 +2822,7 @@ var ActionComponent = TaroEntity.extend({
 							};
 							var item = new Item(itemData);
 							taro.game.lastCreatedItemId = item._id;
+							taro.script.trigger('entityCreatedGlobal', { entityId: item.id() });
 							item.script.trigger('entityCreated');
 						} else {
 							throw new Error('invalid item type data');
@@ -3424,6 +3428,7 @@ var ActionComponent = TaroEntity.extend({
 								width: width,
 							};
 
+							taro.script.trigger('entityCreatedGlobal', { entityId: createdEntity.id() });
 							createdEntity.script.trigger('entityCreated', { thisEntityId: createdEntity.id() });
 						}
 						break;

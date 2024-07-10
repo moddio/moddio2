@@ -1,4 +1,5 @@
 interface ParticleData {
+	// Original settings, some are used for 3D as well as 2D
 	deathOpacityBase: number;
 	dimensions: {
 		width: number;
@@ -8,6 +9,7 @@ interface ParticleData {
 	emitZone?: {
 		x: number;
 		y: number;
+		z: number;
 	};
 	name: string;
 	emitFrequency: number;
@@ -27,6 +29,19 @@ interface ParticleData {
 		max: number;
 	};
 	fixedRotation: boolean;
+
+	// 3D settings
+	lifetime?: { min: number; max: number };
+	direction?: { x: number; y: number; z: number };
+	azimuth?: { min: number; max: number };
+	elevation?: { min: number; max: number };
+	rotation?: { min: number; max: number };
+	scale?: { x: number; y: number; start: number; step: number };
+	colorStart?: string;
+	colorEnd?: string;
+	colorSpeed?: { min: number; max: number };
+	brightness?: { min: number; max: number };
+	opacity?: { start: number; end: number };
 }
 
 interface Particle {

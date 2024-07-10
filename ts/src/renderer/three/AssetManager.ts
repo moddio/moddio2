@@ -58,6 +58,7 @@ namespace Renderer {
 					const loader = this.loaders.get(source.type);
 					if (loader) {
 						loader.manager = loadingManager ?? THREE.DefaultLoadingManager;
+
 						loader.load(source.src, (asset: Asset) => {
 							if (source.type === 'texture') {
 								(asset as THREE.Texture).colorSpace = THREE.SRGBColorSpace;

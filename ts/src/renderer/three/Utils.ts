@@ -254,6 +254,25 @@ namespace Renderer {
 				return isHexColorWithAlpha(hex) ? parseInt(hex.slice(7), 16) / 255 : 1;
 			}
 
+			export function hexToRgb(hex: string) {
+				const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+				return result
+					? {
+							r: parseInt(result[1], 16) / 255,
+							g: parseInt(result[2], 16) / 255,
+							b: parseInt(result[3], 16) / 255,
+						}
+					: { r: 1, g: 1, b: 1 };
+			}
+
+			export function deg2rad(degrees: number) {
+				return degrees * (Math.PI / 180);
+			}
+
+			export function rad2deg(radians: number) {
+				return radians * (180 / Math.PI);
+			}
+
 			export function toFixedWithoutZeros(num: number, precision: number) {
 				return `${Number.parseFloat(num.toFixed(precision))}`;
 			}

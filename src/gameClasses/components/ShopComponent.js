@@ -252,7 +252,7 @@ var ShopComponent = TaroEntity.extend({
 					var button = $(this);
 
 					$.ajax({
-						url: `${window.BASE_URL}/api/user/equip/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/${button.attr('skinId')}`,
+						url: `${window.BASE_URL}/api/user/equip/${taro.game.data.defaultData.parentGame || taro.game.data.defaultData.worldId || taro.client.server.gameId}/${button.attr('skinId')}`,
 						dataType: 'html',
 						type: 'POST',
 						success: function (data) {
@@ -283,7 +283,7 @@ var ShopComponent = TaroEntity.extend({
 					var button = $(this);
 					var unEquipedId = button.attr('id');
 					$.ajax({
-						url: `${window.BASE_URL}/api/user/unequip/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/${unEquipedId}`,
+						url: `${window.BASE_URL}/api/user/unequip/${taro.game.data.defaultData.parentGame || taro.game.data.defaultData.worldId || taro.client.server.gameId}/${unEquipedId}`,
 						dataType: 'html',
 						type: 'POST',
 						success: function (data) {
@@ -320,7 +320,7 @@ var ShopComponent = TaroEntity.extend({
 	loadShopItems: function () {
 		let self = this;
 		$.ajax({
-			url: `${window.BASE_URL}/api/game/${gameId}/shopCount/`,
+			url: `${window.BASE_URL}/api/game/${taro.game.data.defaultData.worldId || gameId}/shopCount/`,
 			type: 'GET',
 			success: function (response) {
 				if (response.status == 'success') {
@@ -375,7 +375,7 @@ var ShopComponent = TaroEntity.extend({
 	loadUserPurchases: function () {
 		let self = this;
 		$.ajax({
-			url: `${window.BASE_URL}/api/user/${gameId}/purchases/`,
+			url: `${window.BASE_URL}/api/user/${taro.game.data.defaultData.worldId || gameId}/purchases/`,
 			type: 'GET',
 			success: function (response) {
 				if (response.status == 'success') {
@@ -500,7 +500,7 @@ var ShopComponent = TaroEntity.extend({
 	buySkin: function (itemId, sharedOn = '', token = '') {
 		var self = this;
 		$.ajax({
-			url: `${window.BASE_URL}/api/user/purchase/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/${itemId}?sharedOn=${sharedOn}`,
+			url: `${window.BASE_URL}/api/user/purchase/${taro.game.data.defaultData.parentGame || taro.game.data.defaultData.worldId || taro.client.server.gameId}/${itemId}?sharedOn=${sharedOn}`,
 			dataType: 'html',
 			type: 'POST',
 			data: {
@@ -634,7 +634,7 @@ var ShopComponent = TaroEntity.extend({
 		}
 
 		$.ajax({
-			url: `${window.BASE_URL}/api/game/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/shopCount/`,
+			url: `${window.BASE_URL}/api/game/${taro.game.data.defaultData.parentGame || taro.game.data.defaultData.worldId || taro.client.server.gameId}/shopCount/`,
 			type: 'GET',
 			success: function (data) {
 				if (data.status === 'success') {
@@ -830,7 +830,7 @@ var ShopComponent = TaroEntity.extend({
 			}
 
 			$.ajax({
-				url: `${window.BASE_URL}/api/game/${taro.game.data.defaultData.parentGame || taro.client.server.gameId}/shop/`,
+				url: `${window.BASE_URL}/api/game/${taro.game.data.defaultData.parentGame || taro.game.data.defaultData.worldId || taro.client.server.gameId}/shop/`,
 				data: {
 					type: self.shopType === 'unitSkins' ? 'unit' : 'item',
 					key: self.shopKey,
@@ -1443,10 +1443,7 @@ var ShopComponent = TaroEntity.extend({
 				style: 'margin-top: 10px; color: #fff; background-color: #046C4E; padding-left: 25px; padding-right: 25px;',
 				html: 'Add New Skins',
 				name: 'add-skins-button',
-			}).on('click', function () {
-				// open a link inn new tab
-				window.open(`/skin-submission/${window.gameSlug}/?new=true`, '_blank');
-			});
+			}).on('click', window.submitDesignRedirect);
 
 			$('#modd-shop-modal .shop-items').html([errMsg, addSkinButton]);
 			return;

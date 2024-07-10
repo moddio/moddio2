@@ -71,6 +71,7 @@ namespace Renderer {
 				) {
 					renderer.entityEditor.selectEntity(null);
 				}
+				this.initEntities = this.initEntities.filter((e) => e.action.actionId !== initEntity.action.actionId)
 				initEntity.destroy();
 			}
 

@@ -72,10 +72,11 @@ namespace Renderer {
 									function: 'vector3',
 								};
 							} else if (control.object.body instanceof Model) {
+								console.log(control.object.body.getSize())
 								editedAction['scale'] = {
 									x: Utils.worldToPixel(control.object.body.getSize().x / control.object.defaultWidth),
-									y: Utils.worldToPixel(control.object.body.getSize().y / control.object.defaultHeight),
-									z: Utils.worldToPixel(control.object.body.getSize().z / control.object.defaultDepth),
+									y: Utils.worldToPixel(control.object.body.getSize().z / control.object.defaultHeight),
+									z: Utils.worldToPixel(control.object.body.getSize().y / control.object.defaultDepth),
 									function: 'vector3',
 								};
 							}

@@ -4,9 +4,11 @@ namespace Renderer {
 			size = new THREE.Vector3();
 			originalSize = new THREE.Vector3();
 			originalScale = new THREE.Vector3();
-
+			firstTime = true;
 			private scene: THREE.Group;
 			private aabb = new THREE.Box3();
+			// OBB is something just like Box3 but with rotation
+			private obb = new OBB();
 			private center = new THREE.Vector3();
 
 			private mixer: THREE.AnimationMixer;
@@ -31,8 +33,17 @@ namespace Renderer {
 			}
 
 			getSize() {
-				this.aabb.setFromObject(this.scene, true);
-				return this.aabb.getSize(this.size);
+				if (this.firstTime) {
+					this.aabb.setFromObject(this.scene, true);
+					this.firstTime = false
+				}
+				this.scene.updateMatrix();
+				this.scene.updateMatrixWorld();
+				// get its original aabb which means its original geometry
+				this.obb.fromBox3(this.aabb);
+				// apply the additional translation, rotation, scale
+				this.obb.applyMatrix4(this.scene.matrixWorld)
+				return this.obb.getSize(this.size);
 			}
 
 			setSize(x: number, y: number, z: number) {
@@ -78,8 +89,15 @@ namespace Renderer {
 			}
 
 			getCenter() {
-				this.aabb.setFromObject(this.scene);
-				return this.aabb.getCenter(this.center);
+				if (this.firstTime) {
+					this.aabb.setFromObject(this.scene, true);
+					this.firstTime = false
+				}
+				this.scene.updateMatrix();
+				this.scene.updateMatrixWorld();
+				this.obb.fromBox3(this.aabb);
+				this.obb.applyMatrix4(this.scene.matrixWorld)
+				return this.obb.center;
 			}
 
 			update(dt) {

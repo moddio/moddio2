@@ -48,11 +48,6 @@ var TaroEntityPhysics = TaroEntity.extend({
 			this.isOutOfBounds = false;
 		}
 
-		// Trigger global entity created event when an entity of category 'unit', 'item', or 'projectile' is created
-		if (['unit', 'item', 'projectile'].includes(this._category)) {
-			taro.script.trigger('entityCreatedGlobal', { entityId: this.id() });
-		}
-
 		this._actionQueue = [];
 		this.posHistory = [];
 	},
@@ -72,8 +67,8 @@ var TaroEntityPhysics = TaroEntity.extend({
 			return;
 		}
 
-		this.width(parseFloat(body.width) * this._scale.x);
-		this.height(parseFloat(body.height) * this._scale.y);
+		this.width(parseFloat(body.width * (this._stats.scaleBody || 1)));
+		this.height(parseFloat(body.height * (this._stats.scaleBody || 1)));
 
 		var shapeData =
 			body.fixtures && body.fixtures[0] && body.fixtures[0].shape && body.fixtures[0].shape.data
@@ -722,9 +717,11 @@ var TaroEntityPhysics = TaroEntity.extend({
 				break;
 			}
 			case 'rectangle': {
-				var normalizer = 0.45;
-				shapeData.width = body.width * scale * normalizer;
-				shapeData.height = body.height * scale * normalizer;
+				// this should be unnecessary now that shapeData w/h are converted to halfW/H in updateBody()
+				// var normalizer = 0.45;
+				shapeData.width = body.width * scale;
+				shapeData.height = body.height * scale;
+
 				break;
 			}
 		}

@@ -12,6 +12,7 @@ var taroClientConfig = {
 		'/lib/DRACOLoader.js',
 		'/lib/GLTFLoader.js',
 		'/lib/OrbitControls.js',
+		'/lib/OBB.js',
 		'/lib/TransformControls.js',
 		'/lib/tween.umd.js',
 		'/lib/three_mesh_bvh.umd.js',

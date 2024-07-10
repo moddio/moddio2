@@ -116,6 +116,7 @@ var Item = TaroEntityPhysics.extend({
 		this.scaleDimensions(this._stats.width, this._stats.height);
 
 		if (taro.isClient) {
+			taro.script.trigger('entityCreatedGlobal', { entityId: this.id() });
 			this.script.trigger('entityCreated');
 		}
 	},
@@ -451,6 +452,7 @@ var Item = TaroEntityPhysics.extend({
 											streamMode: this._stats.projectileStreamMode || 0, // editor incorrectly sets streamMode to undefined when item CSP is on
 										});
 										var projectile = new Projectile(projectileData);
+										taro.script.trigger('entityCreatedGlobal', { entityId: projectile.id() });
 										projectile.script.trigger('entityCreated');
 										taro.game.lastCreatedProjectileId = projectile.id();
 									}
@@ -1175,6 +1177,9 @@ var Item = TaroEntityPhysics.extend({
 					case 'scaleBody':
 						this._stats[attrName] = newValue;
 						if (taro.isClient) {
+							if (taro.physics) {
+								self._scaleBox2dBody(newValue);
+							}
 							self._stats.scale = newValue;
 							self._scaleTexture();
 						} else {
@@ -1306,6 +1311,11 @@ var Item = TaroEntityPhysics.extend({
 			var y = ownerUnit._translate.y + self.anchoredOffset.y;
 
 			if (taro.isServer) {
+				if (ownerUnit.body) {
+					// on server, add anchoredOffset to the position of the physics body, not Unit._translate
+					x = ownerUnit.body.getPosition().x * ownerUnit._b2dRef._scaleRatio + self.anchoredOffset.x;
+					y = ownerUnit.body.getPosition().y * ownerUnit._b2dRef._scaleRatio + self.anchoredOffset.y;
+				}
 				// for client-side, translate+rotate is handled in entitiesToRender.ts
 				self.translateTo(x, y);
 				self.rotateTo(0, 0, rotate);

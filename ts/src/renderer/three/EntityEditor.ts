@@ -92,7 +92,6 @@ namespace Renderer {
 								action: action,
 								is3DObject
 							}
-
 							this.updatePreview();
 						}, 0)
 
@@ -163,9 +162,9 @@ namespace Renderer {
 					}
 				}
 				if (entityData.action && entityData.action.scale) {
-					height *= entityData.action.scale.z;
+					height *= entityData.action.scale.y;
 					width *= entityData.action.scale.x;
-					depth *= entityData.action.scale.y;
+					depth *= entityData.action.scale.z;
 				}
 				const cols = entity.cellSheet.columnCount || 1;
 				const rows = entity.cellSheet.rowCount || 1;
