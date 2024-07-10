@@ -3286,7 +3286,6 @@ var ActionComponent = TaroEntity.extend({
 						var angle = self._script.param.getValue(action.angle, vars) || 0;
 
 						const entityTypeData = taro.game.data[entityType] && taro.game.data[entityType][entityToCreate];
-
 						if (entityType && entityToCreate && position && height && width) {
 							let data = Object.assign({}, entityTypeData);
 
@@ -3405,7 +3404,6 @@ var ActionComponent = TaroEntity.extend({
 								});
 
 								var player = self._script.param.getValue(action.player, vars);
-
 								if (player) {
 									createdEntity = player.createUnit(rfdc()(data));
 								} else {

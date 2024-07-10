@@ -111,15 +111,23 @@ namespace Renderer {
 					body.visible = false;
 				}
 				this.add(this.body);
+
 				this.position.set(
 					Utils.pixelToWorld(action.position?.x),
 					action.position?.z
-						? Utils.pixelToWorld(action.position?.z)
+						? Utils.pixelToWorld(action.position?.z) +
+								Utils.getLayerZOffset((entityTypeData.bodies.default ?? entityTypeData.bodies[0])['z-index'].layer) -
+								Utils.getDepthZOffset((entityTypeData.bodies.default ?? entityTypeData.bodies[0])['z-index'].depth)
 						: Renderer.Three.getVoxels().calcLayersHeight(0) + 0.1,
 					Utils.pixelToWorld(action.position?.y)
 				);
 				renderer.initEntityLayer.add(this);
 				renderer.entityManager.initEntities.push(this);
+				console.log(
+					action.entity,
+					entityTypeData,
+					this.position.y + this.body.position.y
+				);
 			}
 
 			edit(action: ActionData): void {

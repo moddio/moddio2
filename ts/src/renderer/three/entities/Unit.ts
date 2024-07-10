@@ -37,6 +37,9 @@ namespace Renderer {
 				}
 				this.add(this.body);
 
+				setTimeout(() => {
+					console.log(this.taroEntity as any, this.position.y, this.body.position.y);
+				}, 5000);
 				this.label.visible = false;
 
 				this.body.attach(this.hud);
@@ -48,7 +51,7 @@ namespace Renderer {
 				const renderer = Three.instance();
 				const entity = new Unit(taroEntity._id, taroEntity._stats.ownerId, taroEntity);
 				entity.setHudScale(1 / renderer.camera.lastAuthoritativeZoom);
-
+				console.log(taroEntity)
 				if (taroEntity._stats.cameraPointerLock) {
 					entity.cameraConfig.pointerLock = taroEntity._stats.cameraPointerLock;
 				}

@@ -7,7 +7,6 @@ var Unit = TaroEntityPhysics.extend({
 
 		TaroEntityPhysics.prototype.init.call(this, data.defaultData);
 		this.id(entityIdFromServer);
-
 		self.dob = Date.now();
 
 		self.direction = {
@@ -58,7 +57,6 @@ var Unit = TaroEntityPhysics.extend({
 		this._stats.itemIds = new Array(self._stats.inventorySize).fill(null);
 
 		Unit.prototype.log(`initializing new unit ${this.id()}`);
-
 		if (taro.isClient) {
 			this.addToRenderer(defaultAnimation && defaultAnimation.frames[0] - 1);
 			taro.client.emit('create-unit', this);

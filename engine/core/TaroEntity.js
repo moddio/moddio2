@@ -12,6 +12,7 @@ var TaroEntity = TaroObject.extend({
 		// serialise and de-serialise support
 		var translateX = defaultData.translate && defaultData.translate.x ? defaultData.translate.x : 0;
 		var translateY = defaultData.translate && defaultData.translate.y ? defaultData.translate.y : 0;
+		var translateZ = defaultData.translate?.z ?? 0;
 		var rotate = defaultData.rotate || 0;
 		this._specialProp.push('_texture');
 		this._specialProp.push('_eventListeners');
@@ -28,8 +29,8 @@ var TaroEntity = TaroObject.extend({
 
 		this._deathTime = undefined;
 		this._bornTime = taro._currentTime;
-
-		this._translate = new TaroPoint3d(translateX, translateY, rotate);
+		console.log({ defaultData, translateZ });
+		this._translate = new TaroPoint3d(translateX, translateY, translateZ);
 		this._oldTranform = [];
 		this._hasMoved = true;
 
@@ -64,7 +65,7 @@ var TaroEntity = TaroObject.extend({
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.nextKeyFrame = [taro._currentTime + 50, [this._translate.x, this._translate.y, this._rotate.z]];
+		this.nextKeyFrame = [taro._currentTime + 50, [this._translate.x, this._translate.y, this._translate.z, this._rotate.z]];
 		this.clientStreamedKeyFrame = this.nextKeyFrame;
 		this._isTransforming = true;
 		this.lastTransformedAt = 0;
@@ -3191,7 +3192,7 @@ var TaroEntity = TaroObject.extend({
 	 *     entity.translateTo(10, 0, 0);
 	 * @return {*}
 	 */
-	translateTo: function (x, y) {
+	translateTo: function (x, y, z) {
 		// console.log('start translate', x, y)
 		if (x !== undefined && y !== undefined && !isNaN(x) && !isNaN(y)) {
 			// console.log('non-crash translate', this._translate)
@@ -3203,7 +3204,9 @@ var TaroEntity = TaroObject.extend({
 				this._translate.x = x;
 				this._translate.y = y;
 			}
-
+			if (z) {
+				this._translate.z = z;
+			}
 			// ensure this entity is created at its latest position to the new clients. (instead of spawnPosition)
 			// this.defaultData.translate = this._translate;
 		} else {
@@ -3225,16 +3228,16 @@ var TaroEntity = TaroObject.extend({
 		return this;
 	},
 
-	teleportTo: function (x, y, rotate, teleportCamera) {
+	teleportTo: function (x, y, z, rotate, teleportCamera) {
 		// console.log("teleportTo", x, y, rotate, this._stats.type)
 		this.isTeleporting = true;
-		this.nextKeyFrame[1] = [x, y, rotate];
+		this.nextKeyFrame[1] = [x, y, z, rotate];
 		this.teleportCamera = teleportCamera;
-		this.teleportDestination = [x, y, rotate];
+		this.teleportDestination = [x, y, z, rotate];
 		this.reconRemaining = undefined; // when a unit is teleported, end reconciliation
 		// this.setLinearVelocityLT(0, 0);
 
-		this.translateTo(x, y);
+		this.translateTo(x, y, z);
 		if (rotate != undefined) {
 			this.rotateTo(0, 0, rotate);
 		}
@@ -3251,6 +3254,7 @@ var TaroEntity = TaroObject.extend({
 				myUnit.serverStreamedPosition = {
 					x: x,
 					y: y,
+					z: z,
 					rotation: rotate,
 				};
 			}
@@ -3271,6 +3275,7 @@ var TaroEntity = TaroObject.extend({
 						attachedEntity.teleportTo(
 							attachedEntity._translate.x + offsetX,
 							attachedEntity._translate.y + offsetY,
+							attachedEntity._translate.z + offsetZ,
 							attachedEntity._rotate.z
 						);
 					}
@@ -4663,6 +4668,7 @@ var TaroEntity = TaroObject.extend({
 				if (taro.isServer) {
 					var x = this._translate.x.toFixed(0);
 					var y = this._translate.y.toFixed(0);
+					var z = this._translate.z.toFixed(0);
 					var angle = ((this._rotate.z % (2 * Math.PI)) * 1000).toFixed(0);
 
 					if (this._hasMoved) {
@@ -4678,6 +4684,7 @@ var TaroEntity = TaroObject.extend({
 
 						buffArr.push(Number(x));
 						buffArr.push(Number(y));
+						buffArr.push(Number(z));
 						buffArr.push(Number(angle));
 
 						if (this.isTeleporting) {
