@@ -135,17 +135,18 @@ var TweenComponent = TaroEntity.extend({
 			if (now < nextFrameEndsAt) {
 				var x = this.lastFrame[1][0];
 				var y = this.lastFrame[1][1];
-				var rotate = this.lastFrame[1][2];
+				var z = this.lastFrame[1][2];
+				var rotate = this.lastFrame[1][3];
 				var targetX = this.nextFrame[1][0];
 				var targetY = this.nextFrame[1][1];
-				var targetRotate = this.nextFrame[1][2];
+				var targetRotate = this.nextFrame[1][3];
 
 				// if entity is flipped, then flip the keyFrames as well
 				if (this._entity._stats.flip == 1) {
 					x = -this.lastFrame[1][0];
 					targetX = -this.nextFrame[1][0];
-					rotate = -this.lastFrame[1][2];
-					targetRotate = -this.nextFrame[1][2];
+					rotate = -this.lastFrame[1][3];
+					targetRotate = -this.nextFrame[1][3];
 				}
 
 				var interpolatedX = this._entity.interpolateValue(x, targetX, this.startTime, now, nextFrameEndsAt);

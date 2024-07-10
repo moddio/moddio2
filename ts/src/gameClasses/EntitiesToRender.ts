@@ -51,7 +51,8 @@ class EntitiesToRender {
 				else if (entity != taro.client.selectedUnit) {
 					entity._translate.x = entity.nextKeyFrame[1][0];
 					entity._translate.y = entity.nextKeyFrame[1][1];
-					entity._rotate.z = entity.nextKeyFrame[1][2];
+					entity._translate.z = entity.nextKeyFrame[1][2];
+					entity._rotate.z = entity.nextKeyFrame[1][3];
 				}
 
 				if (entity._translate) {
@@ -121,7 +122,8 @@ class EntitiesToRender {
 						entity.isTransforming() &&
 						entity.nextKeyFrame[1][0] == x &&
 						entity.nextKeyFrame[1][1] == y &&
-						entity.nextKeyFrame[1][2] == rotate
+						entity.nextKeyFrame[1][2] == z &&
+						entity.nextKeyFrame[1][3] == rotate
 					) {
 						// if (entity != taro.client.selectedUnit) console.log(entity._category, "not moving)")
 						entity.isTransforming(false);

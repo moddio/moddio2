@@ -1321,7 +1321,7 @@ var Item = TaroEntityPhysics.extend({
 				self.rotateTo(0, 0, rotate);
 			} else {
 				// for updating physics body of this item
-				self.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, rotate]];
+				self.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, undefined, rotate]];
 			}
 
 			if (taro.isServer || (taro.isClient && taro.client.selectedUnit == ownerUnit)) {

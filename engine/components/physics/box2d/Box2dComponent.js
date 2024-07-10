@@ -723,7 +723,8 @@ var PhysicsComponent = TaroEventingClass.extend({
 								entity.nextKeyFrame[1] = entity.teleportDestination;
 								x = entity.teleportDestination[0];
 								y = entity.teleportDestination[1];
-								angle = entity.teleportDestination[2];
+								z = entity.teleportDestination[2];
+								angle = entity.teleportDestination[3];
 								entity.teleportDestination = undefined;
 							} else {
 								if (taro.isServer) {
@@ -808,7 +809,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 										}
 
 										entity.prevKeyFrame = entity.nextKeyFrame;
-										entity.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, angle]];
+										entity.nextKeyFrame = [taro._currentTime + taro.client.renderBuffer, [x, y, z, angle]];
 
 										// keep track of units' position history for CSP reconciliation
 										if (entity == taro.client.selectedUnit) {
@@ -822,7 +823,8 @@ var PhysicsComponent = TaroEventingClass.extend({
 										// for items, client-side physics body is updated by setting entity.nextKeyFrame in item._behaviour()
 										x = entity.nextKeyFrame[1][0];
 										y = entity.nextKeyFrame[1][1];
-										angle = entity.nextKeyFrame[1][2];
+										z = entity.nextKeyFrame[1][2];
+										angle = entity.nextKeyFrame[1][3];
 									}
 
 									if (
@@ -835,7 +837,9 @@ var PhysicsComponent = TaroEventingClass.extend({
 											parseFloat(entity.prevKeyFrame[1][1]).toFixed(1) !=
 												parseFloat(entity.nextKeyFrame[1][1]).toFixed(1) ||
 											parseFloat(entity.prevKeyFrame[1][2]).toFixed(2) !=
-												parseFloat(entity.nextKeyFrame[1][2]).toFixed(2))
+												parseFloat(entity.nextKeyFrame[1][2]).toFixed(2) ||
+												parseFloat(entity.prevKeyFrame[1][3]).toFixed(3) !=
+													parseFloat(entity.nextKeyFrame[1][3]).toFixed(3))
 									) {
 										// console.log("is moving", entity.prevKeyFrame[1][0], entity.nextKeyFrame[1][0], entity.prevKeyFrame[1][1], entity.nextKeyFrame[1][1], entity.prevKeyFrame[1][2], entity.nextKeyFrame[1][2])
 										entity.isTransforming(true);

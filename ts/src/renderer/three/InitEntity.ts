@@ -157,13 +157,12 @@ namespace Renderer {
 					!isNaN(action.position.x) &&
 					!isNaN(action.position.y)
 				) {
-					this.action.position = action.position;
 					this.position.x = Utils.pixelToWorld(action.position.x);
 					this.position.z = Utils.pixelToWorld(action.position.y);
 					if (!isNaN(action.position.z)) {
-						console.log(action);
-						this.position.y = Utils.pixelToWorld(action.position.z) + Utils.getLayerZOffset(action['z-index'].layer);
+						this.position.y = Utils.pixelToWorld(action.position.z);
 					}
+					this.action.position = action.position;
 				}
 				if (taro.is3D()) {
 					if (

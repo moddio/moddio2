@@ -65,7 +65,7 @@ var TaroEntity = TaroObject.extend({
 		// this ensures entity is spawning at a correct position initially. particularily useful for projectiles
 
 		this._keyFrames = [];
-		this.nextKeyFrame = [taro._currentTime + 50, [this._translate.x, this._translate.y, this._rotate.z]];
+		this.nextKeyFrame = [taro._currentTime + 50, [this._translate.x, this._translate.y, this._translate.z, this._rotate.z]];
 		this.clientStreamedKeyFrame = this.nextKeyFrame;
 		this._isTransforming = true;
 		this.lastTransformedAt = 0;
@@ -5518,7 +5518,7 @@ var TaroEntity = TaroObject.extend({
 			// if (this == taro.client.selectedUnit)
 			// 	console.log(parseFloat(x).toFixed(0), "nextX", parseFloat(nextTransform[0]), "speedReq", parseFloat((nextTransform[0] - x)/timeRemaining).toFixed(2) , "timeRemaining", timeRemaining)
 			rotateStart = rotate;
-			rotateEnd = nextTransform[2];
+			rotateEnd = nextTransform[3];
 
 			// a hack to prevent rotational interpolation suddnely jumping by 2 PI (e.g. 0.01 to -6.27)
 			if (Math.abs(rotateEnd - rotateStart) > Math.PI) {
@@ -5539,7 +5539,7 @@ var TaroEntity = TaroObject.extend({
 		} else {
 			x = nextTransform[0];
 			y = nextTransform[1];
-			rotate = nextTransform[2];
+			rotate = nextTransform[3];
 		}
 
 		// for my own unit, ignore streamed angle if this unit control is set to face mouse cursor instantly.

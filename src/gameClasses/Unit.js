@@ -61,9 +61,6 @@ var Unit = TaroEntityPhysics.extend({
 
 		if (taro.isClient) {
 			this.addToRenderer(defaultAnimation && defaultAnimation.frames[0] - 1);
-			if (JSON.stringify(data).includes('Sur')) {
-				console.log(data);
-			}
 			taro.client.emit('create-unit', this);
 			this.transformTexture(this._translate.x, this._translate.y, this._translate.z, 0);
 
