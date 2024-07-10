@@ -727,7 +727,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 								entity.teleportDestination = undefined;
 							} else {
 								if (taro.isServer) {
-									entity.translateTo(x, y, 0);
+									entity.translateTo(x, y, undefined);
 									entity.rotateTo(0, 0, angle);
 
 									// if (entity._category == 'unit') {

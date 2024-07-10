@@ -30,7 +30,7 @@ declare class TaroEntity extends TaroObject {
 
 	getOwnerUnit(): TaroEntity | undefined;
 	streamUpdateData(queuedData: UpdateData[]);
-	transformTexture(x: number, y: number, z: number, type?: boolean);
+	transformTexture(x: number, y: number, z: number, rotation: number, type?: boolean);
 
 	flip(flip: FlipMode): void;
 

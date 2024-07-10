@@ -161,7 +161,8 @@ namespace Renderer {
 					this.position.x = Utils.pixelToWorld(action.position.x);
 					this.position.z = Utils.pixelToWorld(action.position.y);
 					if (!isNaN(action.position.z)) {
-						this.position.y = Utils.pixelToWorld(action.position.z);
+						console.log(action);
+						this.position.y = Utils.pixelToWorld(action.position.z) + Utils.getLayerZOffset(action['z-index'].layer);
 					}
 				}
 				if (taro.is3D()) {

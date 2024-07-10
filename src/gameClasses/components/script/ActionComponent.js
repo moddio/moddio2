@@ -3688,7 +3688,7 @@ var ActionComponent = TaroEntity.extend({
 						var entity = self._script.param.getValue(action.entity, vars);
 
 						if (position && entity && ['unit', 'item', 'projectile'].includes(entity._category)) {
-							entity.teleportTo(position.x, position.y, entity._rotate.z);
+							entity.teleportTo(position.x, position.y, undefined, entity._rotate.z);
 						}
 						// if we ever decide to allow region to be moved using moveEntity, this is how you do it
 						// else if (entity._category == 'region' && !isNaN(position.x) && !isNaN(position.y)) {
@@ -3702,7 +3702,7 @@ var ActionComponent = TaroEntity.extend({
 						var entity = self._script.param.getValue(action.entity, vars);
 
 						if (position && entity && ['unit', 'item', 'projectile'].includes(entity._category)) {
-							entity.teleportTo(position.x, position.y, entity._rotate.z, true);
+							entity.teleportTo(position.x, position.y, undefined, entity._rotate.z, true);
 						}
 
 						break;

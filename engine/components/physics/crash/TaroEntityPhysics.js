@@ -127,13 +127,13 @@ const TaroEntityPhysics = TaroEntity.extend({
 			if (defaultData.translate) {
 				const x = defaultData.translate.x;
 				const y = defaultData.translate.y;
-
+				const z = defaultData.translate.z;
 				// immediately translate entity if position is assigned
 				if (!isNaN(x) && !isNaN(y)) {
 					// if (isLossTolerant)
 					//     this.translateToLT(x, y, 0)
 					// else
-					this.translateTo(x, y, 0);
+					this.translateTo(x, y, z);
 				}
 			}
 

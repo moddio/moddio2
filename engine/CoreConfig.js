@@ -39,6 +39,7 @@ var taroCoreConfig = {
 		/* Data Classes */
 		['csap', 'TaroPoint2d', 'core/TaroPoint2d.js'],
 		['csap', 'TaroPoint3d', 'core/TaroPoint3d.js'],
+		['csap', 'TaroPoint4d', 'core/TaroPoint4d.js'],
 		['csap', 'TaroPoly2d', 'core/TaroPoly2d.js'],
 		['csap', 'TaroRect', 'core/TaroRect.js'],
 		['csap', 'TaroMatrix2d', 'core/TaroMatrix2d.js'],

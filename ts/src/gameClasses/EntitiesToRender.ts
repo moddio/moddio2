@@ -57,6 +57,7 @@ class EntitiesToRender {
 				if (entity._translate) {
 					var x = entity._translate.x;
 					var y = entity._translate.y;
+					var z = entity._translate.z;
 					var rotate = entity._rotate.z;
 				}
 
@@ -113,7 +114,7 @@ class EntitiesToRender {
 					entity._category == 'item'
 				) {
 					// var timeStart = performance.now();
-					entity.transformTexture(x, y, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
+					entity.transformTexture(x, y, z, rotate); // uses absolute position without anchorOffset for items. That info is later retrieved in the render function
 
 					// entity isn't moving anymore. prevent rendering to conserve cpu
 					if (
