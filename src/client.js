@@ -528,7 +528,7 @@ const Client = TaroEventingClass.extend({
 		for (let server of validServers) {
 			const capacity = server.playerCount / server.maxPlayers;
 
-			if (capacity < overloadCriteria && server.playerCount > maxPlayersInUnderLoadedServer && server.acceptingPlayers) {
+			if (capacity < overloadCriteria && server.playerCount > maxPlayersInUnderLoadedServer) {
 				firstChoice = server;
 				maxPlayersInUnderLoadedServer = server.playerCount;
 			}
