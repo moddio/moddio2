@@ -2423,6 +2423,7 @@ var ActionComponent = TaroEntity.extend({
 
 					case 'startEmittingParticles':
 						if (taro.isClient) {
+							console.log(action);
 							var particleTypeId = self._script.param.getValue(action.particleEmitter, vars);
 							var entity = self._script.param.getValue(action.entity, vars);
 							if (particleTypeId && entity) {

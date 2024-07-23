@@ -853,17 +853,17 @@ namespace Renderer {
 					this.particleSystem.emit(emitter);
 				});
 
-				taro.client.on('start-emitting-particles', (data: { particleTypeId: string; entityId: string }) => {
-					const emitter = this.particleSystem.emitters.find(({ particleTypeId, target }) => {
-						return particleTypeId === data.particleTypeId && target.taroId === data.entityId;
+				taro.client.on('start-emitting-particles', (data: { particleEmitterTypeId: string; entityId: string }) => {
+					const emitter = this.particleSystem.emitters.find(({ particleEmitterTypeId, target }) => {
+						return particleEmitterTypeId === data.particleEmitterTypeId && target.taroId === data.entityId;
 					});
 
 					this.particleSystem.startEmitter(emitter);
 				});
 
-				taro.client.on('stop-emitting-particles', (data: { particleTypeId: string; entityId: string }) => {
-					const emitter = this.particleSystem.emitters.find(({ particleTypeId, target }) => {
-						return particleTypeId === data.particleTypeId && target.taroId === data.entityId;
+				taro.client.on('stop-emitting-particles', (data: { particleEmitterTypeId: string; entityId: string }) => {
+					const emitter = this.particleSystem.emitters.find(({ particleEmitterTypeId, target }) => {
+						return particleEmitterTypeId === data.particleEmitterTypeId && target.taroId === data.entityId;
 					});
 
 					this.particleSystem.stopEmitter(emitter);

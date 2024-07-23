@@ -104,7 +104,8 @@ namespace Renderer {
 			}
 
 			createEmitter(config: Particle) {
-				const particleData = taro.game.data.particleTypes[config.particleId];
+				console.log(config);
+				const particleData = taro.game.data.particleTypes[config.particleEmitterTypeId];
 				const tex = gAssetManager.getTexture(`particle/${particleData.url}`);
 
 				let zPosition = 0;
@@ -178,7 +179,7 @@ namespace Renderer {
 				const duration = +(particleData.duration / 1000 ?? 1);
 
 				return {
-					particleTypeId: config.particleId,
+					particleEmitterTypeId: config.particleEmitterTypeId,
 					position: { x: config.position.x, y: zPosition, z: config.position.y },
 					target: undefined,
 					direction: { x: direction.x, y: direction.y, z: direction.z },
@@ -549,7 +550,7 @@ namespace Renderer {
 `;
 
 		export type Emitter = {
-			particleTypeId: string;
+			particleEmitterTypeId: string;
 			position: { x: number; y: number; z: number };
 			target: Unit | undefined;
 			direction: { x: number; y: number; z: number };

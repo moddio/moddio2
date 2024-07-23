@@ -5604,15 +5604,16 @@ var TaroEntity = TaroObject.extend({
 		});
 	},
 
-	createParticleEmitter: function (particleTypeId) {
-		if (!taro.isClient) return;
+	createParticleEmitter: function (particleEmitterTypeId) {
+		if (!particleEmitterTypeId) return;
 
-		taro.client.emit('create-particle-emitter', {
-			particleId: particleTypeId,
-			position: { x: 0, y: 0 },
-			angle: 0,
+		const data = {
+			particleEmitterTypeId,
 			entityId: this.id(),
-		});
+		};
+		console.log(data);
+
+		new ParticleEmitter(data);
 	},
 });
 

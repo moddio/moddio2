@@ -24,6 +24,7 @@ var defaultConfig = [
 	{ name: 'Player', path: '../src/gameClasses/Player' },
 	{ name: 'Unit', path: '../src/gameClasses/Unit' },
 	{ name: 'Sensor', path: '../src/gameClasses/Sensor' },
+	{ name: 'ParticleEmitter', path: '../src/gameClasses/ParticleEmitter' },
 
 	{ name: 'MapComponent', path: '../src/gameClasses/components/MapComponent' },
 	{ name: 'ShopComponent', path: '../src/gameClasses/components/ShopComponent' },
