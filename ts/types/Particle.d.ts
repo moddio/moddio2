@@ -49,7 +49,7 @@ interface Particle {
 		x: number;
 		y: number;
 	};
-	particleId: string;
+	particleEmitterTypeId: string;
 	angle: number;
 	entityId?: string;
 }

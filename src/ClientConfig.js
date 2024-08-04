@@ -28,6 +28,7 @@ var taroClientConfig = {
 		'/gameClasses/Item.js',
 		'/gameClasses/Projectile.js',
 		'/gameClasses/Particle.js',
+		'/gameClasses/ParticleEmitter.js',
 
 		'/gameClasses/UnitAttributeBar.js',
 

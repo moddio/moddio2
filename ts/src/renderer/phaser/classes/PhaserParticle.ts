@@ -4,7 +4,7 @@ class PhaserParticle extends Phaser.GameObjects.Particles.ParticleEmitter {
 	scene: GameScene;
 
 	constructor(scene: GameScene, particle: Particle) {
-		let particleData = taro.game.data.particleTypes[particle.particleId];
+		let particleData = taro.game.data.particleTypes[particle.particleEmitterTypeId];
 		//@ts-ignore //there seems to be an issue with phaser's type def for particleEmitter
 		super(
 			scene,
@@ -28,7 +28,7 @@ class PhaserParticle extends Phaser.GameObjects.Particles.ParticleEmitter {
 		}
 
 		this.scene = scene;
-		this.particleId = particle.particleId;
+		this.particleId = particle.particleEmitterTypeId;
 
 		this.setDepth(particleData['z-index'].depth);
 		scene.entityLayers[particleData['z-index'].layer - 1].add(this);
