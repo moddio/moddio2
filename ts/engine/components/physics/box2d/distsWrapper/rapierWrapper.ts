@@ -50,8 +50,26 @@ const rapierWrapper: PhysicsDistProps = {
 		};
 
 		component.createWorld = function (id, options) {
-			// component._world = new RAPIER.World(component._gravity);
+			component._world = new RAPIER.World(component._gravity);
 			// component._world.SetContinuousPhysics(this._continuousPhysics);
+		};
+
+		component.isLocked = function () {
+			return false;
+		};
+
+		component.getBodyList = function () {
+			return undefined;
+		};
+
+		component.step = function () {
+			component._world.step();
+		};
+
+		component.clearForces = function () {};
+
+		component.getJointList = function () {
+			return undefined;
 		};
 	},
 
