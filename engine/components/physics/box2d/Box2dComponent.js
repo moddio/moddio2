@@ -577,6 +577,10 @@ var PhysicsComponent = TaroEventingClass.extend({
 		this._actionQueue.push(action);
 	},
 
+	isLocked: function () {
+		return this._world.IsLocked();
+	},
+
 	update: function (timeElapsedSinceLastStep) {
 		if (timeElapsedSinceLastStep > 100) {
 			return;
@@ -588,7 +592,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 		if (self && self._active && self._world) {
 			var queueSize = 0;
-			if (!self._world.isLocked()) {
+			if (!self.isLocked()) {
 				while (self._actionQueue.length > 0) {
 					var action = self._actionQueue.shift();
 					queueSize++;
