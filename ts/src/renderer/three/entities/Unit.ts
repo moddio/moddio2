@@ -81,8 +81,7 @@ namespace Renderer {
 				taroEntity.on(
 					'transform',
 					(data: { x: number; y: number; rotation: number }) => {
-						entity.position.x = Utils.pixelToWorld(data.x);
-						entity.position.z = Utils.pixelToWorld(data.y);
+						entity.position.set(Utils.pixelToWorld(data.x), entity.position.y, Utils.pixelToWorld(data.y));
 
 						if (entity.body instanceof AnimatedSprite) {
 							entity.body.setRotationY(-data.rotation);

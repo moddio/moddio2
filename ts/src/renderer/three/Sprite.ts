@@ -172,7 +172,9 @@ namespace Renderer {
 						this.idx
 					);
 				} else {
-					this.sprite.rotation.y = rad;
+					if (this.sprite.rotation.y !== rad) {
+						this.sprite.rotation.y = rad;
+					}
 				}
 			}
 
