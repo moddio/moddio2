@@ -387,7 +387,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		}
 	},
 	applyTorque: function (torque) {
-		if (taro.physics._world.isLocked() || this.body == undefined) {
+		if (taro.physics.isLocked() || this.body == undefined) {
 			this.queueAction({
 				type: 'applyTorque',
 				torque: torque,
@@ -398,12 +398,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 	},
 
 	setLinearVelocity: function (x, y, z, isLossTolerant) {
-		// if body doesn't exist yet, queue
-		// console.log("3. locked", taro.physics._world.isLocked(), "body",  this.body != undefined, isLossTolerant);
-		if ((!taro.physics._world.isLocked() && this.body != undefined) || isLossTolerant) {
+		if ((!taro.physics.isLocked() && this.body != undefined) || isLossTolerant) {
 			this.setLinearVelocityLT(x, y);
 		} else {
-			// console.log("4. queue setLinearVelocity", x, y);
 			this.queueAction({
 				type: 'setLinearVelocity',
 				x: x,
@@ -430,10 +427,9 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	// lossless applyForce
 	applyForce: function (x, y) {
-		// if body doesn't exist yet, queue
 		if (!taro.physics) return;
 
-		if (!taro.physics._world.isLocked() && this.body != undefined) {
+		if (!taro.physics.isLocked() && this.body != undefined) {
 			this.applyForceLT(x, y);
 		} else {
 			this.queueAction({
@@ -464,9 +460,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 
 	// lossless applyForce
 	applyImpulse: function (x, y) {
-		// if body doesn't exist yet, queue
-
-		if (!taro.physics._world.isLocked() && this.body != undefined) {
+		if (!taro.physics.isLocked() && this.body != undefined) {
 			this.applyImpulseLT(x, y);
 		} else {
 			this.queueAction({
@@ -580,7 +574,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		this._translateToProto(x, y);
 
 		if (this.body) {
-			if (taro.physics._world && !taro.physics._world.isLocked()) {
+			if (taro.physics._world && !taro.physics.isLocked()) {
 				this.translateToLT(x, y);
 			} else {
 				this.queueAction({
@@ -654,7 +648,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		if (body && body.type !== 'none' && body.type !== 'spriteOnly') {
 			// Check if the entity has a box2d body attached
 			// and if so, is it updating or not
-			if ((taro.physics._world && taro.physics._world.isLocked()) || this.body == undefined) {
+			if ((taro.physics._world && taro.physics.isLocked()) || this.body == undefined) {
 				this.queueAction({
 					type: 'rotateTo',
 					angle: z,
@@ -708,7 +702,7 @@ var TaroEntityPhysics = TaroEntity.extend({
 		if (body && body.type !== 'none' && body.type !== 'spriteOnly') {
 			// Check if the entity has a box2d body attached
 			// and if so, is it updating or not
-			if ((taro.physics._world && taro.physics._world.isLocked()) || this.body == undefined) {
+			if ((taro.physics._world && taro.physics.isLocked()) || this.body == undefined) {
 				this.queueAction({
 					type: 'scaleBy',
 					scale: scale,

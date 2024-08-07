@@ -577,6 +577,30 @@ var PhysicsComponent = TaroEventingClass.extend({
 		this._actionQueue.push(action);
 	},
 
+	isLocked: function () {
+		return this._world.isLocked();
+	},
+
+	getBodyList: function () {
+		return this._world.getBodyList();
+	},
+
+	step: function (timeElapsedSinceLastStep, velocityIterations, positionIterations) {
+		if (this._active && this._world) {
+			this._world.step(timeElapsedSinceLastStep, velocityIterations, positionIterations);
+		}
+	},
+
+	clearForces: function () {
+		if (this._active && this._world) {
+			this._world.clearForces();
+		}
+	},
+
+	getJointList: function () {
+		return this._world.getJointList();
+	},
+
 	update: function (timeElapsedSinceLastStep) {
 		if (timeElapsedSinceLastStep > 100) {
 			return;
@@ -588,7 +612,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 		if (self && self._active && self._world) {
 			var queueSize = 0;
-			if (!self._world.isLocked()) {
+			if (!self.isLocked()) {
 				while (self._actionQueue.length > 0) {
 					var action = self._actionQueue.shift();
 					queueSize++;
@@ -629,10 +653,9 @@ var PhysicsComponent = TaroEventingClass.extend({
 			// Loop the physics objects and move the entities they are assigned to
 			if (self.engine == 'crash') {
 				// crash's engine step happens in dist.js
-				self._world.step(timeElapsedSinceLastStep);
+				self.step(timeElapsedSinceLastStep);
 			} else {
-				var tempBod =
-					this.engine === 'BOX2DWASM' ? self.recordLeak(self._world.getBodyList()) : self._world.getBodyList();
+				var tempBod = this.engine === 'BOX2DWASM' ? self.recordLeak(self.getBodyList()) : self.getBodyList();
 
 				// iterate through every physics body
 				while (
@@ -880,8 +903,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 					tempBod = this.engine === 'BOX2DWASM' ? self.recordLeak(tempBod.getNext()) : tempBod.getNext();
 				}
 
-				// Call the world step; frame-rate, velocity iterations, position iterations
-				self._world.step(timeElapsedSinceLastStep / 1000, 8, 3);
+				self.step(timeElapsedSinceLastStep / 1000, 8 /* velocity iterations */, 3 /* position iterations */);
 
 				if (self.debugDrawer && self.debugDrawer.begin) {
 					self.debugDrawer.begin();
@@ -896,7 +918,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 
 				taro._physicsFrames++;
 				// Clear forces because we have ended our physics simulation frame
-				self._world.clearForces();
+				self.clearForces();
 
 				// get stats for dev panel
 				var timeEnd = Date.now();
