@@ -94,7 +94,7 @@ const box2dWrapper: PhysicsDistProps = {
 		self._world.SetContactListener(contactListener);
 	},
 
-	getmxfp: function (body) {
+	getBodyPosition: function (body) {
 		return body.m_xf.p;
 	},
 

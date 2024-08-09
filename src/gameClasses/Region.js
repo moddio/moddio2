@@ -137,7 +137,7 @@ var Region = TaroEntityPhysics.extend({
 			}
 		}
 
-		this.processBox2dQueue();
+		this.processQueue();
 	},
 });
 

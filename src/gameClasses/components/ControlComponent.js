@@ -369,13 +369,13 @@ var ControlComponent = TaroEntity.extend({
 						if (now - self.tabBecameActiveAt < 1000) {
 							return;
 						}
-						let velocity = unit.body?.getLinearVelocity();
+						const velocity = unit.getLinearVelocity();
 						taro.network.send('playerUnitMoved', [
 							parseFloat(unit._translate.x).toFixed(2),
 							parseFloat(unit._translate.y).toFixed(2),
 							parseFloat(unit._rotate.z).toFixed(4),
-							velocity?.get_x()?.toFixed(2),
-							velocity?.get_y()?.toFixed(2),
+							velocity.x.toFixed(2),
+							velocity.y.toFixed(2),
 						]);
 					}
 				}

@@ -563,16 +563,6 @@ var Server = TaroClass.extend({
 					// tilesize ratio is ratio of base tile size over tilesize of current map
 					var tilesizeRatio = baseTilesize / game.data.map.tilewidth;
 
-					// /*
-					//  * Significant changes below
-					//  * Let's test loading PhysicsConfig here
-					// */
-					// var taroPhysicsConfig = require('../engine/PhysicsConfig');
-					// taroPhysicsConfig.loadSelectPhysics(game.data.defaultData.physicsEngine);
-					// taroPhysicsConfig.loadPhysicsGameClasses();
-					// /*
-					//  * Significant changes above
-					// */
 					// Add physics and setup physics world
 					// use callback here is bc the box2dwasm needs time to init
 					const loadRest = () => {

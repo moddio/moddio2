@@ -1810,10 +1810,10 @@ var Unit = TaroEntityPhysics.extend({
 							}
 
 							// changing body dimensions
-							self._scaleBox2dBody(newValue);
+							self.scaleBodyBy(newValue);
 						} else if (taro.isClient) {
 							if (taro.physics) {
-								self._scaleBox2dBody(newValue);
+								self.scaleBodyBy(newValue);
 							}
 							self._stats.scale = newValue;
 							self._scaleTexture();
@@ -2390,7 +2390,7 @@ var Unit = TaroEntityPhysics.extend({
 			taro.client.emit('unit-position', [this._translate.x, this._translate.y]);
 		}
 
-		this.processBox2dQueue();
+		this.processQueue();
 	},
 
 	destroy: function () {

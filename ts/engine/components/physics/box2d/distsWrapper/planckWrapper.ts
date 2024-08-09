@@ -49,7 +49,7 @@ const planckWrapper: PhysicsDistProps = {
 		component._gravity = new component.b2Vec2(0, 0);
 	},
 
-	getmxfp: function (body) {
+	getBodyPosition: function (body) {
 		return body.m_xf.p;
 	},
 

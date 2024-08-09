@@ -90,36 +90,6 @@ window.taroLoader = (function () {
 		this.loadNext();
 	};
 
-	// TaroLoader.prototype.loadPhysicsConfig = function (clientPhysicsEngine, serverPhysicsEngine, callback) {
-	// 	// this.fileList should be empty after loadNext runs the first time
-	// 	// but lets show it and comment it out
-	// 	// this._fileList = [];
-	// 	this.callback = callback;
-	// 	// ternary to create an empty array if we are passed physicsEngine = ''
-	// 	this._physicsList = taroPhysicsConfig.taroPhysicsChoices[clientPhysicsEngine] ?
-	// 		taroPhysicsConfig.taroPhysicsChoices[clientPhysicsEngine] :
-	// 		// we need to have an TaroEntityPhysics class no matter what
-	// 		// 3/31/22 ran into an issue with this hack when I tried to add a file to PhysicsConfig
-	// 		[taroPhysicsConfig.taroPhysicsChoices[serverPhysicsEngine][1]];
-
-	// 	this._physicsGameClasses = taroPhysicsConfig.gameClasses;
-	// 	for (i = 0; i < this._physicsList.length; i++) {
-	// 		// Check that the file should be loaded on the client
-	// 		if (this._physicsList[i][0].indexOf('c') > -1) {
-	// 			this._fileList.push(taroRoot + this._physicsList[i][2].slice(2));
-	// 		}
-	// 	}
-
-	// 	for (i = 0; i < this._physicsGameClasses.length; i++) {
-	// 		// Check that the file should be loaded on the client
-	// 		if (this._physicsGameClasses[i][0].indexOf('c') > -1) {
-	// 			this._fileList.push(taroClientRoot + this._physicsGameClasses[i][2].slice(7));
-	// 		}
-	// 	}
-
-	// 	this.loadNext();
-	// };
-
 	TaroLoader.prototype.loadNext = function () {
 		var url = this._fileList.shift();
 		var script = document.createElement('script');

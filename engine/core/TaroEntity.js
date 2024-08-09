@@ -2086,10 +2086,7 @@ var TaroEntity = TaroObject.extend({
 					var projectile = taro.game.cloneAsset('projectileTypes', effect.projectileType);
 
 					if (projectile) {
-						var position =
-							taro.game.lastProjectileHitPosition ||
-							// (this.body && taro.physics.engine === 'BOX2DWASM' ? taro.physics.recordLeak(this.body.getPosition()) : this.body.getPosition()) || // this was causing client to crash
-							this._translate;
+						var position = taro.game.lastProjectileHitPosition || this._translate;
 
 						projectile.defaultData = {
 							//type: effect.projectileType,

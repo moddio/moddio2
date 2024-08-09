@@ -98,7 +98,7 @@ var Sensor = TaroEntityPhysics.extend({
 			this.remove();
 		}
 
-		this.processBox2dQueue();
+		this.processQueue();
 	},
 });
 

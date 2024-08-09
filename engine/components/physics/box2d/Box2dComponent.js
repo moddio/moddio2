@@ -644,7 +644,7 @@ var PhysicsComponent = TaroEventingClass.extend({
 							}
 						}
 
-						var mxfp = dists[taro.physics.engine].getmxfp(tempBod, self);
+						var mxfp = dists[taro.physics.engine].getBodyPosition(tempBod, self);
 						var x = mxfp.x * taro.physics._scaleRatio;
 						var y = mxfp.y * taro.physics._scaleRatio;
 						// make projectile auto-rotate toward its path. ideal for arrows or rockets that should point toward its direction
@@ -902,6 +902,113 @@ var PhysicsComponent = TaroEventingClass.extend({
 			clearInterval(this._intervalTimer);
 		}
 		// Destroy all box2d world bodies
+	},
+
+	gravitic: function (body, toggle) {
+		if (!body || toggle === undefined) {
+			return;
+		}
+
+		if (taro.physics.engine === 'BOX2DWASM') {
+			body.SetGravityScale(!toggle ? 0 : 1);
+		} else {
+			body.m_nonGravitic = !toggle;
+			body.m_gravityScale = !toggle ? 0 : 1;
+			body.setAwake(true);
+		}
+	},
+
+	applyForce: function (body, x, y) {
+		if (!body || isNaN(x) || isNaN(y) || !isFinite(x) || !isFinite(y)) {
+			return;
+		}
+
+		const force = new taro.physics.b2Vec2(x, y);
+		body.applyForce(force, body.getWorldCenter());
+
+		if (taro.physics.engine === 'BOX2DWASM') {
+			taro.physics.destroyB2dObj(force);
+		}
+	},
+
+	applyImpulse: function (body, x, y) {
+		if (!body || isNaN(x) || isNaN(y) || !isFinite(x) || !isFinite(y)) {
+			return;
+		}
+
+		const impulse = new taro.physics.b2Vec2(x, y);
+		body.applyLinearImpulse(impulse, body.getWorldCenter());
+
+		if (taro.physics.engine === 'BOX2DWASM') {
+			taro.physics.destroyB2dObj(impulse);
+		}
+	},
+
+	applyTorque: function (body, torque) {
+		if (!body || isNaN(torque) || !isFinite(torque)) {
+			return;
+		}
+
+		body.applyTorque(torque);
+	},
+
+	translateTo: function (body, x, y) {
+		if (!body || isNaN(x) || isNaN(y) || !isFinite(x) || !isFinite(y)) {
+			return;
+		}
+
+		body.setPosition({
+			x: x / this._scaleRatio,
+			y: y / this._scaleRatio,
+		});
+		body.setAwake(true);
+	},
+
+	rotateTo: function (body, angle) {
+		if (!body || isNaN(angle) || !isFinite(angle)) {
+			return;
+		}
+
+		body.setAngle(angle);
+		body.setAwake(true);
+	},
+
+	setLinearVelocity: function (body, x, y) {
+		if (!body || isNaN(x) || isNaN(y) || !isFinite(x) || !isFinite(y)) {
+			return;
+		}
+
+		if (taro.physics.engine === 'BOX2DWASM') {
+			const velocity = new taro.physics.b2Vec2(x, y);
+			body.setLinearVelocity(velocity);
+			taro.physics.destroyB2dObj(velocity);
+		} else {
+			body.setLinearVelocity(new TaroPoint3d(x, y, 0));
+		}
+	},
+
+	getLinearVelocity: function (body) {
+		if (!body) {
+			return { x: 0, y: 0 };
+		}
+
+		const velocity = body.getLinearVelocity();
+		return {
+			x: velocity.x,
+			y: velocity.y,
+		};
+	},
+
+	getPosition: function (body) {
+		if (!body) {
+			return;
+		}
+
+		const position = body.getPosition();
+		return {
+			x: position.x,
+			y: position.y,
+		};
 	},
 
 	_triggerContactEvent: function (entityA, entityB) {

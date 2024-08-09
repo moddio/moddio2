@@ -182,13 +182,13 @@ const box2dwasmWrapper: PhysicsDistProps = {
 		if (preSolve !== undefined) {
 			contactListener.PreSolve = preSolve;
 		} else {
-			contactListener.PreSolve = () => { };
+			contactListener.PreSolve = () => {};
 		}
 
 		if (postSolve !== undefined) {
 			contactListener.PostSolve = postSolve;
 		} else {
-			contactListener.PostSolve = () => { };
+			contactListener.PostSolve = () => {};
 		}
 		self._world.SetContactListener(contactListener);
 
@@ -215,7 +215,7 @@ const box2dwasmWrapper: PhysicsDistProps = {
 		// self._world.SetContactFilter(contactFilter);
 	},
 
-	getmxfp: function (body: Box2D.b2Body, self: any) {
+	getBodyPosition: function (body: Box2D.b2Body, self: any) {
 		return self.recordLeak(body.GetPosition());
 	},
 

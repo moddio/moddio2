@@ -55,8 +55,8 @@ const rapierWrapper: PhysicsDistProps = {
 		};
 	},
 
-	getmxfp: (body: any, self: any) => {
-		console.log('getmxfp not implemented');
+	getBodyPosition: (body: any, self: any) => {
+		console.log('getBodyPosition not implemented');
 	},
 
 	queryAABB: (self: any, aabb: any, callback: (...args: any) => any) => {
